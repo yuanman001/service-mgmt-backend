@@ -1,0 +1,11 @@
+dependencies {
+	compile "org.apache.logging.log4j:log4j-api:2.2"
+	compile "org.apache.logging.log4j:log4j-core:2.2"
+	compile "net.sf.json-lib:json-lib:2.4:jdk15"
+	compile "com.ai:ipaas-mds:0.1-SNAPSHOT"
+	compile "com.ai:ipaas-agent-client:0.1-SNAPSHOT"
+	compile project(":iPaaS-DubboInterfaces")
+	compile project(":iPaaS-CCS")
+	compile project(":iPaaS-DBS")
+	compile project(":iPaaS-MDS")
+}

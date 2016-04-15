@@ -1,0 +1,311 @@
+allprojects {
+
+    apply plugin: 'java'
+    apply plugin: 'eclipse'
+    apply plugin: 'maven-publish'
+    
+    ext {
+        //moduleName="ipaas-config-sdk";
+        parentName="ipaas-parent-service"
+        moduleVersion="0.1-SNAPSHOT"
+        publishUserName = "devadm"
+        publishUserPassword = "Devadm@1212"
+        publishURL="http://10.1.228.199:18081/nexus/content/repositories/snapshots/"
+        builtBy="gradle 2.1"
+    }
+
+    compileJava.dependsOn clean
+    sourceCompatibility = 1.7
+
+    configurations.all {
+        resolutionStrategy.cacheChangingModulesFor 0, 'seconds'
+        exclude group: 'log4j', module: 'log4j'
+        exclude group: "org.slf4j", module: "slf4j-log4j12"
+    }
+    group = 'com.ai'
+}
+
+subprojects {
+    [compileJava, compileTestJava]*.options*.encoding = 'UTF-8'
+
+    repositories {
+        maven { url "http://10.1.228.199:18081/nexus/content/groups/public/" }
+    }
+
+    dependencies {
+        compile 'com.ai:ipaas-common:0.1-SNAPSHOT'
+        compile 'com.ai:ipaas-base:0.1-SNAPSHOT'
+        compile "commons-beanutils:commons-beanutils:1.8.3"
+        compile "org.apache.logging.log4j:log4j-core:2.2"
+
+        testCompile ("org.springframework:spring-test:4.1.5.RELEASE",
+                "junit:junit:4.11",
+                'xml-apis:xml-apis:1.4.01'
+        )
+
+        testCompile('org.apache.jmeter:ApacheJMeter_junit:2.13') {
+            exclude group: 'commons-math3', module: 'commons-math3'
+            exclude group: 'commons-pool2', module: 'commons-pool2'
+            exclude group: 'xml-apis', module: 'xml-apis'
+        }
+
+        compile 'javax.servlet:javax.servlet-api:3.1.0'
+    }
+
+}
+
+project("iPaaS-DES"){
+	project.ext {
+		appName = "ipaas-des"
+	}
+	
+	jar {
+		baseName appName
+        version moduleVersion
+        exclude "*.properties"
+        exclude "*.xml"
+        exclude "mybatis"
+        manifest {
+            attributes 'packageName': appName, 'Built-By': builtBy, 'create-date': new Date().format('yyyy-MM-dd HH:mm:ss')
+        }
+	}
+}
+
+project("iPaaS-ATS") {
+    project.ext {
+        appName = "ipaas-ats"
+    }
+
+    jar {
+        baseName appName
+        version moduleVersion
+        exclude "*.properties"
+        exclude "*.xml"
+        exclude "mybatis"
+        manifest {
+            attributes 'packageName': appName, 'Built-By': builtBy, 'create-date': new Date().format('yyyy-MM-dd HH:mm:ss')
+        }
+    }
+}
+
+project("iPaaS-CCS") {
+    project.ext {
+        appName = "ipaas-ccs"
+    }
+
+    jar {
+        baseName appName
+        version moduleVersion
+        exclude "*.properties"
+        exclude "*.xml"
+        exclude "mybatis"
+        manifest {
+            attributes 'packageName': appName, 'Built-By': builtBy, 'create-date': new Date().format('yyyy-MM-dd HH:mm:ss')
+        }
+    }
+}
+
+project("iPaaS-DBS") {
+    project.ext {
+        appName = "ipaas-dbs"
+    }
+
+    jar {
+        baseName appName
+        version moduleVersion
+        exclude "*.properties"
+        exclude "*.xml"
+        exclude "mybatis"
+        manifest {
+            attributes 'packageName': appName, 'Built-By': builtBy, 'create-date': new Date().format('yyyy-MM-dd HH:mm:ss')
+        }
+    }
+}
+
+project("iPaaS-DSS") {
+    project.ext {
+        appName = "ipaas-dss"
+    }
+
+    jar {
+        baseName appName
+        version moduleVersion
+        exclude "*.properties"
+        exclude "*.xml"
+        exclude "mybatis"
+        manifest {
+            attributes 'packageName': appName, 'Built-By': builtBy, 'create-date': new Date().format('yyyy-MM-dd HH:mm:ss')
+        }
+    }
+}
+
+project("iPaaS-MCS") {
+    project.ext {
+        appName = "ipaas-mcs"
+    }
+
+    jar {
+        baseName appName
+        version moduleVersion
+        exclude "*.properties"
+        exclude "*.xml"
+        exclude "mybatis"
+        manifest {
+            attributes 'packageName': appName, 'Built-By': builtBy, 'create-date': new Date().format('yyyy-MM-dd HH:mm:ss')
+        }
+    }
+}
+
+project("iPaaS-MDS") {
+    project.ext {
+        appName = "ipaas-mds"
+    }
+
+    jar {
+        baseName appName
+        version moduleVersion
+        exclude "*.properties"
+        exclude "*.xml"
+        exclude "mybatis"
+        manifest {
+            attributes 'packageName': appName, 'Built-By': builtBy, 'create-date': new Date().format('yyyy-MM-dd HH:mm:ss')
+        }
+    }
+}
+
+project("iPaaS-RCS") {
+    project.ext {
+        appName = "ipaas-rcs"
+    }
+
+    jar {
+        baseName appName
+        version moduleVersion
+        exclude "*.properties"
+        exclude "*.xml"
+        exclude "mybatis"
+        manifest {
+            attributes 'packageName': appName, 'Built-By': builtBy, 'create-date': new Date().format('yyyy-MM-dd HH:mm:ss')
+        }
+    }
+}
+
+project("iPaaS-TSC") {
+    project.ext {
+        appName = "ipaas-tsc"
+    }
+
+    jar {
+        baseName appName
+        version moduleVersion
+        exclude "*.properties"
+        exclude "*.xml"
+        exclude "mybatis"
+        manifest {
+            attributes 'packageName': appName, 'Built-By': builtBy, 'create-date': new Date().format('yyyy-MM-dd HH:mm:ss')
+        }
+    }
+}
+
+project("iPaaS-TXS") {
+    project.ext {
+        appName = "ipaas-txs"
+    }
+
+    jar {
+        baseName appName
+        version moduleVersion
+        exclude "*.properties"
+        exclude "*.xml"
+        exclude "mybatis"
+        manifest {
+            attributes 'packageName': appName, 'Built-By': builtBy, 'create-date': new Date().format('yyyy-MM-dd HH:mm:ss')
+        }
+    }
+}
+
+project("iPaaS-SES") {
+    project.ext {
+        appName = "ipaas-ses"
+    }
+
+    jar {
+        baseName appName
+        version moduleVersion
+        exclude "*.properties"
+        exclude "*.xml"
+        exclude "mybatis"
+        manifest {
+            attributes 'packageName': appName, 'Built-By': builtBy, 'create-date': new Date().format('yyyy-MM-dd HH:mm:ss')
+        }
+    }
+}
+
+project("iPaaS-DubboInterfaces") {
+
+    project.ext {
+        appName = "ipaas-service-dubbo-interfaces"
+    }
+
+    jar {
+        baseName appName
+        version moduleVersion
+        exclude "*.properties"
+        exclude "*.xml"
+        exclude "mybatis"
+        manifest {
+            attributes 'packageName': appName, 'Built-By': builtBy, 'create-date': new Date().format('yyyy-MM-dd HH:mm:ss')
+        }
+    }
+    publish.dependsOn build
+}
+
+
+configure(subprojects) { subproject ->
+    task sourcesJar(type: Jar, dependsOn: classes) { from sourceSets.main.output }
+    artifacts { archives sourcesJar }
+}
+task copyChildJar(type: Copy) {
+    subprojects.each { subproject ->
+        from subproject.jar
+        destinationDir file("$buildDir/libs")
+    }
+}
+
+task copyChildConfig(type: Copy) {
+    subprojects.each { subproject ->
+        from subproject.fileTree(
+                dir: 'src/main/resources',
+                include: {
+                    'dubbo/registry/**'
+                    '**.xml'
+                    '**.properties'
+                }
+        )
+        destinationDir file("$buildDir/all-config")
+    }
+}
+
+task copy3rdJars(type: Copy) {
+    subprojects.each { subproject ->
+        from subproject.configurations.runtime
+        exclude "*iPaaS-*.*"
+        destinationDir file("$buildDir/3rd-libs")
+    }
+}
+
+task cleanTempDir(type: Delete) {
+    delete fileTree(dir: "$buildDir/libs", include: "$project.ext.parentName*")
+}
+
+jar {
+    baseName parentName
+    version moduleVersion
+    manifest {
+        attributes 'packageName': parentName, 'Built-By': builtBy, 'create-date': new Date().format('yyyy-MM-dd HH:mm:ss')
+    }
+}
+
+
+
+build.dependsOn copyChildJar, copy3rdJars, copyChildConfig,cleanTempDir

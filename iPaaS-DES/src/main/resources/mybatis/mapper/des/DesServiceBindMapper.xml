@@ -1,0 +1,227 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.ai.paas.ipaas.des.dao.interfaces.DesServiceBindMapper" >
+  <resultMap id="BaseResultMap" type="com.ai.paas.ipaas.des.dao.mapper.bo.DesServiceBind" >
+    <result column="service_id" property="serviceId" jdbcType="VARCHAR" />
+    <result column="dbs_service_id" property="dbsServiceId" jdbcType="VARCHAR" />
+    <result column="dbs_service_password" property="dbsServicePassword" jdbcType="VARCHAR" />
+    <result column="mds_service_id" property="mdsServiceId" jdbcType="VARCHAR" />
+    <result column="mds_service_password" property="mdsServicePassword" jdbcType="VARCHAR" />
+    <result column="mds_topic" property="mdsTopic" jdbcType="VARCHAR" />
+    <result column="mds_partition" property="mdsPartition" jdbcType="INTEGER" />
+    <result column="user_id" property="userId" jdbcType="VARCHAR" />
+    <result column="user_name" property="userName" jdbcType="VARCHAR" />
+  </resultMap>
+  <sql id="Example_Where_Clause" >
+    <where >
+      <foreach collection="oredCriteria" item="criteria" separator="or" >
+        <if test="criteria.valid" >
+          <trim prefix="(" suffix=")" prefixOverrides="and" >
+            <foreach collection="criteria.criteria" item="criterion" >
+              <choose >
+                <when test="criterion.noValue" >
+                  and ${criterion.condition}
+                </when>
+                <when test="criterion.singleValue" >
+                  and ${criterion.condition} #{criterion.value}
+                </when>
+                <when test="criterion.betweenValue" >
+                  and ${criterion.condition} #{criterion.value} and #{criterion.secondValue}
+                </when>
+                <when test="criterion.listValue" >
+                  and ${criterion.condition}
+                  <foreach collection="criterion.value" item="listItem" open="(" close=")" separator="," >
+                    #{listItem}
+                  </foreach>
+                </when>
+              </choose>
+            </foreach>
+          </trim>
+        </if>
+      </foreach>
+    </where>
+  </sql>
+  <sql id="Update_By_Example_Where_Clause" >
+    <where >
+      <foreach collection="example.oredCriteria" item="criteria" separator="or" >
+        <if test="criteria.valid" >
+          <trim prefix="(" suffix=")" prefixOverrides="and" >
+            <foreach collection="criteria.criteria" item="criterion" >
+              <choose >
+                <when test="criterion.noValue" >
+                  and ${criterion.condition}
+                </when>
+                <when test="criterion.singleValue" >
+                  and ${criterion.condition} #{criterion.value}
+                </when>
+                <when test="criterion.betweenValue" >
+                  and ${criterion.condition} #{criterion.value} and #{criterion.secondValue}
+                </when>
+                <when test="criterion.listValue" >
+                  and ${criterion.condition}
+                  <foreach collection="criterion.value" item="listItem" open="(" close=")" separator="," >
+                    #{listItem}
+                  </foreach>
+                </when>
+              </choose>
+            </foreach>
+          </trim>
+        </if>
+      </foreach>
+    </where>
+  </sql>
+  <sql id="Base_Column_List" >
+    service_id, dbs_service_id, dbs_service_password, mds_service_id, mds_service_password, 
+    mds_topic, mds_partition, user_id, user_name
+  </sql>
+  <select id="selectByExample" resultMap="BaseResultMap" parameterType="com.ai.paas.ipaas.des.dao.mapper.bo.DesServiceBindCriteria" >
+    select
+    <if test="distinct" >
+      distinct
+    </if>
+    <include refid="Base_Column_List" />
+    from des_service_bind
+    <if test="_parameter != null" >
+      <include refid="Example_Where_Clause" />
+    </if>
+    <if test="orderByClause != null" >
+      order by ${orderByClause}
+    </if>
+    <if test="limitStart != null and limitStart>=0" >
+      limit #{limitStart} , #{limitEnd}
+    </if>
+  </select>
+  <delete id="deleteByExample" parameterType="com.ai.paas.ipaas.des.dao.mapper.bo.DesServiceBindCriteria" >
+    delete from des_service_bind
+    <if test="_parameter != null" >
+      <include refid="Example_Where_Clause" />
+    </if>
+  </delete>
+  <insert id="insert" parameterType="com.ai.paas.ipaas.des.dao.mapper.bo.DesServiceBind" >
+    insert into des_service_bind (service_id, dbs_service_id, dbs_service_password, 
+      mds_service_id, mds_service_password, mds_topic, 
+      mds_partition, user_id, user_name
+      )
+    values (#{serviceId,jdbcType=VARCHAR}, #{dbsServiceId,jdbcType=VARCHAR}, #{dbsServicePassword,jdbcType=VARCHAR}, 
+      #{mdsServiceId,jdbcType=VARCHAR}, #{mdsServicePassword,jdbcType=VARCHAR}, #{mdsTopic,jdbcType=VARCHAR}, 
+      #{mdsPartition,jdbcType=INTEGER}, #{userId,jdbcType=VARCHAR}, #{userName,jdbcType=VARCHAR}
+      )
+  </insert>
+  <insert id="insertSelective" parameterType="com.ai.paas.ipaas.des.dao.mapper.bo.DesServiceBind" >
+    insert into des_service_bind
+    <trim prefix="(" suffix=")" suffixOverrides="," >
+      <if test="serviceId != null" >
+        service_id,
+      </if>
+      <if test="dbsServiceId != null" >
+        dbs_service_id,
+      </if>
+      <if test="dbsServicePassword != null" >
+        dbs_service_password,
+      </if>
+      <if test="mdsServiceId != null" >
+        mds_service_id,
+      </if>
+      <if test="mdsServicePassword != null" >
+        mds_service_password,
+      </if>
+      <if test="mdsTopic != null" >
+        mds_topic,
+      </if>
+      <if test="mdsPartition != null" >
+        mds_partition,
+      </if>
+      <if test="userId != null" >
+        user_id,
+      </if>
+      <if test="userName != null" >
+        user_name,
+      </if>
+    </trim>
+    <trim prefix="values (" suffix=")" suffixOverrides="," >
+      <if test="serviceId != null" >
+        #{serviceId,jdbcType=VARCHAR},
+      </if>
+      <if test="dbsServiceId != null" >
+        #{dbsServiceId,jdbcType=VARCHAR},
+      </if>
+      <if test="dbsServicePassword != null" >
+        #{dbsServicePassword,jdbcType=VARCHAR},
+      </if>
+      <if test="mdsServiceId != null" >
+        #{mdsServiceId,jdbcType=VARCHAR},
+      </if>
+      <if test="mdsServicePassword != null" >
+        #{mdsServicePassword,jdbcType=VARCHAR},
+      </if>
+      <if test="mdsTopic != null" >
+        #{mdsTopic,jdbcType=VARCHAR},
+      </if>
+      <if test="mdsPartition != null" >
+        #{mdsPartition,jdbcType=INTEGER},
+      </if>
+      <if test="userId != null" >
+        #{userId,jdbcType=VARCHAR},
+      </if>
+      <if test="userName != null" >
+        #{userName,jdbcType=VARCHAR},
+      </if>
+    </trim>
+  </insert>
+  <select id="countByExample" parameterType="com.ai.paas.ipaas.des.dao.mapper.bo.DesServiceBindCriteria" resultType="java.lang.Integer" >
+    select count(*) from des_service_bind
+    <if test="_parameter != null" >
+      <include refid="Example_Where_Clause" />
+    </if>
+  </select>
+  <update id="updateByExampleSelective" parameterType="map" >
+    update des_service_bind
+    <set >
+      <if test="record.serviceId != null" >
+        service_id = #{record.serviceId,jdbcType=VARCHAR},
+      </if>
+      <if test="record.dbsServiceId != null" >
+        dbs_service_id = #{record.dbsServiceId,jdbcType=VARCHAR},
+      </if>
+      <if test="record.dbsServicePassword != null" >
+        dbs_service_password = #{record.dbsServicePassword,jdbcType=VARCHAR},
+      </if>
+      <if test="record.mdsServiceId != null" >
+        mds_service_id = #{record.mdsServiceId,jdbcType=VARCHAR},
+      </if>
+      <if test="record.mdsServicePassword != null" >
+        mds_service_password = #{record.mdsServicePassword,jdbcType=VARCHAR},
+      </if>
+      <if test="record.mdsTopic != null" >
+        mds_topic = #{record.mdsTopic,jdbcType=VARCHAR},
+      </if>
+      <if test="record.mdsPartition != null" >
+        mds_partition = #{record.mdsPartition,jdbcType=INTEGER},
+      </if>
+      <if test="record.userId != null" >
+        user_id = #{record.userId,jdbcType=VARCHAR},
+      </if>
+      <if test="record.userName != null" >
+        user_name = #{record.userName,jdbcType=VARCHAR},
+      </if>
+    </set>
+    <if test="_parameter != null" >
+      <include refid="Update_By_Example_Where_Clause" />
+    </if>
+  </update>
+  <update id="updateByExample" parameterType="map" >
+    update des_service_bind
+    set service_id = #{record.serviceId,jdbcType=VARCHAR},
+      dbs_service_id = #{record.dbsServiceId,jdbcType=VARCHAR},
+      dbs_service_password = #{record.dbsServicePassword,jdbcType=VARCHAR},
+      mds_service_id = #{record.mdsServiceId,jdbcType=VARCHAR},
+      mds_service_password = #{record.mdsServicePassword,jdbcType=VARCHAR},
+      mds_topic = #{record.mdsTopic,jdbcType=VARCHAR},
+      mds_partition = #{record.mdsPartition,jdbcType=INTEGER},
+      user_id = #{record.userId,jdbcType=VARCHAR},
+      user_name = #{record.userName,jdbcType=VARCHAR}
+    <if test="_parameter != null" >
+      <include refid="Update_By_Example_Where_Clause" />
+    </if>
+  </update>
+</mapper>

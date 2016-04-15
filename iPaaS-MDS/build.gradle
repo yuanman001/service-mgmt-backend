@@ -1,0 +1,8 @@
+dependencies {
+    compile project(":iPaaS-DubboInterfaces")
+    compile project(":iPaaS-CCS")
+    compile ('org.apache.kafka:kafka_2.10:0.8.2.1'){
+		exclude group: 'org.slf4j', module: 'slf4j-api'
+		exclude group: 'com.101tec', module: 'zkclient'
+	}
+}

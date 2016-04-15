@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.ai.paas.ipaas.rcs.dao.interfaces.RcsSysParameterMapper" >
+  <resultMap id="BaseResultMap" type="com.ai.paas.ipaas.rcs.dao.mapper.bo.RcsSysParameter" >
+    <id column="id" property="id" jdbcType="INTEGER" />
+    <result column="model" property="model" jdbcType="VARCHAR" />
+    <result column="para_value" property="paraValue" jdbcType="VARCHAR" />
+    <result column="para_code" property="paraCode" jdbcType="VARCHAR" />
+    <result column="para_comment" property="paraComment" jdbcType="VARCHAR" />
+    <result column="status" property="status" jdbcType="VARCHAR" />
+  </resultMap>
+  <sql id="Base_Column_List" >
+    id, model, para_code, para_value, para_comment, status
+  </sql>
+  <select id="selectByPrimaryKey" resultMap="BaseResultMap" parameterType="Integer" >
+    select 
+    <include refid="Base_Column_List" />
+    from sys_parameter
+    where id = #{id,jdbcType=INTEGER}
+  </select>
+  <select id="selectByParaValue" resultMap="BaseResultMap" parameterType="String" >
+    select 
+    <include refid="Base_Column_List" />
+    from sys_parameter
+    where para_value = #{paraValue,jdbcType=VARCHAR}
+  </select>
+  <select id="getAllParameter" resultMap="BaseResultMap" parameterType="Integer" >
+    select 
+    <include refid="Base_Column_List" />
+    from sys_parameter
+  </select>
+</mapper>

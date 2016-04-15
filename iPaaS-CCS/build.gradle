@@ -1,0 +1,4 @@
+dependencies {
+    compile 'com.ai:ipaas-zookeeper-utility:0.2.1-SNAPSHOT'
+    compile project(":iPaaS-DubboInterfaces")
+}

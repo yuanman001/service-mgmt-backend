@@ -1,0 +1,246 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.ai.paas.ipaas.mds.dao.interfaces.MdsUserServiceMapper" >
+  <resultMap id="BaseResultMap" type="com.ai.paas.ipaas.mds.dao.mapper.bo.MdsUserService" >
+    <id column="srv_inst_id" property="srvInstId" jdbcType="INTEGER" />
+    <id column="user_id" property="userId" jdbcType="VARCHAR" />
+    <id column="user_srv_id" property="userSrvId" jdbcType="VARCHAR" />
+    <id column="state" property="state" jdbcType="INTEGER" />
+    <result column="operator_id" property="operatorId" jdbcType="VARCHAR" />
+    <result column="created_time" property="createdTime" jdbcType="TIMESTAMP" />
+    <result column="modified_time" property="modifiedTime" jdbcType="TIMESTAMP" />
+  </resultMap>
+  <sql id="Example_Where_Clause" >
+    <where >
+      <foreach collection="oredCriteria" item="criteria" separator="or" >
+        <if test="criteria.valid" >
+          <trim prefix="(" suffix=")" prefixOverrides="and" >
+            <foreach collection="criteria.criteria" item="criterion" >
+              <choose >
+                <when test="criterion.noValue" >
+                  and ${criterion.condition}
+                </when>
+                <when test="criterion.singleValue" >
+                  and ${criterion.condition} #{criterion.value}
+                </when>
+                <when test="criterion.betweenValue" >
+                  and ${criterion.condition} #{criterion.value} and #{criterion.secondValue}
+                </when>
+                <when test="criterion.listValue" >
+                  and ${criterion.condition}
+                  <foreach collection="criterion.value" item="listItem" open="(" close=")" separator="," >
+                    #{listItem}
+                  </foreach>
+                </when>
+              </choose>
+            </foreach>
+          </trim>
+        </if>
+      </foreach>
+    </where>
+  </sql>
+  <sql id="Update_By_Example_Where_Clause" >
+    <where >
+      <foreach collection="example.oredCriteria" item="criteria" separator="or" >
+        <if test="criteria.valid" >
+          <trim prefix="(" suffix=")" prefixOverrides="and" >
+            <foreach collection="criteria.criteria" item="criterion" >
+              <choose >
+                <when test="criterion.noValue" >
+                  and ${criterion.condition}
+                </when>
+                <when test="criterion.singleValue" >
+                  and ${criterion.condition} #{criterion.value}
+                </when>
+                <when test="criterion.betweenValue" >
+                  and ${criterion.condition} #{criterion.value} and #{criterion.secondValue}
+                </when>
+                <when test="criterion.listValue" >
+                  and ${criterion.condition}
+                  <foreach collection="criterion.value" item="listItem" open="(" close=")" separator="," >
+                    #{listItem}
+                  </foreach>
+                </when>
+              </choose>
+            </foreach>
+          </trim>
+        </if>
+      </foreach>
+    </where>
+  </sql>
+  <sql id="Base_Column_List" >
+    srv_inst_id, user_id, user_srv_id, state, operator_id, created_time, modified_time
+  </sql>
+  <select id="selectByExample" resultMap="BaseResultMap" parameterType="com.ai.paas.ipaas.mds.dao.mapper.bo.MdsUserServiceCriteria" >
+    select
+    <if test="distinct" >
+      distinct
+    </if>
+    <include refid="Base_Column_List" />
+    from mds_user_service
+    <if test="_parameter != null" >
+      <include refid="Example_Where_Clause" />
+    </if>
+    <if test="orderByClause != null" >
+      order by ${orderByClause}
+    </if>
+    <if test="limitStart != null and limitStart>=0" >
+      limit #{limitStart} , #{limitEnd}
+    </if>
+  </select>
+  <select id="selectByPrimaryKey" resultMap="BaseResultMap" parameterType="com.ai.paas.ipaas.mds.dao.mapper.bo.MdsUserServiceKey" >
+    select 
+    <include refid="Base_Column_List" />
+    from mds_user_service
+    where srv_inst_id = #{srvInstId,jdbcType=INTEGER}
+      and user_id = #{userId,jdbcType=VARCHAR}
+      and user_srv_id = #{userSrvId,jdbcType=VARCHAR}
+      and state = #{state,jdbcType=INTEGER}
+  </select>
+  <delete id="deleteByPrimaryKey" parameterType="com.ai.paas.ipaas.mds.dao.mapper.bo.MdsUserServiceKey" >
+    delete from mds_user_service
+    where srv_inst_id = #{srvInstId,jdbcType=INTEGER}
+      and user_id = #{userId,jdbcType=VARCHAR}
+      and user_srv_id = #{userSrvId,jdbcType=VARCHAR}
+      and state = #{state,jdbcType=INTEGER}
+  </delete>
+  <delete id="deleteByExample" parameterType="com.ai.paas.ipaas.mds.dao.mapper.bo.MdsUserServiceCriteria" >
+    delete from mds_user_service
+    <if test="_parameter != null" >
+      <include refid="Example_Where_Clause" />
+    </if>
+  </delete>
+  <insert id="insert" parameterType="com.ai.paas.ipaas.mds.dao.mapper.bo.MdsUserService" >
+    insert into mds_user_service (srv_inst_id, user_id, user_srv_id, 
+      state, operator_id, created_time, 
+      modified_time)
+    values (#{srvInstId,jdbcType=INTEGER}, #{userId,jdbcType=VARCHAR}, #{userSrvId,jdbcType=VARCHAR}, 
+      #{state,jdbcType=INTEGER}, #{operatorId,jdbcType=VARCHAR}, #{createdTime,jdbcType=TIMESTAMP}, 
+      #{modifiedTime,jdbcType=TIMESTAMP})
+  </insert>
+  <insert id="insertSelective" parameterType="com.ai.paas.ipaas.mds.dao.mapper.bo.MdsUserService" >
+    insert into mds_user_service
+    <trim prefix="(" suffix=")" suffixOverrides="," >
+      <if test="srvInstId != null" >
+        srv_inst_id,
+      </if>
+      <if test="userId != null" >
+        user_id,
+      </if>
+      <if test="userSrvId != null" >
+        user_srv_id,
+      </if>
+      <if test="state != null" >
+        state,
+      </if>
+      <if test="operatorId != null" >
+        operator_id,
+      </if>
+      <if test="createdTime != null" >
+        created_time,
+      </if>
+      <if test="modifiedTime != null" >
+        modified_time,
+      </if>
+    </trim>
+    <trim prefix="values (" suffix=")" suffixOverrides="," >
+      <if test="srvInstId != null" >
+        #{srvInstId,jdbcType=INTEGER},
+      </if>
+      <if test="userId != null" >
+        #{userId,jdbcType=VARCHAR},
+      </if>
+      <if test="userSrvId != null" >
+        #{userSrvId,jdbcType=VARCHAR},
+      </if>
+      <if test="state != null" >
+        #{state,jdbcType=INTEGER},
+      </if>
+      <if test="operatorId != null" >
+        #{operatorId,jdbcType=VARCHAR},
+      </if>
+      <if test="createdTime != null" >
+        #{createdTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="modifiedTime != null" >
+        #{modifiedTime,jdbcType=TIMESTAMP},
+      </if>
+    </trim>
+  </insert>
+  <select id="countByExample" parameterType="com.ai.paas.ipaas.mds.dao.mapper.bo.MdsUserServiceCriteria" resultType="java.lang.Integer" >
+    select count(*) from mds_user_service
+    <if test="_parameter != null" >
+      <include refid="Example_Where_Clause" />
+    </if>
+  </select>
+  <update id="updateByExampleSelective" parameterType="map" >
+    update mds_user_service
+    <set >
+      <if test="record.srvInstId != null" >
+        srv_inst_id = #{record.srvInstId,jdbcType=INTEGER},
+      </if>
+      <if test="record.userId != null" >
+        user_id = #{record.userId,jdbcType=VARCHAR},
+      </if>
+      <if test="record.userSrvId != null" >
+        user_srv_id = #{record.userSrvId,jdbcType=VARCHAR},
+      </if>
+      <if test="record.state != null" >
+        state = #{record.state,jdbcType=INTEGER},
+      </if>
+      <if test="record.operatorId != null" >
+        operator_id = #{record.operatorId,jdbcType=VARCHAR},
+      </if>
+      <if test="record.createdTime != null" >
+        created_time = #{record.createdTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="record.modifiedTime != null" >
+        modified_time = #{record.modifiedTime,jdbcType=TIMESTAMP},
+      </if>
+    </set>
+    <if test="_parameter != null" >
+      <include refid="Update_By_Example_Where_Clause" />
+    </if>
+  </update>
+  <update id="updateByExample" parameterType="map" >
+    update mds_user_service
+    set srv_inst_id = #{record.srvInstId,jdbcType=INTEGER},
+      user_id = #{record.userId,jdbcType=VARCHAR},
+      user_srv_id = #{record.userSrvId,jdbcType=VARCHAR},
+      state = #{record.state,jdbcType=INTEGER},
+      operator_id = #{record.operatorId,jdbcType=VARCHAR},
+      created_time = #{record.createdTime,jdbcType=TIMESTAMP},
+      modified_time = #{record.modifiedTime,jdbcType=TIMESTAMP}
+    <if test="_parameter != null" >
+      <include refid="Update_By_Example_Where_Clause" />
+    </if>
+  </update>
+  <update id="updateByPrimaryKeySelective" parameterType="com.ai.paas.ipaas.mds.dao.mapper.bo.MdsUserService" >
+    update mds_user_service
+    <set >
+      <if test="operatorId != null" >
+        operator_id = #{operatorId,jdbcType=VARCHAR},
+      </if>
+      <if test="createdTime != null" >
+        created_time = #{createdTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="modifiedTime != null" >
+        modified_time = #{modifiedTime,jdbcType=TIMESTAMP},
+      </if>
+    </set>
+    where srv_inst_id = #{srvInstId,jdbcType=INTEGER}
+      and user_id = #{userId,jdbcType=VARCHAR}
+      and user_srv_id = #{userSrvId,jdbcType=VARCHAR}
+      and state = #{state,jdbcType=INTEGER}
+  </update>
+  <update id="updateByPrimaryKey" parameterType="com.ai.paas.ipaas.mds.dao.mapper.bo.MdsUserService" >
+    update mds_user_service
+    set operator_id = #{operatorId,jdbcType=VARCHAR},
+      created_time = #{createdTime,jdbcType=TIMESTAMP},
+      modified_time = #{modifiedTime,jdbcType=TIMESTAMP}
+    where srv_inst_id = #{srvInstId,jdbcType=INTEGER}
+      and user_id = #{userId,jdbcType=VARCHAR}
+      and user_srv_id = #{userSrvId,jdbcType=VARCHAR}
+      and state = #{state,jdbcType=INTEGER}
+  </update>
+</mapper>

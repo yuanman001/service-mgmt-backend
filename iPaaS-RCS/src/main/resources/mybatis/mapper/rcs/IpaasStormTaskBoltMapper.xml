@@ -1,0 +1,234 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.ai.paas.ipaas.rcs.dao.interfaces.IpaasStormTaskBoltMapper" >
+  <resultMap id="BaseResultMap" type="com.ai.paas.ipaas.rcs.dao.mapper.bo.IpaasStormTaskBolt" >
+    <id column="id" property="id" jdbcType="BIGINT" />
+    <result column="task_id" property="taskId" jdbcType="BIGINT" />
+    <result column="bolt_name" property="boltName" jdbcType="VARCHAR" />
+    <result column="bolt_class_name" property="boltClassName" jdbcType="VARCHAR" />
+    <result column="threads" property="threads" jdbcType="INTEGER" />
+    <result column="grouping_types" property="groupingTypes" jdbcType="VARCHAR" />
+    <result column="grouping_spout_or_blots" property="groupingSpoutOrBlots" jdbcType="VARCHAR" />
+  </resultMap>
+  <sql id="Example_Where_Clause" >
+    <where >
+      <foreach collection="oredCriteria" item="criteria" separator="or" >
+        <if test="criteria.valid" >
+          <trim prefix="(" suffix=")" prefixOverrides="and" >
+            <foreach collection="criteria.criteria" item="criterion" >
+              <choose >
+                <when test="criterion.noValue" >
+                  and ${criterion.condition}
+                </when>
+                <when test="criterion.singleValue" >
+                  and ${criterion.condition} #{criterion.value}
+                </when>
+                <when test="criterion.betweenValue" >
+                  and ${criterion.condition} #{criterion.value} and #{criterion.secondValue}
+                </when>
+                <when test="criterion.listValue" >
+                  and ${criterion.condition}
+                  <foreach collection="criterion.value" item="listItem" open="(" close=")" separator="," >
+                    #{listItem}
+                  </foreach>
+                </when>
+              </choose>
+            </foreach>
+          </trim>
+        </if>
+      </foreach>
+    </where>
+  </sql>
+  <sql id="Update_By_Example_Where_Clause" >
+    <where >
+      <foreach collection="example.oredCriteria" item="criteria" separator="or" >
+        <if test="criteria.valid" >
+          <trim prefix="(" suffix=")" prefixOverrides="and" >
+            <foreach collection="criteria.criteria" item="criterion" >
+              <choose >
+                <when test="criterion.noValue" >
+                  and ${criterion.condition}
+                </when>
+                <when test="criterion.singleValue" >
+                  and ${criterion.condition} #{criterion.value}
+                </when>
+                <when test="criterion.betweenValue" >
+                  and ${criterion.condition} #{criterion.value} and #{criterion.secondValue}
+                </when>
+                <when test="criterion.listValue" >
+                  and ${criterion.condition}
+                  <foreach collection="criterion.value" item="listItem" open="(" close=")" separator="," >
+                    #{listItem}
+                  </foreach>
+                </when>
+              </choose>
+            </foreach>
+          </trim>
+        </if>
+      </foreach>
+    </where>
+  </sql>
+  <sql id="Base_Column_List" >
+    id, task_id, bolt_name, bolt_class_name, threads, grouping_types, grouping_spout_or_blots
+  </sql>
+  <select id="selectByExample" resultMap="BaseResultMap" parameterType="com.ai.paas.ipaas.rcs.dao.mapper.bo.IpaasStormTaskBoltCriteria" >
+    select
+    <if test="distinct" >
+      distinct
+    </if>
+    <include refid="Base_Column_List" />
+    from ipaas_storm_task_bolt
+    <if test="_parameter != null" >
+      <include refid="Example_Where_Clause" />
+    </if>
+    <if test="orderByClause != null" >
+      order by ${orderByClause}
+    </if>
+    <if test="limitStart != null and limitStart>=0" >
+      limit #{limitStart} , #{limitEnd}
+    </if>
+  </select>
+  <select id="selectByPrimaryKey" resultMap="BaseResultMap" parameterType="long" >
+    select 
+    <include refid="Base_Column_List" />
+    from ipaas_storm_task_bolt
+    where id = #{id,jdbcType=BIGINT}
+  </select>
+  <delete id="deleteByPrimaryKey" parameterType="long" >
+    delete from ipaas_storm_task_bolt
+    where id = #{id,jdbcType=BIGINT}
+  </delete>
+  <delete id="deleteByExample" parameterType="com.ai.paas.ipaas.rcs.dao.mapper.bo.IpaasStormTaskBoltCriteria" >
+    delete from ipaas_storm_task_bolt
+    <if test="_parameter != null" >
+      <include refid="Example_Where_Clause" />
+    </if>
+  </delete>
+  <insert id="insert" parameterType="com.ai.paas.ipaas.rcs.dao.mapper.bo.IpaasStormTaskBolt" >
+    insert into ipaas_storm_task_bolt (id, task_id, bolt_name, 
+      bolt_class_name, threads, grouping_types, 
+      grouping_spout_or_blots)
+    values (#{id,jdbcType=BIGINT}, #{taskId,jdbcType=BIGINT}, #{boltName,jdbcType=VARCHAR}, 
+      #{boltClassName,jdbcType=VARCHAR}, #{threads,jdbcType=INTEGER}, #{groupingTypes,jdbcType=VARCHAR}, 
+      #{groupingSpoutOrBlots,jdbcType=VARCHAR})
+  </insert>
+  <insert id="insertSelective" parameterType="com.ai.paas.ipaas.rcs.dao.mapper.bo.IpaasStormTaskBolt" >
+    insert into ipaas_storm_task_bolt
+    <trim prefix="(" suffix=")" suffixOverrides="," >
+      id,
+      task_id,
+      <if test="boltName != null" >
+        bolt_name,
+      </if>
+      <if test="boltClassName != null" >
+        bolt_class_name,
+      </if>
+      threads,
+      <if test="groupingTypes != null" >
+        grouping_types,
+      </if>
+      <if test="groupingSpoutOrBlots != null" >
+        grouping_spout_or_blots,
+      </if>
+    </trim>
+    <trim prefix="values (" suffix=")" suffixOverrides="," >
+      #{id,jdbcType=BIGINT},
+      #{taskId,jdbcType=BIGINT},
+      <if test="boltName != null" >
+        #{boltName,jdbcType=VARCHAR},
+      </if>
+      <if test="boltClassName != null" >
+        #{boltClassName,jdbcType=VARCHAR},
+      </if>
+      #{threads,jdbcType=INTEGER},
+      <if test="groupingTypes != null" >
+        #{groupingTypes,jdbcType=VARCHAR},
+      </if>
+      <if test="groupingSpoutOrBlots != null" >
+        #{groupingSpoutOrBlots,jdbcType=VARCHAR},
+      </if>
+    </trim>
+  </insert>
+  <select id="countByExample" parameterType="com.ai.paas.ipaas.rcs.dao.mapper.bo.IpaasStormTaskBoltCriteria" resultType="java.lang.Integer" >
+    select count(*) from ipaas_storm_task_bolt
+    <if test="_parameter != null" >
+      <include refid="Example_Where_Clause" />
+    </if>
+  </select>
+  <update id="updateByExampleSelective" parameterType="map" >
+    update ipaas_storm_task_bolt
+    <set >
+      <if test="record.id != null" >
+        id = #{record.id,jdbcType=BIGINT},
+      </if>
+      <if test="record.taskId != null" >
+        task_id = #{record.taskId,jdbcType=BIGINT},
+      </if>
+      <if test="record.boltName != null" >
+        bolt_name = #{record.boltName,jdbcType=VARCHAR},
+      </if>
+      <if test="record.boltClassName != null" >
+        bolt_class_name = #{record.boltClassName,jdbcType=VARCHAR},
+      </if>
+      <if test="record.threads != null" >
+        threads = #{record.threads,jdbcType=INTEGER},
+      </if>
+      <if test="record.groupingTypes != null" >
+        grouping_types = #{record.groupingTypes,jdbcType=VARCHAR},
+      </if>
+      <if test="record.groupingSpoutOrBlots != null" >
+        grouping_spout_or_blots = #{record.groupingSpoutOrBlots,jdbcType=VARCHAR},
+      </if>
+    </set>
+    <if test="_parameter != null" >
+      <include refid="Update_By_Example_Where_Clause" />
+    </if>
+  </update>
+  <update id="updateByExample" parameterType="map" >
+    update ipaas_storm_task_bolt
+    set id = #{record.id,jdbcType=BIGINT},
+      task_id = #{record.taskId,jdbcType=BIGINT},
+      bolt_name = #{record.boltName,jdbcType=VARCHAR},
+      bolt_class_name = #{record.boltClassName,jdbcType=VARCHAR},
+      threads = #{record.threads,jdbcType=INTEGER},
+      grouping_types = #{record.groupingTypes,jdbcType=VARCHAR},
+      grouping_spout_or_blots = #{record.groupingSpoutOrBlots,jdbcType=VARCHAR}
+    <if test="_parameter != null" >
+      <include refid="Update_By_Example_Where_Clause" />
+    </if>
+  </update>
+  <update id="updateByPrimaryKeySelective" parameterType="com.ai.paas.ipaas.rcs.dao.mapper.bo.IpaasStormTaskBolt" >
+    update ipaas_storm_task_bolt
+    <set >
+      <if test="taskId != null" >
+        task_id = #{taskId,jdbcType=BIGINT},
+      </if>
+      <if test="boltName != null" >
+        bolt_name = #{boltName,jdbcType=VARCHAR},
+      </if>
+      <if test="boltClassName != null" >
+        bolt_class_name = #{boltClassName,jdbcType=VARCHAR},
+      </if>
+      <if test="threads != null" >
+        threads = #{threads,jdbcType=INTEGER},
+      </if>
+      <if test="groupingTypes != null" >
+        grouping_types = #{groupingTypes,jdbcType=VARCHAR},
+      </if>
+      <if test="groupingSpoutOrBlots != null" >
+        grouping_spout_or_blots = #{groupingSpoutOrBlots,jdbcType=VARCHAR},
+      </if>
+    </set>
+    where id = #{id,jdbcType=BIGINT}
+  </update>
+  <update id="updateByPrimaryKey" parameterType="com.ai.paas.ipaas.rcs.dao.mapper.bo.IpaasStormTaskBolt" >
+    update ipaas_storm_task_bolt
+    set task_id = #{taskId,jdbcType=BIGINT},
+      bolt_name = #{boltName,jdbcType=VARCHAR},
+      bolt_class_name = #{boltClassName,jdbcType=VARCHAR},
+      threads = #{threads,jdbcType=INTEGER},
+      grouping_types = #{groupingTypes,jdbcType=VARCHAR},
+      grouping_spout_or_blots = #{groupingSpoutOrBlots,jdbcType=VARCHAR}
+    where id = #{id,jdbcType=BIGINT}
+  </update>
+</mapper>

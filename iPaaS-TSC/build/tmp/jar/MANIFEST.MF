@@ -1,0 +1,5 @@
+Manifest-Version: 1.0
+packageName: ipaas-tsc
+Built-By: gradle 2.1
+create-date: 2015-10-13 21:01:20
+

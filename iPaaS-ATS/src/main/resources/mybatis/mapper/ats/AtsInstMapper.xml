@@ -1,0 +1,330 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.ai.paas.ipaas.ats.dao.interfaces.AtsInstMapper" >
+  <resultMap id="BaseResultMap" type="com.ai.paas.ipaas.ats.dao.mapper.bo.AtsInst" >
+    <id column="ats_inst_id" property="atsInstId" jdbcType="INTEGER" />
+    <result column="ats_resource_id" property="atsResourceId" jdbcType="INTEGER" />
+    <result column="user_id" property="userId" jdbcType="VARCHAR" />
+    <result column="service_id" property="serviceId" jdbcType="VARCHAR" />
+    <result column="zk_producer_path" property="zkProducerPath" jdbcType="VARCHAR" />
+    <result column="zk_producer_node" property="zkProducerNode" jdbcType="VARCHAR" />
+    <result column="zk_consumer_path" property="zkConsumerPath" jdbcType="VARCHAR" />
+    <result column="zk_consumer_node" property="zkConsumerNode" jdbcType="VARCHAR" />
+    <result column="zk_topic_path" property="zkTopicPath" jdbcType="VARCHAR" />
+    <result column="kafka_create_command" property="kafkaCreateCommand" jdbcType="VARCHAR" />
+    <result column="inst_state" property="instState" jdbcType="INTEGER" />
+    <result column="inst_time" property="instTime" jdbcType="TIMESTAMP" />
+    <result column="remarks" property="remarks" jdbcType="VARCHAR" />
+  </resultMap>
+  <sql id="Example_Where_Clause" >
+    <where >
+      <foreach collection="oredCriteria" item="criteria" separator="or" >
+        <if test="criteria.valid" >
+          <trim prefix="(" suffix=")" prefixOverrides="and" >
+            <foreach collection="criteria.criteria" item="criterion" >
+              <choose >
+                <when test="criterion.noValue" >
+                  and ${criterion.condition}
+                </when>
+                <when test="criterion.singleValue" >
+                  and ${criterion.condition} #{criterion.value}
+                </when>
+                <when test="criterion.betweenValue" >
+                  and ${criterion.condition} #{criterion.value} and #{criterion.secondValue}
+                </when>
+                <when test="criterion.listValue" >
+                  and ${criterion.condition}
+                  <foreach collection="criterion.value" item="listItem" open="(" close=")" separator="," >
+                    #{listItem}
+                  </foreach>
+                </when>
+              </choose>
+            </foreach>
+          </trim>
+        </if>
+      </foreach>
+    </where>
+  </sql>
+  <sql id="Update_By_Example_Where_Clause" >
+    <where >
+      <foreach collection="example.oredCriteria" item="criteria" separator="or" >
+        <if test="criteria.valid" >
+          <trim prefix="(" suffix=")" prefixOverrides="and" >
+            <foreach collection="criteria.criteria" item="criterion" >
+              <choose >
+                <when test="criterion.noValue" >
+                  and ${criterion.condition}
+                </when>
+                <when test="criterion.singleValue" >
+                  and ${criterion.condition} #{criterion.value}
+                </when>
+                <when test="criterion.betweenValue" >
+                  and ${criterion.condition} #{criterion.value} and #{criterion.secondValue}
+                </when>
+                <when test="criterion.listValue" >
+                  and ${criterion.condition}
+                  <foreach collection="criterion.value" item="listItem" open="(" close=")" separator="," >
+                    #{listItem}
+                  </foreach>
+                </when>
+              </choose>
+            </foreach>
+          </trim>
+        </if>
+      </foreach>
+    </where>
+  </sql>
+  <sql id="Base_Column_List" >
+    ats_inst_id, ats_resource_id, user_id, service_id, zk_producer_path, zk_producer_node, 
+    zk_consumer_path, zk_consumer_node, zk_topic_path, kafka_create_command, inst_state, 
+    inst_time, remarks
+  </sql>
+  <select id="selectByExample" resultMap="BaseResultMap" parameterType="com.ai.paas.ipaas.ats.dao.mapper.bo.AtsInstCriteria" >
+    select
+    <if test="distinct" >
+      distinct
+    </if>
+    <include refid="Base_Column_List" />
+    from ats_inst
+    <if test="_parameter != null" >
+      <include refid="Example_Where_Clause" />
+    </if>
+    <if test="orderByClause != null" >
+      order by ${orderByClause}
+    </if>
+    <if test="limitStart != null and limitStart>=0" >
+      limit #{limitStart} , #{limitEnd}
+    </if>
+  </select>
+  <select id="selectByPrimaryKey" resultMap="BaseResultMap" parameterType="int" >
+    select 
+    <include refid="Base_Column_List" />
+    from ats_inst
+    where ats_inst_id = #{atsInstId,jdbcType=INTEGER}
+  </select>
+  <delete id="deleteByPrimaryKey" parameterType="int" >
+    delete from ats_inst
+    where ats_inst_id = #{atsInstId,jdbcType=INTEGER}
+  </delete>
+  <delete id="deleteByExample" parameterType="com.ai.paas.ipaas.ats.dao.mapper.bo.AtsInstCriteria" >
+    delete from ats_inst
+    <if test="_parameter != null" >
+      <include refid="Example_Where_Clause" />
+    </if>
+  </delete>
+  <insert id="insert" parameterType="com.ai.paas.ipaas.ats.dao.mapper.bo.AtsInst" >
+    insert into ats_inst (ats_inst_id, ats_resource_id, user_id, 
+      service_id, zk_producer_path, zk_producer_node, 
+      zk_consumer_path, zk_consumer_node, zk_topic_path, 
+      kafka_create_command, inst_state, inst_time, 
+      remarks)
+    values (#{atsInstId,jdbcType=INTEGER}, #{atsResourceId,jdbcType=INTEGER}, #{userId,jdbcType=VARCHAR}, 
+      #{serviceId,jdbcType=VARCHAR}, #{zkProducerPath,jdbcType=VARCHAR}, #{zkProducerNode,jdbcType=VARCHAR}, 
+      #{zkConsumerPath,jdbcType=VARCHAR}, #{zkConsumerNode,jdbcType=VARCHAR}, #{zkTopicPath,jdbcType=VARCHAR}, 
+      #{kafkaCreateCommand,jdbcType=VARCHAR}, #{instState,jdbcType=INTEGER}, #{instTime,jdbcType=TIMESTAMP}, 
+      #{remarks,jdbcType=VARCHAR})
+  </insert>
+  <insert id="insertSelective" parameterType="com.ai.paas.ipaas.ats.dao.mapper.bo.AtsInst" >
+    insert into ats_inst
+    <trim prefix="(" suffix=")" suffixOverrides="," >
+      ats_inst_id,
+      ats_resource_id,
+      <if test="userId != null" >
+        user_id,
+      </if>
+      <if test="serviceId != null" >
+        service_id,
+      </if>
+      <if test="zkProducerPath != null" >
+        zk_producer_path,
+      </if>
+      <if test="zkProducerNode != null" >
+        zk_producer_node,
+      </if>
+      <if test="zkConsumerPath != null" >
+        zk_consumer_path,
+      </if>
+      <if test="zkConsumerNode != null" >
+        zk_consumer_node,
+      </if>
+      <if test="zkTopicPath != null" >
+        zk_topic_path,
+      </if>
+      <if test="kafkaCreateCommand != null" >
+        kafka_create_command,
+      </if>
+      inst_state,
+      <if test="instTime != null" >
+        inst_time,
+      </if>
+      <if test="remarks != null" >
+        remarks,
+      </if>
+    </trim>
+    <trim prefix="values (" suffix=")" suffixOverrides="," >
+      #{atsInstId,jdbcType=INTEGER},
+      #{atsResourceId,jdbcType=INTEGER},
+      <if test="userId != null" >
+        #{userId,jdbcType=VARCHAR},
+      </if>
+      <if test="serviceId != null" >
+        #{serviceId,jdbcType=VARCHAR},
+      </if>
+      <if test="zkProducerPath != null" >
+        #{zkProducerPath,jdbcType=VARCHAR},
+      </if>
+      <if test="zkProducerNode != null" >
+        #{zkProducerNode,jdbcType=VARCHAR},
+      </if>
+      <if test="zkConsumerPath != null" >
+        #{zkConsumerPath,jdbcType=VARCHAR},
+      </if>
+      <if test="zkConsumerNode != null" >
+        #{zkConsumerNode,jdbcType=VARCHAR},
+      </if>
+      <if test="zkTopicPath != null" >
+        #{zkTopicPath,jdbcType=VARCHAR},
+      </if>
+      <if test="kafkaCreateCommand != null" >
+        #{kafkaCreateCommand,jdbcType=VARCHAR},
+      </if>
+      #{instState,jdbcType=INTEGER},
+      <if test="instTime != null" >
+        #{instTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="remarks != null" >
+        #{remarks,jdbcType=VARCHAR},
+      </if>
+    </trim>
+  </insert>
+  <select id="countByExample" parameterType="com.ai.paas.ipaas.ats.dao.mapper.bo.AtsInstCriteria" resultType="java.lang.Integer" >
+    select count(*) from ats_inst
+    <if test="_parameter != null" >
+      <include refid="Example_Where_Clause" />
+    </if>
+  </select>
+  <update id="updateByExampleSelective" parameterType="map" >
+    update ats_inst
+    <set >
+      <if test="record.atsInstId != null" >
+        ats_inst_id = #{record.atsInstId,jdbcType=INTEGER},
+      </if>
+      <if test="record.atsResourceId != null" >
+        ats_resource_id = #{record.atsResourceId,jdbcType=INTEGER},
+      </if>
+      <if test="record.userId != null" >
+        user_id = #{record.userId,jdbcType=VARCHAR},
+      </if>
+      <if test="record.serviceId != null" >
+        service_id = #{record.serviceId,jdbcType=VARCHAR},
+      </if>
+      <if test="record.zkProducerPath != null" >
+        zk_producer_path = #{record.zkProducerPath,jdbcType=VARCHAR},
+      </if>
+      <if test="record.zkProducerNode != null" >
+        zk_producer_node = #{record.zkProducerNode,jdbcType=VARCHAR},
+      </if>
+      <if test="record.zkConsumerPath != null" >
+        zk_consumer_path = #{record.zkConsumerPath,jdbcType=VARCHAR},
+      </if>
+      <if test="record.zkConsumerNode != null" >
+        zk_consumer_node = #{record.zkConsumerNode,jdbcType=VARCHAR},
+      </if>
+      <if test="record.zkTopicPath != null" >
+        zk_topic_path = #{record.zkTopicPath,jdbcType=VARCHAR},
+      </if>
+      <if test="record.kafkaCreateCommand != null" >
+        kafka_create_command = #{record.kafkaCreateCommand,jdbcType=VARCHAR},
+      </if>
+      <if test="record.instState != null" >
+        inst_state = #{record.instState,jdbcType=INTEGER},
+      </if>
+      <if test="record.instTime != null" >
+        inst_time = #{record.instTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="record.remarks != null" >
+        remarks = #{record.remarks,jdbcType=VARCHAR},
+      </if>
+    </set>
+    <if test="_parameter != null" >
+      <include refid="Update_By_Example_Where_Clause" />
+    </if>
+  </update>
+  <update id="updateByExample" parameterType="map" >
+    update ats_inst
+    set ats_inst_id = #{record.atsInstId,jdbcType=INTEGER},
+      ats_resource_id = #{record.atsResourceId,jdbcType=INTEGER},
+      user_id = #{record.userId,jdbcType=VARCHAR},
+      service_id = #{record.serviceId,jdbcType=VARCHAR},
+      zk_producer_path = #{record.zkProducerPath,jdbcType=VARCHAR},
+      zk_producer_node = #{record.zkProducerNode,jdbcType=VARCHAR},
+      zk_consumer_path = #{record.zkConsumerPath,jdbcType=VARCHAR},
+      zk_consumer_node = #{record.zkConsumerNode,jdbcType=VARCHAR},
+      zk_topic_path = #{record.zkTopicPath,jdbcType=VARCHAR},
+      kafka_create_command = #{record.kafkaCreateCommand,jdbcType=VARCHAR},
+      inst_state = #{record.instState,jdbcType=INTEGER},
+      inst_time = #{record.instTime,jdbcType=TIMESTAMP},
+      remarks = #{record.remarks,jdbcType=VARCHAR}
+    <if test="_parameter != null" >
+      <include refid="Update_By_Example_Where_Clause" />
+    </if>
+  </update>
+  <update id="updateByPrimaryKeySelective" parameterType="com.ai.paas.ipaas.ats.dao.mapper.bo.AtsInst" >
+    update ats_inst
+    <set >
+      <if test="atsResourceId != null" >
+        ats_resource_id = #{atsResourceId,jdbcType=INTEGER},
+      </if>
+      <if test="userId != null" >
+        user_id = #{userId,jdbcType=VARCHAR},
+      </if>
+      <if test="serviceId != null" >
+        service_id = #{serviceId,jdbcType=VARCHAR},
+      </if>
+      <if test="zkProducerPath != null" >
+        zk_producer_path = #{zkProducerPath,jdbcType=VARCHAR},
+      </if>
+      <if test="zkProducerNode != null" >
+        zk_producer_node = #{zkProducerNode,jdbcType=VARCHAR},
+      </if>
+      <if test="zkConsumerPath != null" >
+        zk_consumer_path = #{zkConsumerPath,jdbcType=VARCHAR},
+      </if>
+      <if test="zkConsumerNode != null" >
+        zk_consumer_node = #{zkConsumerNode,jdbcType=VARCHAR},
+      </if>
+      <if test="zkTopicPath != null" >
+        zk_topic_path = #{zkTopicPath,jdbcType=VARCHAR},
+      </if>
+      <if test="kafkaCreateCommand != null" >
+        kafka_create_command = #{kafkaCreateCommand,jdbcType=VARCHAR},
+      </if>
+      <if test="instState != null" >
+        inst_state = #{instState,jdbcType=INTEGER},
+      </if>
+      <if test="instTime != null" >
+        inst_time = #{instTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="remarks != null" >
+        remarks = #{remarks,jdbcType=VARCHAR},
+      </if>
+    </set>
+    where ats_inst_id = #{atsInstId,jdbcType=INTEGER}
+  </update>
+  <update id="updateByPrimaryKey" parameterType="com.ai.paas.ipaas.ats.dao.mapper.bo.AtsInst" >
+    update ats_inst
+    set ats_resource_id = #{atsResourceId,jdbcType=INTEGER},
+      user_id = #{userId,jdbcType=VARCHAR},
+      service_id = #{serviceId,jdbcType=VARCHAR},
+      zk_producer_path = #{zkProducerPath,jdbcType=VARCHAR},
+      zk_producer_node = #{zkProducerNode,jdbcType=VARCHAR},
+      zk_consumer_path = #{zkConsumerPath,jdbcType=VARCHAR},
+      zk_consumer_node = #{zkConsumerNode,jdbcType=VARCHAR},
+      zk_topic_path = #{zkTopicPath,jdbcType=VARCHAR},
+      kafka_create_command = #{kafkaCreateCommand,jdbcType=VARCHAR},
+      inst_state = #{instState,jdbcType=INTEGER},
+      inst_time = #{instTime,jdbcType=TIMESTAMP},
+      remarks = #{remarks,jdbcType=VARCHAR}
+    where ats_inst_id = #{atsInstId,jdbcType=INTEGER}
+  </update>
+</mapper>

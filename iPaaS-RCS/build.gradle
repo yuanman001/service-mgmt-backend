@@ -1,0 +1,7 @@
+dependencies {
+    compile project(":iPaaS-DubboInterfaces")
+    compile 'org.restlet.jee:org.restlet:2.2.1'
+    compile 'org.apache.commons:commons-jexl:2.1.2-SNAPSHOT'
+}
+
+ 

@@ -1,0 +1,326 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.ai.paas.ipaas.mcs.dao.interfaces.McsResourcePoolMapper" >
+  <resultMap id="BaseResultMap" type="com.ai.paas.ipaas.mcs.dao.mapper.bo.McsResourcePool" >
+    <id column="id" property="id" jdbcType="INTEGER" />
+    <result column="cache_host_ip" property="cacheHostIp" jdbcType="VARCHAR" />
+    <result column="cache_memory" property="cacheMemory" jdbcType="INTEGER" />
+    <result column="cache_memory_used" property="cacheMemoryUsed" jdbcType="INTEGER" />
+    <result column="status" property="status" jdbcType="INTEGER" />
+    <result column="cache_port" property="cachePort" jdbcType="INTEGER" />
+    <result column="min_port" property="minPort" jdbcType="INTEGER" />
+    <result column="max_port" property="maxPort" jdbcType="INTEGER" />
+    <result column="cycle" property="cycle" jdbcType="INTEGER" />
+    <result column="agent_cmd" property="agentCmd" jdbcType="VARCHAR" />
+    <result column="agent_file" property="agentFile" jdbcType="VARCHAR" />
+    <result column="cache_path" property="cachePath" jdbcType="VARCHAR" />
+  </resultMap>
+  <sql id="Example_Where_Clause" >
+    <where >
+      <foreach collection="oredCriteria" item="criteria" separator="or" >
+        <if test="criteria.valid" >
+          <trim prefix="(" suffix=")" prefixOverrides="and" >
+            <foreach collection="criteria.criteria" item="criterion" >
+              <choose >
+                <when test="criterion.noValue" >
+                  and ${criterion.condition}
+                </when>
+                <when test="criterion.singleValue" >
+                  and ${criterion.condition} #{criterion.value}
+                </when>
+                <when test="criterion.betweenValue" >
+                  and ${criterion.condition} #{criterion.value} and #{criterion.secondValue}
+                </when>
+                <when test="criterion.listValue" >
+                  and ${criterion.condition}
+                  <foreach collection="criterion.value" item="listItem" open="(" close=")" separator="," >
+                    #{listItem}
+                  </foreach>
+                </when>
+              </choose>
+            </foreach>
+          </trim>
+        </if>
+      </foreach>
+    </where>
+  </sql>
+  <sql id="Update_By_Example_Where_Clause" >
+    <where >
+      <foreach collection="example.oredCriteria" item="criteria" separator="or" >
+        <if test="criteria.valid" >
+          <trim prefix="(" suffix=")" prefixOverrides="and" >
+            <foreach collection="criteria.criteria" item="criterion" >
+              <choose >
+                <when test="criterion.noValue" >
+                  and ${criterion.condition}
+                </when>
+                <when test="criterion.singleValue" >
+                  and ${criterion.condition} #{criterion.value}
+                </when>
+                <when test="criterion.betweenValue" >
+                  and ${criterion.condition} #{criterion.value} and #{criterion.secondValue}
+                </when>
+                <when test="criterion.listValue" >
+                  and ${criterion.condition}
+                  <foreach collection="criterion.value" item="listItem" open="(" close=")" separator="," >
+                    #{listItem}
+                  </foreach>
+                </when>
+              </choose>
+            </foreach>
+          </trim>
+        </if>
+      </foreach>
+    </where>
+  </sql>
+  <sql id="Base_Column_List" >
+    id, cache_host_ip, cache_memory, cache_memory_used, status, cache_port, min_port, 
+    max_port, cycle, agent_cmd, agent_file, cache_path
+  </sql>
+  <select id="selectByExample" resultMap="BaseResultMap" parameterType="com.ai.paas.ipaas.mcs.dao.mapper.bo.McsResourcePoolCriteria" >
+    select
+    <if test="distinct" >
+      distinct
+    </if>
+    <include refid="Base_Column_List" />
+    from mcs_resource_pool
+    <if test="_parameter != null" >
+      <include refid="Example_Where_Clause" />
+    </if>
+    <if test="orderByClause != null" >
+      order by ${orderByClause}
+    </if>
+    <if test="limitStart != null and limitStart>=0" >
+      limit #{limitStart} , #{limitEnd}
+    </if>
+  </select>
+  <select id="selectByPrimaryKey" resultMap="BaseResultMap" parameterType="Integer" >
+    select 
+    <include refid="Base_Column_List" />
+    from mcs_resource_pool
+    where id = #{id,jdbcType=INTEGER}
+  </select>
+  <delete id="deleteByPrimaryKey" parameterType="Integer" >
+    delete from mcs_resource_pool
+    where id = #{id,jdbcType=INTEGER}
+  </delete>
+  <delete id="deleteByExample" parameterType="com.ai.paas.ipaas.mcs.dao.mapper.bo.McsResourcePoolCriteria" >
+    delete from mcs_resource_pool
+    <if test="_parameter != null" >
+      <include refid="Example_Where_Clause" />
+    </if>
+  </delete>
+  <insert id="insert" parameterType="com.ai.paas.ipaas.mcs.dao.mapper.bo.McsResourcePool" >
+    insert into mcs_resource_pool (id, cache_host_ip, cache_memory, 
+      cache_memory_used, status, cache_port, 
+      min_port, max_port, cycle, 
+      agent_cmd, agent_file, cache_path
+      )
+    values (#{id,jdbcType=INTEGER}, #{cacheHostIp,jdbcType=VARCHAR}, #{cacheMemory,jdbcType=INTEGER}, 
+      #{cacheMemoryUsed,jdbcType=INTEGER}, #{status,jdbcType=INTEGER}, #{cachePort,jdbcType=INTEGER}, 
+      #{minPort,jdbcType=INTEGER}, #{maxPort,jdbcType=INTEGER}, #{cycle,jdbcType=INTEGER}, 
+      #{agentCmd,jdbcType=VARCHAR}, #{agentFile,jdbcType=VARCHAR}, #{cachePath,jdbcType=VARCHAR}
+      )
+  </insert>
+  <insert id="insertSelective" parameterType="com.ai.paas.ipaas.mcs.dao.mapper.bo.McsResourcePool" >
+    insert into mcs_resource_pool
+    <trim prefix="(" suffix=")" suffixOverrides="," >
+      <if test="id != null" >
+        id,
+      </if>
+      <if test="cacheHostIp != null" >
+        cache_host_ip,
+      </if>
+      <if test="cacheMemory != null" >
+        cache_memory,
+      </if>
+      <if test="cacheMemoryUsed != null" >
+        cache_memory_used,
+      </if>
+      <if test="status != null" >
+        status,
+      </if>
+      <if test="cachePort != null" >
+        cache_port,
+      </if>
+      <if test="minPort != null" >
+        min_port,
+      </if>
+      <if test="maxPort != null" >
+        max_port,
+      </if>
+      <if test="cycle != null" >
+        cycle,
+      </if>
+      <if test="agentCmd != null" >
+        agent_cmd,
+      </if>
+      <if test="agentFile != null" >
+        agent_file,
+      </if>
+      <if test="cachePath != null" >
+        cache_path,
+      </if>
+    </trim>
+    <trim prefix="values (" suffix=")" suffixOverrides="," >
+      <if test="id != null" >
+        #{id,jdbcType=INTEGER},
+      </if>
+      <if test="cacheHostIp != null" >
+        #{cacheHostIp,jdbcType=VARCHAR},
+      </if>
+      <if test="cacheMemory != null" >
+        #{cacheMemory,jdbcType=INTEGER},
+      </if>
+      <if test="cacheMemoryUsed != null" >
+        #{cacheMemoryUsed,jdbcType=INTEGER},
+      </if>
+      <if test="status != null" >
+        #{status,jdbcType=INTEGER},
+      </if>
+      <if test="cachePort != null" >
+        #{cachePort,jdbcType=INTEGER},
+      </if>
+      <if test="minPort != null" >
+        #{minPort,jdbcType=INTEGER},
+      </if>
+      <if test="maxPort != null" >
+        #{maxPort,jdbcType=INTEGER},
+      </if>
+      <if test="cycle != null" >
+        #{cycle,jdbcType=INTEGER},
+      </if>
+      <if test="agentCmd != null" >
+        #{agentCmd,jdbcType=VARCHAR},
+      </if>
+      <if test="agentFile != null" >
+        #{agentFile,jdbcType=VARCHAR},
+      </if>
+      <if test="cachePath != null" >
+        #{cachePath,jdbcType=VARCHAR},
+      </if>
+    </trim>
+  </insert>
+  <select id="countByExample" parameterType="com.ai.paas.ipaas.mcs.dao.mapper.bo.McsResourcePoolCriteria" resultType="java.lang.Integer" >
+    select count(*) from mcs_resource_pool
+    <if test="_parameter != null" >
+      <include refid="Example_Where_Clause" />
+    </if>
+  </select>
+  <update id="updateByExampleSelective" parameterType="map" >
+    update mcs_resource_pool
+    <set >
+      <if test="record.id != null" >
+        id = #{record.id,jdbcType=INTEGER},
+      </if>
+      <if test="record.cacheHostIp != null" >
+        cache_host_ip = #{record.cacheHostIp,jdbcType=VARCHAR},
+      </if>
+      <if test="record.cacheMemory != null" >
+        cache_memory = #{record.cacheMemory,jdbcType=INTEGER},
+      </if>
+      <if test="record.cacheMemoryUsed != null" >
+        cache_memory_used = #{record.cacheMemoryUsed,jdbcType=INTEGER},
+      </if>
+      <if test="record.status != null" >
+        status = #{record.status,jdbcType=INTEGER},
+      </if>
+      <if test="record.cachePort != null" >
+        cache_port = #{record.cachePort,jdbcType=INTEGER},
+      </if>
+      <if test="record.minPort != null" >
+        min_port = #{record.minPort,jdbcType=INTEGER},
+      </if>
+      <if test="record.maxPort != null" >
+        max_port = #{record.maxPort,jdbcType=INTEGER},
+      </if>
+      <if test="record.cycle != null" >
+        cycle = #{record.cycle,jdbcType=INTEGER},
+      </if>
+      <if test="record.agentCmd != null" >
+        agent_cmd = #{record.agentCmd,jdbcType=VARCHAR},
+      </if>
+      <if test="record.agentFile != null" >
+        agent_file = #{record.agentFile,jdbcType=VARCHAR},
+      </if>
+      <if test="record.cachePath != null" >
+        cache_path = #{record.cachePath,jdbcType=VARCHAR},
+      </if>
+    </set>
+    <if test="_parameter != null" >
+      <include refid="Update_By_Example_Where_Clause" />
+    </if>
+  </update>
+  <update id="updateByExample" parameterType="map" >
+    update mcs_resource_pool
+    set id = #{record.id,jdbcType=INTEGER},
+      cache_host_ip = #{record.cacheHostIp,jdbcType=VARCHAR},
+      cache_memory = #{record.cacheMemory,jdbcType=INTEGER},
+      cache_memory_used = #{record.cacheMemoryUsed,jdbcType=INTEGER},
+      status = #{record.status,jdbcType=INTEGER},
+      cache_port = #{record.cachePort,jdbcType=INTEGER},
+      min_port = #{record.minPort,jdbcType=INTEGER},
+      max_port = #{record.maxPort,jdbcType=INTEGER},
+      cycle = #{record.cycle,jdbcType=INTEGER},
+      agent_cmd = #{record.agentCmd,jdbcType=VARCHAR},
+      agent_file = #{record.agentFile,jdbcType=VARCHAR},
+      cache_path = #{record.cachePath,jdbcType=VARCHAR}
+    <if test="_parameter != null" >
+      <include refid="Update_By_Example_Where_Clause" />
+    </if>
+  </update>
+  <update id="updateByPrimaryKeySelective" parameterType="com.ai.paas.ipaas.mcs.dao.mapper.bo.McsResourcePool" >
+    update mcs_resource_pool
+    <set >
+      <if test="cacheHostIp != null" >
+        cache_host_ip = #{cacheHostIp,jdbcType=VARCHAR},
+      </if>
+      <if test="cacheMemory != null" >
+        cache_memory = #{cacheMemory,jdbcType=INTEGER},
+      </if>
+      <if test="cacheMemoryUsed != null" >
+        cache_memory_used = #{cacheMemoryUsed,jdbcType=INTEGER},
+      </if>
+      <if test="status != null" >
+        status = #{status,jdbcType=INTEGER},
+      </if>
+      <if test="cachePort != null" >
+        cache_port = #{cachePort,jdbcType=INTEGER},
+      </if>
+      <if test="minPort != null" >
+        min_port = #{minPort,jdbcType=INTEGER},
+      </if>
+      <if test="maxPort != null" >
+        max_port = #{maxPort,jdbcType=INTEGER},
+      </if>
+      <if test="cycle != null" >
+        cycle = #{cycle,jdbcType=INTEGER},
+      </if>
+      <if test="agentCmd != null" >
+        agent_cmd = #{agentCmd,jdbcType=VARCHAR},
+      </if>
+      <if test="agentFile != null" >
+        agent_file = #{agentFile,jdbcType=VARCHAR},
+      </if>
+      <if test="cachePath != null" >
+        cache_path = #{cachePath,jdbcType=VARCHAR},
+      </if>
+    </set>
+    where id = #{id,jdbcType=INTEGER}
+  </update>
+  <update id="updateByPrimaryKey" parameterType="com.ai.paas.ipaas.mcs.dao.mapper.bo.McsResourcePool" >
+    update mcs_resource_pool
+    set cache_host_ip = #{cacheHostIp,jdbcType=VARCHAR},
+      cache_memory = #{cacheMemory,jdbcType=INTEGER},
+      cache_memory_used = #{cacheMemoryUsed,jdbcType=INTEGER},
+      status = #{status,jdbcType=INTEGER},
+      cache_port = #{cachePort,jdbcType=INTEGER},
+      min_port = #{minPort,jdbcType=INTEGER},
+      max_port = #{maxPort,jdbcType=INTEGER},
+      cycle = #{cycle,jdbcType=INTEGER},
+      agent_cmd = #{agentCmd,jdbcType=VARCHAR},
+      agent_file = #{agentFile,jdbcType=VARCHAR},
+      cache_path = #{cachePath,jdbcType=VARCHAR}
+    where id = #{id,jdbcType=INTEGER}
+  </update>
+</mapper>

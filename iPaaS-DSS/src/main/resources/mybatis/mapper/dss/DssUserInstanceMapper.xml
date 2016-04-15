@@ -1,0 +1,325 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.ai.paas.ipaas.dss.dao.interfaces.DssUserInstanceMapper">
+	<resultMap id="BaseResultMap"
+		type="com.ai.paas.ipaas.dss.dao.mapper.bo.DssUserInstance">
+		<id column="oss_id" property="ossId" jdbcType="INTEGER" />
+		<result column="user_id" property="userId" jdbcType="VARCHAR" />
+		<result column="db_name" property="dbName" jdbcType="VARCHAR" />
+		<result column="collection_name" property="collectionName"
+			jdbcType="VARCHAR" />
+		<result column="oss_size" property="ossSize" jdbcType="DOUBLE" />
+		<result column="file_limit_size" property="fileLimitSize"
+			jdbcType="DOUBLE" />
+		<result column="start_date" property="startDate" jdbcType="TIMESTAMP" />
+		<result column="end_date" property="endDate" jdbcType="TIMESTAMP" />
+		<result column="group_id" property="groupId" jdbcType="INTEGER" />
+		<result column="redis_id" property="redisId" jdbcType="INTEGER" />
+		<result column="service_name" property="serviceName" jdbcType="VARCHAR" />
+	</resultMap>
+	<sql id="Example_Where_Clause">
+		<where>
+			<foreach collection="oredCriteria" item="criteria" separator="or">
+				<if test="criteria.valid">
+					<trim prefix="(" suffix=")" prefixOverrides="and">
+						<foreach collection="criteria.criteria" item="criterion">
+							<choose>
+								<when test="criterion.noValue">
+									and ${criterion.condition}
+								</when>
+								<when test="criterion.singleValue">
+									and ${criterion.condition} #{criterion.value}
+								</when>
+								<when test="criterion.betweenValue">
+									and ${criterion.condition} #{criterion.value} and
+									#{criterion.secondValue}
+								</when>
+								<when test="criterion.listValue">
+									and ${criterion.condition}
+									<foreach collection="criterion.value" item="listItem"
+										open="(" close=")" separator=",">
+										#{listItem}
+									</foreach>
+								</when>
+							</choose>
+						</foreach>
+					</trim>
+				</if>
+			</foreach>
+		</where>
+	</sql>
+	<sql id="Update_By_Example_Where_Clause">
+		<where>
+			<foreach collection="example.oredCriteria" item="criteria"
+				separator="or">
+				<if test="criteria.valid">
+					<trim prefix="(" suffix=")" prefixOverrides="and">
+						<foreach collection="criteria.criteria" item="criterion">
+							<choose>
+								<when test="criterion.noValue">
+									and ${criterion.condition}
+								</when>
+								<when test="criterion.singleValue">
+									and ${criterion.condition} #{criterion.value}
+								</when>
+								<when test="criterion.betweenValue">
+									and ${criterion.condition} #{criterion.value} and
+									#{criterion.secondValue}
+								</when>
+								<when test="criterion.listValue">
+									and ${criterion.condition}
+									<foreach collection="criterion.value" item="listItem"
+										open="(" close=")" separator=",">
+										#{listItem}
+									</foreach>
+								</when>
+							</choose>
+						</foreach>
+					</trim>
+				</if>
+			</foreach>
+		</where>
+	</sql>
+	<sql id="Base_Column_List">
+		oss_id, user_id, db_name, collection_name, oss_size, file_limit_size,
+		start_date,
+		end_date, group_id, redis_id, service_name
+	</sql>
+	<select id="selectByExample" resultMap="BaseResultMap"
+		parameterType="com.ai.paas.ipaas.dss.dao.mapper.bo.DssUserInstanceCriteria">
+		select
+		<if test="distinct">
+			distinct
+		</if>
+		<include refid="Base_Column_List" />
+		from dss_user_instance
+		<if test="_parameter != null">
+			<include refid="Example_Where_Clause" />
+		</if>
+		<if test="orderByClause != null">
+			order by ${orderByClause}
+		</if>
+		<if test="limitStart != null and limitStart>=0">
+			limit #{limitStart} , #{limitEnd}
+		</if>
+	</select>
+	<select id="selectByPrimaryKey" resultMap="BaseResultMap"
+		parameterType="Integer">
+		select
+		<include refid="Base_Column_List" />
+		from dss_user_instance
+		where oss_id = #{ossId,jdbcType=INTEGER}
+	</select>
+	<delete id="deleteByPrimaryKey" parameterType="Integer">
+		delete from dss_user_instance
+		where oss_id = #{ossId,jdbcType=INTEGER}
+	</delete>
+	<delete id="deleteByExample"
+		parameterType="com.ai.paas.ipaas.dss.dao.mapper.bo.DssUserInstanceCriteria">
+		delete from dss_user_instance
+		<if test="_parameter != null">
+			<include refid="Example_Where_Clause" />
+		</if>
+	</delete>
+	<insert id="insert" parameterType="com.ai.paas.ipaas.dss.dao.mapper.bo.DssUserInstance">
+		insert into dss_user_instance (oss_id, user_id, db_name,
+		collection_name, oss_size, file_limit_size,
+		start_date, end_date, group_id,
+		redis_id, service_name)
+		values (#{ossId,jdbcType=INTEGER}, #{userId,jdbcType=VARCHAR},
+		#{dbName,jdbcType=VARCHAR},
+		#{collectionName,jdbcType=VARCHAR}, #{ossSize,jdbcType=DOUBLE}, #{fileLimitSize,jdbcType=DOUBLE},
+		#{startDate,jdbcType=TIMESTAMP}, #{endDate,jdbcType=TIMESTAMP},
+		#{groupId,jdbcType=INTEGER},
+		#{redisId,jdbcType=INTEGER}, #{serviceName,jdbcType=VARCHAR})
+	</insert>
+	<insert id="insertSelective" parameterType="com.ai.paas.ipaas.dss.dao.mapper.bo.DssUserInstance">
+		insert into dss_user_instance
+		<trim prefix="(" suffix=")" suffixOverrides=",">
+			<if test="ossId != null">
+				oss_id,
+			</if>
+			<if test="userId != null">
+				user_id,
+			</if>
+			<if test="dbName != null">
+				db_name,
+			</if>
+			<if test="collectionName != null">
+				collection_name,
+			</if>
+			<if test="ossSize != null">
+				oss_size,
+			</if>
+			<if test="fileLimitSize != null">
+				file_limit_size,
+			</if>
+			<if test="startDate != null">
+				start_date,
+			</if>
+			<if test="endDate != null">
+				end_date,
+			</if>
+			<if test="groupId != null">
+				group_id,
+			</if>
+			<if test="redisId != null">
+				redis_id,
+			</if>
+			<if test="serviceName != null">
+				service_name,
+			</if>
+		</trim>
+		<trim prefix="values (" suffix=")" suffixOverrides=",">
+			<if test="ossId != null">
+				#{ossId,jdbcType=INTEGER},
+			</if>
+			<if test="userId != null">
+				#{userId,jdbcType=VARCHAR},
+			</if>
+			<if test="dbName != null">
+				#{dbName,jdbcType=VARCHAR},
+			</if>
+			<if test="collectionName != null">
+				#{collectionName,jdbcType=VARCHAR},
+			</if>
+			<if test="ossSize != null">
+				#{ossSize,jdbcType=DOUBLE},
+			</if>
+			<if test="fileLimitSize != null">
+				#{fileLimitSize,jdbcType=DOUBLE},
+			</if>
+			<if test="startDate != null">
+				#{startDate,jdbcType=TIMESTAMP},
+			</if>
+			<if test="endDate != null">
+				#{endDate,jdbcType=TIMESTAMP},
+			</if>
+			<if test="groupId != null">
+				#{groupId,jdbcType=INTEGER},
+			</if>
+			<if test="redisId != null">
+				#{redisId,jdbcType=INTEGER},
+			</if>
+			<if test="serviceName != null">
+				#{serviceName,jdbcType=VARCHAR},
+			</if>
+		</trim>
+	</insert>
+	<select id="countByExample"
+		parameterType="com.ai.paas.ipaas.dss.dao.mapper.bo.DssUserInstanceCriteria"
+		resultType="java.lang.Integer">
+		select count(*) from dss_user_instance
+		<if test="_parameter != null">
+			<include refid="Example_Where_Clause" />
+		</if>
+	</select>
+	<update id="updateByExampleSelective" parameterType="map">
+		update dss_user_instance
+		<set>
+			<if test="record.ossId != null">
+				oss_id = #{record.ossId,jdbcType=INTEGER},
+			</if>
+			<if test="record.userId != null">
+				user_id = #{record.userId,jdbcType=VARCHAR},
+			</if>
+			<if test="record.dbName != null">
+				db_name = #{record.dbName,jdbcType=VARCHAR},
+			</if>
+			<if test="record.collectionName != null">
+				collection_name = #{record.collectionName,jdbcType=VARCHAR},
+			</if>
+			<if test="record.ossSize != null">
+				oss_size = #{record.ossSize,jdbcType=DOUBLE},
+			</if>
+			<if test="record.fileLimitSize != null">
+				file_limit_size = #{record.fileLimitSize,jdbcType=DOUBLE},
+			</if>
+			<if test="record.startDate != null">
+				start_date = #{record.startDate,jdbcType=TIMESTAMP},
+			</if>
+			<if test="record.endDate != null">
+				end_date = #{record.endDate,jdbcType=TIMESTAMP},
+			</if>
+			<if test="record.groupId != null">
+				group_id = #{record.groupId,jdbcType=INTEGER},
+			</if>
+			<if test="record.redisId != null">
+				redis_id = #{record.redisId,jdbcType=INTEGER},
+			</if>
+			<if test="record.serviceName != null">
+				service_name = #{record.serviceName,jdbcType=VARCHAR},
+			</if>
+		</set>
+		<if test="_parameter != null">
+			<include refid="Update_By_Example_Where_Clause" />
+		</if>
+	</update>
+	<update id="updateByExample" parameterType="map">
+		update dss_user_instance
+		set oss_id = #{record.ossId,jdbcType=INTEGER},
+		user_id = #{record.userId,jdbcType=VARCHAR},
+		db_name = #{record.dbName,jdbcType=VARCHAR},
+		collection_name = #{record.collectionName,jdbcType=VARCHAR},
+		oss_size = #{record.ossSize,jdbcType=DOUBLE},
+		file_limit_size = #{record.fileLimitSize,jdbcType=DOUBLE},
+		start_date = #{record.startDate,jdbcType=TIMESTAMP},
+		end_date = #{record.endDate,jdbcType=TIMESTAMP},
+		group_id = #{record.groupId,jdbcType=INTEGER},
+		redis_id = #{record.redisId,jdbcType=INTEGER},
+		service_name = #{record.serviceName,jdbcType=VARCHAR}
+		<if test="_parameter != null">
+			<include refid="Update_By_Example_Where_Clause" />
+		</if>
+	</update>
+	<update id="updateByPrimaryKeySelective" parameterType="com.ai.paas.ipaas.dss.dao.mapper.bo.DssUserInstance">
+		update dss_user_instance
+		<set>
+			<if test="userId != null">
+				user_id = #{userId,jdbcType=VARCHAR},
+			</if>
+			<if test="dbName != null">
+				db_name = #{dbName,jdbcType=VARCHAR},
+			</if>
+			<if test="collectionName != null">
+				collection_name = #{collectionName,jdbcType=VARCHAR},
+			</if>
+			<if test="ossSize != null">
+				oss_size = #{ossSize,jdbcType=DOUBLE},
+			</if>
+			<if test="fileLimitSize != null">
+				file_limit_size = #{fileLimitSize,jdbcType=DOUBLE},
+			</if>
+			<if test="startDate != null">
+				start_date = #{startDate,jdbcType=TIMESTAMP},
+			</if>
+			<if test="endDate != null">
+				end_date = #{endDate,jdbcType=TIMESTAMP},
+			</if>
+			<if test="groupId != null">
+				group_id = #{groupId,jdbcType=INTEGER},
+			</if>
+			<if test="redisId != null">
+				redis_id = #{redisId,jdbcType=INTEGER},
+			</if>
+			<if test="serviceName != null">
+				service_name = #{serviceName,jdbcType=VARCHAR},
+			</if>
+		</set>
+		where oss_id = #{ossId,jdbcType=INTEGER}
+	</update>
+	<update id="updateByPrimaryKey" parameterType="com.ai.paas.ipaas.dss.dao.mapper.bo.DssUserInstance">
+		update dss_user_instance
+		set user_id = #{userId,jdbcType=VARCHAR},
+		db_name = #{dbName,jdbcType=VARCHAR},
+		collection_name = #{collectionName,jdbcType=VARCHAR},
+		oss_size = #{ossSize,jdbcType=DOUBLE},
+		file_limit_size = #{fileLimitSize,jdbcType=DOUBLE},
+		start_date = #{startDate,jdbcType=TIMESTAMP},
+		end_date = #{endDate,jdbcType=TIMESTAMP},
+		group_id = #{groupId,jdbcType=INTEGER},
+		redis_id = #{redisId,jdbcType=INTEGER},
+		service_name = #{serviceName,jdbcType=VARCHAR}
+		where oss_id = #{ossId,jdbcType=INTEGER}
+	</update>
+</mapper>

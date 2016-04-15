@@ -1,0 +1,262 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.ai.paas.ipaas.mds.dao.interfaces.MdsResourcePoolMapper" >
+  <resultMap id="BaseResultMap" type="com.ai.paas.ipaas.mds.dao.mapper.bo.MdsResourcePool" >
+    <id column="cluster_id" property="clusterId" jdbcType="INTEGER" />
+    <result column="cluster_name" property="clusterName" jdbcType="VARCHAR" />
+    <result column="zk_address" property="zkAddress" jdbcType="VARCHAR" />
+    <result column="kafka_address" property="kafkaAddress" jdbcType="VARCHAR" />
+    <result column="cluster_state" property="clusterState" jdbcType="INTEGER" />
+    <result column="remark" property="remark" jdbcType="VARCHAR" />
+    <result column="zk_auth_user" property="zkAuthUser" jdbcType="VARCHAR" />
+    <result column="zk_auth_passwd" property="zkAuthPasswd" jdbcType="VARCHAR" />
+  </resultMap>
+  <sql id="Example_Where_Clause" >
+    <where >
+      <foreach collection="oredCriteria" item="criteria" separator="or" >
+        <if test="criteria.valid" >
+          <trim prefix="(" suffix=")" prefixOverrides="and" >
+            <foreach collection="criteria.criteria" item="criterion" >
+              <choose >
+                <when test="criterion.noValue" >
+                  and ${criterion.condition}
+                </when>
+                <when test="criterion.singleValue" >
+                  and ${criterion.condition} #{criterion.value}
+                </when>
+                <when test="criterion.betweenValue" >
+                  and ${criterion.condition} #{criterion.value} and #{criterion.secondValue}
+                </when>
+                <when test="criterion.listValue" >
+                  and ${criterion.condition}
+                  <foreach collection="criterion.value" item="listItem" open="(" close=")" separator="," >
+                    #{listItem}
+                  </foreach>
+                </when>
+              </choose>
+            </foreach>
+          </trim>
+        </if>
+      </foreach>
+    </where>
+  </sql>
+  <sql id="Update_By_Example_Where_Clause" >
+    <where >
+      <foreach collection="example.oredCriteria" item="criteria" separator="or" >
+        <if test="criteria.valid" >
+          <trim prefix="(" suffix=")" prefixOverrides="and" >
+            <foreach collection="criteria.criteria" item="criterion" >
+              <choose >
+                <when test="criterion.noValue" >
+                  and ${criterion.condition}
+                </when>
+                <when test="criterion.singleValue" >
+                  and ${criterion.condition} #{criterion.value}
+                </when>
+                <when test="criterion.betweenValue" >
+                  and ${criterion.condition} #{criterion.value} and #{criterion.secondValue}
+                </when>
+                <when test="criterion.listValue" >
+                  and ${criterion.condition}
+                  <foreach collection="criterion.value" item="listItem" open="(" close=")" separator="," >
+                    #{listItem}
+                  </foreach>
+                </when>
+              </choose>
+            </foreach>
+          </trim>
+        </if>
+      </foreach>
+    </where>
+  </sql>
+  <sql id="Base_Column_List" >
+    cluster_id, cluster_name, zk_address, kafka_address, cluster_state, remark, zk_auth_user, 
+    zk_auth_passwd
+  </sql>
+  <select id="selectByExample" resultMap="BaseResultMap" parameterType="com.ai.paas.ipaas.mds.dao.mapper.bo.MdsResourcePoolCriteria" >
+    select
+    <if test="distinct" >
+      distinct
+    </if>
+    <include refid="Base_Column_List" />
+    from mds_resource_pool
+    <if test="_parameter != null" >
+      <include refid="Example_Where_Clause" />
+    </if>
+    <if test="orderByClause != null" >
+      order by ${orderByClause}
+    </if>
+    <if test="limitStart != null and limitStart>=0" >
+      limit #{limitStart} , #{limitEnd}
+    </if>
+  </select>
+  <select id="selectByPrimaryKey" resultMap="BaseResultMap" parameterType="Integer" >
+    select 
+    <include refid="Base_Column_List" />
+    from mds_resource_pool
+    where cluster_id = #{clusterId,jdbcType=INTEGER}
+  </select>
+  <delete id="deleteByPrimaryKey" parameterType="Integer" >
+    delete from mds_resource_pool
+    where cluster_id = #{clusterId,jdbcType=INTEGER}
+  </delete>
+  <delete id="deleteByExample" parameterType="com.ai.paas.ipaas.mds.dao.mapper.bo.MdsResourcePoolCriteria" >
+    delete from mds_resource_pool
+    <if test="_parameter != null" >
+      <include refid="Example_Where_Clause" />
+    </if>
+  </delete>
+  <insert id="insert" parameterType="com.ai.paas.ipaas.mds.dao.mapper.bo.MdsResourcePool" >
+    insert into mds_resource_pool (cluster_id, cluster_name, zk_address, 
+      kafka_address, cluster_state, remark, 
+      zk_auth_user, zk_auth_passwd)
+    values (#{clusterId,jdbcType=INTEGER}, #{clusterName,jdbcType=VARCHAR}, #{zkAddress,jdbcType=VARCHAR}, 
+      #{kafkaAddress,jdbcType=VARCHAR}, #{clusterState,jdbcType=INTEGER}, #{remark,jdbcType=VARCHAR}, 
+      #{zkAuthUser,jdbcType=VARCHAR}, #{zkAuthPasswd,jdbcType=VARCHAR})
+  </insert>
+  <insert id="insertSelective" parameterType="com.ai.paas.ipaas.mds.dao.mapper.bo.MdsResourcePool" >
+    insert into mds_resource_pool
+    <trim prefix="(" suffix=")" suffixOverrides="," >
+      <if test="clusterId != null" >
+        cluster_id,
+      </if>
+      <if test="clusterName != null" >
+        cluster_name,
+      </if>
+      <if test="zkAddress != null" >
+        zk_address,
+      </if>
+      <if test="kafkaAddress != null" >
+        kafka_address,
+      </if>
+      <if test="clusterState != null" >
+        cluster_state,
+      </if>
+      <if test="remark != null" >
+        remark,
+      </if>
+      <if test="zkAuthUser != null" >
+        zk_auth_user,
+      </if>
+      <if test="zkAuthPasswd != null" >
+        zk_auth_passwd,
+      </if>
+    </trim>
+    <trim prefix="values (" suffix=")" suffixOverrides="," >
+      <if test="clusterId != null" >
+        #{clusterId,jdbcType=INTEGER},
+      </if>
+      <if test="clusterName != null" >
+        #{clusterName,jdbcType=VARCHAR},
+      </if>
+      <if test="zkAddress != null" >
+        #{zkAddress,jdbcType=VARCHAR},
+      </if>
+      <if test="kafkaAddress != null" >
+        #{kafkaAddress,jdbcType=VARCHAR},
+      </if>
+      <if test="clusterState != null" >
+        #{clusterState,jdbcType=INTEGER},
+      </if>
+      <if test="remark != null" >
+        #{remark,jdbcType=VARCHAR},
+      </if>
+      <if test="zkAuthUser != null" >
+        #{zkAuthUser,jdbcType=VARCHAR},
+      </if>
+      <if test="zkAuthPasswd != null" >
+        #{zkAuthPasswd,jdbcType=VARCHAR},
+      </if>
+    </trim>
+  </insert>
+  <select id="countByExample" parameterType="com.ai.paas.ipaas.mds.dao.mapper.bo.MdsResourcePoolCriteria" resultType="java.lang.Integer" >
+    select count(*) from mds_resource_pool
+    <if test="_parameter != null" >
+      <include refid="Example_Where_Clause" />
+    </if>
+  </select>
+  <update id="updateByExampleSelective" parameterType="map" >
+    update mds_resource_pool
+    <set >
+      <if test="record.clusterId != null" >
+        cluster_id = #{record.clusterId,jdbcType=INTEGER},
+      </if>
+      <if test="record.clusterName != null" >
+        cluster_name = #{record.clusterName,jdbcType=VARCHAR},
+      </if>
+      <if test="record.zkAddress != null" >
+        zk_address = #{record.zkAddress,jdbcType=VARCHAR},
+      </if>
+      <if test="record.kafkaAddress != null" >
+        kafka_address = #{record.kafkaAddress,jdbcType=VARCHAR},
+      </if>
+      <if test="record.clusterState != null" >
+        cluster_state = #{record.clusterState,jdbcType=INTEGER},
+      </if>
+      <if test="record.remark != null" >
+        remark = #{record.remark,jdbcType=VARCHAR},
+      </if>
+      <if test="record.zkAuthUser != null" >
+        zk_auth_user = #{record.zkAuthUser,jdbcType=VARCHAR},
+      </if>
+      <if test="record.zkAuthPasswd != null" >
+        zk_auth_passwd = #{record.zkAuthPasswd,jdbcType=VARCHAR},
+      </if>
+    </set>
+    <if test="_parameter != null" >
+      <include refid="Update_By_Example_Where_Clause" />
+    </if>
+  </update>
+  <update id="updateByExample" parameterType="map" >
+    update mds_resource_pool
+    set cluster_id = #{record.clusterId,jdbcType=INTEGER},
+      cluster_name = #{record.clusterName,jdbcType=VARCHAR},
+      zk_address = #{record.zkAddress,jdbcType=VARCHAR},
+      kafka_address = #{record.kafkaAddress,jdbcType=VARCHAR},
+      cluster_state = #{record.clusterState,jdbcType=INTEGER},
+      remark = #{record.remark,jdbcType=VARCHAR},
+      zk_auth_user = #{record.zkAuthUser,jdbcType=VARCHAR},
+      zk_auth_passwd = #{record.zkAuthPasswd,jdbcType=VARCHAR}
+    <if test="_parameter != null" >
+      <include refid="Update_By_Example_Where_Clause" />
+    </if>
+  </update>
+  <update id="updateByPrimaryKeySelective" parameterType="com.ai.paas.ipaas.mds.dao.mapper.bo.MdsResourcePool" >
+    update mds_resource_pool
+    <set >
+      <if test="clusterName != null" >
+        cluster_name = #{clusterName,jdbcType=VARCHAR},
+      </if>
+      <if test="zkAddress != null" >
+        zk_address = #{zkAddress,jdbcType=VARCHAR},
+      </if>
+      <if test="kafkaAddress != null" >
+        kafka_address = #{kafkaAddress,jdbcType=VARCHAR},
+      </if>
+      <if test="clusterState != null" >
+        cluster_state = #{clusterState,jdbcType=INTEGER},
+      </if>
+      <if test="remark != null" >
+        remark = #{remark,jdbcType=VARCHAR},
+      </if>
+      <if test="zkAuthUser != null" >
+        zk_auth_user = #{zkAuthUser,jdbcType=VARCHAR},
+      </if>
+      <if test="zkAuthPasswd != null" >
+        zk_auth_passwd = #{zkAuthPasswd,jdbcType=VARCHAR},
+      </if>
+    </set>
+    where cluster_id = #{clusterId,jdbcType=INTEGER}
+  </update>
+  <update id="updateByPrimaryKey" parameterType="com.ai.paas.ipaas.mds.dao.mapper.bo.MdsResourcePool" >
+    update mds_resource_pool
+    set cluster_name = #{clusterName,jdbcType=VARCHAR},
+      zk_address = #{zkAddress,jdbcType=VARCHAR},
+      kafka_address = #{kafkaAddress,jdbcType=VARCHAR},
+      cluster_state = #{clusterState,jdbcType=INTEGER},
+      remark = #{remark,jdbcType=VARCHAR},
+      zk_auth_user = #{zkAuthUser,jdbcType=VARCHAR},
+      zk_auth_passwd = #{zkAuthPasswd,jdbcType=VARCHAR}
+    where cluster_id = #{clusterId,jdbcType=INTEGER}
+  </update>
+</mapper>

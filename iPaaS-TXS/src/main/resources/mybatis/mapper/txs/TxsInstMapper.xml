@@ -1,0 +1,267 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.ai.paas.ipaas.txs.dao.interfaces.TxsInstMapper" >
+  <resultMap id="BaseResultMap" type="com.ai.paas.ipaas.txs.dao.mapper.bo.TxsInst" >
+    <id column="txs_inst_id" property="txsInstId" jdbcType="INTEGER" />
+    <result column="user_id" property="userId" jdbcType="VARCHAR" />
+    <result column="service_id" property="serviceId" jdbcType="VARCHAR" />
+    <result column="txs_resource_id" property="txsResourceId" jdbcType="INTEGER" />
+    <result column="zk_path" property="zkPath" jdbcType="VARCHAR" />
+    <result column="zk_node" property="zkNode" jdbcType="VARCHAR" />
+    <result column="inst_state" property="instState" jdbcType="INTEGER" />
+    <result column="inst_state_time" property="instStateTime" jdbcType="TIMESTAMP" />
+    <result column="remarks" property="remarks" jdbcType="VARCHAR" />
+  </resultMap>
+  <sql id="Example_Where_Clause" >
+    <where >
+      <foreach collection="oredCriteria" item="criteria" separator="or" >
+        <if test="criteria.valid" >
+          <trim prefix="(" suffix=")" prefixOverrides="and" >
+            <foreach collection="criteria.criteria" item="criterion" >
+              <choose >
+                <when test="criterion.noValue" >
+                  and ${criterion.condition}
+                </when>
+                <when test="criterion.singleValue" >
+                  and ${criterion.condition} #{criterion.value}
+                </when>
+                <when test="criterion.betweenValue" >
+                  and ${criterion.condition} #{criterion.value} and #{criterion.secondValue}
+                </when>
+                <when test="criterion.listValue" >
+                  and ${criterion.condition}
+                  <foreach collection="criterion.value" item="listItem" open="(" close=")" separator="," >
+                    #{listItem}
+                  </foreach>
+                </when>
+              </choose>
+            </foreach>
+          </trim>
+        </if>
+      </foreach>
+    </where>
+  </sql>
+  <sql id="Update_By_Example_Where_Clause" >
+    <where >
+      <foreach collection="example.oredCriteria" item="criteria" separator="or" >
+        <if test="criteria.valid" >
+          <trim prefix="(" suffix=")" prefixOverrides="and" >
+            <foreach collection="criteria.criteria" item="criterion" >
+              <choose >
+                <when test="criterion.noValue" >
+                  and ${criterion.condition}
+                </when>
+                <when test="criterion.singleValue" >
+                  and ${criterion.condition} #{criterion.value}
+                </when>
+                <when test="criterion.betweenValue" >
+                  and ${criterion.condition} #{criterion.value} and #{criterion.secondValue}
+                </when>
+                <when test="criterion.listValue" >
+                  and ${criterion.condition}
+                  <foreach collection="criterion.value" item="listItem" open="(" close=")" separator="," >
+                    #{listItem}
+                  </foreach>
+                </when>
+              </choose>
+            </foreach>
+          </trim>
+        </if>
+      </foreach>
+    </where>
+  </sql>
+  <sql id="Base_Column_List" >
+    txs_inst_id, user_id, service_id, txs_resource_id, zk_path, zk_node, inst_state, 
+    inst_state_time, remarks
+  </sql>
+  <select id="selectByExample" resultMap="BaseResultMap" parameterType="com.ai.paas.ipaas.txs.dao.mapper.bo.TxsInstCriteria" >
+    select
+    <if test="distinct" >
+      distinct
+    </if>
+    <include refid="Base_Column_List" />
+    from txs_inst
+    <if test="_parameter != null" >
+      <include refid="Example_Where_Clause" />
+    </if>
+    <if test="orderByClause != null" >
+      order by ${orderByClause}
+    </if>
+    <if test="limitStart != null and limitStart>=0" >
+      limit #{limitStart} , #{limitEnd}
+    </if>
+  </select>
+  <select id="selectByPrimaryKey" resultMap="BaseResultMap" parameterType="int" >
+    select 
+    <include refid="Base_Column_List" />
+    from txs_inst
+    where txs_inst_id = #{txsInstId,jdbcType=INTEGER}
+  </select>
+  <delete id="deleteByPrimaryKey" parameterType="int" >
+    delete from txs_inst
+    where txs_inst_id = #{txsInstId,jdbcType=INTEGER}
+  </delete>
+  <delete id="deleteByExample" parameterType="com.ai.paas.ipaas.txs.dao.mapper.bo.TxsInstCriteria" >
+    delete from txs_inst
+    <if test="_parameter != null" >
+      <include refid="Example_Where_Clause" />
+    </if>
+  </delete>
+  <insert id="insert" parameterType="com.ai.paas.ipaas.txs.dao.mapper.bo.TxsInst" >
+    insert into txs_inst (txs_inst_id, user_id, service_id, 
+      txs_resource_id, zk_path, zk_node, 
+      inst_state, inst_state_time, remarks
+      )
+    values (#{txsInstId,jdbcType=INTEGER}, #{userId,jdbcType=VARCHAR}, #{serviceId,jdbcType=VARCHAR}, 
+      #{txsResourceId,jdbcType=INTEGER}, #{zkPath,jdbcType=VARCHAR}, #{zkNode,jdbcType=VARCHAR}, 
+      #{instState,jdbcType=INTEGER}, #{instStateTime,jdbcType=TIMESTAMP}, #{remarks,jdbcType=VARCHAR}
+      )
+  </insert>
+  <insert id="insertSelective" parameterType="com.ai.paas.ipaas.txs.dao.mapper.bo.TxsInst" >
+    insert into txs_inst
+    <trim prefix="(" suffix=")" suffixOverrides="," >
+      txs_inst_id,
+      <if test="userId != null" >
+        user_id,
+      </if>
+      <if test="serviceId != null" >
+        service_id,
+      </if>
+      txs_resource_id,
+      <if test="zkPath != null" >
+        zk_path,
+      </if>
+      <if test="zkNode != null" >
+        zk_node,
+      </if>
+      inst_state,
+      <if test="instStateTime != null" >
+        inst_state_time,
+      </if>
+      <if test="remarks != null" >
+        remarks,
+      </if>
+    </trim>
+    <trim prefix="values (" suffix=")" suffixOverrides="," >
+      #{txsInstId,jdbcType=INTEGER},
+      <if test="userId != null" >
+        #{userId,jdbcType=VARCHAR},
+      </if>
+      <if test="serviceId != null" >
+        #{serviceId,jdbcType=VARCHAR},
+      </if>
+      #{txsResourceId,jdbcType=INTEGER},
+      <if test="zkPath != null" >
+        #{zkPath,jdbcType=VARCHAR},
+      </if>
+      <if test="zkNode != null" >
+        #{zkNode,jdbcType=VARCHAR},
+      </if>
+      #{instState,jdbcType=INTEGER},
+      <if test="instStateTime != null" >
+        #{instStateTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="remarks != null" >
+        #{remarks,jdbcType=VARCHAR},
+      </if>
+    </trim>
+  </insert>
+  <select id="countByExample" parameterType="com.ai.paas.ipaas.txs.dao.mapper.bo.TxsInstCriteria" resultType="java.lang.Integer" >
+    select count(*) from txs_inst
+    <if test="_parameter != null" >
+      <include refid="Example_Where_Clause" />
+    </if>
+  </select>
+  <update id="updateByExampleSelective" parameterType="map" >
+    update txs_inst
+    <set >
+      <if test="record.txsInstId != null" >
+        txs_inst_id = #{record.txsInstId,jdbcType=INTEGER},
+      </if>
+      <if test="record.userId != null" >
+        user_id = #{record.userId,jdbcType=VARCHAR},
+      </if>
+      <if test="record.serviceId != null" >
+        service_id = #{record.serviceId,jdbcType=VARCHAR},
+      </if>
+      <if test="record.txsResourceId != null" >
+        txs_resource_id = #{record.txsResourceId,jdbcType=INTEGER},
+      </if>
+      <if test="record.zkPath != null" >
+        zk_path = #{record.zkPath,jdbcType=VARCHAR},
+      </if>
+      <if test="record.zkNode != null" >
+        zk_node = #{record.zkNode,jdbcType=VARCHAR},
+      </if>
+      <if test="record.instState != null" >
+        inst_state = #{record.instState,jdbcType=INTEGER},
+      </if>
+      <if test="record.instStateTime != null" >
+        inst_state_time = #{record.instStateTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="record.remarks != null" >
+        remarks = #{record.remarks,jdbcType=VARCHAR},
+      </if>
+    </set>
+    <if test="_parameter != null" >
+      <include refid="Update_By_Example_Where_Clause" />
+    </if>
+  </update>
+  <update id="updateByExample" parameterType="map" >
+    update txs_inst
+    set txs_inst_id = #{record.txsInstId,jdbcType=INTEGER},
+      user_id = #{record.userId,jdbcType=VARCHAR},
+      service_id = #{record.serviceId,jdbcType=VARCHAR},
+      txs_resource_id = #{record.txsResourceId,jdbcType=INTEGER},
+      zk_path = #{record.zkPath,jdbcType=VARCHAR},
+      zk_node = #{record.zkNode,jdbcType=VARCHAR},
+      inst_state = #{record.instState,jdbcType=INTEGER},
+      inst_state_time = #{record.instStateTime,jdbcType=TIMESTAMP},
+      remarks = #{record.remarks,jdbcType=VARCHAR}
+    <if test="_parameter != null" >
+      <include refid="Update_By_Example_Where_Clause" />
+    </if>
+  </update>
+  <update id="updateByPrimaryKeySelective" parameterType="com.ai.paas.ipaas.txs.dao.mapper.bo.TxsInst" >
+    update txs_inst
+    <set >
+      <if test="userId != null" >
+        user_id = #{userId,jdbcType=VARCHAR},
+      </if>
+      <if test="serviceId != null" >
+        service_id = #{serviceId,jdbcType=VARCHAR},
+      </if>
+      <if test="txsResourceId != null" >
+        txs_resource_id = #{txsResourceId,jdbcType=INTEGER},
+      </if>
+      <if test="zkPath != null" >
+        zk_path = #{zkPath,jdbcType=VARCHAR},
+      </if>
+      <if test="zkNode != null" >
+        zk_node = #{zkNode,jdbcType=VARCHAR},
+      </if>
+      <if test="instState != null" >
+        inst_state = #{instState,jdbcType=INTEGER},
+      </if>
+      <if test="instStateTime != null" >
+        inst_state_time = #{instStateTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="remarks != null" >
+        remarks = #{remarks,jdbcType=VARCHAR},
+      </if>
+    </set>
+    where txs_inst_id = #{txsInstId,jdbcType=INTEGER}
+  </update>
+  <update id="updateByPrimaryKey" parameterType="com.ai.paas.ipaas.txs.dao.mapper.bo.TxsInst" >
+    update txs_inst
+    set user_id = #{userId,jdbcType=VARCHAR},
+      service_id = #{serviceId,jdbcType=VARCHAR},
+      txs_resource_id = #{txsResourceId,jdbcType=INTEGER},
+      zk_path = #{zkPath,jdbcType=VARCHAR},
+      zk_node = #{zkNode,jdbcType=VARCHAR},
+      inst_state = #{instState,jdbcType=INTEGER},
+      inst_state_time = #{instStateTime,jdbcType=TIMESTAMP},
+      remarks = #{remarks,jdbcType=VARCHAR}
+    where txs_inst_id = #{txsInstId,jdbcType=INTEGER}
+  </update>
+</mapper>

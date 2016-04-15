@@ -1,0 +1,238 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.ai.paas.ipaas.ccs.dao.interfaces.CcsUserConfigMapper" >
+  <resultMap id="BaseResultMap" type="com.ai.paas.ipaas.ccs.dao.mapper.bo.CcsUserConfig" >
+    <id column="id" property="id" jdbcType="INTEGER" />
+    <result column="user_id" property="userId" jdbcType="VARCHAR" />
+    <result column="zk_user_name" property="zkUserName" jdbcType="VARCHAR" />
+    <result column="zk_password" property="zkPassword" jdbcType="VARCHAR" />
+    <result column="zk_address" property="zkAddress" jdbcType="VARCHAR" />
+    <result column="update_time" property="updateTime" jdbcType="DATE" />
+    <result column="ccs_resource_id" property="ccsResourceId" jdbcType="INTEGER" />
+  </resultMap>
+  <sql id="Example_Where_Clause" >
+    <where >
+      <foreach collection="oredCriteria" item="criteria" separator="or" >
+        <if test="criteria.valid" >
+          <trim prefix="(" suffix=")" prefixOverrides="and" >
+            <foreach collection="criteria.criteria" item="criterion" >
+              <choose >
+                <when test="criterion.noValue" >
+                  and ${criterion.condition}
+                </when>
+                <when test="criterion.singleValue" >
+                  and ${criterion.condition} #{criterion.value}
+                </when>
+                <when test="criterion.betweenValue" >
+                  and ${criterion.condition} #{criterion.value} and #{criterion.secondValue}
+                </when>
+                <when test="criterion.listValue" >
+                  and ${criterion.condition}
+                  <foreach collection="criterion.value" item="listItem" open="(" close=")" separator="," >
+                    #{listItem}
+                  </foreach>
+                </when>
+              </choose>
+            </foreach>
+          </trim>
+        </if>
+      </foreach>
+    </where>
+  </sql>
+  <sql id="Update_By_Example_Where_Clause" >
+    <where >
+      <foreach collection="example.oredCriteria" item="criteria" separator="or" >
+        <if test="criteria.valid" >
+          <trim prefix="(" suffix=")" prefixOverrides="and" >
+            <foreach collection="criteria.criteria" item="criterion" >
+              <choose >
+                <when test="criterion.noValue" >
+                  and ${criterion.condition}
+                </when>
+                <when test="criterion.singleValue" >
+                  and ${criterion.condition} #{criterion.value}
+                </when>
+                <when test="criterion.betweenValue" >
+                  and ${criterion.condition} #{criterion.value} and #{criterion.secondValue}
+                </when>
+                <when test="criterion.listValue" >
+                  and ${criterion.condition}
+                  <foreach collection="criterion.value" item="listItem" open="(" close=")" separator="," >
+                    #{listItem}
+                  </foreach>
+                </when>
+              </choose>
+            </foreach>
+          </trim>
+        </if>
+      </foreach>
+    </where>
+  </sql>
+  <sql id="Base_Column_List" >
+    id, user_id, zk_user_name, zk_password, zk_address, update_time, ccs_resource_id
+  </sql>
+  <select id="selectByExample" resultMap="BaseResultMap" parameterType="com.ai.paas.ipaas.ccs.dao.mapper.bo.CcsUserConfigCriteria" >
+    select
+    <if test="distinct" >
+      distinct
+    </if>
+    <include refid="Base_Column_List" />
+    from ccs_user_config
+    <if test="_parameter != null" >
+      <include refid="Example_Where_Clause" />
+    </if>
+    <if test="orderByClause != null" >
+      order by ${orderByClause}
+    </if>
+    <if test="limitStart != null and limitStart>=0" >
+      limit #{limitStart} , #{limitEnd}
+    </if>
+  </select>
+  <select id="selectByPrimaryKey" resultMap="BaseResultMap" parameterType="int" >
+    select 
+    <include refid="Base_Column_List" />
+    from ccs_user_config
+    where id = #{id,jdbcType=INTEGER}
+  </select>
+  <delete id="deleteByPrimaryKey" parameterType="int" >
+    delete from ccs_user_config
+    where id = #{id,jdbcType=INTEGER}
+  </delete>
+  <delete id="deleteByExample" parameterType="com.ai.paas.ipaas.ccs.dao.mapper.bo.CcsUserConfigCriteria" >
+    delete from ccs_user_config
+    <if test="_parameter != null" >
+      <include refid="Example_Where_Clause" />
+    </if>
+  </delete>
+  <insert id="insert" parameterType="com.ai.paas.ipaas.ccs.dao.mapper.bo.CcsUserConfig" >
+    insert into ccs_user_config (id, user_id, zk_user_name, 
+      zk_password, zk_address, update_time, 
+      ccs_resource_id)
+    values (#{id,jdbcType=INTEGER}, #{userId,jdbcType=VARCHAR}, #{zkUserName,jdbcType=VARCHAR}, 
+      #{zkPassword,jdbcType=VARCHAR}, #{zkAddress,jdbcType=VARCHAR}, #{updateTime,jdbcType=DATE}, 
+      #{ccsResourceId,jdbcType=INTEGER})
+  </insert>
+  <insert id="insertSelective" parameterType="com.ai.paas.ipaas.ccs.dao.mapper.bo.CcsUserConfig" >
+    insert into ccs_user_config
+    <trim prefix="(" suffix=")" suffixOverrides="," >
+      id,
+      <if test="userId != null" >
+        user_id,
+      </if>
+      <if test="zkUserName != null" >
+        zk_user_name,
+      </if>
+      <if test="zkPassword != null" >
+        zk_password,
+      </if>
+      <if test="zkAddress != null" >
+        zk_address,
+      </if>
+      <if test="updateTime != null" >
+        update_time,
+      </if>
+      ccs_resource_id,
+    </trim>
+    <trim prefix="values (" suffix=")" suffixOverrides="," >
+      #{id,jdbcType=INTEGER},
+      <if test="userId != null" >
+        #{userId,jdbcType=VARCHAR},
+      </if>
+      <if test="zkUserName != null" >
+        #{zkUserName,jdbcType=VARCHAR},
+      </if>
+      <if test="zkPassword != null" >
+        #{zkPassword,jdbcType=VARCHAR},
+      </if>
+      <if test="zkAddress != null" >
+        #{zkAddress,jdbcType=VARCHAR},
+      </if>
+      <if test="updateTime != null" >
+        #{updateTime,jdbcType=DATE},
+      </if>
+      #{ccsResourceId,jdbcType=INTEGER},
+    </trim>
+  </insert>
+  <select id="countByExample" parameterType="com.ai.paas.ipaas.ccs.dao.mapper.bo.CcsUserConfigCriteria" resultType="java.lang.Integer" >
+    select count(*) from ccs_user_config
+    <if test="_parameter != null" >
+      <include refid="Example_Where_Clause" />
+    </if>
+  </select>
+  <update id="updateByExampleSelective" parameterType="map" >
+    update ccs_user_config
+    <set >
+      <if test="record.id != null" >
+        id = #{record.id,jdbcType=INTEGER},
+      </if>
+      <if test="record.userId != null" >
+        user_id = #{record.userId,jdbcType=VARCHAR},
+      </if>
+      <if test="record.zkUserName != null" >
+        zk_user_name = #{record.zkUserName,jdbcType=VARCHAR},
+      </if>
+      <if test="record.zkPassword != null" >
+        zk_password = #{record.zkPassword,jdbcType=VARCHAR},
+      </if>
+      <if test="record.zkAddress != null" >
+        zk_address = #{record.zkAddress,jdbcType=VARCHAR},
+      </if>
+      <if test="record.updateTime != null" >
+        update_time = #{record.updateTime,jdbcType=DATE},
+      </if>
+      <if test="record.ccsResourceId != null" >
+        ccs_resource_id = #{record.ccsResourceId,jdbcType=INTEGER},
+      </if>
+    </set>
+    <if test="_parameter != null" >
+      <include refid="Update_By_Example_Where_Clause" />
+    </if>
+  </update>
+  <update id="updateByExample" parameterType="map" >
+    update ccs_user_config
+    set id = #{record.id,jdbcType=INTEGER},
+      user_id = #{record.userId,jdbcType=VARCHAR},
+      zk_user_name = #{record.zkUserName,jdbcType=VARCHAR},
+      zk_password = #{record.zkPassword,jdbcType=VARCHAR},
+      zk_address = #{record.zkAddress,jdbcType=VARCHAR},
+      update_time = #{record.updateTime,jdbcType=DATE},
+      ccs_resource_id = #{record.ccsResourceId,jdbcType=INTEGER}
+    <if test="_parameter != null" >
+      <include refid="Update_By_Example_Where_Clause" />
+    </if>
+  </update>
+  <update id="updateByPrimaryKeySelective" parameterType="com.ai.paas.ipaas.ccs.dao.mapper.bo.CcsUserConfig" >
+    update ccs_user_config
+    <set >
+      <if test="userId != null" >
+        user_id = #{userId,jdbcType=VARCHAR},
+      </if>
+      <if test="zkUserName != null" >
+        zk_user_name = #{zkUserName,jdbcType=VARCHAR},
+      </if>
+      <if test="zkPassword != null" >
+        zk_password = #{zkPassword,jdbcType=VARCHAR},
+      </if>
+      <if test="zkAddress != null" >
+        zk_address = #{zkAddress,jdbcType=VARCHAR},
+      </if>
+      <if test="updateTime != null" >
+        update_time = #{updateTime,jdbcType=DATE},
+      </if>
+      <if test="ccsResourceId != null" >
+        ccs_resource_id = #{ccsResourceId,jdbcType=INTEGER},
+      </if>
+    </set>
+    where id = #{id,jdbcType=INTEGER}
+  </update>
+  <update id="updateByPrimaryKey" parameterType="com.ai.paas.ipaas.ccs.dao.mapper.bo.CcsUserConfig" >
+    update ccs_user_config
+    set user_id = #{userId,jdbcType=VARCHAR},
+      zk_user_name = #{zkUserName,jdbcType=VARCHAR},
+      zk_password = #{zkPassword,jdbcType=VARCHAR},
+      zk_address = #{zkAddress,jdbcType=VARCHAR},
+      update_time = #{updateTime,jdbcType=DATE},
+      ccs_resource_id = #{ccsResourceId,jdbcType=INTEGER}
+    where id = #{id,jdbcType=INTEGER}
+  </update>
+</mapper>

@@ -1,0 +1,421 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.ai.paas.ipaas.mds.dao.interfaces.MdsUserTopicMapper" >
+  <resultMap id="BaseResultMap" type="com.ai.paas.ipaas.mds.dao.mapper.bo.MdsUserTopic" >
+    <id column="topic_inst_id" property="topicInstId" jdbcType="INTEGER" />
+    <result column="srv_inst_id" property="srvInstId" jdbcType="INTEGER" />
+    <result column="topic_display_name" property="topicDisplayName" jdbcType="VARCHAR" />
+    <result column="topic_en_name" property="topicEnName" jdbcType="VARCHAR" />
+    <result column="user_id" property="userId" jdbcType="VARCHAR" />
+    <result column="user_srv_id" property="userSrvId" jdbcType="VARCHAR" />
+    <result column="mds_cluster_id" property="mdsClusterId" jdbcType="INTEGER" />
+    <result column="producer_config_path" property="producerConfigPath" jdbcType="VARCHAR" />
+    <result column="producer_config" property="producerConfig" jdbcType="VARCHAR" />
+    <result column="consumer_config_path" property="consumerConfigPath" jdbcType="VARCHAR" />
+    <result column="consumer_config" property="consumerConfig" jdbcType="VARCHAR" />
+    <result column="topic_partitions" property="topicPartitions" jdbcType="INTEGER" />
+    <result column="msg_replicas" property="msgReplicas" jdbcType="INTEGER" />
+    <result column="reamrk" property="reamrk" jdbcType="VARCHAR" />
+    <result column="state" property="state" jdbcType="INTEGER" />
+    <result column="operator_id" property="operatorId" jdbcType="VARCHAR" />
+    <result column="created_time" property="createdTime" jdbcType="TIMESTAMP" />
+    <result column="modified_time" property="modifiedTime" jdbcType="TIMESTAMP" />
+  </resultMap>
+  <sql id="Example_Where_Clause" >
+    <where >
+      <foreach collection="oredCriteria" item="criteria" separator="or" >
+        <if test="criteria.valid" >
+          <trim prefix="(" suffix=")" prefixOverrides="and" >
+            <foreach collection="criteria.criteria" item="criterion" >
+              <choose >
+                <when test="criterion.noValue" >
+                  and ${criterion.condition}
+                </when>
+                <when test="criterion.singleValue" >
+                  and ${criterion.condition} #{criterion.value}
+                </when>
+                <when test="criterion.betweenValue" >
+                  and ${criterion.condition} #{criterion.value} and #{criterion.secondValue}
+                </when>
+                <when test="criterion.listValue" >
+                  and ${criterion.condition}
+                  <foreach collection="criterion.value" item="listItem" open="(" close=")" separator="," >
+                    #{listItem}
+                  </foreach>
+                </when>
+              </choose>
+            </foreach>
+          </trim>
+        </if>
+      </foreach>
+    </where>
+  </sql>
+  <sql id="Update_By_Example_Where_Clause" >
+    <where >
+      <foreach collection="example.oredCriteria" item="criteria" separator="or" >
+        <if test="criteria.valid" >
+          <trim prefix="(" suffix=")" prefixOverrides="and" >
+            <foreach collection="criteria.criteria" item="criterion" >
+              <choose >
+                <when test="criterion.noValue" >
+                  and ${criterion.condition}
+                </when>
+                <when test="criterion.singleValue" >
+                  and ${criterion.condition} #{criterion.value}
+                </when>
+                <when test="criterion.betweenValue" >
+                  and ${criterion.condition} #{criterion.value} and #{criterion.secondValue}
+                </when>
+                <when test="criterion.listValue" >
+                  and ${criterion.condition}
+                  <foreach collection="criterion.value" item="listItem" open="(" close=")" separator="," >
+                    #{listItem}
+                  </foreach>
+                </when>
+              </choose>
+            </foreach>
+          </trim>
+        </if>
+      </foreach>
+    </where>
+  </sql>
+  <sql id="Base_Column_List" >
+    topic_inst_id, srv_inst_id, topic_display_name, topic_en_name, user_id, user_srv_id, 
+    mds_cluster_id, producer_config_path, producer_config, consumer_config_path, consumer_config, 
+    topic_partitions, msg_replicas, reamrk, state, operator_id, created_time, modified_time
+  </sql>
+  <select id="selectByExample" resultMap="BaseResultMap" parameterType="com.ai.paas.ipaas.mds.dao.mapper.bo.MdsUserTopicCriteria" >
+    select
+    <if test="distinct" >
+      distinct
+    </if>
+    <include refid="Base_Column_List" />
+    from mds_user_topic
+    <if test="_parameter != null" >
+      <include refid="Example_Where_Clause" />
+    </if>
+    <if test="orderByClause != null" >
+      order by ${orderByClause}
+    </if>
+    <if test="limitStart != null and limitStart>=0" >
+      limit #{limitStart} , #{limitEnd}
+    </if>
+  </select>
+  <select id="selectByPrimaryKey" resultMap="BaseResultMap" parameterType="Integer" >
+    select 
+    <include refid="Base_Column_List" />
+    from mds_user_topic
+    where topic_inst_id = #{topicInstId,jdbcType=INTEGER}
+  </select>
+  <delete id="deleteByPrimaryKey" parameterType="Integer" >
+    delete from mds_user_topic
+    where topic_inst_id = #{topicInstId,jdbcType=INTEGER}
+  </delete>
+  <delete id="deleteByExample" parameterType="com.ai.paas.ipaas.mds.dao.mapper.bo.MdsUserTopicCriteria" >
+    delete from mds_user_topic
+    <if test="_parameter != null" >
+      <include refid="Example_Where_Clause" />
+    </if>
+  </delete>
+  <insert id="insert" parameterType="com.ai.paas.ipaas.mds.dao.mapper.bo.MdsUserTopic" >
+    insert into mds_user_topic (topic_inst_id, srv_inst_id, topic_display_name, 
+      topic_en_name, user_id, user_srv_id, 
+      mds_cluster_id, producer_config_path, producer_config, 
+      consumer_config_path, consumer_config, topic_partitions, 
+      msg_replicas, reamrk, state, 
+      operator_id, created_time, modified_time
+      )
+    values (#{topicInstId,jdbcType=INTEGER}, #{srvInstId,jdbcType=INTEGER}, #{topicDisplayName,jdbcType=VARCHAR}, 
+      #{topicEnName,jdbcType=VARCHAR}, #{userId,jdbcType=VARCHAR}, #{userSrvId,jdbcType=VARCHAR}, 
+      #{mdsClusterId,jdbcType=INTEGER}, #{producerConfigPath,jdbcType=VARCHAR}, #{producerConfig,jdbcType=VARCHAR}, 
+      #{consumerConfigPath,jdbcType=VARCHAR}, #{consumerConfig,jdbcType=VARCHAR}, #{topicPartitions,jdbcType=INTEGER}, 
+      #{msgReplicas,jdbcType=INTEGER}, #{reamrk,jdbcType=VARCHAR}, #{state,jdbcType=INTEGER}, 
+      #{operatorId,jdbcType=VARCHAR}, #{createdTime,jdbcType=TIMESTAMP}, #{modifiedTime,jdbcType=TIMESTAMP}
+      )
+  </insert>
+  <insert id="insertSelective" parameterType="com.ai.paas.ipaas.mds.dao.mapper.bo.MdsUserTopic" >
+    insert into mds_user_topic
+    <trim prefix="(" suffix=")" suffixOverrides="," >
+      <if test="topicInstId != null" >
+        topic_inst_id,
+      </if>
+      <if test="srvInstId != null" >
+        srv_inst_id,
+      </if>
+      <if test="topicDisplayName != null" >
+        topic_display_name,
+      </if>
+      <if test="topicEnName != null" >
+        topic_en_name,
+      </if>
+      <if test="userId != null" >
+        user_id,
+      </if>
+      <if test="userSrvId != null" >
+        user_srv_id,
+      </if>
+      <if test="mdsClusterId != null" >
+        mds_cluster_id,
+      </if>
+      <if test="producerConfigPath != null" >
+        producer_config_path,
+      </if>
+      <if test="producerConfig != null" >
+        producer_config,
+      </if>
+      <if test="consumerConfigPath != null" >
+        consumer_config_path,
+      </if>
+      <if test="consumerConfig != null" >
+        consumer_config,
+      </if>
+      <if test="topicPartitions != null" >
+        topic_partitions,
+      </if>
+      <if test="msgReplicas != null" >
+        msg_replicas,
+      </if>
+      <if test="reamrk != null" >
+        reamrk,
+      </if>
+      <if test="state != null" >
+        state,
+      </if>
+      <if test="operatorId != null" >
+        operator_id,
+      </if>
+      <if test="createdTime != null" >
+        created_time,
+      </if>
+      <if test="modifiedTime != null" >
+        modified_time,
+      </if>
+    </trim>
+    <trim prefix="values (" suffix=")" suffixOverrides="," >
+      <if test="topicInstId != null" >
+        #{topicInstId,jdbcType=INTEGER},
+      </if>
+      <if test="srvInstId != null" >
+        #{srvInstId,jdbcType=INTEGER},
+      </if>
+      <if test="topicDisplayName != null" >
+        #{topicDisplayName,jdbcType=VARCHAR},
+      </if>
+      <if test="topicEnName != null" >
+        #{topicEnName,jdbcType=VARCHAR},
+      </if>
+      <if test="userId != null" >
+        #{userId,jdbcType=VARCHAR},
+      </if>
+      <if test="userSrvId != null" >
+        #{userSrvId,jdbcType=VARCHAR},
+      </if>
+      <if test="mdsClusterId != null" >
+        #{mdsClusterId,jdbcType=INTEGER},
+      </if>
+      <if test="producerConfigPath != null" >
+        #{producerConfigPath,jdbcType=VARCHAR},
+      </if>
+      <if test="producerConfig != null" >
+        #{producerConfig,jdbcType=VARCHAR},
+      </if>
+      <if test="consumerConfigPath != null" >
+        #{consumerConfigPath,jdbcType=VARCHAR},
+      </if>
+      <if test="consumerConfig != null" >
+        #{consumerConfig,jdbcType=VARCHAR},
+      </if>
+      <if test="topicPartitions != null" >
+        #{topicPartitions,jdbcType=INTEGER},
+      </if>
+      <if test="msgReplicas != null" >
+        #{msgReplicas,jdbcType=INTEGER},
+      </if>
+      <if test="reamrk != null" >
+        #{reamrk,jdbcType=VARCHAR},
+      </if>
+      <if test="state != null" >
+        #{state,jdbcType=INTEGER},
+      </if>
+      <if test="operatorId != null" >
+        #{operatorId,jdbcType=VARCHAR},
+      </if>
+      <if test="createdTime != null" >
+        #{createdTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="modifiedTime != null" >
+        #{modifiedTime,jdbcType=TIMESTAMP},
+      </if>
+    </trim>
+  </insert>
+  <select id="countByExample" parameterType="com.ai.paas.ipaas.mds.dao.mapper.bo.MdsUserTopicCriteria" resultType="java.lang.Integer" >
+    select count(*) from mds_user_topic
+    <if test="_parameter != null" >
+      <include refid="Example_Where_Clause" />
+    </if>
+  </select>
+  <update id="updateByExampleSelective" parameterType="map" >
+    update mds_user_topic
+    <set >
+      <if test="record.topicInstId != null" >
+        topic_inst_id = #{record.topicInstId,jdbcType=INTEGER},
+      </if>
+      <if test="record.srvInstId != null" >
+        srv_inst_id = #{record.srvInstId,jdbcType=INTEGER},
+      </if>
+      <if test="record.topicDisplayName != null" >
+        topic_display_name = #{record.topicDisplayName,jdbcType=VARCHAR},
+      </if>
+      <if test="record.topicEnName != null" >
+        topic_en_name = #{record.topicEnName,jdbcType=VARCHAR},
+      </if>
+      <if test="record.userId != null" >
+        user_id = #{record.userId,jdbcType=VARCHAR},
+      </if>
+      <if test="record.userSrvId != null" >
+        user_srv_id = #{record.userSrvId,jdbcType=VARCHAR},
+      </if>
+      <if test="record.mdsClusterId != null" >
+        mds_cluster_id = #{record.mdsClusterId,jdbcType=INTEGER},
+      </if>
+      <if test="record.producerConfigPath != null" >
+        producer_config_path = #{record.producerConfigPath,jdbcType=VARCHAR},
+      </if>
+      <if test="record.producerConfig != null" >
+        producer_config = #{record.producerConfig,jdbcType=VARCHAR},
+      </if>
+      <if test="record.consumerConfigPath != null" >
+        consumer_config_path = #{record.consumerConfigPath,jdbcType=VARCHAR},
+      </if>
+      <if test="record.consumerConfig != null" >
+        consumer_config = #{record.consumerConfig,jdbcType=VARCHAR},
+      </if>
+      <if test="record.topicPartitions != null" >
+        topic_partitions = #{record.topicPartitions,jdbcType=INTEGER},
+      </if>
+      <if test="record.msgReplicas != null" >
+        msg_replicas = #{record.msgReplicas,jdbcType=INTEGER},
+      </if>
+      <if test="record.reamrk != null" >
+        reamrk = #{record.reamrk,jdbcType=VARCHAR},
+      </if>
+      <if test="record.state != null" >
+        state = #{record.state,jdbcType=INTEGER},
+      </if>
+      <if test="record.operatorId != null" >
+        operator_id = #{record.operatorId,jdbcType=VARCHAR},
+      </if>
+      <if test="record.createdTime != null" >
+        created_time = #{record.createdTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="record.modifiedTime != null" >
+        modified_time = #{record.modifiedTime,jdbcType=TIMESTAMP},
+      </if>
+    </set>
+    <if test="_parameter != null" >
+      <include refid="Update_By_Example_Where_Clause" />
+    </if>
+  </update>
+  <update id="updateByExample" parameterType="map" >
+    update mds_user_topic
+    set topic_inst_id = #{record.topicInstId,jdbcType=INTEGER},
+      srv_inst_id = #{record.srvInstId,jdbcType=INTEGER},
+      topic_display_name = #{record.topicDisplayName,jdbcType=VARCHAR},
+      topic_en_name = #{record.topicEnName,jdbcType=VARCHAR},
+      user_id = #{record.userId,jdbcType=VARCHAR},
+      user_srv_id = #{record.userSrvId,jdbcType=VARCHAR},
+      mds_cluster_id = #{record.mdsClusterId,jdbcType=INTEGER},
+      producer_config_path = #{record.producerConfigPath,jdbcType=VARCHAR},
+      producer_config = #{record.producerConfig,jdbcType=VARCHAR},
+      consumer_config_path = #{record.consumerConfigPath,jdbcType=VARCHAR},
+      consumer_config = #{record.consumerConfig,jdbcType=VARCHAR},
+      topic_partitions = #{record.topicPartitions,jdbcType=INTEGER},
+      msg_replicas = #{record.msgReplicas,jdbcType=INTEGER},
+      reamrk = #{record.reamrk,jdbcType=VARCHAR},
+      state = #{record.state,jdbcType=INTEGER},
+      operator_id = #{record.operatorId,jdbcType=VARCHAR},
+      created_time = #{record.createdTime,jdbcType=TIMESTAMP},
+      modified_time = #{record.modifiedTime,jdbcType=TIMESTAMP}
+    <if test="_parameter != null" >
+      <include refid="Update_By_Example_Where_Clause" />
+    </if>
+  </update>
+  <update id="updateByPrimaryKeySelective" parameterType="com.ai.paas.ipaas.mds.dao.mapper.bo.MdsUserTopic" >
+    update mds_user_topic
+    <set >
+      <if test="srvInstId != null" >
+        srv_inst_id = #{srvInstId,jdbcType=INTEGER},
+      </if>
+      <if test="topicDisplayName != null" >
+        topic_display_name = #{topicDisplayName,jdbcType=VARCHAR},
+      </if>
+      <if test="topicEnName != null" >
+        topic_en_name = #{topicEnName,jdbcType=VARCHAR},
+      </if>
+      <if test="userId != null" >
+        user_id = #{userId,jdbcType=VARCHAR},
+      </if>
+      <if test="userSrvId != null" >
+        user_srv_id = #{userSrvId,jdbcType=VARCHAR},
+      </if>
+      <if test="mdsClusterId != null" >
+        mds_cluster_id = #{mdsClusterId,jdbcType=INTEGER},
+      </if>
+      <if test="producerConfigPath != null" >
+        producer_config_path = #{producerConfigPath,jdbcType=VARCHAR},
+      </if>
+      <if test="producerConfig != null" >
+        producer_config = #{producerConfig,jdbcType=VARCHAR},
+      </if>
+      <if test="consumerConfigPath != null" >
+        consumer_config_path = #{consumerConfigPath,jdbcType=VARCHAR},
+      </if>
+      <if test="consumerConfig != null" >
+        consumer_config = #{consumerConfig,jdbcType=VARCHAR},
+      </if>
+      <if test="topicPartitions != null" >
+        topic_partitions = #{topicPartitions,jdbcType=INTEGER},
+      </if>
+      <if test="msgReplicas != null" >
+        msg_replicas = #{msgReplicas,jdbcType=INTEGER},
+      </if>
+      <if test="reamrk != null" >
+        reamrk = #{reamrk,jdbcType=VARCHAR},
+      </if>
+      <if test="state != null" >
+        state = #{state,jdbcType=INTEGER},
+      </if>
+      <if test="operatorId != null" >
+        operator_id = #{operatorId,jdbcType=VARCHAR},
+      </if>
+      <if test="createdTime != null" >
+        created_time = #{createdTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="modifiedTime != null" >
+        modified_time = #{modifiedTime,jdbcType=TIMESTAMP},
+      </if>
+    </set>
+    where topic_inst_id = #{topicInstId,jdbcType=INTEGER}
+  </update>
+  <update id="updateByPrimaryKey" parameterType="com.ai.paas.ipaas.mds.dao.mapper.bo.MdsUserTopic" >
+    update mds_user_topic
+    set srv_inst_id = #{srvInstId,jdbcType=INTEGER},
+      topic_display_name = #{topicDisplayName,jdbcType=VARCHAR},
+      topic_en_name = #{topicEnName,jdbcType=VARCHAR},
+      user_id = #{userId,jdbcType=VARCHAR},
+      user_srv_id = #{userSrvId,jdbcType=VARCHAR},
+      mds_cluster_id = #{mdsClusterId,jdbcType=INTEGER},
+      producer_config_path = #{producerConfigPath,jdbcType=VARCHAR},
+      producer_config = #{producerConfig,jdbcType=VARCHAR},
+      consumer_config_path = #{consumerConfigPath,jdbcType=VARCHAR},
+      consumer_config = #{consumerConfig,jdbcType=VARCHAR},
+      topic_partitions = #{topicPartitions,jdbcType=INTEGER},
+      msg_replicas = #{msgReplicas,jdbcType=INTEGER},
+      reamrk = #{reamrk,jdbcType=VARCHAR},
+      state = #{state,jdbcType=INTEGER},
+      operator_id = #{operatorId,jdbcType=VARCHAR},
+      created_time = #{createdTime,jdbcType=TIMESTAMP},
+      modified_time = #{modifiedTime,jdbcType=TIMESTAMP}
+    where topic_inst_id = #{topicInstId,jdbcType=INTEGER}
+  </update>
+</mapper>

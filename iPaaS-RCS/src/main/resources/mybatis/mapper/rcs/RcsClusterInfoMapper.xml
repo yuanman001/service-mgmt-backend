@@ -1,0 +1,361 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.ai.paas.ipaas.rcs.dao.interfaces.RcsClusterInfoMapper" >
+  <resultMap id="BaseResultMap" type="com.ai.paas.ipaas.rcs.dao.mapper.bo.RcsClusterInfo" >
+    <id column="ID" property="id" jdbcType="REAL" />
+    <result column="Cluster_ID" property="clusterId" jdbcType="VARCHAR" />
+    <result column="Cluster_Type" property="clusterType" jdbcType="INTEGER" />
+    <result column="Server_count" property="serverCount" jdbcType="INTEGER" />
+    <result column="bandwidth" property="bandwidth" jdbcType="REAL" />
+    <result column="password" property="password" jdbcType="VARCHAR" />
+    <result column="comments" property="comments" jdbcType="VARCHAR" />
+    <result column="Host_CPU" property="hostCpu" jdbcType="VARCHAR" />
+    <result column="HOST_memory" property="hostMemory" jdbcType="VARCHAR" />
+    <result column="HOST_disk" property="hostDisk" jdbcType="VARCHAR" />
+    <result column="Order_status" property="orderStatus" jdbcType="INTEGER" />
+    <result column="Order_user" property="orderUser" jdbcType="VARCHAR" />
+    <result column="Zk_IP" property="zkIp" jdbcType="VARCHAR" />
+    <result column="Zk_port" property="zkPort" jdbcType="VARCHAR" />
+    <result column="Service_Id" property="serviceId" jdbcType="VARCHAR" />
+  </resultMap>
+  <sql id="Example_Where_Clause" >
+    <where >
+      <foreach collection="oredCriteria" item="criteria" separator="or" >
+        <if test="criteria.valid" >
+          <trim prefix="(" suffix=")" prefixOverrides="and" >
+            <foreach collection="criteria.criteria" item="criterion" >
+              <choose >
+                <when test="criterion.noValue" >
+                  and ${criterion.condition}
+                </when>
+                <when test="criterion.singleValue" >
+                  and ${criterion.condition} #{criterion.value}
+                </when>
+                <when test="criterion.betweenValue" >
+                  and ${criterion.condition} #{criterion.value} and #{criterion.secondValue}
+                </when>
+                <when test="criterion.listValue" >
+                  and ${criterion.condition}
+                  <foreach collection="criterion.value" item="listItem" open="(" close=")" separator="," >
+                    #{listItem}
+                  </foreach>
+                </when>
+              </choose>
+            </foreach>
+          </trim>
+        </if>
+      </foreach>
+    </where>
+  </sql>
+  <sql id="Update_By_Example_Where_Clause" >
+    <where >
+      <foreach collection="example.oredCriteria" item="criteria" separator="or" >
+        <if test="criteria.valid" >
+          <trim prefix="(" suffix=")" prefixOverrides="and" >
+            <foreach collection="criteria.criteria" item="criterion" >
+              <choose >
+                <when test="criterion.noValue" >
+                  and ${criterion.condition}
+                </when>
+                <when test="criterion.singleValue" >
+                  and ${criterion.condition} #{criterion.value}
+                </when>
+                <when test="criterion.betweenValue" >
+                  and ${criterion.condition} #{criterion.value} and #{criterion.secondValue}
+                </when>
+                <when test="criterion.listValue" >
+                  and ${criterion.condition}
+                  <foreach collection="criterion.value" item="listItem" open="(" close=")" separator="," >
+                    #{listItem}
+                  </foreach>
+                </when>
+              </choose>
+            </foreach>
+          </trim>
+        </if>
+      </foreach>
+    </where>
+  </sql>
+  <sql id="Base_Column_List" >
+    ID, Cluster_ID, Cluster_Type, Server_count, bandwidth, password, comments, Host_CPU, 
+    HOST_memory, HOST_disk, Order_status, Order_user, Zk_IP, Zk_port, Service_Id
+  </sql>
+  <select id="selectByExample" resultMap="BaseResultMap" parameterType="com.ai.paas.ipaas.rcs.dao.mapper.bo.RcsClusterInfoCriteria" >
+    select
+    <if test="distinct" >
+      distinct
+    </if>
+    <include refid="Base_Column_List" />
+    from rcs_cluster_info
+    <if test="_parameter != null" >
+      <include refid="Example_Where_Clause" />
+    </if>
+    <if test="orderByClause != null" >
+      order by ${orderByClause}
+    </if>
+    <if test="limitStart != null and limitStart>=0" >
+      limit #{limitStart} , #{limitEnd}
+    </if>
+  </select>
+  <select id="selectByPrimaryKey" resultMap="BaseResultMap" parameterType="java.lang.Float" >
+    select 
+    <include refid="Base_Column_List" />
+    from rcs_cluster_info
+    where ID = #{id,jdbcType=REAL}
+  </select>
+  <delete id="deleteByPrimaryKey" parameterType="java.lang.Float" >
+    delete from rcs_cluster_info
+    where ID = #{id,jdbcType=REAL}
+  </delete>
+  <delete id="deleteByExample" parameterType="com.ai.paas.ipaas.rcs.dao.mapper.bo.RcsClusterInfoCriteria" >
+    delete from rcs_cluster_info
+    <if test="_parameter != null" >
+      <include refid="Example_Where_Clause" />
+    </if>
+  </delete>
+  <insert id="insert" parameterType="com.ai.paas.ipaas.rcs.dao.mapper.bo.RcsClusterInfo" >
+    insert into rcs_cluster_info (ID, Cluster_ID, Cluster_Type, 
+      Server_count, bandwidth, password, 
+      comments, Host_CPU, HOST_memory, 
+      HOST_disk, Order_status, Order_user, 
+      Zk_IP, Zk_port, Service_Id
+      )
+    values (#{id,jdbcType=REAL}, #{clusterId,jdbcType=VARCHAR}, #{clusterType,jdbcType=INTEGER}, 
+      #{serverCount,jdbcType=INTEGER}, #{bandwidth,jdbcType=REAL}, #{password,jdbcType=VARCHAR}, 
+      #{comments,jdbcType=VARCHAR}, #{hostCpu,jdbcType=VARCHAR}, #{hostMemory,jdbcType=VARCHAR}, 
+      #{hostDisk,jdbcType=VARCHAR}, #{orderStatus,jdbcType=INTEGER}, #{orderUser,jdbcType=VARCHAR}, 
+      #{zkIp,jdbcType=VARCHAR}, #{zkPort,jdbcType=VARCHAR}, #{serviceId,jdbcType=VARCHAR}
+      )
+  </insert>
+  <insert id="insertSelective" parameterType="com.ai.paas.ipaas.rcs.dao.mapper.bo.RcsClusterInfo" >
+    insert into rcs_cluster_info
+    <trim prefix="(" suffix=")" suffixOverrides="," >
+      <if test="id != null" >
+        ID,
+      </if>
+      <if test="clusterId != null" >
+        Cluster_ID,
+      </if>
+      Cluster_Type,
+      Server_count,
+      <if test="bandwidth != null" >
+        bandwidth,
+      </if>
+      <if test="password != null" >
+        password,
+      </if>
+      <if test="comments != null" >
+        comments,
+      </if>
+      <if test="hostCpu != null" >
+        Host_CPU,
+      </if>
+      <if test="hostMemory != null" >
+        HOST_memory,
+      </if>
+      <if test="hostDisk != null" >
+        HOST_disk,
+      </if>
+      Order_status,
+      <if test="orderUser != null" >
+        Order_user,
+      </if>
+      <if test="zkIp != null" >
+        Zk_IP,
+      </if>
+      <if test="zkPort != null" >
+        Zk_port,
+      </if>
+      <if test="serviceId != null" >
+        Service_Id,
+      </if>
+    </trim>
+    <trim prefix="values (" suffix=")" suffixOverrides="," >
+      <if test="id != null" >
+        #{id,jdbcType=REAL},
+      </if>
+      <if test="clusterId != null" >
+        #{clusterId,jdbcType=VARCHAR},
+      </if>
+      #{clusterType,jdbcType=INTEGER},
+      #{serverCount,jdbcType=INTEGER},
+      <if test="bandwidth != null" >
+        #{bandwidth,jdbcType=REAL},
+      </if>
+      <if test="password != null" >
+        #{password,jdbcType=VARCHAR},
+      </if>
+      <if test="comments != null" >
+        #{comments,jdbcType=VARCHAR},
+      </if>
+      <if test="hostCpu != null" >
+        #{hostCpu,jdbcType=VARCHAR},
+      </if>
+      <if test="hostMemory != null" >
+        #{hostMemory,jdbcType=VARCHAR},
+      </if>
+      <if test="hostDisk != null" >
+        #{hostDisk,jdbcType=VARCHAR},
+      </if>
+      #{orderStatus,jdbcType=INTEGER},
+      <if test="orderUser != null" >
+        #{orderUser,jdbcType=VARCHAR},
+      </if>
+      <if test="zkIp != null" >
+        #{zkIp,jdbcType=VARCHAR},
+      </if>
+      <if test="zkPort != null" >
+        #{zkPort,jdbcType=VARCHAR},
+      </if>
+      <if test="serviceId != null" >
+        #{serviceId,jdbcType=VARCHAR},
+      </if>
+    </trim>
+  </insert>
+  <select id="countByExample" parameterType="com.ai.paas.ipaas.rcs.dao.mapper.bo.RcsClusterInfoCriteria" resultType="java.lang.Integer" >
+    select count(*) from rcs_cluster_info
+    <if test="_parameter != null" >
+      <include refid="Example_Where_Clause" />
+    </if>
+  </select>
+  <update id="updateByExampleSelective" parameterType="map" >
+    update rcs_cluster_info
+    <set >
+      <if test="record.id != null" >
+        ID = #{record.id,jdbcType=REAL},
+      </if>
+      <if test="record.clusterId != null" >
+        Cluster_ID = #{record.clusterId,jdbcType=VARCHAR},
+      </if>
+      <if test="record.clusterType != null" >
+        Cluster_Type = #{record.clusterType,jdbcType=INTEGER},
+      </if>
+      <if test="record.serverCount != null" >
+        Server_count = #{record.serverCount,jdbcType=INTEGER},
+      </if>
+      <if test="record.bandwidth != null" >
+        bandwidth = #{record.bandwidth,jdbcType=REAL},
+      </if>
+      <if test="record.password != null" >
+        password = #{record.password,jdbcType=VARCHAR},
+      </if>
+      <if test="record.comments != null" >
+        comments = #{record.comments,jdbcType=VARCHAR},
+      </if>
+      <if test="record.hostCpu != null" >
+        Host_CPU = #{record.hostCpu,jdbcType=VARCHAR},
+      </if>
+      <if test="record.hostMemory != null" >
+        HOST_memory = #{record.hostMemory,jdbcType=VARCHAR},
+      </if>
+      <if test="record.hostDisk != null" >
+        HOST_disk = #{record.hostDisk,jdbcType=VARCHAR},
+      </if>
+      <if test="record.orderStatus != null" >
+        Order_status = #{record.orderStatus,jdbcType=INTEGER},
+      </if>
+      <if test="record.orderUser != null" >
+        Order_user = #{record.orderUser,jdbcType=VARCHAR},
+      </if>
+      <if test="record.zkIp != null" >
+        Zk_IP = #{record.zkIp,jdbcType=VARCHAR},
+      </if>
+      <if test="record.zkPort != null" >
+        Zk_port = #{record.zkPort,jdbcType=VARCHAR},
+      </if>
+      <if test="record.serviceId != null" >
+        Service_Id = #{record.serviceId,jdbcType=VARCHAR},
+      </if>
+    </set>
+    <if test="_parameter != null" >
+      <include refid="Update_By_Example_Where_Clause" />
+    </if>
+  </update>
+  <update id="updateByExample" parameterType="map" >
+    update rcs_cluster_info
+    set ID = #{record.id,jdbcType=REAL},
+      Cluster_ID = #{record.clusterId,jdbcType=VARCHAR},
+      Cluster_Type = #{record.clusterType,jdbcType=INTEGER},
+      Server_count = #{record.serverCount,jdbcType=INTEGER},
+      bandwidth = #{record.bandwidth,jdbcType=REAL},
+      password = #{record.password,jdbcType=VARCHAR},
+      comments = #{record.comments,jdbcType=VARCHAR},
+      Host_CPU = #{record.hostCpu,jdbcType=VARCHAR},
+      HOST_memory = #{record.hostMemory,jdbcType=VARCHAR},
+      HOST_disk = #{record.hostDisk,jdbcType=VARCHAR},
+      Order_status = #{record.orderStatus,jdbcType=INTEGER},
+      Order_user = #{record.orderUser,jdbcType=VARCHAR},
+      Zk_IP = #{record.zkIp,jdbcType=VARCHAR},
+      Zk_port = #{record.zkPort,jdbcType=VARCHAR},
+      Service_Id = #{record.serviceId,jdbcType=VARCHAR}
+    <if test="_parameter != null" >
+      <include refid="Update_By_Example_Where_Clause" />
+    </if>
+  </update>
+  <update id="updateByPrimaryKeySelective" parameterType="com.ai.paas.ipaas.rcs.dao.mapper.bo.RcsClusterInfo" >
+    update rcs_cluster_info
+    <set >
+      <if test="clusterId != null" >
+        Cluster_ID = #{clusterId,jdbcType=VARCHAR},
+      </if>
+      <if test="clusterType != null" >
+        Cluster_Type = #{clusterType,jdbcType=INTEGER},
+      </if>
+      <if test="serverCount != null" >
+        Server_count = #{serverCount,jdbcType=INTEGER},
+      </if>
+      <if test="bandwidth != null" >
+        bandwidth = #{bandwidth,jdbcType=REAL},
+      </if>
+      <if test="password != null" >
+        password = #{password,jdbcType=VARCHAR},
+      </if>
+      <if test="comments != null" >
+        comments = #{comments,jdbcType=VARCHAR},
+      </if>
+      <if test="hostCpu != null" >
+        Host_CPU = #{hostCpu,jdbcType=VARCHAR},
+      </if>
+      <if test="hostMemory != null" >
+        HOST_memory = #{hostMemory,jdbcType=VARCHAR},
+      </if>
+      <if test="hostDisk != null" >
+        HOST_disk = #{hostDisk,jdbcType=VARCHAR},
+      </if>
+      <if test="orderStatus != null" >
+        Order_status = #{orderStatus,jdbcType=INTEGER},
+      </if>
+      <if test="orderUser != null" >
+        Order_user = #{orderUser,jdbcType=VARCHAR},
+      </if>
+      <if test="zkIp != null" >
+        Zk_IP = #{zkIp,jdbcType=VARCHAR},
+      </if>
+      <if test="zkPort != null" >
+        Zk_port = #{zkPort,jdbcType=VARCHAR},
+      </if>
+      <if test="serviceId != null" >
+        Service_Id = #{serviceId,jdbcType=VARCHAR},
+      </if>
+    </set>
+    where ID = #{id,jdbcType=REAL}
+  </update>
+  <update id="updateByPrimaryKey" parameterType="com.ai.paas.ipaas.rcs.dao.mapper.bo.RcsClusterInfo" >
+    update rcs_cluster_info
+    set Cluster_ID = #{clusterId,jdbcType=VARCHAR},
+      Cluster_Type = #{clusterType,jdbcType=INTEGER},
+      Server_count = #{serverCount,jdbcType=INTEGER},
+      bandwidth = #{bandwidth,jdbcType=REAL},
+      password = #{password,jdbcType=VARCHAR},
+      comments = #{comments,jdbcType=VARCHAR},
+      Host_CPU = #{hostCpu,jdbcType=VARCHAR},
+      HOST_memory = #{hostMemory,jdbcType=VARCHAR},
+      HOST_disk = #{hostDisk,jdbcType=VARCHAR},
+      Order_status = #{orderStatus,jdbcType=INTEGER},
+      Order_user = #{orderUser,jdbcType=VARCHAR},
+      Zk_IP = #{zkIp,jdbcType=VARCHAR},
+      Zk_port = #{zkPort,jdbcType=VARCHAR},
+      Service_Id = #{serviceId,jdbcType=VARCHAR}
+    where ID = #{id,jdbcType=REAL}
+  </update>
+</mapper>

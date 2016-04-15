@@ -1,0 +1,262 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.ai.paas.ipaas.dbs.dao.interfaces.DbsUserServiceMapper" >
+  <resultMap id="BaseResultMap" type="com.ai.paas.ipaas.dbs.dao.mapper.bo.DbsUserService" >
+    <id column="used_id" property="usedId" jdbcType="INTEGER" />
+    <result column="user_id" property="userId" jdbcType="VARCHAR" />
+    <result column="user_service_id" property="userServiceId" jdbcType="VARCHAR" />
+    <result column="create_time" property="createTime" jdbcType="TIMESTAMP" />
+    <result column="is_txs" property="isTxs" jdbcType="VARCHAR" />
+    <result column="seq_db_id" property="seqDbId" jdbcType="INTEGER" />
+    <result column="is_mysql_proxy" property="isMysqlProxy" jdbcType="VARCHAR" />
+    <result column="is_autoswitch" property="isAutoswitch" jdbcType="VARCHAR" />
+  </resultMap>
+  <sql id="Example_Where_Clause" >
+    <where >
+      <foreach collection="oredCriteria" item="criteria" separator="or" >
+        <if test="criteria.valid" >
+          <trim prefix="(" suffix=")" prefixOverrides="and" >
+            <foreach collection="criteria.criteria" item="criterion" >
+              <choose >
+                <when test="criterion.noValue" >
+                  and ${criterion.condition}
+                </when>
+                <when test="criterion.singleValue" >
+                  and ${criterion.condition} #{criterion.value}
+                </when>
+                <when test="criterion.betweenValue" >
+                  and ${criterion.condition} #{criterion.value} and #{criterion.secondValue}
+                </when>
+                <when test="criterion.listValue" >
+                  and ${criterion.condition}
+                  <foreach collection="criterion.value" item="listItem" open="(" close=")" separator="," >
+                    #{listItem}
+                  </foreach>
+                </when>
+              </choose>
+            </foreach>
+          </trim>
+        </if>
+      </foreach>
+    </where>
+  </sql>
+  <sql id="Update_By_Example_Where_Clause" >
+    <where >
+      <foreach collection="example.oredCriteria" item="criteria" separator="or" >
+        <if test="criteria.valid" >
+          <trim prefix="(" suffix=")" prefixOverrides="and" >
+            <foreach collection="criteria.criteria" item="criterion" >
+              <choose >
+                <when test="criterion.noValue" >
+                  and ${criterion.condition}
+                </when>
+                <when test="criterion.singleValue" >
+                  and ${criterion.condition} #{criterion.value}
+                </when>
+                <when test="criterion.betweenValue" >
+                  and ${criterion.condition} #{criterion.value} and #{criterion.secondValue}
+                </when>
+                <when test="criterion.listValue" >
+                  and ${criterion.condition}
+                  <foreach collection="criterion.value" item="listItem" open="(" close=")" separator="," >
+                    #{listItem}
+                  </foreach>
+                </when>
+              </choose>
+            </foreach>
+          </trim>
+        </if>
+      </foreach>
+    </where>
+  </sql>
+  <sql id="Base_Column_List" >
+    used_id, user_id, user_service_id, create_time, is_txs, seq_db_id, is_mysql_proxy, 
+    is_autoswitch
+  </sql>
+  <select id="selectByExample" resultMap="BaseResultMap" parameterType="com.ai.paas.ipaas.dbs.dao.mapper.bo.DbsUserServiceCriteria" >
+    select
+    <if test="distinct" >
+      distinct
+    </if>
+    <include refid="Base_Column_List" />
+    from dbs_user_service
+    <if test="_parameter != null" >
+      <include refid="Example_Where_Clause" />
+    </if>
+    <if test="orderByClause != null" >
+      order by ${orderByClause}
+    </if>
+    <if test="limitStart != null and limitStart>=0" >
+      limit #{limitStart} , #{limitEnd}
+    </if>
+  </select>
+  <select id="selectByPrimaryKey" resultMap="BaseResultMap" parameterType="Integer" >
+    select 
+    <include refid="Base_Column_List" />
+    from dbs_user_service
+    where used_id = #{usedId,jdbcType=INTEGER}
+  </select>
+  <delete id="deleteByPrimaryKey" parameterType="Integer" >
+    delete from dbs_user_service
+    where used_id = #{usedId,jdbcType=INTEGER}
+  </delete>
+  <delete id="deleteByExample" parameterType="com.ai.paas.ipaas.dbs.dao.mapper.bo.DbsUserServiceCriteria" >
+    delete from dbs_user_service
+    <if test="_parameter != null" >
+      <include refid="Example_Where_Clause" />
+    </if>
+  </delete>
+  <insert id="insert" parameterType="com.ai.paas.ipaas.dbs.dao.mapper.bo.DbsUserService" >
+    insert into dbs_user_service (used_id, user_id, user_service_id, 
+      create_time, is_txs, seq_db_id, 
+      is_mysql_proxy, is_autoswitch)
+    values (#{usedId,jdbcType=INTEGER}, #{userId,jdbcType=VARCHAR}, #{userServiceId,jdbcType=VARCHAR}, 
+      #{createTime,jdbcType=TIMESTAMP}, #{isTxs,jdbcType=VARCHAR}, #{seqDbId,jdbcType=INTEGER}, 
+      #{isMysqlProxy,jdbcType=VARCHAR}, #{isAutoswitch,jdbcType=VARCHAR})
+  </insert>
+  <insert id="insertSelective" parameterType="com.ai.paas.ipaas.dbs.dao.mapper.bo.DbsUserService" >
+    insert into dbs_user_service
+    <trim prefix="(" suffix=")" suffixOverrides="," >
+      <if test="usedId != null" >
+        used_id,
+      </if>
+      <if test="userId != null" >
+        user_id,
+      </if>
+      <if test="userServiceId != null" >
+        user_service_id,
+      </if>
+      <if test="createTime != null" >
+        create_time,
+      </if>
+      <if test="isTxs != null" >
+        is_txs,
+      </if>
+      <if test="seqDbId != null" >
+        seq_db_id,
+      </if>
+      <if test="isMysqlProxy != null" >
+        is_mysql_proxy,
+      </if>
+      <if test="isAutoswitch != null" >
+        is_autoswitch,
+      </if>
+    </trim>
+    <trim prefix="values (" suffix=")" suffixOverrides="," >
+      <if test="usedId != null" >
+        #{usedId,jdbcType=INTEGER},
+      </if>
+      <if test="userId != null" >
+        #{userId,jdbcType=VARCHAR},
+      </if>
+      <if test="userServiceId != null" >
+        #{userServiceId,jdbcType=VARCHAR},
+      </if>
+      <if test="createTime != null" >
+        #{createTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="isTxs != null" >
+        #{isTxs,jdbcType=VARCHAR},
+      </if>
+      <if test="seqDbId != null" >
+        #{seqDbId,jdbcType=INTEGER},
+      </if>
+      <if test="isMysqlProxy != null" >
+        #{isMysqlProxy,jdbcType=VARCHAR},
+      </if>
+      <if test="isAutoswitch != null" >
+        #{isAutoswitch,jdbcType=VARCHAR},
+      </if>
+    </trim>
+  </insert>
+  <select id="countByExample" parameterType="com.ai.paas.ipaas.dbs.dao.mapper.bo.DbsUserServiceCriteria" resultType="java.lang.Integer" >
+    select count(*) from dbs_user_service
+    <if test="_parameter != null" >
+      <include refid="Example_Where_Clause" />
+    </if>
+  </select>
+  <update id="updateByExampleSelective" parameterType="map" >
+    update dbs_user_service
+    <set >
+      <if test="record.usedId != null" >
+        used_id = #{record.usedId,jdbcType=INTEGER},
+      </if>
+      <if test="record.userId != null" >
+        user_id = #{record.userId,jdbcType=VARCHAR},
+      </if>
+      <if test="record.userServiceId != null" >
+        user_service_id = #{record.userServiceId,jdbcType=VARCHAR},
+      </if>
+      <if test="record.createTime != null" >
+        create_time = #{record.createTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="record.isTxs != null" >
+        is_txs = #{record.isTxs,jdbcType=VARCHAR},
+      </if>
+      <if test="record.seqDbId != null" >
+        seq_db_id = #{record.seqDbId,jdbcType=INTEGER},
+      </if>
+      <if test="record.isMysqlProxy != null" >
+        is_mysql_proxy = #{record.isMysqlProxy,jdbcType=VARCHAR},
+      </if>
+      <if test="record.isAutoswitch != null" >
+        is_autoswitch = #{record.isAutoswitch,jdbcType=VARCHAR},
+      </if>
+    </set>
+    <if test="_parameter != null" >
+      <include refid="Update_By_Example_Where_Clause" />
+    </if>
+  </update>
+  <update id="updateByExample" parameterType="map" >
+    update dbs_user_service
+    set used_id = #{record.usedId,jdbcType=INTEGER},
+      user_id = #{record.userId,jdbcType=VARCHAR},
+      user_service_id = #{record.userServiceId,jdbcType=VARCHAR},
+      create_time = #{record.createTime,jdbcType=TIMESTAMP},
+      is_txs = #{record.isTxs,jdbcType=VARCHAR},
+      seq_db_id = #{record.seqDbId,jdbcType=INTEGER},
+      is_mysql_proxy = #{record.isMysqlProxy,jdbcType=VARCHAR},
+      is_autoswitch = #{record.isAutoswitch,jdbcType=VARCHAR}
+    <if test="_parameter != null" >
+      <include refid="Update_By_Example_Where_Clause" />
+    </if>
+  </update>
+  <update id="updateByPrimaryKeySelective" parameterType="com.ai.paas.ipaas.dbs.dao.mapper.bo.DbsUserService" >
+    update dbs_user_service
+    <set >
+      <if test="userId != null" >
+        user_id = #{userId,jdbcType=VARCHAR},
+      </if>
+      <if test="userServiceId != null" >
+        user_service_id = #{userServiceId,jdbcType=VARCHAR},
+      </if>
+      <if test="createTime != null" >
+        create_time = #{createTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="isTxs != null" >
+        is_txs = #{isTxs,jdbcType=VARCHAR},
+      </if>
+      <if test="seqDbId != null" >
+        seq_db_id = #{seqDbId,jdbcType=INTEGER},
+      </if>
+      <if test="isMysqlProxy != null" >
+        is_mysql_proxy = #{isMysqlProxy,jdbcType=VARCHAR},
+      </if>
+      <if test="isAutoswitch != null" >
+        is_autoswitch = #{isAutoswitch,jdbcType=VARCHAR},
+      </if>
+    </set>
+    where used_id = #{usedId,jdbcType=INTEGER}
+  </update>
+  <update id="updateByPrimaryKey" parameterType="com.ai.paas.ipaas.dbs.dao.mapper.bo.DbsUserService" >
+    update dbs_user_service
+    set user_id = #{userId,jdbcType=VARCHAR},
+      user_service_id = #{userServiceId,jdbcType=VARCHAR},
+      create_time = #{createTime,jdbcType=TIMESTAMP},
+      is_txs = #{isTxs,jdbcType=VARCHAR},
+      seq_db_id = #{seqDbId,jdbcType=INTEGER},
+      is_mysql_proxy = #{isMysqlProxy,jdbcType=VARCHAR},
+      is_autoswitch = #{isAutoswitch,jdbcType=VARCHAR}
+    where used_id = #{usedId,jdbcType=INTEGER}
+  </update>
+</mapper>

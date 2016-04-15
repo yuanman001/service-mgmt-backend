@@ -1,0 +1,309 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.ai.paas.ipaas.mcs.dao.interfaces.McsUserCacheInstanceMapper" >
+  <resultMap id="BaseResultMap" type="com.ai.paas.ipaas.mcs.dao.mapper.bo.McsUserCacheInstance" >
+    <id column="id" property="id" jdbcType="INTEGER" />
+    <result column="user_id" property="userId" jdbcType="VARCHAR" />
+    <result column="cache_host" property="cacheHost" jdbcType="VARCHAR" />
+    <result column="cache_memory" property="cacheMemory" jdbcType="INTEGER" />
+    <result column="status" property="status" jdbcType="INTEGER" />
+    <result column="begin_time" property="beginTime" jdbcType="TIMESTAMP" />
+    <result column="end_time" property="endTime" jdbcType="TIMESTAMP" />
+    <result column="serial_number" property="serialNumber" jdbcType="VARCHAR" />
+    <result column="cache_port" property="cachePort" jdbcType="INTEGER" />
+    <result column="pwd" property="pwd" jdbcType="VARCHAR" />
+    <result column="service_name" property="serviceName" jdbcType="VARCHAR" />
+  </resultMap>
+  <sql id="Example_Where_Clause" >
+    <where >
+      <foreach collection="oredCriteria" item="criteria" separator="or" >
+        <if test="criteria.valid" >
+          <trim prefix="(" suffix=")" prefixOverrides="and" >
+            <foreach collection="criteria.criteria" item="criterion" >
+              <choose >
+                <when test="criterion.noValue" >
+                  and ${criterion.condition}
+                </when>
+                <when test="criterion.singleValue" >
+                  and ${criterion.condition} #{criterion.value}
+                </when>
+                <when test="criterion.betweenValue" >
+                  and ${criterion.condition} #{criterion.value} and #{criterion.secondValue}
+                </when>
+                <when test="criterion.listValue" >
+                  and ${criterion.condition}
+                  <foreach collection="criterion.value" item="listItem" open="(" close=")" separator="," >
+                    #{listItem}
+                  </foreach>
+                </when>
+              </choose>
+            </foreach>
+          </trim>
+        </if>
+      </foreach>
+    </where>
+  </sql>
+  <sql id="Update_By_Example_Where_Clause" >
+    <where >
+      <foreach collection="example.oredCriteria" item="criteria" separator="or" >
+        <if test="criteria.valid" >
+          <trim prefix="(" suffix=")" prefixOverrides="and" >
+            <foreach collection="criteria.criteria" item="criterion" >
+              <choose >
+                <when test="criterion.noValue" >
+                  and ${criterion.condition}
+                </when>
+                <when test="criterion.singleValue" >
+                  and ${criterion.condition} #{criterion.value}
+                </when>
+                <when test="criterion.betweenValue" >
+                  and ${criterion.condition} #{criterion.value} and #{criterion.secondValue}
+                </when>
+                <when test="criterion.listValue" >
+                  and ${criterion.condition}
+                  <foreach collection="criterion.value" item="listItem" open="(" close=")" separator="," >
+                    #{listItem}
+                  </foreach>
+                </when>
+              </choose>
+            </foreach>
+          </trim>
+        </if>
+      </foreach>
+    </where>
+  </sql>
+  <sql id="Base_Column_List" >
+    id, user_id, cache_host, cache_memory, status, begin_time, end_time, serial_number, 
+    cache_port, pwd, service_name
+  </sql>
+  <select id="selectByExample" resultMap="BaseResultMap" parameterType="com.ai.paas.ipaas.mcs.dao.mapper.bo.McsUserCacheInstanceCriteria" >
+    select
+    <if test="distinct" >
+      distinct
+    </if>
+    <include refid="Base_Column_List" />
+    from mcs_user_cache_instance
+    <if test="_parameter != null" >
+      <include refid="Example_Where_Clause" />
+    </if>
+    <if test="orderByClause != null" >
+      order by ${orderByClause}
+    </if>
+    <if test="limitStart != null and limitStart>=0" >
+      limit #{limitStart} , #{limitEnd}
+    </if>
+  </select>
+  <select id="selectByPrimaryKey" resultMap="BaseResultMap" parameterType="Integer" >
+    select 
+    <include refid="Base_Column_List" />
+    from mcs_user_cache_instance
+    where id = #{id,jdbcType=INTEGER}
+  </select>
+  <delete id="deleteByPrimaryKey" parameterType="Integer" >
+    delete from mcs_user_cache_instance
+    where id = #{id,jdbcType=INTEGER}
+  </delete>
+  <delete id="deleteByExample" parameterType="com.ai.paas.ipaas.mcs.dao.mapper.bo.McsUserCacheInstanceCriteria" >
+    delete from mcs_user_cache_instance
+    <if test="_parameter != null" >
+      <include refid="Example_Where_Clause" />
+    </if>
+  </delete>
+  <insert id="insert" parameterType="com.ai.paas.ipaas.mcs.dao.mapper.bo.McsUserCacheInstance" >
+    insert into mcs_user_cache_instance (id, user_id, cache_host, 
+      cache_memory, status, begin_time, 
+      end_time, serial_number, cache_port, 
+      pwd, service_name)
+    values (#{id,jdbcType=INTEGER}, #{userId,jdbcType=VARCHAR}, #{cacheHost,jdbcType=VARCHAR}, 
+      #{cacheMemory,jdbcType=INTEGER}, #{status,jdbcType=INTEGER}, #{beginTime,jdbcType=TIMESTAMP}, 
+      #{endTime,jdbcType=TIMESTAMP}, #{serialNumber,jdbcType=VARCHAR}, #{cachePort,jdbcType=INTEGER}, 
+      #{pwd,jdbcType=VARCHAR}, #{serviceName,jdbcType=VARCHAR})
+  </insert>
+  <insert id="insertSelective" parameterType="com.ai.paas.ipaas.mcs.dao.mapper.bo.McsUserCacheInstance" >
+    insert into mcs_user_cache_instance
+    <trim prefix="(" suffix=")" suffixOverrides="," >
+      <if test="id != null" >
+        id,
+      </if>
+      <if test="userId != null" >
+        user_id,
+      </if>
+      <if test="cacheHost != null" >
+        cache_host,
+      </if>
+      <if test="cacheMemory != null" >
+        cache_memory,
+      </if>
+      <if test="status != null" >
+        status,
+      </if>
+      <if test="beginTime != null" >
+        begin_time,
+      </if>
+      <if test="endTime != null" >
+        end_time,
+      </if>
+      <if test="serialNumber != null" >
+        serial_number,
+      </if>
+      <if test="cachePort != null" >
+        cache_port,
+      </if>
+      <if test="pwd != null" >
+        pwd,
+      </if>
+      <if test="serviceName != null" >
+        service_name,
+      </if>
+    </trim>
+    <trim prefix="values (" suffix=")" suffixOverrides="," >
+      <if test="id != null" >
+        #{id,jdbcType=INTEGER},
+      </if>
+      <if test="userId != null" >
+        #{userId,jdbcType=VARCHAR},
+      </if>
+      <if test="cacheHost != null" >
+        #{cacheHost,jdbcType=VARCHAR},
+      </if>
+      <if test="cacheMemory != null" >
+        #{cacheMemory,jdbcType=INTEGER},
+      </if>
+      <if test="status != null" >
+        #{status,jdbcType=INTEGER},
+      </if>
+      <if test="beginTime != null" >
+        #{beginTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="endTime != null" >
+        #{endTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="serialNumber != null" >
+        #{serialNumber,jdbcType=VARCHAR},
+      </if>
+      <if test="cachePort != null" >
+        #{cachePort,jdbcType=INTEGER},
+      </if>
+      <if test="pwd != null" >
+        #{pwd,jdbcType=VARCHAR},
+      </if>
+      <if test="serviceName != null" >
+        #{serviceName,jdbcType=VARCHAR},
+      </if>
+    </trim>
+  </insert>
+  <select id="countByExample" parameterType="com.ai.paas.ipaas.mcs.dao.mapper.bo.McsUserCacheInstanceCriteria" resultType="java.lang.Integer" >
+    select count(*) from mcs_user_cache_instance
+    <if test="_parameter != null" >
+      <include refid="Example_Where_Clause" />
+    </if>
+  </select>
+  <update id="updateByExampleSelective" parameterType="map" >
+    update mcs_user_cache_instance
+    <set >
+      <if test="record.id != null" >
+        id = #{record.id,jdbcType=INTEGER},
+      </if>
+      <if test="record.userId != null" >
+        user_id = #{record.userId,jdbcType=VARCHAR},
+      </if>
+      <if test="record.cacheHost != null" >
+        cache_host = #{record.cacheHost,jdbcType=VARCHAR},
+      </if>
+      <if test="record.cacheMemory != null" >
+        cache_memory = #{record.cacheMemory,jdbcType=INTEGER},
+      </if>
+      <if test="record.status != null" >
+        status = #{record.status,jdbcType=INTEGER},
+      </if>
+      <if test="record.beginTime != null" >
+        begin_time = #{record.beginTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="record.endTime != null" >
+        end_time = #{record.endTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="record.serialNumber != null" >
+        serial_number = #{record.serialNumber,jdbcType=VARCHAR},
+      </if>
+      <if test="record.cachePort != null" >
+        cache_port = #{record.cachePort,jdbcType=INTEGER},
+      </if>
+      <if test="record.pwd != null" >
+        pwd = #{record.pwd,jdbcType=VARCHAR},
+      </if>
+      <if test="record.serviceName != null" >
+        service_name = #{record.serviceName,jdbcType=VARCHAR},
+      </if>
+    </set>
+    <if test="_parameter != null" >
+      <include refid="Update_By_Example_Where_Clause" />
+    </if>
+  </update>
+  <update id="updateByExample" parameterType="map" >
+    update mcs_user_cache_instance
+    set id = #{record.id,jdbcType=INTEGER},
+      user_id = #{record.userId,jdbcType=VARCHAR},
+      cache_host = #{record.cacheHost,jdbcType=VARCHAR},
+      cache_memory = #{record.cacheMemory,jdbcType=INTEGER},
+      status = #{record.status,jdbcType=INTEGER},
+      begin_time = #{record.beginTime,jdbcType=TIMESTAMP},
+      end_time = #{record.endTime,jdbcType=TIMESTAMP},
+      serial_number = #{record.serialNumber,jdbcType=VARCHAR},
+      cache_port = #{record.cachePort,jdbcType=INTEGER},
+      pwd = #{record.pwd,jdbcType=VARCHAR},
+      service_name = #{record.serviceName,jdbcType=VARCHAR}
+    <if test="_parameter != null" >
+      <include refid="Update_By_Example_Where_Clause" />
+    </if>
+  </update>
+  <update id="updateByPrimaryKeySelective" parameterType="com.ai.paas.ipaas.mcs.dao.mapper.bo.McsUserCacheInstance" >
+    update mcs_user_cache_instance
+    <set >
+      <if test="userId != null" >
+        user_id = #{userId,jdbcType=VARCHAR},
+      </if>
+      <if test="cacheHost != null" >
+        cache_host = #{cacheHost,jdbcType=VARCHAR},
+      </if>
+      <if test="cacheMemory != null" >
+        cache_memory = #{cacheMemory,jdbcType=INTEGER},
+      </if>
+      <if test="status != null" >
+        status = #{status,jdbcType=INTEGER},
+      </if>
+      <if test="beginTime != null" >
+        begin_time = #{beginTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="endTime != null" >
+        end_time = #{endTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="serialNumber != null" >
+        serial_number = #{serialNumber,jdbcType=VARCHAR},
+      </if>
+      <if test="cachePort != null" >
+        cache_port = #{cachePort,jdbcType=INTEGER},
+      </if>
+      <if test="pwd != null" >
+        pwd = #{pwd,jdbcType=VARCHAR},
+      </if>
+      <if test="serviceName != null" >
+        service_name = #{serviceName,jdbcType=VARCHAR},
+      </if>
+    </set>
+    where id = #{id,jdbcType=INTEGER}
+  </update>
+  <update id="updateByPrimaryKey" parameterType="com.ai.paas.ipaas.mcs.dao.mapper.bo.McsUserCacheInstance" >
+    update mcs_user_cache_instance
+    set user_id = #{userId,jdbcType=VARCHAR},
+      cache_host = #{cacheHost,jdbcType=VARCHAR},
+      cache_memory = #{cacheMemory,jdbcType=INTEGER},
+      status = #{status,jdbcType=INTEGER},
+      begin_time = #{beginTime,jdbcType=TIMESTAMP},
+      end_time = #{endTime,jdbcType=TIMESTAMP},
+      serial_number = #{serialNumber,jdbcType=VARCHAR},
+      cache_port = #{cachePort,jdbcType=INTEGER},
+      pwd = #{pwd,jdbcType=VARCHAR},
+      service_name = #{serviceName,jdbcType=VARCHAR}
+    where id = #{id,jdbcType=INTEGER}
+  </update>
+</mapper>

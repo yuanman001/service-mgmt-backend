@@ -1,0 +1,282 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.ai.paas.ipaas.rcs.dao.interfaces.RcsTaskInfoMapper" >
+  <resultMap id="BaseResultMap" type="com.ai.paas.ipaas.rcs.dao.mapper.bo.RcsTaskInfo" >
+    <id column="id" property="id" jdbcType="BIGINT" />
+    <result column="name" property="name" jdbcType="VARCHAR" />
+    <result column="cluster_id" property="clusterId" jdbcType="BIGINT" />
+    <result column="register_dt" property="registerDt" jdbcType="TIMESTAMP" />
+    <result column="cancel_dt" property="cancelDt" jdbcType="TIMESTAMP" />
+    <result column="status" property="status" jdbcType="VARCHAR" />
+    <result column="comments" property="comments" jdbcType="VARCHAR" />
+    <result column="num_workers" property="numWorkers" jdbcType="INTEGER" />
+    <result column="jarFilePath" property="jarfilepath" jdbcType="VARCHAR" />
+    <result column="register_user_id" property="registerUserId" jdbcType="VARCHAR" />
+  </resultMap>
+  <sql id="Example_Where_Clause" >
+    <where >
+      <foreach collection="oredCriteria" item="criteria" separator="or" >
+        <if test="criteria.valid" >
+          <trim prefix="(" suffix=")" prefixOverrides="and" >
+            <foreach collection="criteria.criteria" item="criterion" >
+              <choose >
+                <when test="criterion.noValue" >
+                  and ${criterion.condition}
+                </when>
+                <when test="criterion.singleValue" >
+                  and ${criterion.condition} #{criterion.value}
+                </when>
+                <when test="criterion.betweenValue" >
+                  and ${criterion.condition} #{criterion.value} and #{criterion.secondValue}
+                </when>
+                <when test="criterion.listValue" >
+                  and ${criterion.condition}
+                  <foreach collection="criterion.value" item="listItem" open="(" close=")" separator="," >
+                    #{listItem}
+                  </foreach>
+                </when>
+              </choose>
+            </foreach>
+          </trim>
+        </if>
+      </foreach>
+    </where>
+  </sql>
+  <sql id="Update_By_Example_Where_Clause" >
+    <where >
+      <foreach collection="example.oredCriteria" item="criteria" separator="or" >
+        <if test="criteria.valid" >
+          <trim prefix="(" suffix=")" prefixOverrides="and" >
+            <foreach collection="criteria.criteria" item="criterion" >
+              <choose >
+                <when test="criterion.noValue" >
+                  and ${criterion.condition}
+                </when>
+                <when test="criterion.singleValue" >
+                  and ${criterion.condition} #{criterion.value}
+                </when>
+                <when test="criterion.betweenValue" >
+                  and ${criterion.condition} #{criterion.value} and #{criterion.secondValue}
+                </when>
+                <when test="criterion.listValue" >
+                  and ${criterion.condition}
+                  <foreach collection="criterion.value" item="listItem" open="(" close=")" separator="," >
+                    #{listItem}
+                  </foreach>
+                </when>
+              </choose>
+            </foreach>
+          </trim>
+        </if>
+      </foreach>
+    </where>
+  </sql>
+  <sql id="Base_Column_List" >
+    id, name, cluster_id, register_dt, cancel_dt, status, comments, num_workers, jarFilePath, 
+    register_user_id
+  </sql>
+  <select id="selectByExample" resultMap="BaseResultMap" parameterType="com.ai.paas.ipaas.rcs.dao.mapper.bo.RcsTaskInfoCriteria" >
+    select
+    <if test="distinct" >
+      distinct
+    </if>
+    <include refid="Base_Column_List" />
+    from rcs_task_info
+    <if test="_parameter != null" >
+      <include refid="Example_Where_Clause" />
+    </if>
+    <if test="orderByClause != null" >
+      order by ${orderByClause}
+    </if>
+    <if test="limitStart != null and limitStart>=0" >
+      limit #{limitStart} , #{limitEnd}
+    </if>
+  </select>
+  <select id="selectByPrimaryKey" resultMap="BaseResultMap" parameterType="long" >
+    select 
+    <include refid="Base_Column_List" />
+    from rcs_task_info
+    where id = #{id,jdbcType=BIGINT}
+  </select>
+  <delete id="deleteByPrimaryKey" parameterType="long" >
+    delete from rcs_task_info
+    where id = #{id,jdbcType=BIGINT}
+  </delete>
+  <delete id="deleteByExample" parameterType="com.ai.paas.ipaas.rcs.dao.mapper.bo.RcsTaskInfoCriteria" >
+    delete from rcs_task_info
+    <if test="_parameter != null" >
+      <include refid="Example_Where_Clause" />
+    </if>
+  </delete>
+  <insert id="insert" parameterType="com.ai.paas.ipaas.rcs.dao.mapper.bo.RcsTaskInfo" >
+    insert into rcs_task_info (id, name, cluster_id, 
+      register_dt, cancel_dt, status, 
+      comments, num_workers, jarFilePath, 
+      register_user_id)
+    values (#{id,jdbcType=BIGINT}, #{name,jdbcType=VARCHAR}, #{clusterId,jdbcType=BIGINT}, 
+      #{registerDt,jdbcType=TIMESTAMP}, #{cancelDt,jdbcType=TIMESTAMP}, #{status,jdbcType=VARCHAR}, 
+      #{comments,jdbcType=VARCHAR}, #{numWorkers,jdbcType=INTEGER}, #{jarfilepath,jdbcType=VARCHAR}, 
+      #{registerUserId,jdbcType=VARCHAR})
+  </insert>
+  <insert id="insertSelective" parameterType="com.ai.paas.ipaas.rcs.dao.mapper.bo.RcsTaskInfo" >
+    insert into rcs_task_info
+    <trim prefix="(" suffix=")" suffixOverrides="," >
+      id,
+      <if test="name != null" >
+        name,
+      </if>
+      cluster_id,
+      <if test="registerDt != null" >
+        register_dt,
+      </if>
+      <if test="cancelDt != null" >
+        cancel_dt,
+      </if>
+      <if test="status != null" >
+        status,
+      </if>
+      <if test="comments != null" >
+        comments,
+      </if>
+      num_workers,
+      <if test="jarfilepath != null" >
+        jarFilePath,
+      </if>
+      <if test="registerUserId != null" >
+        register_user_id,
+      </if>
+    </trim>
+    <trim prefix="values (" suffix=")" suffixOverrides="," >
+      #{id,jdbcType=BIGINT},
+      <if test="name != null" >
+        #{name,jdbcType=VARCHAR},
+      </if>
+      #{clusterId,jdbcType=BIGINT},
+      <if test="registerDt != null" >
+        #{registerDt,jdbcType=TIMESTAMP},
+      </if>
+      <if test="cancelDt != null" >
+        #{cancelDt,jdbcType=TIMESTAMP},
+      </if>
+      <if test="status != null" >
+        #{status,jdbcType=VARCHAR},
+      </if>
+      <if test="comments != null" >
+        #{comments,jdbcType=VARCHAR},
+      </if>
+      #{numWorkers,jdbcType=INTEGER},
+      <if test="jarfilepath != null" >
+        #{jarfilepath,jdbcType=VARCHAR},
+      </if>
+      <if test="registerUserId != null" >
+        #{registerUserId,jdbcType=VARCHAR},
+      </if>
+    </trim>
+  </insert>
+  <select id="countByExample" parameterType="com.ai.paas.ipaas.rcs.dao.mapper.bo.RcsTaskInfoCriteria" resultType="java.lang.Integer" >
+    select count(*) from rcs_task_info
+    <if test="_parameter != null" >
+      <include refid="Example_Where_Clause" />
+    </if>
+  </select>
+  <update id="updateByExampleSelective" parameterType="map" >
+    update rcs_task_info
+    <set >
+      <if test="record.id != null" >
+        id = #{record.id,jdbcType=BIGINT},
+      </if>
+      <if test="record.name != null" >
+        name = #{record.name,jdbcType=VARCHAR},
+      </if>
+      <if test="record.clusterId != null" >
+        cluster_id = #{record.clusterId,jdbcType=BIGINT},
+      </if>
+      <if test="record.registerDt != null" >
+        register_dt = #{record.registerDt,jdbcType=TIMESTAMP},
+      </if>
+      <if test="record.cancelDt != null" >
+        cancel_dt = #{record.cancelDt,jdbcType=TIMESTAMP},
+      </if>
+      <if test="record.status != null" >
+        status = #{record.status,jdbcType=VARCHAR},
+      </if>
+      <if test="record.comments != null" >
+        comments = #{record.comments,jdbcType=VARCHAR},
+      </if>
+      <if test="record.numWorkers != null" >
+        num_workers = #{record.numWorkers,jdbcType=INTEGER},
+      </if>
+      <if test="record.jarfilepath != null" >
+        jarFilePath = #{record.jarfilepath,jdbcType=VARCHAR},
+      </if>
+      <if test="record.registerUserId != null" >
+        register_user_id = #{record.registerUserId,jdbcType=VARCHAR},
+      </if>
+    </set>
+    <if test="_parameter != null" >
+      <include refid="Update_By_Example_Where_Clause" />
+    </if>
+  </update>
+  <update id="updateByExample" parameterType="map" >
+    update rcs_task_info
+    set id = #{record.id,jdbcType=BIGINT},
+      name = #{record.name,jdbcType=VARCHAR},
+      cluster_id = #{record.clusterId,jdbcType=BIGINT},
+      register_dt = #{record.registerDt,jdbcType=TIMESTAMP},
+      cancel_dt = #{record.cancelDt,jdbcType=TIMESTAMP},
+      status = #{record.status,jdbcType=VARCHAR},
+      comments = #{record.comments,jdbcType=VARCHAR},
+      num_workers = #{record.numWorkers,jdbcType=INTEGER},
+      jarFilePath = #{record.jarfilepath,jdbcType=VARCHAR},
+      register_user_id = #{record.registerUserId,jdbcType=VARCHAR}
+    <if test="_parameter != null" >
+      <include refid="Update_By_Example_Where_Clause" />
+    </if>
+  </update>
+  <update id="updateByPrimaryKeySelective" parameterType="com.ai.paas.ipaas.rcs.dao.mapper.bo.RcsTaskInfo" >
+    update rcs_task_info
+    <set >
+      <if test="name != null" >
+        name = #{name,jdbcType=VARCHAR},
+      </if>
+      <if test="clusterId != null" >
+        cluster_id = #{clusterId,jdbcType=BIGINT},
+      </if>
+      <if test="registerDt != null" >
+        register_dt = #{registerDt,jdbcType=TIMESTAMP},
+      </if>
+      <if test="cancelDt != null" >
+        cancel_dt = #{cancelDt,jdbcType=TIMESTAMP},
+      </if>
+      <if test="status != null" >
+        status = #{status,jdbcType=VARCHAR},
+      </if>
+      <if test="comments != null" >
+        comments = #{comments,jdbcType=VARCHAR},
+      </if>
+      <if test="numWorkers != null" >
+        num_workers = #{numWorkers,jdbcType=INTEGER},
+      </if>
+      <if test="jarfilepath != null" >
+        jarFilePath = #{jarfilepath,jdbcType=VARCHAR},
+      </if>
+      <if test="registerUserId != null" >
+        register_user_id = #{registerUserId,jdbcType=VARCHAR},
+      </if>
+    </set>
+    where id = #{id,jdbcType=BIGINT}
+  </update>
+  <update id="updateByPrimaryKey" parameterType="com.ai.paas.ipaas.rcs.dao.mapper.bo.RcsTaskInfo" >
+    update rcs_task_info
+    set name = #{name,jdbcType=VARCHAR},
+      cluster_id = #{clusterId,jdbcType=BIGINT},
+      register_dt = #{registerDt,jdbcType=TIMESTAMP},
+      cancel_dt = #{cancelDt,jdbcType=TIMESTAMP},
+      status = #{status,jdbcType=VARCHAR},
+      comments = #{comments,jdbcType=VARCHAR},
+      num_workers = #{numWorkers,jdbcType=INTEGER},
+      jarFilePath = #{jarfilepath,jdbcType=VARCHAR},
+      register_user_id = #{registerUserId,jdbcType=VARCHAR}
+    where id = #{id,jdbcType=BIGINT}
+  </update>
+</mapper>
