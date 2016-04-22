@@ -165,8 +165,8 @@ public class McsSvImpl implements IMcsSv {
       String requirepass = i + "";
       String masterInfo = resultList.get(0);
       configSenMaster(masterInfo, capacity, requirepass);
-      for (int k = 1; i <= 2; i++) {
-        configSenSlave(resultList.get(k), capacity, requirepass);
+      for (int k = 1; k <= 2; k++) {
+        configSenSlave(resultList.get(k), resultList.get(0), capacity, requirepass);
       }
       for (int j = 3; j <= 5; j++) {
         configSentinel(resultList.get(j), masterInfo);
@@ -207,7 +207,7 @@ public class McsSvImpl implements IMcsSv {
       }
       mcsResourcePool.setCachePort(mcsResourcePool.getCachePort() + 2);
       mcsResourcePool.setCacheMemoryUsed(mcsResourcePool.getCacheMemoryUsed() + cacheSize);
-      int changeRow = updateResource(mcsResourcePool);
+      int changeRow = updateMcsResource(mcsResourcePool);
 
       if (changeRow != 1) {
         throw new PaasException("更新资源失败");
@@ -216,6 +216,14 @@ public class McsSvImpl implements IMcsSv {
     }
     cachePath = mcsResourcePool.getCachePath();
     return mcsResourcePool;
+  }
+
+  private int updateMcsResource(McsResourcePool mcsResourcePool) throws PaasException {
+    McsResourcePoolMapper rpm = ServiceUtil.getMapper(McsResourcePoolMapper.class);
+    McsResourcePoolCriteria rpmc = new McsResourcePoolCriteria();
+    rpmc.createCriteria().andIdEqualTo(mcsResourcePool.getId())
+        .andCachePortEqualTo(mcsResourcePool.getCachePort() - 2);
+    return rpm.updateByExampleSelective(mcsResourcePool, rpmc);
   }
 
 
@@ -561,18 +569,33 @@ public class McsSvImpl implements IMcsSv {
             + "||"
             + "logfile "
             + cachePath
-            + "/redis/log/redis-"
+            + "/log/"
+            + redisPort
+            + "/redis-"
             + redisPort
             + ".log"
             + "||tcp-keepalive 60||maxmemory-policy noeviction||appendonly yes||appendfilename \"appendonly.aof\"";
+    String logdir = "CMD| path=" + cachePath + ",cmd=mkdir -p " + McsConstants.LOG_PATH;
+
+    String logName = "redis-" + redisPort + ".log";
+
+    String logfile =
+        logName + "||CACHE|" + cachePath + McsConstants.LOG_PATH + redisPort + "/" + "||";
+
     String uri =
         McsConstants.AGENT_URL_BASE + mcsResourcePool.getCacheHostIp()
             + mcsResourcePool.getAgentFile();
-    try {
-      executeInstruction(McsConstants.AGENT_URL_BASE + mcsResourcePool.getCacheHostIp()
-          + mcsResourcePool.getAgentCmd(), mkdircmd);
+    String commandUri =
+        McsConstants.AGENT_URL_BASE + mcsResourcePool.getCacheHostIp()
+            + mcsResourcePool.getAgentCmd();
 
+    try {
+      executeInstruction(commandUri, mkdircmd);
+      executeInstruction(commandUri, logdir);
       uploadCacheFile(uri, fileDetail);
+      // 上传日志文件
+      uploadCacheFile(uri, logfile);
+
       log.info("3----------------上传文件成功!");
     } catch (PaasException e) {
       log.error(e.getMessage(), e);
@@ -598,7 +621,8 @@ public class McsSvImpl implements IMcsSv {
     String uriCmdCluster = McsConstants.AGENT_URL_BASE + ip + agentCmd;
     String uriCreateCluster = McsConstants.AGENT_URL_BASE + ip + agentFile;
     String mkdircmd = "CMD| path=" + cachePath + McsConstants.FILE_PATH + ",cmd=mkdir -p " + port;
-
+    String logdir = "CMD| path=" + cachePath + ",cmd=mkdir -p " + McsConstants.LOG_PATH;
+    String logName = "redis-" + port + ".log";
     String fileDetail =
         fileName
             + "||CACHE|"
@@ -621,15 +645,21 @@ public class McsSvImpl implements IMcsSv {
             + "||"
             + "logfile "
             + cachePath
-            + "/redis/log/redis-"
+            + "/log/"
+            + port
+            + "/redis-"
             + port
             + ".log"
             + "||tcp-keepalive 60||maxmemory-policy noeviction||appendonly yes||appendfilename \"appendonly.aof\"";
 
+    String logfile = logName + "||CACHE|" + cachePath + McsConstants.LOG_PATH + port + "/" + "||";
+
     try {
       executeInstruction(uriCmdCluster, mkdircmd);
-
+      executeInstruction(uriCmdCluster, logdir);
       uploadCacheFile(uriCreateCluster, fileDetail);
+      // 生成日志文件
+      uploadCacheFile(uriCreateCluster, logfile);
       log.info("3----------------上传文件成功!");
     } catch (PaasException e) {
       log.error(e.getMessage(), e);
@@ -656,18 +686,28 @@ public class McsSvImpl implements IMcsSv {
         fileName + "||CACHE|" + cachePath + McsConstants.FILE_PATH + redisPort + "/" + "||include "
             + cachePath + McsConstants.FILE_PATH + "redis-common.conf||"
             + "pidfile /var/run/redis-" + redisPort + ".pid||port " + redisPort + "||maxmemory "
-            + memorySize + "||requirepass " + requirepass + "||" + "logfile " + cachePath
-            + "/redis/log/redis-" + redisPort + ".log" + "||slaveof "
-            + mcsResourcePool.getCacheHostIp() + " " + (mcsResourcePool.getCachePort() - 1)
+            + memorySize + "||requirepass " + requirepass + "||" + "logfile " + cachePath + "/log/"
+            + redisPort + "/redis-" + redisPort + ".log" + "||slaveof "
+            + mcsResourcePool.getCacheHostIp() + " " + mcsResourcePool.getCachePort()
             + "||masterauth " + requirepass;
     String uri =
         McsConstants.AGENT_URL_BASE + mcsResourcePool.getCacheHostIp()
             + mcsResourcePool.getAgentFile();
-    try {
-      executeInstruction(McsConstants.AGENT_URL_BASE + mcsResourcePool.getCacheHostIp()
-          + mcsResourcePool.getAgentCmd(), mkdircmd);
+    String commandUri =
+        McsConstants.AGENT_URL_BASE + mcsResourcePool.getCacheHostIp()
+            + mcsResourcePool.getAgentCmd();
+    String logdir = "CMD| path=" + cachePath + ",cmd=mkdir -p " + McsConstants.LOG_PATH;
 
+    String logName = "redis-" + redisPort + ".log";
+
+    String logfile =
+        logName + "||CACHE|" + cachePath + McsConstants.LOG_PATH + redisPort + "/" + "||";
+
+    try {
+      executeInstruction(commandUri, mkdircmd);
+      executeInstruction(commandUri, logdir);
       uploadCacheFile(uri, fileDetail);
+      uploadCacheFile(uri, logfile);
       log.info("3----------------上传文件成功!");
     } catch (PaasException e) {
       log.error(e.getMessage(), e);
@@ -682,13 +722,18 @@ public class McsSvImpl implements IMcsSv {
 
   }
 
-  private void configSenSlave(String result, String capacity, String requirepass)
-      throws PaasException {
+  private void configSenSlave(String result, String masterResult, String capacity,
+      String requirepass) throws PaasException {
     // 调用restful服务
     String memorySize = capacity + "m";
     String[] info = result.split(":");
     String ip = info[0];
     String port = info[1];
+
+    String[] masterInfo = masterResult.split(":");
+    String masterIp = masterInfo[0];
+    String masterPort = masterInfo[1];
+
     String fileName = "redis-" + port + ".conf";
     String uriCmdCluster = McsConstants.AGENT_URL_BASE + ip + agentCmd;
     String uriCreateCluster = McsConstants.AGENT_URL_BASE + ip + agentFile;
@@ -698,12 +743,20 @@ public class McsSvImpl implements IMcsSv {
         fileName + "||CACHE|" + cachePath + McsConstants.FILE_PATH + port + "/" + "||include "
             + cachePath + McsConstants.FILE_PATH + "redis-common.conf||"
             + "pidfile /var/run/redis-" + port + ".pid||port " + port + "||maxmemory " + memorySize
-            + "||requirepass " + requirepass + "||" + "logfile " + cachePath + "/redis/log/redis-"
-            + port + ".log" + "||slaveof " + ip + " " + port + "||masterauth " + requirepass;
+            + "||requirepass " + requirepass + "||" + "logfile " + cachePath + "/log/" + port
+            + "/redis-" + port + ".log" + "||slaveof " + masterIp + " " + masterPort
+            + "||masterauth " + requirepass;
+
+    String logdir = "CMD| path=" + cachePath + ",cmd=mkdir -p " + McsConstants.LOG_PATH;
+
+    String logName = "redis-" + port + ".log";
+
+    String logfile = logName + "||CACHE|" + cachePath + McsConstants.LOG_PATH + port + "/" + "||";
     try {
       executeInstruction(uriCmdCluster, mkdircmd);
-
+      executeInstruction(uriCmdCluster, logdir);
       uploadCacheFile(uriCreateCluster, fileDetail);
+      uploadCacheFile(uriCreateCluster, logfile);
       log.info("3----------------上传文件成功!");
     } catch (PaasException e) {
       log.error(e.getMessage(), e);
@@ -730,7 +783,8 @@ public class McsSvImpl implements IMcsSv {
     String uriCmdCluster = McsConstants.AGENT_URL_BASE + ip + agentCmd;
     String uriCreateCluster = McsConstants.AGENT_URL_BASE + ip + agentFile;
     String mkdircmd = "CMD| path=" + cachePath + McsConstants.FILE_PATH + ",cmd=mkdir -p " + port;
-
+    String logdir =
+        "CMD| path=" + cachePath + McsConstants.LOG_PATH + ",cmd=touch  redis-" + port + ".log";
     String fileDetail =
         fileName
             + "||CACHE|"
@@ -746,10 +800,15 @@ public class McsSvImpl implements IMcsSv {
             + masterPort
             + " 2"
             + "||sentinel down-after-milliseconds mymaster 5000||sentinel failover-timeout mymaster 60000||sentinel parallel-syncs mymaster 1";
+
+    String logName = "redis-" + port + ".log";
+
+    String logfile = logName + "||CACHE|" + cachePath + McsConstants.LOG_PATH + port + "/" + "||";
     try {
       executeInstruction(uriCmdCluster, mkdircmd);
-
+      executeInstruction(uriCmdCluster, logdir);
       uploadCacheFile(uriCreateCluster, fileDetail);
+      uploadCacheFile(uriCreateCluster, logfile);
       log.info("3----------------上传文件成功!");
     } catch (PaasException e) {
       log.error(e.getMessage(), e);
@@ -1177,8 +1236,8 @@ public class McsSvImpl implements IMcsSv {
   private void startSenIns(String uri, String cPath, int port) throws PaasException {
     try {
       String cmd =
-          "CMD| path=" + cPath + port + "/,cmd=redis-sentinel " + cPath + McsConstants.FILE_PATH
-              + port + "/redis-" + port + ".conf &";
+          "CMD| path=" + cPath + McsConstants.FILE_PATH + port + "/,cmd=redis-sentinel " + cPath
+              + McsConstants.FILE_PATH + port + "/redis-" + port + "-sentinel.conf &";
       executeInstruction(uri, cmd);
     } catch (Exception e) {
       log.error(e.getMessage(), e);
@@ -1189,8 +1248,9 @@ public class McsSvImpl implements IMcsSv {
   private void startMcsIns(String uri, String cPath, int port) throws PaasException {
     try {
       String cmd =
-          "CMD| path=" + cPath + port + "/,cmd=redis-server " + cPath + McsConstants.FILE_PATH
-              + port + "/redis-" + port + ".conf &";
+          "CMD| path=" + cPath + McsConstants.FILE_PATH + port + "/,cmd=redis-server " + cPath
+              + McsConstants.FILE_PATH + port + "/redis-" + port + ".conf &";
+
       executeInstruction(uri, cmd);
     } catch (Exception e) {
       log.error(e.getMessage(), e);
