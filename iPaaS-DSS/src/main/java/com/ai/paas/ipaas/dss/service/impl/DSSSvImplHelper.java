@@ -422,7 +422,6 @@ public class DSSSvImplHelper {
 			DSSConf dssConf = (DSSConf) getConfObj(applyObj.getUserId(),
 					DSS_BASE_ZK_CONF + applyObj.getServiceId());
 			int dssNum = commConf.getHosts().split(";").length;
-		arseInt(applyObj.getSize()) % dssNum;
 //			int perCapacity = Integer.parseInt(applyObj.getSize()) / dssNum
 //					+ Integer.parseInt(applyObj.getSize()) % dssNum;
 			int differenceSzie = Integer.parseInt(applyObj.getSize())
