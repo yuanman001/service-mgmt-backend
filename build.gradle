@@ -240,7 +240,22 @@ project("iPaaS-SES") {
         }
     }
 }
+project("iPaaS-IDPS") {
+	project.ext {
+		appName = "ipaas-idps"
+	}
 
+	jar {
+		baseName appName
+		version moduleVersion
+		exclude "*.properties"
+		exclude "*.xml"
+		exclude "mybatis"
+		manifest {
+			attributes 'packageName': appName, 'Built-By': builtBy, 'create-date': new Date().format('yyyy-MM-dd HH:mm:ss')
+		}
+	}
+}
 project("iPaaS-DubboInterfaces") {
 
     project.ext {
