@@ -1,0 +1,278 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.ai.paas.ipaas.idps.dao.interfaces.IdpsResourcePoolMapper" >
+  <resultMap id="BaseResultMap" type="com.ai.paas.ipaas.idps.dao.mapper.bo.IdpsResourcePool" >
+    <id column="id" property="id" jdbcType="INTEGER" />
+    <result column="idps_host_ip" property="idpsHostIp" jdbcType="VARCHAR" />
+    <result column="status" property="status" jdbcType="INTEGER" />
+    <result column="idps_port" property="idpsPort" jdbcType="INTEGER" />
+    <result column="min_port" property="minPort" jdbcType="INTEGER" />
+    <result column="max_port" property="maxPort" jdbcType="INTEGER" />
+    <result column="cycle" property="cycle" jdbcType="INTEGER" />
+    <result column="ssh_user" property="sshUser" jdbcType="VARCHAR" />
+    <result column="ssh_password" property="sshPassword" jdbcType="VARCHAR" />
+  </resultMap>
+  <sql id="Example_Where_Clause" >
+    <where >
+      <foreach collection="oredCriteria" item="criteria" separator="or" >
+        <if test="criteria.valid" >
+          <trim prefix="(" suffix=")" prefixOverrides="and" >
+            <foreach collection="criteria.criteria" item="criterion" >
+              <choose >
+                <when test="criterion.noValue" >
+                  and ${criterion.condition}
+                </when>
+                <when test="criterion.singleValue" >
+                  and ${criterion.condition} #{criterion.value}
+                </when>
+                <when test="criterion.betweenValue" >
+                  and ${criterion.condition} #{criterion.value} and #{criterion.secondValue}
+                </when>
+                <when test="criterion.listValue" >
+                  and ${criterion.condition}
+                  <foreach collection="criterion.value" item="listItem" open="(" close=")" separator="," >
+                    #{listItem}
+                  </foreach>
+                </when>
+              </choose>
+            </foreach>
+          </trim>
+        </if>
+      </foreach>
+    </where>
+  </sql>
+  <sql id="Update_By_Example_Where_Clause" >
+    <where >
+      <foreach collection="example.oredCriteria" item="criteria" separator="or" >
+        <if test="criteria.valid" >
+          <trim prefix="(" suffix=")" prefixOverrides="and" >
+            <foreach collection="criteria.criteria" item="criterion" >
+              <choose >
+                <when test="criterion.noValue" >
+                  and ${criterion.condition}
+                </when>
+                <when test="criterion.singleValue" >
+                  and ${criterion.condition} #{criterion.value}
+                </when>
+                <when test="criterion.betweenValue" >
+                  and ${criterion.condition} #{criterion.value} and #{criterion.secondValue}
+                </when>
+                <when test="criterion.listValue" >
+                  and ${criterion.condition}
+                  <foreach collection="criterion.value" item="listItem" open="(" close=")" separator="," >
+                    #{listItem}
+                  </foreach>
+                </when>
+              </choose>
+            </foreach>
+          </trim>
+        </if>
+      </foreach>
+    </where>
+  </sql>
+  <sql id="Base_Column_List" >
+    id, idps_host_ip, status, idps_port, min_port, max_port, cycle, ssh_user, ssh_password
+  </sql>
+  <select id="selectByExample" resultMap="BaseResultMap" parameterType="com.ai.paas.ipaas.idps.dao.mapper.bo.IdpsResourcePoolCriteria" >
+    select
+    <if test="distinct" >
+      distinct
+    </if>
+    <include refid="Base_Column_List" />
+    from idps_resource_pool
+    <if test="_parameter != null" >
+      <include refid="Example_Where_Clause" />
+    </if>
+    <if test="orderByClause != null" >
+      order by ${orderByClause}
+    </if>
+    <if test="limitStart != null and limitStart>=0" >
+      limit #{limitStart} , #{limitEnd}
+    </if>
+  </select>
+  <select id="selectByPrimaryKey" resultMap="BaseResultMap" parameterType="Integer" >
+    select 
+    <include refid="Base_Column_List" />
+    from idps_resource_pool
+    where id = #{id,jdbcType=INTEGER}
+  </select>
+  <delete id="deleteByPrimaryKey" parameterType="Integer" >
+    delete from idps_resource_pool
+    where id = #{id,jdbcType=INTEGER}
+  </delete>
+  <delete id="deleteByExample" parameterType="com.ai.paas.ipaas.idps.dao.mapper.bo.IdpsResourcePoolCriteria" >
+    delete from idps_resource_pool
+    <if test="_parameter != null" >
+      <include refid="Example_Where_Clause" />
+    </if>
+  </delete>
+  <insert id="insert" parameterType="com.ai.paas.ipaas.idps.dao.mapper.bo.IdpsResourcePool" >
+    insert into idps_resource_pool (id, idps_host_ip, status, 
+      idps_port, min_port, max_port, 
+      cycle, ssh_user, ssh_password
+      )
+    values (#{id,jdbcType=INTEGER}, #{idpsHostIp,jdbcType=VARCHAR}, #{status,jdbcType=INTEGER}, 
+      #{idpsPort,jdbcType=INTEGER}, #{minPort,jdbcType=INTEGER}, #{maxPort,jdbcType=INTEGER}, 
+      #{cycle,jdbcType=INTEGER}, #{sshUser,jdbcType=VARCHAR}, #{sshPassword,jdbcType=VARCHAR}
+      )
+  </insert>
+  <insert id="insertSelective" parameterType="com.ai.paas.ipaas.idps.dao.mapper.bo.IdpsResourcePool" >
+    insert into idps_resource_pool
+    <trim prefix="(" suffix=")" suffixOverrides="," >
+      <if test="id != null" >
+        id,
+      </if>
+      <if test="idpsHostIp != null" >
+        idps_host_ip,
+      </if>
+      <if test="status != null" >
+        status,
+      </if>
+      <if test="idpsPort != null" >
+        idps_port,
+      </if>
+      <if test="minPort != null" >
+        min_port,
+      </if>
+      <if test="maxPort != null" >
+        max_port,
+      </if>
+      <if test="cycle != null" >
+        cycle,
+      </if>
+      <if test="sshUser != null" >
+        ssh_user,
+      </if>
+      <if test="sshPassword != null" >
+        ssh_password,
+      </if>
+    </trim>
+    <trim prefix="values (" suffix=")" suffixOverrides="," >
+      <if test="id != null" >
+        #{id,jdbcType=INTEGER},
+      </if>
+      <if test="idpsHostIp != null" >
+        #{idpsHostIp,jdbcType=VARCHAR},
+      </if>
+      <if test="status != null" >
+        #{status,jdbcType=INTEGER},
+      </if>
+      <if test="idpsPort != null" >
+        #{idpsPort,jdbcType=INTEGER},
+      </if>
+      <if test="minPort != null" >
+        #{minPort,jdbcType=INTEGER},
+      </if>
+      <if test="maxPort != null" >
+        #{maxPort,jdbcType=INTEGER},
+      </if>
+      <if test="cycle != null" >
+        #{cycle,jdbcType=INTEGER},
+      </if>
+      <if test="sshUser != null" >
+        #{sshUser,jdbcType=VARCHAR},
+      </if>
+      <if test="sshPassword != null" >
+        #{sshPassword,jdbcType=VARCHAR},
+      </if>
+    </trim>
+  </insert>
+  <select id="countByExample" parameterType="com.ai.paas.ipaas.idps.dao.mapper.bo.IdpsResourcePoolCriteria" resultType="java.lang.Integer" >
+    select count(*) from idps_resource_pool
+    <if test="_parameter != null" >
+      <include refid="Example_Where_Clause" />
+    </if>
+  </select>
+  <update id="updateByExampleSelective" parameterType="map" >
+    update idps_resource_pool
+    <set >
+      <if test="record.id != null" >
+        id = #{record.id,jdbcType=INTEGER},
+      </if>
+      <if test="record.idpsHostIp != null" >
+        idps_host_ip = #{record.idpsHostIp,jdbcType=VARCHAR},
+      </if>
+      <if test="record.status != null" >
+        status = #{record.status,jdbcType=INTEGER},
+      </if>
+      <if test="record.idpsPort != null" >
+        idps_port = #{record.idpsPort,jdbcType=INTEGER},
+      </if>
+      <if test="record.minPort != null" >
+        min_port = #{record.minPort,jdbcType=INTEGER},
+      </if>
+      <if test="record.maxPort != null" >
+        max_port = #{record.maxPort,jdbcType=INTEGER},
+      </if>
+      <if test="record.cycle != null" >
+        cycle = #{record.cycle,jdbcType=INTEGER},
+      </if>
+      <if test="record.sshUser != null" >
+        ssh_user = #{record.sshUser,jdbcType=VARCHAR},
+      </if>
+      <if test="record.sshPassword != null" >
+        ssh_password = #{record.sshPassword,jdbcType=VARCHAR},
+      </if>
+    </set>
+    <if test="_parameter != null" >
+      <include refid="Update_By_Example_Where_Clause" />
+    </if>
+  </update>
+  <update id="updateByExample" parameterType="map" >
+    update idps_resource_pool
+    set id = #{record.id,jdbcType=INTEGER},
+      idps_host_ip = #{record.idpsHostIp,jdbcType=VARCHAR},
+      status = #{record.status,jdbcType=INTEGER},
+      idps_port = #{record.idpsPort,jdbcType=INTEGER},
+      min_port = #{record.minPort,jdbcType=INTEGER},
+      max_port = #{record.maxPort,jdbcType=INTEGER},
+      cycle = #{record.cycle,jdbcType=INTEGER},
+      ssh_user = #{record.sshUser,jdbcType=VARCHAR},
+      ssh_password = #{record.sshPassword,jdbcType=VARCHAR}
+    <if test="_parameter != null" >
+      <include refid="Update_By_Example_Where_Clause" />
+    </if>
+  </update>
+  <update id="updateByPrimaryKeySelective" parameterType="com.ai.paas.ipaas.idps.dao.mapper.bo.IdpsResourcePool" >
+    update idps_resource_pool
+    <set >
+      <if test="idpsHostIp != null" >
+        idps_host_ip = #{idpsHostIp,jdbcType=VARCHAR},
+      </if>
+      <if test="status != null" >
+        status = #{status,jdbcType=INTEGER},
+      </if>
+      <if test="idpsPort != null" >
+        idps_port = #{idpsPort,jdbcType=INTEGER},
+      </if>
+      <if test="minPort != null" >
+        min_port = #{minPort,jdbcType=INTEGER},
+      </if>
+      <if test="maxPort != null" >
+        max_port = #{maxPort,jdbcType=INTEGER},
+      </if>
+      <if test="cycle != null" >
+        cycle = #{cycle,jdbcType=INTEGER},
+      </if>
+      <if test="sshUser != null" >
+        ssh_user = #{sshUser,jdbcType=VARCHAR},
+      </if>
+      <if test="sshPassword != null" >
+        ssh_password = #{sshPassword,jdbcType=VARCHAR},
+      </if>
+    </set>
+    where id = #{id,jdbcType=INTEGER}
+  </update>
+  <update id="updateByPrimaryKey" parameterType="com.ai.paas.ipaas.idps.dao.mapper.bo.IdpsResourcePool" >
+    update idps_resource_pool
+    set idps_host_ip = #{idpsHostIp,jdbcType=VARCHAR},
+      status = #{status,jdbcType=INTEGER},
+      idps_port = #{idpsPort,jdbcType=INTEGER},
+      min_port = #{minPort,jdbcType=INTEGER},
+      max_port = #{maxPort,jdbcType=INTEGER},
+      cycle = #{cycle,jdbcType=INTEGER},
+      ssh_user = #{sshUser,jdbcType=VARCHAR},
+      ssh_password = #{sshPassword,jdbcType=VARCHAR}
+    where id = #{id,jdbcType=INTEGER}
+  </update>
+</mapper>
