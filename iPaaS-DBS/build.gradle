@@ -1,0 +1,19 @@
+dependencies {
+	compile "org.apache.logging.log4j:log4j-api:2.2"
+	compile "org.apache.logging.log4j:log4j-core:2.2"
+	compile "net.sf.json-lib:json-lib:2.4:jdk15"
+	compile 'com.ai:ipaas-agent-client:0.1-SNAPSHOT'
+	compile 'com.ai:ipaas-txs:0.2-SNAPSHOT'
+	/*compile "org.springframework:spring-context-support:4.1.6.RELEASE"
+	compile ("com.alibaba.otter:manager.biz:4.2.12-SNAPSHOT"){
+		exclude group: 'org.springframework'
+		exclude group: 'commons-lang'
+		exclude group: 'commons-codec'
+		exclude group: 'commons-io'
+		exclude group: 'commons-beanutils'
+		exclude group: 'com.alibaba', module: 'dubbo'
+	}
+	compile "org.restlet.jee:org.restlet:2.2.1"*/
+	compile project(":iPaaS-DubboInterfaces")
+	compile project(":iPaaS-CCS")
+}
