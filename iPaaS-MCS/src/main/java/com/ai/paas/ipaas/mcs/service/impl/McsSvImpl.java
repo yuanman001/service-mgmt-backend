@@ -847,10 +847,15 @@ public class McsSvImpl implements IMcsSv {
     String uri =
         McsConstants.AGENT_URL_BASE + mcsResourcePool.getCacheHostIp()
             + mcsResourcePool.getAgentFile();
+    
+    log.info("++++++++++addMcsConfig.fileDetail:" + fileDetail);
+    log.info("++++++++++addMcsConfig.mkdircmd:" + mkdircmd);
+    log.info("++++++++++addMcsConfig.uri:" + uri);
+    
     try {
       executeInstruction(McsConstants.AGENT_URL_BASE + mcsResourcePool.getCacheHostIp()
           + mcsResourcePool.getAgentCmd(), mkdircmd);
-
+      
       uploadCacheFile(uri, fileDetail);
       log.info("3----------------上传文件成功!");
     } catch (PaasException e) {
