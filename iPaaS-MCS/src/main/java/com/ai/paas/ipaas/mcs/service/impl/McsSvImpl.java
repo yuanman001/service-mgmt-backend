@@ -5,7 +5,6 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Random;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
@@ -17,6 +16,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import com.ai.paas.agent.client.AgentClient;
 import com.ai.paas.ipaas.PaasException;
 import com.ai.paas.ipaas.ServiceUtil;
 import com.ai.paas.ipaas.ccs.constants.ConfigCenterDubboConstants.PathType;
@@ -83,11 +83,9 @@ public class McsSvImpl implements IMcsSv {
 			
 			log.info("2----------------选择主机:" + mcsResourcePool.getCacheHostIp() + 
 					"端口：" + mcsResourcePool.getCachePort());
-			/** TODO: to extract function. **/
-			// 根据用户账号（user_id）随机产生redis密码
-			Random rand = new Random();
-			int i = rand.nextInt(900000) + 100000;
-			String requirepass = i + "";
+
+			//获取随机数作为redis密码。
+			String requirepass = mcsSvHepler.getRandomKey();
 			
 			log.info("3----------------处理mcs服务端");
 			// 处理mcs服务端配置文件
@@ -145,10 +143,8 @@ public class McsSvImpl implements IMcsSv {
 					+ mcsResourcePool.getCacheHostIp() + "端口："
 					+ mcsResourcePool.getCachePort());
 			
-			// 根据用户账号（user_id）随机产生redis密码
-			Random rand = new Random();
-			int i = rand.nextInt(900000) + 100000;
-			String requirepass = i + "";
+			//获取随机数作为redis密码。
+			String requirepass = mcsSvHepler.getRandomKey();
 			
 			log.info("3----------------处理mcs服务端");
 			// 处理mcs服务端配置文件
@@ -179,10 +175,10 @@ public class McsSvImpl implements IMcsSv {
 			log.info("2----------------选择主机:" + resultList.toString());
 			log.info("3----------------处理mcs服务端");
 			
+			//获取随机数作为redis密码。
+			String requirepass = mcsSvHepler.getRandomKey();
+			
 			// 选取第一项为主，二三项为从，四五六启动sentinel进程
-			Random rand = new Random();
-			int i = rand.nextInt(900000) + 100000;
-			String requirepass = i + "";
 			String masterInfo = resultList.get(0);
 			configSenMaster(masterInfo, capacity, requirepass);
 			for (int k = 1; k <= 2; k++) {
@@ -331,22 +327,40 @@ public class McsSvImpl implements IMcsSv {
 				throw new PaasException("集群 生成文件失败：" + e.getMessage(), e);
 			}
 			
-			fileDetailCluster = fileNameCluster + "||CACHE|" + cachePath
-					+ McsConstants.CLUSTER_FILE_PATH + userDirNameCluster + "/"
-					+ redisPortCluster + "/" + "||include " + cachePath
-					+ McsConstants.CLUSTER_FILE_PATH + "redis-common.conf"
-					+ "||pidfile " + cachePath + McsConstants.FILE_PATH
-					+ "rdpid/redis-" + redisPortCluster + ".pid" + "||port "
-					+ redisPortCluster + "||cluster-enabled yes"
-					+ "||maxmemory " + memorySizeCluster
-					+ "||cluster-config-file nodes.conf"
-					+ "||cluster-node-timeout 5000" + "||appendonly yes";
+//			fileDetailCluster = fileNameCluster + "||CACHE|" + cachePath
+//					+ McsConstants.CLUSTER_FILE_PATH + userDirNameCluster + "/"
+//					+ redisPortCluster + "/" + "||include " + cachePath
+//					+ McsConstants.CLUSTER_FILE_PATH + "redis-common.conf"
+//					+ "||pidfile " + cachePath + McsConstants.FILE_PATH
+//					+ "rdpid/redis-" + redisPortCluster + ".pid" + "||port "
+//					+ redisPortCluster + "||cluster-enabled yes"
+//					+ "||maxmemory " + memorySizeCluster
+//					+ "||cluster-config-file nodes.conf"
+//					+ "||cluster-node-timeout 5000" + "||appendonly yes";
 			
 			try {
+//				uploadCacheFile(uriCreateCluster, fileDetailCluster);
+				
 				log.info("上传time-----------" + new Date());
-				uploadCacheFile(uriCreateCluster, fileDetailCluster);
+				String clusterConfig = fileNameCluster;
+				
+				//TODO: 配置文件可提炼出共用的方法。
+				//TODO: 可通用，传入 redisPort, memorySize, password 即可。
+				String configDetail = "||include " + cachePath
+						+ McsConstants.CLUSTER_FILE_PATH + "redis-common.conf"
+						+ "||pidfile " + cachePath + McsConstants.FILE_PATH + "rdpid/redis-" + redisPortCluster + ".pid" 
+						+ "||port " + redisPortCluster 
+						+ "||cluster-enabled yes"
+						+ "||maxmemory " + memorySizeCluster
+						+ "||cluster-config-file nodes.conf"
+						+ "||cluster-node-timeout 5000"
+						+ "||appendonly yes";
+				
+				AgentClient ac = new AgentClient("10.1.228.199", 60004);
+				mcsSvHepler.uploadFile(ac, clusterConfig, configDetail);
 				log.info("上传time-----------" + new Date());
 				log.info("上传配置文件成功！");
+				
 			} catch (Exception e) {
 				log.error(e.getMessage(), e);
 				// throw new
@@ -597,40 +611,16 @@ public class McsSvImpl implements IMcsSv {
 		String mkdircmd = "CMD| path=" + cachePath + McsConstants.FILE_PATH
 				+ ",cmd=mkdir -p " + redisPort;
 
-		String fileDetail = fileName
-				+ "||CACHE|"
-				+ cachePath
-				+ McsConstants.FILE_PATH
-				+ redisPort
-				+ "/"
-				+ "||include "
-				+ cachePath
-				+ McsConstants.FILE_PATH
-				+ "redis-common.conf||"
-				+ "pidfile /var/run/redis-"
-				+ redisPort
-				+ ".pid||port "
-				+ redisPort
-				+ "||maxmemory "
-				+ memorySize
-				+ "||requirepass "
-				+ requirepass
-				+ "||"
-				+ "logfile "
-				+ cachePath
-				+ "/log/"
-				+ redisPort
-				+ "/redis-"
-				+ redisPort
-				+ ".log"
+		//TODO: 可通用，传入 redisPort, memorySize, password 即可。
+		String configDetail = "||include " + cachePath + McsConstants.FILE_PATH + "redis-common.conf"
+				+ "||pidfile /var/run/redis-" + redisPort + ".pid"
+				+ "||port " + redisPort
+				+ "||maxmemory " + memorySize
+				+ "||requirepass " + requirepass
+				+ "||logfile " + cachePath + "/log/" + redisPort + "/redis-" + redisPort + ".log"
 				+ "||tcp-keepalive 60||maxmemory-policy noeviction||appendonly yes||appendfilename \"appendonly.aof\"";
-		String logdir = "CMD| path=" + cachePath + ",cmd=mkdir -p "
-				+ McsConstants.LOG_PATH;
-
-		String logName = "redis-" + redisPort + ".log";
-
-		String logfile = logName + "||CACHE|" + cachePath
-				+ McsConstants.LOG_PATH + redisPort + "/" + "||";
+		
+		String logdir = "CMD| path=" + cachePath + ",cmd=mkdir -p " + McsConstants.LOG_PATH;
 
 		String uri = McsConstants.AGENT_URL_BASE + mcsResourcePool.getCacheHostIp() + mcsResourcePool.getAgentFile();
 		String commandUri = McsConstants.AGENT_URL_BASE + mcsResourcePool.getCacheHostIp() + mcsResourcePool.getAgentCmd();
@@ -639,12 +629,17 @@ public class McsSvImpl implements IMcsSv {
 		try {
 			executeInstruction(commandUri, mkdircmd);
 			executeInstruction(commandUri, logdir);
-			uploadCacheFile(uri, fileDetail);
 			
-			// 上传日志文件
-			uploadCacheFile(uri, logfile);
+//			uploadCacheFile(uri, fileDetail);
+			
+			AgentClient ac = new AgentClient("10.1.228.199", 60004);
+			mcsSvHepler.uploadFile(ac, fileName, configDetail);
+			
+			//TODO: 是否需要上传空的日志文件？？？？
+//			uploadCacheFile(uri, logfile);
+			
 			log.info("3----------------上传文件成功!");
-		} catch (PaasException e) {
+		} catch (Exception e) {
 			log.error(e.getMessage(), e);
 			throw new PaasException("单例 上传文件失败：" + e.getMessage(), e);
 		}
@@ -663,56 +658,51 @@ public class McsSvImpl implements IMcsSv {
 		String[] info = result.split(":");
 		String ip = info[0];
 		String port = info[1];
+		
 		String fileName = "redis-" + port + ".conf";
 		String uriCmdCluster = McsConstants.AGENT_URL_BASE + ip + agentCmd;
 		String uriCreateCluster = McsConstants.AGENT_URL_BASE + ip + agentFile;
-		String mkdircmd = "CMD| path=" + cachePath + McsConstants.FILE_PATH
-				+ ",cmd=mkdir -p " + port;
-		String logdir = "CMD| path=" + cachePath + ",cmd=mkdir -p "
-				+ McsConstants.LOG_PATH;
+		String mkdircmd = "CMD| path=" + cachePath + McsConstants.FILE_PATH + ",cmd=mkdir -p " + port;
+		String logdir = "CMD| path=" + cachePath + ",cmd=mkdir -p " + McsConstants.LOG_PATH;
 		String logName = "redis-" + port + ".log";
-		String fileDetail = fileName
-				+ "||CACHE|"
-				+ cachePath
-				+ McsConstants.FILE_PATH
-				+ port
-				+ "/"
-				+ "||include "
-				+ cachePath
-				+ McsConstants.FILE_PATH
-				+ "redis-common.conf||"
-				+ "pidfile /var/run/redis-"
-				+ port
-				+ ".pid||port "
-				+ port
-				+ "||maxmemory "
-				+ memorySize
-				+ "||requirepass "
-				+ requirepass
-				+ "||"
-				+ "logfile "
-				+ cachePath
-				+ "/log/"
-				+ port
-				+ "/redis-"
-				+ port
-				+ ".log"
-				+ "||tcp-keepalive 60||maxmemory-policy noeviction||appendonly yes||appendfilename \"appendonly.aof\"";
+		
+//		String fileDetail = fileName
+//				+ "||CACHE|" + cachePath + McsConstants.FILE_PATH + port + "/"
+//				+ "||include " + cachePath + McsConstants.FILE_PATH + "redis-common.conf"
+//				+ "||pidfile /var/run/redis-" + port + ".pid||port " + port
+//				+ "||maxmemory " + memorySize
+//				+ "||requirepass " + requirepass
+//				+ "||logfile " + cachePath + "/log/" + port + "/redis-" + port + ".log"
+//				+ "||tcp-keepalive 60||maxmemory-policy noeviction||appendonly yes||appendfilename \"appendonly.aof\"";
 
-		String logfile = logName + "||CACHE|" + cachePath
-				+ McsConstants.LOG_PATH + port + "/" + "||";
+//		String logfile = logName + "||CACHE|" + cachePath
+//				+ McsConstants.LOG_PATH + port + "/" + "||";
 
 		try {
 			executeInstruction(uriCmdCluster, mkdircmd);
 			executeInstruction(uriCmdCluster, logdir);
-			uploadCacheFile(uriCreateCluster, fileDetail);
-			// 生成日志文件
-			uploadCacheFile(uriCreateCluster, logfile);
+			
+//			uploadCacheFile(uriCreateCluster, fileDetail);
+			//TODO: 配置文件可提炼出共用的方法。
+			String configDetail = "||include " + cachePath + McsConstants.FILE_PATH + "redis-common.conf"
+					+ "||pidfile /var/run/redis-" + port + ".pid||port " + port
+					+ "||maxmemory " + memorySize
+					+ "||requirepass " + requirepass
+					+ "||logfile " + cachePath + "/log/" + port + "/redis-" + port + ".log"
+					+ "||tcp-keepalive 60||maxmemory-policy noeviction||appendonly yes||appendfilename \"appendonly.aof\"";
+			
+			//TODO: 可以放到最上面，共用此对象。
+			AgentClient ac = new AgentClient("10.1.228.199", 60004);
+			mcsSvHepler.uploadFile(ac, fileName, configDetail);
+			
+			//TODO：生成日志文件??? 为什么要生成一个空的日志文件？？是否可以去掉？？
+//			uploadCacheFile(uriCreateCluster, logfile);
+			mcsSvHepler.uploadFile(ac, logName, " ");
+			
 			log.info("3----------------上传文件成功!");
-		} catch (PaasException e) {
+		} catch (Exception e) {
 			log.error(e.getMessage(), e);
 			throw new PaasException("单例 上传文件失败：" + e.getMessage(), e);
-
 		}
 
 		startMcsIns(uriCmdCluster, cachePath, new Integer(port));
@@ -731,37 +721,53 @@ public class McsSvImpl implements IMcsSv {
 		String mkdircmd = "CMD| path=" + cachePath + McsConstants.FILE_PATH
 				+ ",cmd=mkdir -p " + redisPort;
 
-		String fileDetail = fileName + "||CACHE|" + cachePath
-				+ McsConstants.FILE_PATH + redisPort + "/" + "||include "
-				+ cachePath + McsConstants.FILE_PATH + "redis-common.conf||"
-				+ "pidfile /var/run/redis-" + redisPort + ".pid||port "
-				+ redisPort + "||maxmemory " + memorySize + "||requirepass "
-				+ requirepass + "||" + "logfile " + cachePath + "/log/"
-				+ redisPort + "/redis-" + redisPort + ".log" + "||slaveof "
-				+ mcsResourcePool.getCacheHostIp() + " "
-				+ mcsResourcePool.getCachePort() + "||masterauth "
-				+ requirepass;
+//		String fileDetail = fileName + "||CACHE|" + cachePath
+//				+ McsConstants.FILE_PATH + redisPort + "/" + "||include "
+//				+ cachePath + McsConstants.FILE_PATH + "redis-common.conf||"
+//				+ "pidfile /var/run/redis-" + redisPort + ".pid||port "
+//				+ redisPort + "||maxmemory " + memorySize + "||requirepass "
+//				+ requirepass + "||" + "logfile " + cachePath + "/log/"
+//				+ redisPort + "/redis-" + redisPort + ".log" + "||slaveof "
+//				+ mcsResourcePool.getCacheHostIp() + " "
+//				+ mcsResourcePool.getCachePort() + "||masterauth " + requirepass;
+		
 		String uri = McsConstants.AGENT_URL_BASE
 				+ mcsResourcePool.getCacheHostIp()
 				+ mcsResourcePool.getAgentFile();
+		
 		String commandUri = McsConstants.AGENT_URL_BASE
 				+ mcsResourcePool.getCacheHostIp()
 				+ mcsResourcePool.getAgentCmd();
+		
 		String logdir = "CMD| path=" + cachePath + ",cmd=mkdir -p "
 				+ McsConstants.LOG_PATH;
-
-		String logName = "redis-" + redisPort + ".log";
-
-		String logfile = logName + "||CACHE|" + cachePath
-				+ McsConstants.LOG_PATH + redisPort + "/" + "||";
+//		String logName = "redis-" + redisPort + ".log";
 
 		try {
 			executeInstruction(commandUri, mkdircmd);
 			executeInstruction(commandUri, logdir);
-			uploadCacheFile(uri, fileDetail);
-			uploadCacheFile(uri, logfile);
+			
+//			uploadCacheFile(uri, fileDetail);
+			//TODO: 配置文件可提炼出共用的方法。
+			String configDetail = "||include "
+					+ cachePath + McsConstants.FILE_PATH + "redis-common.conf"
+					+ "||pidfile /var/run/redis-" + redisPort + ".pid"
+					+ "||port " +redisPort
+					+ "||maxmemory " + memorySize 
+					+ "||requirepass " + requirepass
+					+ "||" + "logfile " + cachePath + "/log/" + redisPort + "/redis-" + redisPort + ".log"
+					+ "||slaveof " + mcsResourcePool.getCacheHostIp() + " " + mcsResourcePool.getCachePort() 
+					+ "||masterauth " + requirepass;
+			
+			//TODO: 可以放到最上面，共用此对象。
+			AgentClient ac = new AgentClient("10.1.228.199", 60004);
+			mcsSvHepler.uploadFile(ac, fileName, configDetail);
+			
+			//TODO: 是否需要上传空的log文件 ???
+//			uploadCacheFile(uri, logfile);
+			
 			log.info("3----------------上传文件成功!");
-		} catch (PaasException e) {
+		} catch (Exception e) {
 			log.error(e.getMessage(), e);
 			throw new PaasException("单例 上传文件失败：" + e.getMessage(), e);
 
@@ -777,8 +783,7 @@ public class McsSvImpl implements IMcsSv {
 	}
 
 	//TODO: 同 addSlaveConfig 一样，需要重构，主要解决 agent 调用的逻辑，同时整理并重构逻辑。
-	private void configSenSlave(String result, String masterResult,
-			String capacity, String requirepass) throws PaasException {
+	private void configSenSlave(String result, String masterResult, String capacity, String requirepass) throws PaasException {
 		// 调用restful服务
 		String memorySize = capacity + "m";
 		String[] info = result.split(":");
@@ -795,29 +800,44 @@ public class McsSvImpl implements IMcsSv {
 		String mkdircmd = "CMD| path=" + cachePath + McsConstants.FILE_PATH
 				+ ",cmd=mkdir -p " + port;
 
-		String fileDetail = fileName + "||CACHE|" + cachePath
-				+ McsConstants.FILE_PATH + port + "/" + "||include "
-				+ cachePath + McsConstants.FILE_PATH + "redis-common.conf||"
-				+ "pidfile /var/run/redis-" + port + ".pid||port " + port
-				+ "||maxmemory " + memorySize + "||requirepass " + requirepass
-				+ "||" + "logfile " + cachePath + "/log/" + port + "/redis-"
-				+ port + ".log" + "||slaveof " + masterIp + " " + masterPort
-				+ "||masterauth " + requirepass;
+//		String fileDetail = fileName + "||CACHE|" + cachePath
+//				+ McsConstants.FILE_PATH + port + "/" + "||include "
+//				+ cachePath + McsConstants.FILE_PATH + "redis-common.conf||"
+//				+ "pidfile /var/run/redis-" + port + ".pid||port " + port
+//				+ "||maxmemory " + memorySize + "||requirepass " + requirepass
+//				+ "||" + "logfile " + cachePath + "/log/" + port + "/redis-"
+//				+ port + ".log" + "||slaveof " + masterIp + " " + masterPort
+//				+ "||masterauth " + requirepass;
 
 		String logdir = "CMD| path=" + cachePath + ",cmd=mkdir -p "
 				+ McsConstants.LOG_PATH;
 
-		String logName = "redis-" + port + ".log";
-
-		String logfile = logName + "||CACHE|" + cachePath
-				+ McsConstants.LOG_PATH + port + "/" + "||";
+//		String logName = "redis-" + port + ".log";
+//		String logfile = logName + "||CACHE|" + cachePath
+//				+ McsConstants.LOG_PATH + port + "/" + "||";
+		
 		try {
 			executeInstruction(uriCmdCluster, mkdircmd);
 			executeInstruction(uriCmdCluster, logdir);
-			uploadCacheFile(uriCreateCluster, fileDetail);
-			uploadCacheFile(uriCreateCluster, logfile);
+
+			String configDetail = "||include "
+					+ cachePath + McsConstants.FILE_PATH + "redis-common.conf"
+					+ "||pidfile /var/run/redis-" + port + ".pid"
+					+ "||port " + port
+					+ "||maxmemory " + memorySize
+					+ "||requirepass " + requirepass
+					+ "||logfile " + cachePath + "/log/" + port + "/redis-" + port + ".log"
+					+ "||slaveof " + masterIp + " " + masterPort
+					+ "||masterauth " + requirepass;
+			
+			//TODO: 可以放到最上面，共用此对象。
+			AgentClient ac = new AgentClient("10.1.228.199", 60004);
+			mcsSvHepler.uploadFile(ac, fileName, configDetail);
+			
+//			uploadCacheFile(uriCreateCluster, fileDetail);
+//			uploadCacheFile(uriCreateCluster, logfile);
 			log.info("3----------------上传文件成功!");
-		} catch (PaasException e) {
+		} catch (Exception e) {
 			log.error(e.getMessage(), e);
 			throw new PaasException("单例 上传文件失败：" + e.getMessage(), e);
 
@@ -841,38 +861,42 @@ public class McsSvImpl implements IMcsSv {
 		String masterIp = masterInfo[0];
 		String masterPort = masterInfo[1];
 
-		String fileName = "redis-" + port + "-sentinel.conf";
 		String uriCmdCluster = McsConstants.AGENT_URL_BASE + ip + agentCmd;
 		String uriCreateCluster = McsConstants.AGENT_URL_BASE + ip + agentFile;
 		String mkdircmd = "CMD| path=" + cachePath + McsConstants.FILE_PATH + ",cmd=mkdir -p " + port;
 		String logdir = "CMD| path=" + cachePath + McsConstants.LOG_PATH + ",cmd=touch  redis-" + port + ".log";
 		
-		String fileDetail = fileName
-				+ "||CACHE|"
-				+ cachePath
-				+ McsConstants.FILE_PATH
-				+ port
-				+ "/"
-				+ "||port  "
-				+ port
-				+ "||sentinel monitor mymaster "
-				+ masterIp
-				+ " "
-				+ masterPort
-				+ " 2"
-				+ "||sentinel down-after-milliseconds mymaster 5000||sentinel failover-timeout mymaster 60000||sentinel parallel-syncs mymaster 1";
+		String fileName = cachePath + McsConstants.FILE_PATH + port + "/"+"redis-" + port + "-sentinel.conf";
+//		String fileDetail = fileName + "||CACHE|"
+//				+ cachePath + McsConstants.FILE_PATH + port + "/"
+//				+ "||port  " + port
+//				+ "||sentinel monitor mymaster " + masterIp + " " + masterPort + " 2"
+//				+ "||sentinel down-after-milliseconds mymaster 5000"
+//				+ "||sentinel failover-timeout mymaster 60000"
+//				+ "||sentinel parallel-syncs mymaster 1";
 
-		String logName = "redis-" + port + ".log";
-
-		String logfile = logName + "||CACHE|" + cachePath
-				+ McsConstants.LOG_PATH + port + "/" + "||";
+//		String logName = "redis-" + port + ".log";
+//		String logfile = logName + "||CACHE|" + cachePath
+//				+ McsConstants.LOG_PATH + port + "/" + "||";
 		try {
 			executeInstruction(uriCmdCluster, mkdircmd);
 			executeInstruction(uriCmdCluster, logdir);
-			uploadCacheFile(uriCreateCluster, fileDetail);
-			uploadCacheFile(uriCreateCluster, logfile);
+			
+			String configDetail = "||port  " + port
+					+ "||sentinel monitor mymaster " + masterIp + " " + masterPort + " 2"
+					+ "||sentinel down-after-milliseconds mymaster 5000"
+					+ "||sentinel failover-timeout mymaster 60000"
+					+ "||sentinel parallel-syncs mymaster 1";
+			//TODO: 可以放到最上面，共用此对象。
+			AgentClient ac = new AgentClient("10.1.228.199", 60004);
+			mcsSvHepler.uploadFile(ac, fileName, configDetail);
+			
+//			uploadCacheFile(uriCreateCluster, fileDetail);
+			
+			//TODO:是否需要增加空的日志文件 ？？？？
+//			uploadCacheFile(uriCreateCluster, logfile);
 			log.info("3----------------上传文件成功!");
-		} catch (PaasException e) {
+		} catch (Exception e) {
 			log.error(e.getMessage(), e);
 			throw new PaasException("单例 上传文件失败：" + e.getMessage(), e);
 
@@ -897,32 +921,45 @@ public class McsSvImpl implements IMcsSv {
 		// 调用restful服务
 		String memorySize = capacity + "m";
 
-		String fileName = "redis-" + redisPort + ".conf";
+		String fileName = cachePath + McsConstants.FILE_PATH + redisPort + "/" + "redis-" + redisPort + ".conf";
 
 		String mkdircmd = "CMD| path=" + cachePath + McsConstants.FILE_PATH
 				+ ",cmd=mkdir -p " + redisPort;
 
-		String fileDetail = fileName + "||CACHE|" + cachePath
-				+ McsConstants.FILE_PATH + redisPort + "/" + "||include "
-				+ cachePath + McsConstants.FILE_PATH + "redis-common.conf||"
-				+ "pidfile /var/run/redis-" + redisPort + ".pid||port "
-				+ redisPort + "||maxmemory " + memorySize + "||requirepass "
-				+ requirepass + "||" + "logfile " + cachePath
-				+ "/redis/log/redis-" + redisPort + ".log";
+//		String fileDetail = fileName + "||CACHE|" + cachePath
+//				+ McsConstants.FILE_PATH + redisPort + "/" + "||include "
+//				+ cachePath + McsConstants.FILE_PATH + "redis-common.conf||"
+//				+ "pidfile /var/run/redis-" + redisPort + ".pid||port "
+//				+ redisPort + "||maxmemory " + memorySize + "||requirepass "
+//				+ requirepass + "||" + "logfile " + cachePath
+//				+ "/redis/log/redis-" + redisPort + ".log";
+		
 		String uri = McsConstants.AGENT_URL_BASE
 				+ mcsResourcePool.getCacheHostIp()
 				+ mcsResourcePool.getAgentFile();
 
-		log.info("++++++++++addMcsConfig.fileDetail:" + fileDetail);
+//		log.info("++++++++++addMcsConfig.fileDetail:" + fileDetail);
 		log.info("++++++++++addMcsConfig.mkdircmd:" + mkdircmd);
 		log.info("++++++++++addMcsConfig.uri:" + uri);
 
 		try {
 			executeInstruction(McsConstants.AGENT_URL_BASE + mcsResourcePool.getCacheHostIp() + mcsResourcePool.getAgentCmd(), mkdircmd);
 
-			uploadCacheFile(uri, fileDetail);
+			String configDetail = "||include "
+					+ cachePath + McsConstants.FILE_PATH + "redis-common.conf"
+					+ "||pidfile /var/run/redis-" + redisPort + ".pid"
+					+ "||port " + redisPort
+					+ "||maxmemory " + memorySize
+					+ "||requirepass " + requirepass
+					+ "||logfile " + cachePath + "/redis/log/redis-" + redisPort + ".log";
+			
+			//TODO: 可以放到最上面，共用此对象。
+			AgentClient ac = new AgentClient("10.1.228.199", 60004);
+			mcsSvHepler.uploadFile(ac, fileName, configDetail);
+			
+//			uploadCacheFile(uri, fileDetail);
 			log.info("3----------------上传文件成功!");
-		} catch (PaasException e) {
+		} catch (Exception e) {
 			log.error(e.getMessage(), e);
 			throw new PaasException("单例 上传文件失败：" + e.getMessage(), e);
 
@@ -1205,19 +1242,19 @@ public class McsSvImpl implements IMcsSv {
 	 * @throws PaasException
 	 */
 	//TODO:需重构，直接使用AgentClint类，则不用再使用此方法。
-	private void uploadCacheFile(String uri, String dstFileDir) throws PaasException {
-		try {
-			ClientResource clientResource = new ClientResource(uri);
-			clientResource.release();
-			Thread.sleep(10);
-		} catch (Exception e) {
-			log.error(e.getMessage(), e);
-			throw new PaasException("", e);
-		} catch (Error e) {
-			log.error(e.getMessage(), e);
-		}
-	}
-
+//	private void uploadCacheFile(String uri, String dstFileDir) throws PaasException {
+//		try {
+//			ClientResource clientResource = new ClientResource(uri);
+//			clientResource.release();
+//			Thread.sleep(10);
+//		} catch (Exception e) {
+//			log.error(e.getMessage(), e);
+//			throw new PaasException("", e);
+//		} catch (Error e) {
+//			log.error(e.getMessage(), e);
+//		}
+//	}
+	
 	/**
 	 * 执行服务器端命令
 	 * 
@@ -1448,17 +1485,14 @@ public class McsSvImpl implements IMcsSv {
 	 * @throws PaasException
 	 */
 	//TODO: 根据新的 agent 接口进行重构。与 modifyMcsServerFileAndUserIns() 方法类似。
-	private void removeMcsServerFileAndUserIns(final String userId,
-			final String serviceId, List<McsUserCacheInstance> cis)
-			throws PaasException {
-		McsUserCacheInstanceMapper im = ServiceUtil
-				.getMapper(McsUserCacheInstanceMapper.class);
+	private void removeMcsServerFileAndUserIns(final String userId, final String serviceId, 
+			List<McsUserCacheInstance> cis) throws PaasException {
+		McsUserCacheInstanceMapper im = ServiceUtil.getMapper(McsUserCacheInstanceMapper.class);
 
 		// TODO：上面有与此方法类似的逻辑，一并考虑重构。
 		if (cis.size() == 1) {
 			McsUserCacheInstance tempIns = cis.get(0);
-			McsResourcePoolMapper rpm = ServiceUtil
-					.getMapper(McsResourcePoolMapper.class);
+			McsResourcePoolMapper rpm = ServiceUtil.getMapper(McsResourcePoolMapper.class);
 			McsResourcePoolCriteria rpmc = new McsResourcePoolCriteria();
 			rpmc.createCriteria()
 					.andStatusEqualTo(McsConstants.VALIDATE_STATUS)
@@ -1467,10 +1501,11 @@ public class McsSvImpl implements IMcsSv {
 			McsResourcePool pool = pools.get(0);
 
 			log.info("注销----------------停redis");
+			
 			// 停redis
-			String uri = McsConstants.AGENT_URL_BASE + pool.getCacheHostIp()
-					+ pool.getAgentCmd();
+			String uri = McsConstants.AGENT_URL_BASE + pool.getCacheHostIp() + pool.getAgentCmd();
 			stopMcsIns(uri, pool.getCachePath(), tempIns.getCachePort());
+			
 			log.info("注销----------------删除redis配置文件");
 			removeMcsConfig(uri, pool.getCachePath(), tempIns.getCachePort());
 
@@ -1492,8 +1527,7 @@ public class McsSvImpl implements IMcsSv {
 			for (int i = 0; i < cis.size(); i++) {
 				McsUserCacheInstance tempIns = cis.get(i);
 				if (pool == null) {
-					McsResourcePoolMapper rpm = ServiceUtil
-							.getMapper(McsResourcePoolMapper.class);
+					McsResourcePoolMapper rpm = ServiceUtil.getMapper(McsResourcePoolMapper.class);
 					McsResourcePoolCriteria rpmc = new McsResourcePoolCriteria();
 					rpmc.createCriteria()
 							.andStatusEqualTo(McsConstants.VALIDATE_STATUS)
@@ -1501,6 +1535,7 @@ public class McsSvImpl implements IMcsSv {
 					List<McsResourcePool> pools = rpm.selectByExample(rpmc);
 					pool = pools.get(0);
 				}
+				
 				log.info("注销----cluster------------停redis");
 				// 停redis
 				String uri = McsConstants.AGENT_URL_BASE
