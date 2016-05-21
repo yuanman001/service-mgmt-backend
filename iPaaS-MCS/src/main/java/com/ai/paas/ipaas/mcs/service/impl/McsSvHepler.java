@@ -38,7 +38,7 @@ public class McsSvHepler {
 	 * @param content
 	 * @throws Exception
 	 */
-	public void uploadFile(AgentClient ac, String fileName, String content) throws Exception {
+	public void uploadFile(AgentClient ac, String fileName, String content) throws PaasException {
 		ac.saveFile(fileName, content);
 	}
 	
@@ -48,7 +48,7 @@ public class McsSvHepler {
 	 * @param command
 	 * @throws Exception
 	 */
-	public void excuteCommand(AgentClient ac, String command) throws Exception {
+	public void excuteCommand(AgentClient ac, String command) throws PaasException {
 		ac.executeInstruction(command);
 	}
 
