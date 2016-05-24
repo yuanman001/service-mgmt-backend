@@ -1132,16 +1132,12 @@ public class McsSvImpl implements IMcsSv {
 		
 		/** 如果Mcs服务为集群模式，需要执行创建redis集群的命令。 **/
 		if (userInstance.size() > 1) {
-			String cmd_create_cluster = "redis-trib.rb create --replicas 1" + clusterInfo;
-			log.info("----------创建["+userId+"]-["+serviceId+"]的MCS集群的命令:"+cmd_create_cluster);
-			try {
-				AgentClient ac = new AgentClient(userInstance.get(0).getCacheHost(), Integer.valueOf(pool.getAgentCmd()));
-				ac.executeInstruction(cmd_create_cluster);
-				log.info("----------集群启动成功----------");
-			} catch (Exception e) {
-				log.error(e.getMessage(), e);
-				throw new PaasException("++++ 集群启动失败：" + e.getMessage(), e);
-			}
+			String cacheHost = userInstance.get(0).getCacheHost();
+			Integer agentPort = Integer.valueOf(pool.getAgentCmd());
+			AgentClient ac = new AgentClient(cacheHost, agentPort);
+			
+			log.info("------创建["+userId+"]-["+serviceId+"]的MCS集群:"+clusterInfo);
+			createRedisCluster(ac, userId, serviceId, clusterInfo);
 		}
 	}
 
@@ -1265,23 +1261,6 @@ public class McsSvImpl implements IMcsSv {
 	}
 	
 	/**
-	 * 使用新的agent接口，sentnel模式启动redis服务。
-	 * @param ac
-	 * @param path
-	 * @param port
-	 * @throws PaasException
-	 */
-	private void startSenIns(AgentClient ac, String path, int port) throws PaasException {
-		try {
-			String cmd =  "redis-sentinel " + path + port + "/redis-" + port + "-sentinel.conf &";
-			ac.executeInstruction(cmd);
-		} catch (Exception e) {
-			log.error(e.getMessage(), e);
-			throw new PaasException("sentinel模式启动MCS异常，port：" + port, e);
-		}
-	}
-	
-	/**
 	 * 使用新的agent接口，启动redis服务。
 	 * @param ac
 	 * @param path
@@ -1319,6 +1298,23 @@ public class McsSvImpl implements IMcsSv {
 		}
 	}
 
+	/**
+	 * 使用新的agent接口，sentnel模式启动redis服务。
+	 * @param ac
+	 * @param path
+	 * @param port
+	 * @throws PaasException
+	 */
+	private void startSenIns(AgentClient ac, String path, int port) throws PaasException {
+		try {
+			String cmd =  "redis-sentinel " + path + port + "/redis-" + port + "-sentinel.conf &";
+			ac.executeInstruction(cmd);
+		} catch (Exception e) {
+			log.error(e.getMessage(), e);
+			throw new PaasException("sentinel模式启动MCS异常，port：" + port, e);
+		}
+	}
+	
 	/**
 	 * 使用新的agent接口，停redis服务。
 	 * @param ac
@@ -1374,4 +1370,22 @@ public class McsSvImpl implements IMcsSv {
 		}
 	}
 
+	/**
+	 * 执行Redis集群创建的命令。
+	 * @param ac
+	 * @param userId
+	 * @param serviceId
+	 * @param clusterInfo
+	 * @throws PaasException
+	 */
+	private void createRedisCluster(AgentClient ac, String userId, String serviceId, String clusterInfo) throws PaasException {
+		String cmd_create_cluster = "redis-trib.rb create --replicas 1" + clusterInfo;
+		try {
+			ac.executeInstruction(cmd_create_cluster);
+			log.info("----------创建Redis集群成功----------");
+		} catch (Exception e) {
+			log.error(e.getMessage(), e);
+			throw new PaasException("++++ 创建Redis集群失败：" + e.getMessage(), e);
+		}
+	}
 }
