@@ -577,17 +577,25 @@ public class McsSvImpl implements IMcsSv {
 			dataJson.addProperty("hosts", host);
 		}
 		
+		log.info("------ Mcs服务需要在 zk中记录的信息 ------");
+		log.info("------ userId:["+userId+"] ------");
+		log.info("------ zkPath:["+McsConstants.MCS_ZK_PATH + serviceId+"]");
+		log.info("------ dataJson[hosts]:" + dataJson.toString());
+		log.info("------ dataJson[password]:" + requirepass);
+		
 		if (requirepass != null && requirepass.length() > 0) {
+			log.info("------ CiperUtil.encrypt(password):" + CiperUtil.encrypt(McsConstants.PWD_KEY, requirepass));
 			dataJson.addProperty("password", CiperUtil.encrypt(McsConstants.PWD_KEY, requirepass));
 		}
-
+		
 		iCCSComponentManageSv.add(op, dataJson.toString());
-		log.info("-----------在zk中记录申请信息成功!");
+		log.info("------ 在zk的"+McsConstants.MCS_ZK_PATH + serviceId+"路径下，记录MCS申请信息成功!");
 
 		op.setPath(McsConstants.MCS_ZK_COMMON_PATH);
 		if (!iCCSComponentManageSv.exists(op)) {
+			log.info("------ 设置zk中的 /MCS/COMMON 路径 ------");
 			iCCSComponentManageSv.add(op, McsConstants.MCS_ZK_COMMON);
-			log.info("-----------在zk中记录COMMON信息成功!");
+			log.info("------ 在zk中记录COMMON信息成功!");
 		}
 	}
 
@@ -689,11 +697,9 @@ public class McsSvImpl implements IMcsSv {
 	 */
 	private void addSlaveConfig(McsResourcePool mcsResourcePool, int redisPort,
 			String capacity, String requirepass) throws PaasException {
-		
+
 		String cacheHostIp = mcsResourcePool.getCacheHostIp();
 		String cachePath = mcsResourcePool.getCachePath();
-		
-		//TODO:需要从资源池表的 agentCmd字段获取 agentPort，需重新初始化数据，重点验证！！
 		Integer agentPort = Integer.parseInt(mcsResourcePool.getAgentCmd());
 		
 		/** 初始化agent  **/
@@ -897,7 +903,7 @@ public class McsSvImpl implements IMcsSv {
 				tempIns.setServiceName(serviceName);
 			}
 			
-			/** 6.更新 用户实例表，使用内存  **/
+			/** 6.更新用户实例表的“已使用的内存”的字段  **/
 			log.info("----- update cache size info -------");
 			McsUserCacheInstanceMapper im = ServiceUtil.getMapper(McsUserCacheInstanceMapper.class);
 			im.updateByPrimaryKey(tempIns);
@@ -905,7 +911,6 @@ public class McsSvImpl implements IMcsSv {
 		} else {  /** 处理集群模式的redis **/
 			McsResourcePool pool = null;
 			List<McsProcessInfo> cacheInfoList = new ArrayList<McsProcessInfo>();
-			final List<String> resultList = new ArrayList<String>();
 			for(McsUserCacheInstance tempIns : userInstanceList){
 				/** 获取mcs资源表中的cachePath、agentPort信息 **/
 				McsResourcePoolMapper rpm = ServiceUtil.getMapper(McsResourcePoolMapper.class);
@@ -936,12 +941,8 @@ public class McsSvImpl implements IMcsSv {
 				AgentClient ac = new AgentClient(cacheHostIp, agentPort);
 				
 				/** 停redis  **/
-				log.info("----- stop cluster redis -----");
 				stopMcsIns(ac, cachePort);
-				
-				/** 将处理的Ip＋port，放入list **/
-				log.info("-------add ["+cacheHostIp+"]:["+cachePort+"] into resultlist ------");
-				resultList.add(cacheHostIp + ":" + cachePort);
+				log.info("----- stop cluster redis is successful-----");
 				
 				/** 组织待更新的数据 **/
 				tempIns.setCacheMemory(cacheSize);
@@ -958,15 +959,16 @@ public class McsSvImpl implements IMcsSv {
 			/** 处理redis集群中的每个server的目录、配置文件，并启动。 **/
 			addMcsConfigCluster(cacheInfoList, userId, serviceId, cacheSize);
 			
-			/** 组织集群创建的命令及返回值 **/
-			String clusterInfo = getClusterInfo(cacheInfoList, " ");
-			
 			/** 在集群中的任意台主机上，执行redis集群创建的命令 **/
 			McsProcessInfo vo = cacheInfoList.get(0);
 			AgentClient ac = new AgentClient(vo.getCacheHostIp(), vo.getAgentPort());
 			
+			/** 组织集群创建的命令及返回值 **/
+			String clusterInfo = getClusterInfo(cacheInfoList, " ");
 			String create_cluster = "redis-trib.rb create --replicas 1" + clusterInfo;
 			log.info("-------- 创建redis集群的命令:" + create_cluster);
+			
+			/** 创建redis集群 **/
 			mcsSvHepler.excuteCommand(ac, create_cluster);
 			log.info("-------- 创建redis集群成功 --------");
 		}
@@ -1006,8 +1008,7 @@ public class McsSvImpl implements IMcsSv {
 	}
 
 	/**
-	 * 获得最空闲的资源
-	 * 
+	 * 获得最空闲的Mcs资源
 	 * @param num
 	 * @return
 	 */
@@ -1022,7 +1023,7 @@ public class McsSvImpl implements IMcsSv {
 	}
 
 	/**
-	 * 获得UseInstance中 失效的记录
+	 * 获得UseInstance中"失效"的记录
 	 * @param host
 	 * @return McsUserCacheInstance
 	 */
@@ -1043,8 +1044,7 @@ public class McsSvImpl implements IMcsSv {
 	}
 
 	/**
-	 * 更新资源
-	 * 
+	 * 更新Mcs资源池
 	 * @param mcsResourcePool
 	 * @return
 	 */
