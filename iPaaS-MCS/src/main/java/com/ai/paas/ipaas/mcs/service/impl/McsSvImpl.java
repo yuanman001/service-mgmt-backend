@@ -48,7 +48,6 @@ public class McsSvImpl implements IMcsSv {
 	 */
 	@Override
 	public String openMcs(String param) throws PaasException {
-		/** 获取服务号配置参数  **/
 		Map<String, String> map = McsParamUtil.getParamMap(param);
 		String userId = map.get(McsConstants.USER_ID);
 		String serviceId = map.get(McsConstants.SERVICE_ID);
@@ -59,14 +58,14 @@ public class McsSvImpl implements IMcsSv {
 
 		/** 判断用户的这个缓存服务是否已经开通 **/
 		if (existsService(userId, serviceId)) {
-			logger.info("------- 用户服务已存在，开通成功");
+			logger.info("------- 用户服务已存在，开通成功 -------");
 			return McsConstants.SUCCESS_FLAG;
 		}
 
 		/** 开通单例  **/
 		if (McsConstants.MODE_SINGLE.equals(haMode)) {
 			/** 1.选择开通服务的资源：选择剩余内存最多的主机  **/
-			McsResourcePool mcsResourcePool = selectMcsResourcePool(cacheSize, 1);
+			McsResourcePool mcsResourcePool = selectMcsResSingle(cacheSize, 1);
 			
 			/** 需更新mcs资源表AgentCmd字段，只存agent端口号！ **/
 			Integer agentPort = Integer.valueOf(mcsResourcePool.getAgentCmd());
@@ -140,7 +139,7 @@ public class McsSvImpl implements IMcsSv {
 		} else if (McsConstants.MODE_REPLICATION.equals(haMode)) {
 			logger.info("1----------------进入主从模式选择主机");
 			// --------选择剩余内存最多的主机 缓存资源
-			McsResourcePool pool = selectMcsResourcePool(cacheSize * 2, 2);
+			McsResourcePool pool = selectMcsResSingle(cacheSize * 2, 2);
 			logger.info("2----------------选择主机:" + pool.getCacheHostIp() + "端口：" + pool.getCachePort());
 			
 			//获取随机数作为redis密码。
@@ -433,57 +432,76 @@ public class McsSvImpl implements IMcsSv {
 	}
 	
 	/**
-	 * 选择开通Mcs集群资源
-	 * @param cacheSize
-	 * @param size
+	 * 在开通MCS服务的集群(cluster)模式/主从切换(sentinel)模式时，选择MCS资源。
+	 * @param cacheSize  需要开通的每个实例的缓存大小
+	 * @param redisInsNum  启动的redis实例数
 	 * @return List<McsProcessInfo>
 	 * @throws PaasException
 	 */
 	//TODO:需要重构处理逻辑
-	private List<McsProcessInfo> selectMcsResCluster(int cacheSize, int size)
-			throws PaasException {
+	private List<McsProcessInfo> selectMcsResCluster(int cacheSize, int redisInsNum) throws PaasException {
 		/** defined return result. **/
-		List<McsProcessInfo> cacheInfoList = new ArrayList<McsProcessInfo> ();
+		List<McsProcessInfo> cacheInfoList = new ArrayList<McsProcessInfo>();
 		
-		List<McsResourcePool> cacheResourceList = getBestResource(size);
-		String cachePath = cacheResourceList.get(0).getCachePath();
+		/** 如果资源主机数量少于redisInsNum，可能在一个资源主机上启动多个实例。 **/
+		List<McsResourcePool> resourceList = getBestResource(redisInsNum);
+		int hostNum = resourceList.size();   /** 一般资源池中所配主机为3台，会获取3条资源记录。 **/
 		
-		int hostNum = cacheResourceList.size();
-		int i = 0;
-		int j = 1;
+		/** 已获取到的实例数量 **/
+		int gotInsNum = 0;
+		
+		/** 资源主机数量 **/
 		int k = hostNum;
+		
+		/** 记录while循环的次数. **/
+		int loopCount = 0;
+		
+		int j = 1;
 		
 		String hostIp = null;
 		int port = -1;
-		int count = 0;
-		while (i < size && count < (size + 1)) {
+		
+		/** 如果已选定的资源数量，小于申请的数量; 并且，while循环的次数，小于申请的数量+1，则继续资源选择处理. **/
+		while (gotInsNum < redisInsNum && loopCount < (redisInsNum + 1)) {
 			for (int m = 0; m < k; m++) {
-				McsResourcePool pool = cacheResourceList.get(m);
+				McsResourcePool pool = resourceList.get(m);
 				hostIp = pool.getCacheHostIp();
 				port = pool.getCachePort();
-				int usedCacheSize = pool.getCacheMemoryUsed();
 				
-				if ((pool.getCacheMemory() - usedCacheSize) < cacheSize * j) {
-					k = m;
-					j++;
-					continue;
+				/** 当前所选资源主机的已占用的内存大小 **/
+				Integer usedCacheSize = pool.getCacheMemoryUsed();
+				
+				/** 资源主机的总内存大小 **/
+				Integer cacheMemory = pool.getCacheMemory();
+				
+				/** 当前所选资源主机的可用内存，小于所申请的内存，则不再使用该资源，跳出循环。 **/
+				if ((cacheMemory - usedCacheSize) < cacheSize * j) {
+					k = m;     /** ??? **/
+					j++;  	   /** 当前主机内存不够，下个资源主机则需承担此容量，下一次判断开通总容量需 *j，所以需要加权。 **/
+					continue;  /** 跳出本次资源主机的选择逻辑 **/
 				}
 				
-				if (pool != null && pool.getCycle() == 1) {
+				/** cycle＝1, 表示端口循环使用 **/
+				if (pool.getCycle() == 1) {
+					/** 从MCS用户实例表中，查找一条失效状态的记录，使用此实例的端口 **/
 					pool.setCachePort(getCanUseInstance(hostIp).getCachePort());
 				} else {
 					pool.setCachePort(port + 1);
 					pool.setCacheMemoryUsed(usedCacheSize + cacheSize);
-					if (port == pool.getMaxPort()) {
+					if (pool.getCachePort() == pool.getMaxPort()) {
 						pool.setCycle(1);
 					}
 					int changeRow = updateResource(pool, 1);
-					;
 					if (changeRow != 1) {
-						throw new PaasException("更新资源失败");
+						logger.error("---- selectMcsResCluster()中，选定资源后，更新资源失败！----");
+						throw new PaasException("---- selectMcsResCluster()中，选定资源后，更新资源失败！----");
 					}
 				}
 				
+				logger.info("--------selectMcsResCluster(), 从主机:" + hostIp + "中，选定了端口：" + port);
+				 
+				/** 将所选定的主机、端口等信息，放到list返回值中，开通时遍历使用。 **/
+				String cachePath = pool.getCachePath();
 				Integer agentPort = Integer.parseInt(pool.getAgentCmd());
 				
 				McsProcessInfo vo = new McsProcessInfo();
@@ -493,28 +511,33 @@ public class McsSvImpl implements IMcsSv {
 				vo.setAgentPort(agentPort);
 				cacheInfoList.add(vo);
 				
-				i++;
-				logger.info("2----------------选择主机:" + hostIp + "端口：" + port);
+				gotInsNum++;
 			}
 			
-			count++;
+			loopCount++;
 		}
 		
-		if (count > size) {
-			throw new PaasException("mcs resource not enough.");
+		logger.info("----- selectMcsResCluster():申请["+redisInsNum+"]个实例，选定了["+gotInsNum+"]个实例 -----");
+		
+//		if (loopCount > redisInsNum) {
+		/** 如果循环count次后，已选定的实例数量仍小于申请的数量，则表示资源不足 **/
+		if (gotInsNum < redisInsNum) {
+			logger.error("++++ 资源不足:申请开通["+redisInsNum+"]个size为["+cacheSize+"]实例，目前只选择了["+gotInsNum+"]个实例 ++++");
+			throw new PaasException("++++++ mcs resource not enough. ++++++");
 		}
 		
 		return cacheInfoList;
 	}
 	
 	/**
-	 * 选择缓存资源,单实例端口+1, 集群端口+2
+	 * 在开通MCS服务的集群(single)模式/主从复制(replication)模式时，选择MCS资源。
+	 * 单例模式端口+1, 主从复制模式端口+2
 	 * @param cacheSize
 	 * @param portOffset
 	 * @return McsResourcePool
 	 * @throws PaasException
 	 */
-	private McsResourcePool selectMcsResourcePool(int cacheSize, int portOffset) throws PaasException {
+	private McsResourcePool selectMcsResSingle(int cacheSize, int portOffset) throws PaasException {
 		List<McsResourcePool> resp = getBestResource(1);
 		McsResourcePool mcsResourcePool = resp.get(0);
 		
@@ -525,7 +548,7 @@ public class McsSvImpl implements IMcsSv {
 			if (mcsResourcePool.getCachePort() == mcsResourcePool.getMaxPort()) {
 				mcsResourcePool.setCycle(1);
 			}
-			/** 从入参获取端口偏移量，开通过单实例端口+1, 集群端口+2。 **/
+			/** 从入参获取端口偏移量，开通单例模式端口+1, 主从复制模式端口+2。 **/
 			mcsResourcePool.setCachePort(mcsResourcePool.getCachePort() + portOffset);
 			mcsResourcePool.setCacheMemoryUsed(mcsResourcePool.getCacheMemoryUsed() + cacheSize);
 			int changeRow = updateResource(mcsResourcePool,  portOffset);
@@ -1023,13 +1046,13 @@ public class McsSvImpl implements IMcsSv {
 	 * @return
 	 */
 	private List<McsResourcePool> getBestResource(int num) {
-		McsResourcePoolMapper rpm = ServiceUtil.getMapper(McsResourcePoolMapper.class);
-		McsResourcePoolCriteria rpmc = new McsResourcePoolCriteria();
-		rpmc.createCriteria().andStatusEqualTo(McsConstants.VALIDATE_STATUS);
-		rpmc.setLimitStart(0);
-		rpmc.setLimitEnd(num);
-		rpmc.setOrderByClause("(ifnull(cache_memory, 0) - ifnull(cache_memory_used, 0)) desc");
-		return rpm.selectByExample(rpmc);
+		McsResourcePoolMapper mapper = ServiceUtil.getMapper(McsResourcePoolMapper.class);
+		McsResourcePoolCriteria condition = new McsResourcePoolCriteria();
+		condition.createCriteria().andStatusEqualTo(McsConstants.VALIDATE_STATUS);
+		condition.setLimitStart(0);
+		condition.setLimitEnd(num);
+		condition.setOrderByClause("(ifnull(cache_memory, 0) - ifnull(cache_memory_used, 0)) desc");
+		return mapper.selectByExample(condition);
 	}
 
 	/**
