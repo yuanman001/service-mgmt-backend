@@ -44,7 +44,7 @@ public class McsSvImpl implements IMcsSv {
 	private ICCSComponentManageSv iCCSComponentManageSv;
 
 	// 服务端 用户路径
-	private String cachePath = "";
+//	private String cachePath = "";
 
 	/**
 	 * 服务开通功能
@@ -75,17 +75,18 @@ public class McsSvImpl implements IMcsSv {
 			Integer agentPort = Integer.valueOf(mcsResourcePool.getAgentCmd());
 			Integer cachePort = mcsResourcePool.getCachePort();
 			String cacheHostIp = mcsResourcePool.getCacheHostIp();
+			String cachePath = mcsResourcePool.getCachePath();
 			String requirepass = mcsSvHepler.getRandomKey();
 
 			/** 2.初始化agent  **/
 			AgentClient ac = new AgentClient(cacheHostIp, agentPort);
 			
 			/** 3.创建端口号命名的文件夹  **/
-			String commonconfigPath = mcsResourcePool.getCachePath() + McsConstants.FILE_PATH;
+			String commonconfigPath = cachePath + McsConstants.FILE_PATH;
 			addConfigFolder(ac, commonconfigPath, cachePort);
 			
 			/** 4.创建配置文件并上传至服务器指定目录  **/
-			addMcsConfig(ac, cachePort, capacity, requirepass);
+			addMcsConfig(ac, cachePath, cachePort, capacity, requirepass);
 			
 			/** 5.启动单例  **/
 			startMcsIns(ac, commonconfigPath, cachePort);
@@ -527,8 +528,6 @@ public class McsSvImpl implements IMcsSv {
 			}
 		}
 		
-		//TODO: 成员变量为何在此处赋值 ？？？
-		cachePath = mcsResourcePool.getCachePath();
 		return mcsResourcePool;
 	}
 	
@@ -646,6 +645,7 @@ public class McsSvImpl implements IMcsSv {
 	 */
 	private void configSenMaster(McsProcessInfo value, String capacity, String requirepass) throws PaasException {
 		String cacheHost = value.getCacheHostIp();
+		String cachePath = value.getCachePath();
 		Integer cachePort = value.getCachePort();
 		Integer agentPort = value.getAgentPort();
 		
@@ -736,7 +736,8 @@ public class McsSvImpl implements IMcsSv {
 	private void configSenSlave(McsProcessInfo slaveInfo, McsProcessInfo masterInfo, String capacity, String requirepass) 
 			throws PaasException {
 		String slaveIp = slaveInfo.getCacheHostIp();
-		Integer redisPort = slaveInfo.getCachePort();
+		String cachePath = slaveInfo.getCachePath();
+		Integer cachePort = slaveInfo.getCachePort();
 		Integer agentPort = slaveInfo.getAgentPort();
 
 		String masterIp = masterInfo.getCacheHostIp();
@@ -747,16 +748,16 @@ public class McsSvImpl implements IMcsSv {
 		
 		/** 创建端口号命名的文件夹  **/
 		String commonconfigPath = cachePath + McsConstants.FILE_PATH;
-		addConfigFolder(ac, commonconfigPath, redisPort);
+		addConfigFolder(ac, commonconfigPath, cachePort);
 		
 		try {
-			String fileName = cachePath + McsConstants.FILE_PATH + redisPort + "/" + "redis-" + redisPort + ".conf";
+			String fileName = cachePath + McsConstants.FILE_PATH + cachePort + "/" + "redis-" + cachePort + ".conf";
 			String configDetail = "include " + cachePath + McsConstants.FILE_PATH + "redis-common.conf" + "\n"
-					+ "pidfile /var/run/redis-" + redisPort + ".pid" + "\n"
-					+ "port " + redisPort + "\n"
+					+ "pidfile /var/run/redis-" + cachePort + ".pid" + "\n"
+					+ "port " + cachePort + "\n"
 					+ "maxmemory " + capacity + "m" + "\n"
 					+ "requirepass " + requirepass + "\n"
-					+ "logfile " + cachePath + "/redis/log/redis-" + redisPort + ".log\n"
+					+ "logfile " + cachePath + "/redis/log/redis-" + cachePort + ".log\n"
 					+ "slaveof " + masterIp + " " + masterPort + "\n"
 					+ "masterauth " + requirepass + "\n";
 			
@@ -767,7 +768,7 @@ public class McsSvImpl implements IMcsSv {
 			throw new PaasException("上传文件失败：" + e.getMessage(), e);
 		}
 			
-		startMcsIns(ac, commonconfigPath, redisPort);
+		startMcsIns(ac, commonconfigPath, cachePort);
 		log.info("---------启动redis成功!");
 	}
 
@@ -779,6 +780,7 @@ public class McsSvImpl implements IMcsSv {
 	 */
 	private void configSentinel(McsProcessInfo value, McsProcessInfo master) throws PaasException {
 		String cacheHost = value.getCacheHostIp();
+		String cachePath = value.getCachePath();
 		Integer cachePort = value.getCachePort();
 		Integer agentPort =value.getAgentPort();
 		
@@ -820,7 +822,8 @@ public class McsSvImpl implements IMcsSv {
 	 * @param requirepass
 	 * @throws PaasException
 	 */
-	private void addMcsConfig(AgentClient ac, int redisPort, String capacity, String requirepass) throws PaasException {
+	private void addMcsConfig(AgentClient ac, String cachePath, int redisPort, String capacity, String requirepass) 
+			throws PaasException {
 		try {
 			String fileName = cachePath + McsConstants.FILE_PATH + redisPort + "/" + "redis-" + redisPort + ".conf";
 			String configDetail = "include " + cachePath + McsConstants.FILE_PATH + "redis-common.conf" + "\n"
@@ -881,7 +884,7 @@ public class McsSvImpl implements IMcsSv {
 			
 			/** 3.修改redis的配置文件  **/
 			log.info("----- modify redis config -----requirepass：" + requirepass);
-			addMcsConfig(ac, cachePort, cacheSize + "", requirepass);
+			addMcsConfig(ac, cachePath, cachePort, cacheSize + "", requirepass);
 
 			/** 4.启动redis **/
 			log.info("----- start redis -----");
@@ -1120,7 +1123,7 @@ public class McsSvImpl implements IMcsSv {
 			if (userInstance.size() == 1) {
 				startMcsIns(ac, commonconfigPath, cachePort);
 			} else {
-				startMcsInsForCluster(ac, userId + "_" + serviceId, pool.getCachePath(), tempIns.getCachePort());
+				startMcsInsForCluster(ac, cachePath, userId + "_" + serviceId, pool.getCachePath(), tempIns.getCachePort());
 			}
 			
 			/** 生成集群的 ip:port 串，用于拼装创建集群的命令。 **/
@@ -1302,7 +1305,7 @@ public class McsSvImpl implements IMcsSv {
 	 * @param port
 	 * @throws PaasException
 	 */
-	private void startMcsInsForCluster(AgentClient ac, String dir, String cPath, int port) throws PaasException {
+	private void startMcsInsForCluster(AgentClient ac, String cachePath, String dir, String cPath, int port) throws PaasException {
 		try {
 			String cmd_rm =  "cd "+cachePath + McsConstants.CLUSTER_FILE_PATH + dir + "/" + port
 					+"|rm -fr appendonly.aof  dump.rdb  nodes.conf ";
