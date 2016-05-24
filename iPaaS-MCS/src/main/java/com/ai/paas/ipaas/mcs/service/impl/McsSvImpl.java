@@ -168,34 +168,30 @@ public class McsSvImpl implements IMcsSv {
 			log.info("1----------------进入集群选择主机");
 			final int clusterCacheSize = Math.round(cacheSize / McsConstants.CACHE_NUM * 2);
 			
-			// 选取 资源池
-			//TODO：需要调用新定义的方法：List<McsProcessInfo> selectMcsResCluster(int cacheSize, int size)
-//			final List<String> resultList = selectMcsRessCluster(
-//					clusterCacheSize, McsConstants.SENTINEL_NUM);
-			List<McsProcessInfo> resultList = selectMcsResCluster(
+			/** 选取 资源池  **/
+			List<McsProcessInfo> mcsProcessList = selectMcsResCluster(
 					clusterCacheSize, McsConstants.SENTINEL_NUM);
 			log.info("3----------------处理mcs服务端");
 			
 			//获取随机数作为redis密码。
 			String requirepass = mcsSvHepler.getRandomKey();
 			
-			// 选取第一项为主，二三项为从，四五六启动sentinel进程
-			//TODO:调用config方法的入参格式为->ip:port,先保留，需优化。
+			//临时保存master信息，在配置slave、sentine时使用。
+			McsProcessInfo masterInfo = null;
+			
 			int counter = 0;
-			for(McsProcessInfo vo: resultList) {
-				String masterInfo = "";
-				if(counter <1) {
+			// 选取第一项为主，二三项为从，四五六启动sentinel进程
+			for(McsProcessInfo vo: mcsProcessList) {
+				if(counter < 1) {
 					// 选取第一项为主
-					masterInfo = vo.getCacheHostIp() + ":" + vo.getCachePort();
-					configSenMaster(masterInfo, capacity, requirepass);
+					masterInfo = vo;
+					configSenMaster(vo, capacity, requirepass);
 				} else if (counter < 3) {
 					// 选取第一项为主，二三项为从
-					String slaveInfo = vo.getCacheHostIp() + ":" + vo.getCachePort();
-					configSenSlave(slaveInfo, masterInfo, capacity, requirepass);
+					configSenSlave(vo, masterInfo, capacity, requirepass);
 				} else if(counter < 6) {
 					// 四五六启动sentinel进程
-					String sentinelInfo = vo.getCacheHostIp() + ":" + vo.getCachePort();
-					configSentinel(sentinelInfo, masterInfo);
+					configSentinel(vo, masterInfo);
 				}
 				
 				counter++;
@@ -203,7 +199,7 @@ public class McsSvImpl implements IMcsSv {
 			
 			log.info("4----------------处理zk 配置");
 			List<String> hostList = new ArrayList<String>();
-			for(McsProcessInfo vo: resultList) {
+			for(McsProcessInfo vo: mcsProcessList) {
 				hostList.add(vo.getCacheHostIp() + ":" + vo.getCachePort());
 			}
 			//TODO:此方法需要重构，入参需调整。
@@ -441,7 +437,7 @@ public class McsSvImpl implements IMcsSv {
 		List<McsProcessInfo> cacheInfoList = new ArrayList<McsProcessInfo> ();
 		
 		List<McsResourcePool> cacheResourceList = getBestResource(size);
-		String agentCmd = cacheResourceList.get(0).getAgentCmd();
+//		String agentCmd = cacheResourceList.get(0).getAgentCmd();
 		String cachePath = cacheResourceList.get(0).getCachePath();
 		
 		int hostNum = cacheResourceList.size();
@@ -502,8 +498,7 @@ public class McsSvImpl implements IMcsSv {
 		
 		return cacheInfoList;
 	}
-
-	  
+	
 	/**
 	 * 选择缓存资源
 	 * 
@@ -597,7 +592,14 @@ public class McsSvImpl implements IMcsSv {
 		}
 	}
 
-	//TODO: 需要重构，调整逻辑，抽象方法。
+	/**
+	 * 生成Mater节点的配置文件，并启动Master节点。
+	 * @param mcsResourcePool
+	 * @param redisPort
+	 * @param capacity
+	 * @param requirepass
+	 * @throws PaasException
+	 */
 	private void addMasterConfig(McsResourcePool mcsResourcePool, int redisPort, 
 			String capacity, String requirepass) throws PaasException {
 		
@@ -631,36 +633,36 @@ public class McsSvImpl implements IMcsSv {
 			throw new PaasException("上传文件失败：" + e.getMessage(), e);
 		}
 			
-		/** 启动redis TODO: 需要放到外层的业务逻辑中。 **/
 		startMcsIns(ac, commonconfigPath, redisPort);
 		log.info("---------启动redis成功!");
 	}
 
-	private void configSenMaster(String result, String capacity, String requirepass) throws PaasException {
-		String[] info = result.split(":");
-		String ip = info[0];
-		String port = info[1];
-		Integer redisPort = Integer.parseInt(port);
+	/**
+	 * 生产Sentinel模式中，Master节点的配置文件，并启动master节点
+	 * @param value
+	 * @param capacity
+	 * @param requirepass
+	 * @throws PaasException
+	 */
+	private void configSenMaster(McsProcessInfo value, String capacity, String requirepass) throws PaasException {
+		String cacheHost = value.getCacheHostIp();
+		Integer cachePort = value.getCachePort();
+		Integer agentPort = value.getAgentPort();
 		
-		//TODO:此端口应该是 redis的port，需要获取 agentPort。
-		AgentClient ac = new AgentClient(ip, 00000);
+		AgentClient ac = new AgentClient(cacheHost, agentPort);
 
 		/** 创建端口号命名的文件夹  **/
 		String commonconfigPath = cachePath + McsConstants.FILE_PATH;
-		addConfigFolder(ac, commonconfigPath, redisPort);
-		
-		//TODO: 是否需要创建空的日志文件夹,及空的日志文件。
-		//executeInstruction(uriCmdCluster, logdir);
-		//uploadCacheFile(uriCreateCluster, logfile);
+		addConfigFolder(ac, commonconfigPath, cachePort);
 		
 		try {
-			String fileName = cachePath + McsConstants.FILE_PATH + redisPort + "/" + "redis-" + redisPort + ".conf";
+			String fileName = cachePath + McsConstants.FILE_PATH + cachePort + "/" + "redis-" + cachePort + ".conf";
 			String configDetail = "include " + cachePath + McsConstants.FILE_PATH + "redis-common.conf" + "\n"
-					+ "pidfile /var/run/redis-" + redisPort + ".pid" + "\n"
-					+ "port " + redisPort + "\n"
+					+ "pidfile /var/run/redis-" + cachePort + ".pid" + "\n"
+					+ "port " + cachePort + "\n"
 					+ "maxmemory " + capacity + "m" + "\n"
 					+ "requirepass " + requirepass + "\n"
-					+ "logfile " + cachePath + "/redis/log/redis-" + redisPort + ".log"
+					+ "logfile " + cachePath + "/redis/log/redis-" + cachePort + ".log"
 					+ "tcp-keepalive 60 \n"
 					+ "maxmemory-policy noeviction \n"
 					+ "appendonly yes \n"
@@ -673,12 +675,18 @@ public class McsSvImpl implements IMcsSv {
 			throw new PaasException("上传文件失败：" + e.getMessage(), e);
 		}
 
-		/** 启动redis TODO: 需要放到外层的业务逻辑中。 **/
-		startMcsIns(ac, commonconfigPath, redisPort);
+		startMcsIns(ac, commonconfigPath, cachePort);
 		log.info("-------------启动redis成功!");
 	}
 
-	//TODO: 重构此方法，拆分逻辑；调用agent的部分需要调整。
+	/**
+	 * 生产Slave节点配置文件，并启动Slave节点
+	 * @param mcsResourcePool
+	 * @param redisPort
+	 * @param capacity
+	 * @param requirepass
+	 * @throws PaasException
+	 */
 	private void addSlaveConfig(McsResourcePool mcsResourcePool, int redisPort,
 			String capacity, String requirepass) throws PaasException {
 		
@@ -713,29 +721,29 @@ public class McsSvImpl implements IMcsSv {
 			throw new PaasException("上传文件失败：" + e.getMessage(), e);
 		}
 
-		/** 启动redis TODO: 需要放到外层的业务逻辑中。 **/
 		startMcsIns(ac, commonconfigPath, redisPort);
 		log.info("---------启动redis成功!");
 	}
 
-	//TODO: 同 addSlaveConfig 一样，需要重构，主要解决 agent 调用的逻辑，同时整理并重构逻辑。
-	private void configSenSlave(String result, String masterResult, String capacity, String requirepass) throws PaasException {
-		String[] info = result.split(":");
-		String ip = info[0];
-		String port = info[1];
-		Integer redisPort = Integer.parseInt(port);
+	/**
+	 * sentinal模式中，生成slave节点配置文件，并启动slave节点
+	 * @param slaveInfo
+	 * @param masterInfo
+	 * @param capacity
+	 * @param requirepass
+	 * @throws PaasException
+	 */
+	private void configSenSlave(McsProcessInfo slaveInfo, McsProcessInfo masterInfo, String capacity, String requirepass) 
+			throws PaasException {
+		String slaveIp = slaveInfo.getCacheHostIp();
+		Integer redisPort = slaveInfo.getCachePort();
+		Integer agentPort = slaveInfo.getAgentPort();
 
-		String[] masterInfo = masterResult.split(":");
-		String masterIp = masterInfo[0];
-		String masterPort = masterInfo[1];
-
-		String cacheHostIp = ip;
-		
-		//TODO:此端口应该是 redis的port，需要获取 agentPort。
-		Integer agentPort = 0;
+		String masterIp = masterInfo.getCacheHostIp();
+		Integer masterPort = masterInfo.getCachePort();
 
 		/** 初始化agent  **/
-		AgentClient ac = new AgentClient(cacheHostIp, agentPort);
+		AgentClient ac = new AgentClient(slaveIp, agentPort);
 		
 		/** 创建端口号命名的文件夹  **/
 		String commonconfigPath = cachePath + McsConstants.FILE_PATH;
@@ -759,39 +767,35 @@ public class McsSvImpl implements IMcsSv {
 			throw new PaasException("上传文件失败：" + e.getMessage(), e);
 		}
 			
-		/** 启动redis TODO: 需要放到外层的业务逻辑中。 **/
 		startMcsIns(ac, commonconfigPath, redisPort);
 		log.info("---------启动redis成功!");
 	}
 
-	//TODO: 需要重构，提炼部分逻辑，抽象出共用方法。
-	private void configSentinel(String result, String master) throws PaasException {
-		// 获取当前节点的ip和端口
-		String[] info = result.split(":");
-		String ip = info[0];
-		String port = info[1];
-		Integer redisPort = Integer.parseInt(port);
+	/**
+	 * sentinal模式中，生成sentinel节点配置文件，并启动sentinel节点
+	 * @param value
+	 * @param master
+	 * @throws PaasException
+	 */
+	private void configSentinel(McsProcessInfo value, McsProcessInfo master) throws PaasException {
+		String cacheHost = value.getCacheHostIp();
+		Integer cachePort = value.getCachePort();
+		Integer agentPort =value.getAgentPort();
 		
-		// 获取监控节点的ip和端口
-		String[] masterInfo = master.split(":");
-		String masterIp = masterInfo[0];
-		String masterPort = masterInfo[1];
+		/** 获取master节点的ip和端口 **/
+		String masterIp = master.getCacheHostIp();
+		Integer masterPort = master.getCachePort();
 		
-		String cacheHostIp = ip;
-		
-		//TODO:此端口应该是 redis的port，需要获取 agentPort。
-		Integer agentPort = 0;
-
 		/** 初始化agent  **/
-		AgentClient ac = new AgentClient(cacheHostIp, agentPort);
+		AgentClient ac = new AgentClient(cacheHost, agentPort);
 		
 		/** 创建端口号命名的文件夹  **/
 		String commonconfigPath = cachePath + McsConstants.FILE_PATH;
-		addConfigFolder(ac, commonconfigPath, redisPort);
+		addConfigFolder(ac, commonconfigPath, cachePort);
 		
 		try {
-			String fileName = cachePath + McsConstants.FILE_PATH + redisPort + "/" + "redis-" + redisPort + "-sentinel.conf";
-			String configDetail = "port " + redisPort + "\n"
+			String fileName = cachePath + McsConstants.FILE_PATH + cachePort + "/" + "redis-" + cachePort + "-sentinel.conf";
+			String configDetail = "port " + cachePort + "\n"
 					+ "sentinel monitor mymaster " + masterIp + " " + masterPort + " 2 \n"
 					+ "sentinel down-after-milliseconds mymaster 5000 \n"
 					+ "sentinel failover-timeout mymaster 60000 \n"
@@ -804,8 +808,7 @@ public class McsSvImpl implements IMcsSv {
 			throw new PaasException("上传文件失败：" + e.getMessage(), e);
 		}
 		
-		/** 启动redis TODO: 需要放到外层的业务逻辑中。 **/
-		startSenIns(ac, commonconfigPath, redisPort);
+		startSenIns(ac, commonconfigPath, cachePort);
 		log.info("3----------------启动redis成功!");
 	}
 
@@ -842,7 +845,7 @@ public class McsSvImpl implements IMcsSv {
 	 * @param cacheSize
 	 * @throws PaasException
 	 */
-	//TODO: 方法过大，梳理逻辑并重构；主要修改 agent 调用的部分。与 removeMcsServerFileAndUserIns() 方法类似，一起考虑重构。
+	//TODO: 与 removeMcsServerFileAndUserIns() 方法类似，一起考虑重构。
 	private void modifyMcsServerFileAndUserIns(final String userId,
 			final String serviceId, List<McsUserCacheInstance> userInstanceList,
 			final int cacheSize, String serviceName) throws PaasException {
