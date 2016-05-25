@@ -1,9 +1,0 @@
-#org.springsource.ide.eclipse.gradle.core.preferences.GradleImportPreferences
-#Wed May 25 09:40:13 CST 2016
-addResourceFilters=true
-afterTasks=afterEclipseImport;
-beforeTasks=cleanEclipse;eclipse;
-enableAfterTasks=true
-enableBeforeTasks=true
-enableDependendencyManagement=true
-projects=iPaaS-ATS;iPaaS-CCS;iPaaS-DBS;iPaaS-DES;iPaaS-DSS;iPaaS-DubboInterfaces;iPaaS-IDPS;iPaaS-MCS;iPaaS-MDS;iPaaS-RCS;iPaaS-SES;iPaaS-TSC;iPaaS-TXS;iPaaS-workflow;
