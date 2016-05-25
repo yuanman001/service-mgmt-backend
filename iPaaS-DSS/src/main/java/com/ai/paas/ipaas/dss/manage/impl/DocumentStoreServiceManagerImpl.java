@@ -38,12 +38,10 @@ public class DocumentStoreServiceManagerImpl implements
 		} catch (Exception e) {
 			// 构建错误信息
 			dssResult = DSSHelper.getResult(cancelObj, e.getMessage());
-			log.error(e.getMessage());
-			e.printStackTrace();
-		} finally {
-			// 返回处理结果
-			return DSSHelper.getDSSResult(dssResult);
+			log.error("", e);
 		}
+		// 返回处理结果
+		return DSSHelper.getDSSResult(dssResult);
 	}
 
 	@Override

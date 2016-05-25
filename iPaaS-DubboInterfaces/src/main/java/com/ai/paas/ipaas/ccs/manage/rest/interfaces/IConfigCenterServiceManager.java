@@ -1,13 +1,15 @@
 package com.ai.paas.ipaas.ccs.manage.rest.interfaces;
 
 
-import com.ai.paas.ipaas.rest.manage.ISrvManager;
 
 import javax.ws.rs.Consumes;
 import javax.ws.rs.POST;
 import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
+
+import com.ai.paas.ipaas.rpc.api.manage.ISrvManager;
+
 
 /**
  * 用于门户类的管理，比如注册，开通服务功能

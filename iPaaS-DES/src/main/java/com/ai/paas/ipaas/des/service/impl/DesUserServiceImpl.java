@@ -34,7 +34,7 @@ public class DesUserServiceImpl implements IDesUserService {
 
 		DesUserServiceMapper mapper = ServiceUtil.getMapper(DesUserServiceMapper.class);
 		DesUserService desUserService = new DesUserService();
-		desUserService.setSrvApplyId(ServiceUtil.nextVal(SEQ_ID));
+		desUserService.setSrvApplyId(Integer.parseInt(""+ServiceUtil.nextVal(SEQ_ID)));
 		desUserService.setServiceId(desUserServiceParam.getServiceId());
 		desUserService.setState(DesContants.DES_STATE_UNBIND);
 		desUserService.setUserId(desUserServiceParam.getUserId());

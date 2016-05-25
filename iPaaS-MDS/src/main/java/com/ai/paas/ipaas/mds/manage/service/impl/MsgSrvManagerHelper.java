@@ -37,8 +37,8 @@ public class MsgSrvManagerHelper implements IMsgSrvManagerHelper {
 	public MdsUserService prepareUserServiceData(MsgSrvApply msgSrvApply) {
 		MdsUserService userService = new MdsUserService();
 		// 生成序列
-		userService.setSrvInstId(ServiceUtil
-				.nextVal(MDSConstant.MDS_RESOURCE_POOL_SEQNAME));
+		userService.setSrvInstId(Integer.parseInt(""+ServiceUtil
+				.nextVal(MDSConstant.MDS_RESOURCE_POOL_SEQNAME)));
 		userService.setUserId(msgSrvApply.getUserId());
 		userService.setUserSrvId(msgSrvApply.getServiceId());
 		Timestamp time = new Timestamp(System.currentTimeMillis());

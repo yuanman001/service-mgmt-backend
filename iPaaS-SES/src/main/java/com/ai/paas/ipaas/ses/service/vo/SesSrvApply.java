@@ -8,7 +8,8 @@
 
 package com.ai.paas.ipaas.ses.service.vo;
 
-import com.ai.paas.ipaas.rest.vo.BaseInfo;
+import com.ai.paas.ipaas.rpc.api.vo.BaseInfo;
+
 
 public class SesSrvApply extends BaseInfo{
 

@@ -1,7 +1,7 @@
 package com.ai.paas.ipaas.ses.service.interfaces;
 
 import com.ai.paas.ipaas.PaasException;
-import com.ai.paas.ipaas.rest.vo.BaseInfo;
+import com.ai.paas.ipaas.rpc.api.vo.BaseInfo;
 import com.ai.paas.ipaas.ses.service.vo.SesMappingApply;
 import com.ai.paas.ipaas.ses.service.vo.SesSrvApply;
 

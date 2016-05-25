@@ -37,7 +37,6 @@ import com.ai.paas.agent.client.AgentClient;
 import com.ai.paas.ipaas.PaasException;
 import com.ai.paas.ipaas.PaasRuntimeException;
 import com.ai.paas.ipaas.ServiceUtil;
-import com.ai.paas.ipaas.base.manager.ISequenceManageSv;
 import com.ai.paas.ipaas.ccs.constants.ConfigCenterDubboConstants;
 import com.ai.paas.ipaas.ccs.service.ICCSComponentManageSv;
 import com.ai.paas.ipaas.ccs.service.IConfigCenterServiceManageSv;
@@ -71,6 +70,7 @@ import com.ai.paas.ipaas.dbs.util.DistributeDbConstants;
 import com.ai.paas.ipaas.dbs.util.DistributedDBRule;
 import com.ai.paas.ipaas.dbs.util.ExceptionCodeConstants;
 import com.ai.paas.ipaas.dbs.util.SystemConfig;
+import com.ai.paas.ipaas.seq.service.ISequenceSv;
 import com.ai.paas.ipaas.util.StringUtil;
 import com.google.gson.Gson;
 import com.mysql.jdbc.Connection;
@@ -88,7 +88,7 @@ public class DbsPhysicalResourcePoolSv implements IDbsPhysicalResourcePoolSv {
 	@Autowired
 	ICCSComponentManageSv manage;
 	@Autowired
-	ISequenceManageSv iSequenceManageSv;
+	ISequenceSv iSequenceManageSv;
 	@Autowired
 	IDbsLogicResourcePoolSv iDbsLogicResourcePoolSv;
 	@Autowired
@@ -356,7 +356,7 @@ public class DbsPhysicalResourcePoolSv implements IDbsPhysicalResourcePoolSv {
 				paramVo.setUrl(instance.getMuiUrl());
 				instance.setStatus(DistributeDbConstants.MuiResourceStatus.Used);
 				resourceMapper.updateByPrimaryKey(instance);
-				int serviceId = iSequenceManageSv.nextVal("service_id");
+				int serviceId = iSequenceManageSv.nextVal("service_id").intValue();
 				DbsMuiUserService dbsMuiUserService=new DbsMuiUserService();
 				dbsMuiUserService.setServiceId(serviceId);
 				dbsMuiUserService.setMuiId(instance.getMuiId());
@@ -1331,12 +1331,12 @@ public class DbsPhysicalResourcePoolSv implements IDbsPhysicalResourcePoolSv {
 	
 	
 	private int getLogicId(){
-		int nextval = iSequenceManageSv.nextVal("logic_id");
+		int nextval = iSequenceManageSv.nextVal("logic_id").intValue();
 		
 		return nextval;
 	}
 	private int getUsedId(){
-		int nextval = iSequenceManageSv.nextVal("used_id");
+		int nextval = iSequenceManageSv.nextVal("used_id").intValue();
 		
 		return nextval;
 	}

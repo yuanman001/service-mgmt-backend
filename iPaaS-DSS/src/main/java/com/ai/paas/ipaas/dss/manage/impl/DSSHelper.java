@@ -8,7 +8,7 @@ import com.ai.paas.ipaas.dss.manage.param.ModifyParam;
 import com.ai.paas.ipaas.dss.manage.param.RecordParam;
 import com.ai.paas.ipaas.dss.manage.param.StatusParam;
 import com.ai.paas.ipaas.dss.manage.param.UploadParam;
-import com.ai.paas.ipaas.rest.vo.BaseInfo;
+import com.ai.paas.ipaas.rpc.api.vo.BaseInfo;
 import com.google.gson.Gson;
 
 public class DSSHelper {

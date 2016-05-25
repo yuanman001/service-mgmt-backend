@@ -6,14 +6,15 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
-import com.ai.paas.ipaas.base.manager.ISequenceManageSv;
+import com.ai.paas.ipaas.seq.service.ISequenceSv;
+
 
 @RunWith(SpringJUnit4ClassRunner.class)
 @ContextConfiguration({"classpath:applicationContext-mybatis.xml"})
 public class SequenceTest {
 	
 	@Autowired
-	ISequenceManageSv iSequenceManageSv;
+	ISequenceSv iSequenceManageSv;
 	
 	
 	

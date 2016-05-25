@@ -25,6 +25,7 @@ public class WorkflowSv implements IWorkflowSv{
 	@Autowired
 	ICCSComponentManageSv manage;
 	
+	@SuppressWarnings("rawtypes")
 	@Override
 	public String applyWorkflow(OpenWorkflowParamVo paramVo) throws Exception {
 		// 基本的校验
@@ -76,6 +77,7 @@ public class WorkflowSv implements IWorkflowSv{
 	}
 	
 	//获取工作流返回信息
+	@SuppressWarnings("rawtypes")
 	private ArrayList getWorkflowUrl() {
 		ArrayList list = new ArrayList<WorkflowUrlVo>();
 		WorkflowUrlVo workflowUrlVo = new WorkflowUrlVo();

@@ -5,7 +5,7 @@ import org.junit.runner.RunWith;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
-import com.ai.paas.ipaas.rest.vo.BaseInfo;
+import com.ai.paas.ipaas.rpc.api.vo.BaseInfo;
 import com.ai.paas.ipaas.ses.manage.rest.interfaces.ISearchEngineServiceManager;
 import com.ai.paas.ipaas.ses.service.vo.SesMappingApply;
 import com.ai.paas.ipaas.ses.service.vo.SesSrvApply;

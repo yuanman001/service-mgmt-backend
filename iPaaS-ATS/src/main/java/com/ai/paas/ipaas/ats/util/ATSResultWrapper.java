@@ -1,6 +1,6 @@
 package com.ai.paas.ipaas.ats.util;
 
-import com.ai.paas.ipaas.rest.vo.BaseResult;
+import com.ai.paas.ipaas.rpc.api.vo.BaseResult;
 import com.google.gson.Gson;
 
 public class ATSResultWrapper {

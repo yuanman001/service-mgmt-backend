@@ -6,7 +6,8 @@ import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
 
-import com.ai.paas.ipaas.rest.manage.ISrvManager;
+import com.ai.paas.ipaas.rpc.api.manage.ISrvManager;
+
 
 /**
  * 实时计算服务：RCS (Realtime Calculation Service)<br/>

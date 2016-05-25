@@ -51,7 +51,7 @@ import com.ai.paas.ipaas.dss.manage.param.StatusParam;
 import com.ai.paas.ipaas.dss.manage.param.StatusResult;
 import com.ai.paas.ipaas.dss.manage.param.UploadParam;
 import com.ai.paas.ipaas.dss.manage.param.UploadResult;
-import com.ai.paas.ipaas.rest.vo.BaseInfo;
+import com.ai.paas.ipaas.rpc.api.vo.BaseInfo;
 import com.ai.paas.ipaas.util.CiperUtil;
 import com.google.gson.Gson;
 import com.google.gson.JsonSyntaxException;
@@ -888,6 +888,7 @@ public class DSSSvImplHelper {
 		return TRUE;
 	}
 
+	@SuppressWarnings("rawtypes")
 	private Map<String, Object> getClassFields(Object obj)
 			throws IllegalArgumentException, IllegalAccessException {
 		List<Class> classList = new ArrayList<>();
@@ -902,6 +903,7 @@ public class DSSSvImplHelper {
 		return fieldsMap;
 	}
 
+	@SuppressWarnings("rawtypes")
 	private List<Class> getClass(Class clazz, List<Class> classList) {
 		if (clazz.getSuperclass() != null) {
 			if (Object.class.equals(clazz.getSuperclass().getName())) {

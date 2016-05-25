@@ -5,7 +5,7 @@ import java.util.List;
 import com.ai.paas.ipaas.mds.manage.vo.MsgSrvApply;
 import com.ai.paas.ipaas.mds.manage.vo.MsgSrvApplyResult;
 import com.ai.paas.ipaas.mds.manage.vo.MsgSrvUsageApplyResult;
-import com.ai.paas.ipaas.rest.vo.BaseResult;
+import com.ai.paas.ipaas.rpc.api.vo.BaseResult;
 import com.google.gson.Gson;
 
 public class MDSResultWrapper {

@@ -12,7 +12,6 @@ import org.springframework.transaction.annotation.Transactional;
 
 import com.ai.paas.ipaas.PaasException;
 import com.ai.paas.ipaas.ServiceUtil;
-import com.ai.paas.ipaas.base.manager.ISequenceManageSv;
 import com.ai.paas.ipaas.rcs.dao.interfaces.RcsBoltInfoMapper;
 import com.ai.paas.ipaas.rcs.dao.interfaces.RcsSpoutInfoMapper;
 import com.ai.paas.ipaas.rcs.dao.interfaces.RcsTaskInfoMapper;
@@ -28,6 +27,7 @@ import com.ai.paas.ipaas.rcs.util.PageUtils;
 import com.ai.paas.ipaas.rcs.vo.PageEntity;
 import com.ai.paas.ipaas.rcs.vo.PageResult;
 import com.ai.paas.ipaas.rcs.vo.StormTaskInfoVo;
+import com.ai.paas.ipaas.seq.service.ISequenceSv;
 
 @Service
 @Transactional
@@ -77,7 +77,7 @@ public class IpaasStormTaskInfoSvImpl implements IIpaasStormTaskInfoSv {
 	//
 	// }
 	@Autowired
-	ISequenceManageSv iSequenceManageSv;
+	ISequenceSv iSequenceManageSv;
 	
 	@Autowired
 	private SqlSessionTemplate template;

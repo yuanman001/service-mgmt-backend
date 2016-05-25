@@ -26,7 +26,7 @@ import com.ai.paas.ipaas.ServiceUtil;
 import com.ai.paas.ipaas.ccs.constants.ConfigCenterDubboConstants.PathType;
 import com.ai.paas.ipaas.ccs.service.ICCSComponentManageSv;
 import com.ai.paas.ipaas.ccs.service.dto.CCSComponentOperationParam;
-import com.ai.paas.ipaas.rest.vo.BaseInfo;
+import com.ai.paas.ipaas.rpc.api.vo.BaseInfo;
 import com.ai.paas.ipaas.ses.dao.interfaces.SesResourcePoolMapper;
 import com.ai.paas.ipaas.ses.dao.interfaces.SesUserInstanceMapper;
 import com.ai.paas.ipaas.ses.dao.interfaces.SesUserMappingMapper;

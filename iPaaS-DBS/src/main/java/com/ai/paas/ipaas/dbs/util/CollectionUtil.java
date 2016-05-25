@@ -7,7 +7,8 @@ import java.util.List;
 
 public class CollectionUtil {
     
-    public static boolean isEmpty(Collection collection) {
+    @SuppressWarnings("rawtypes")
+	public static boolean isEmpty(Collection collection) {
         if (null == collection) {
             return true;
         } else {
@@ -24,7 +25,8 @@ public class CollectionUtil {
      * @param arr
      * @return
      */
-    public static List arrayToList(Object[] arr) { 
+    @SuppressWarnings("rawtypes")
+	public static List arrayToList(Object[] arr) { 
             List list = new ArrayList(); 
             if (arr == null) return list; 
             list = Arrays.asList(arr); 

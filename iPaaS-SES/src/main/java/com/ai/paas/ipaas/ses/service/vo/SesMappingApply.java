@@ -1,6 +1,7 @@
 package com.ai.paas.ipaas.ses.service.vo;
 
-import com.ai.paas.ipaas.rest.vo.BaseInfo;
+import com.ai.paas.ipaas.rpc.api.vo.BaseInfo;
+
 /**
  * 创建mapping入参
  * @author jianhua.ma
