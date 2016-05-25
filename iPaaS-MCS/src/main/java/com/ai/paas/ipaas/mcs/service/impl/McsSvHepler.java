@@ -31,25 +31,4 @@ public class McsSvHepler {
 		return i+"";
 	}
 	
-	/**
-	 * upload file to remote server
-	 * @param ac
-	 * @param fileName
-	 * @param content
-	 * @throws Exception
-	 */
-	public void uploadFile(AgentClient ac, String fileName, String content) throws PaasException {
-		ac.saveFile(fileName, content);
-	}
-	
-	/**
-	 * excute command
-	 * @param ac
-	 * @param command
-	 * @throws Exception
-	 */
-	public void excuteCommand(AgentClient ac, String command) throws PaasException {
-		ac.executeInstruction(command);
-	}
-
 }
