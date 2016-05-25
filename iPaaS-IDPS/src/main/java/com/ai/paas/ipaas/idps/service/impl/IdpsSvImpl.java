@@ -1,7 +1,5 @@
 package com.ai.paas.ipaas.idps.service.impl;
 
-
-
 import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -45,6 +43,7 @@ import com.ai.paas.ipaas.uac.service.UserClientFactory;
 import com.ai.paas.ipaas.uac.vo.AuthDescriptor;
 import com.ai.paas.ipaas.uac.vo.AuthResult;
 import com.google.gson.JsonObject;
+
 @Service
 @Transactional(rollbackFor = Exception.class)
 public class IdpsSvImpl implements IIdpsSv {
@@ -52,11 +51,14 @@ public class IdpsSvImpl implements IIdpsSv {
 			.getLogger(IdpsSvImpl.class);
 	@Autowired
 	private ICCSComponentManageSv iCCSComponentManageSv;
-	//{userId:”xxxxx”,applyType:”create”,serviceId:”xxxxx”,idpsNum:”1”, serviceName:”xxxxx”,dssUserId:”xxxxx”,dssServiceId:”xxxxx”}
-	//{userId:”xxxxx”,applyType:”create”,serviceId:”xxxxxx”,resultCode:” 000000/999999”, resultMsg:”apply service successfully created!”}
+
+	// {userId:”xxxxx”,applyType:”create”,serviceId:”xxxxx”,idpsNum:”1”,
+	// serviceName:”xxxxx”,dssUserId:”xxxxx”,dssServiceId:”xxxxx”}
+	// {userId:”xxxxx”,applyType:”create”,serviceId:”xxxxxx”,resultCode:”
+	// 000000/999999”, resultMsg:”apply service successfully created!”}
 	@Override
 	public String open(String param) throws Exception {
-		LOG.debug("----open idps ---param {}-----",param);
+		LOG.debug("----open idps ---param {}-----", param);
 		Map<String, String> map = IdpsParamUtil.getParamMap(param);
 		String applyType = map.get(IdpsConstants.APPLY_TYPE);
 		if (!IdpsConstants.APPLY_TYPE_C.equals(applyType))
@@ -67,33 +69,35 @@ public class IdpsSvImpl implements IIdpsSv {
 		final String serviceName = map.get(IdpsConstants.SERVICE_NAME);
 		final String nodeNumStr = map.get(IdpsConstants.NODE_NUM);
 		final int nodeNum = Integer.valueOf(nodeNumStr);
-		
+
 		// 判断用户的这个图片服务是否已经开通
 		if (existsService(userId, serviceId)) {
 			LOG.debug("----------------用户服务已存在，开通成功");
 			return IdpsConstants.SUCCESS_FLAG;
 		}
-		
+
 		final String dssServiceId = map.get(IdpsConstants.DSS_SERVICE_ID);
 		final String dssServicePwd = map.get(IdpsConstants.DSS_SERVICE_PWD);
 		final String dssPId = map.get(IdpsConstants.DSS_P_ID);
-		//验证DSS
-		validateDss(dssPId,dssServiceId,dssServicePwd);
-		
-		if(nodeNum == 1){
-			openOne(userId,serviceId,serviceName);
-		}else{
-			openMany(userId,serviceId,nodeNum,serviceName);
+		// 验证DSS
+		validateDss(dssPId, dssServiceId, dssServicePwd);
+
+		if (nodeNum == 1) {
+			openOne(userId, serviceId, serviceName, dssPId, dssServiceId,
+					dssServicePwd);
+		} else {
+			openMany(userId, serviceId, nodeNum, serviceName, dssPId,
+					dssServiceId, dssServicePwd);
 		}
-		//捆绑DSS
-		bindDss(userId,serviceId,dssPId,dssServiceId,dssServicePwd);
+		// 捆绑DSS
+		bindDss(userId, serviceId, dssPId, dssServiceId, dssServicePwd);
 		// 开通成功
 		LOG.debug("------------open success-------------");
 		return IdpsConstants.SUCCESS_FLAG;
 	}
 
-	private int bindDss(String userId,String serviceId,String dssPId, 
-			String dssServiceId,String dssServicePwd) {
+	private int bindDss(String userId, String serviceId, String dssPId,
+			String dssServiceId, String dssServicePwd) {
 		IdpsInstanceBandDss bdd = new IdpsInstanceBandDss();
 		bdd.setUserId(userId);
 		bdd.setServiceId(serviceId);
@@ -103,66 +107,76 @@ public class IdpsSvImpl implements IIdpsSv {
 		IdpsInstanceBandDssMapper im = ServiceUtil
 				.getMapper(IdpsInstanceBandDssMapper.class);
 		return im.insert(bdd);
-		
+
 	}
 
 	private boolean validateDss(String dssUserId, String dssServiceId,
 			String dssServicePwd) throws Exception {
-		String authUrl = getSysConf(IdpsConstants.AUTH_TABLE_CODE,IdpsConstants.AUTH_FIELD_CODE);
-		AuthDescriptor ad = new AuthDescriptor(authUrl, dssUserId, dssServicePwd,
-				dssServiceId);
+		String authUrl = getSysConf(IdpsConstants.AUTH_TABLE_CODE,
+				IdpsConstants.AUTH_FIELD_CODE);
+		AuthDescriptor ad = new AuthDescriptor(authUrl, dssUserId,
+				dssServicePwd, dssServiceId);
 		AuthResult authResult = UserClientFactory.getUserClient().auth(ad);
-		return authResult!=null;
+		return authResult != null;
 	}
 
-	private String getSysConf(String tCode,String fCode) throws PaasException {
+	private String getSysConf(String tCode, String fCode) throws PaasException {
 		IpaasSysConfigMapper rpm = ServiceUtil
 				.getMapper(IpaasSysConfigMapper.class);
 		IpaasSysConfigCriteria rpmc = new IpaasSysConfigCriteria();
 		rpmc.createCriteria().andTableCodeEqualTo(tCode)
-		.andFieldCodeEqualTo(fCode);
+				.andFieldCodeEqualTo(fCode);
 		List<IpaasSysConfig> auths = rpm.selectByExample(rpmc);
-		if(auths==null||auths.isEmpty())
-			throw new PaasException("not config "+fCode+".");
+		if (auths == null || auths.isEmpty())
+			throw new PaasException("not config " + fCode + ".");
 		return auths.get(0).getFieldValue().trim();
 	}
 
-	/**开通多台 图片服务
+	/**
+	 * 开通多台 图片服务
+	 * 
 	 * @param userId
 	 * @param serviceId
 	 * @param nodeNum
-	 * @throws Exception 
+	 * @throws Exception
 	 */
-	private void openMany(String userId, String serviceId, int nodeNum,String serviceName) throws Exception {
-		//选择nodeNum个 图片服务器selectIdpsResources
+	private void openMany(String userId, String serviceId, int nodeNum,
+			String serviceName, String dssPId, String dssServiceId,
+			String dssServicePwd) throws Exception {
+		// 选择nodeNum个 图片服务器selectIdpsResources
 		List<IdpsResourcePool> irps = selectIdpsResources4Many(nodeNum);
-		//选择2个 负载均衡
+		// 选择2个 负载均衡
 		List<IdpsBalanceResourcePool> balances = selectIdpsBalance(IdpsConstants.IDPS_BALANCE_NUM);
 
-		//处理服务端  docker 命令  拉gm、图片服务器war,nginx镜像，启动docker化的实例
-		handleServer4Many(irps,balances,userId,serviceId);
-		
-		//updateBalanceResource	
-		for(IdpsBalanceResourcePool balanceRe : balances){
+		// 处理服务端 docker 命令 拉gm、图片服务器war,nginx镜像，启动docker化的实例
+		handleServer4Many(irps, balances, userId, serviceId, dssPId,
+				dssServiceId, dssServicePwd);
+
+		// updateBalanceResource
+		for (IdpsBalanceResourcePool balanceRe : balances) {
 			updateBalanceResource(balanceRe);
 		}
-		
-		//在zk中记录申请信息
-		addZkConfig(userId,serviceId,
+
+		// 在zk中记录申请信息
+		addZkConfig(
+				userId,
+				serviceId,
 				getImageServerUrl(balances.get(0).getIdpsBalanceHostIp(),
 						balances.get(0).getIdpsBalancePort()));
-		//沉淀用户实例
-		for(int i=0;i<irps.size();i++){
-			addIdpsUserInstance(irps.get(i).getIdpsHostIp(),irps.get(i).getIdpsPort(),
-					userId,serviceId,serviceName,IdpsConstants.IDPS_INSTANCE_TYPE);
+		// 沉淀用户实例
+		for (int i = 0; i < irps.size(); i++) {
+			addIdpsUserInstance(irps.get(i).getIdpsHostIp(), irps.get(i)
+					.getIdpsPort(), userId, serviceId, serviceName,
+					IdpsConstants.IDPS_INSTANCE_TYPE);
 		}
-		for(int i=0;i<balances.size();i++){
+		for (int i = 0; i < balances.size(); i++) {
 			addIdpsUserInstance(balances.get(i).getIdpsBalanceHostIp(),
-					balances.get(i).getIdpsBalancePort(),userId,
-					serviceId,serviceName,IdpsConstants.IDPS_BALANCE_TYPE);
+					balances.get(i).getIdpsBalancePort(), userId, serviceId,
+					serviceName, IdpsConstants.IDPS_BALANCE_TYPE);
 		}
 	}
 
+	@SuppressWarnings("unused")
 	private IdpsResourcePool convertResource(
 			IdpsBalanceResourcePool idpsBalanceResourcePool) {
 		IdpsResourcePool des = new IdpsResourcePool();
@@ -173,54 +187,53 @@ public class IdpsSvImpl implements IIdpsSv {
 	}
 
 	private void handleServer4Many(List<IdpsResourcePool> irps,
-			List<IdpsBalanceResourcePool> balances,
-			String userId, String serviceId) throws Exception {
+			List<IdpsBalanceResourcePool> balances, String userId,
+			String serviceId, String dssPId, String dssServiceId,
+			String dssServicePwd) throws Exception {
 		StringBuffer servers = new StringBuffer("\"");
-		//启动每一个 图片服务器
-		for(IdpsResourcePool irp:irps){
-			handleServer(irp);
-			//便于负载均衡
-			servers.append("_server_").append(irp.getIdpsHostIp())
-			.append(":").append(irp.getIdpsPort()).append(";");
+		// 启动每一个 图片服务器
+		for (IdpsResourcePool irp : irps) {
+			handleServer(irp, dssPId, dssServiceId, dssServicePwd);
+			// 便于负载均衡
+			servers.append("_server_").append(irp.getIdpsHostIp()).append(":")
+					.append(irp.getIdpsPort()).append(";");
 		}
 		servers.append("\"");
 		IpaasImageResource balanceImage = getBalancImage();
-		for(IdpsBalanceResourcePool balance:balances){
-			balance.setIdpsBalancePort(balance.getIdpsBalancePort()+1);
+		for (IdpsBalanceResourcePool balance : balances) {
+			balance.setIdpsBalancePort(balance.getIdpsBalancePort() + 1);
 			String mkSshHosts = IdpsParamUtil.fillStringByArgs(
-					IdpsConstants.CREATE_ANSIBLE_HOSTS, 
-					new String[]{LocalShellUtil.getHomePath()+IdpsConstants.LOCAL_IDPS_PATH,
+					IdpsConstants.CREATE_ANSIBLE_HOSTS, new String[] {
+							LocalShellUtil.getHomePath()
+									+ IdpsConstants.LOCAL_IDPS_PATH,
 							balance.getIdpsBalanceHostIp().replace(".", ""),
-							balance.getIdpsBalanceHostIp()});
-			LOG.debug("---------mkSshHosts {}----------",mkSshHosts);
+							balance.getIdpsBalanceHostIp() });
+			LOG.debug("---------mkSshHosts {}----------", mkSshHosts);
 			LocalShellUtil.callShell(mkSshHosts);
-			
-			
+
 			String runImage = IdpsParamUtil.fillStringByArgs(
-					IdpsConstants.DOCKER_4_BALANCE, 
-					new String[]{
-							LocalShellUtil.getHomePath()+IdpsConstants.LOCAL_IDPS_PATH,
+					IdpsConstants.DOCKER_4_BALANCE,
+					new String[] {
+							LocalShellUtil.getHomePath()
+									+ IdpsConstants.LOCAL_IDPS_PATH,
 							balance.getIdpsBalanceHostIp().replace(".", ""),
 							balance.getSshUser(),
 							balance.getSshPassword(),
 							balance.getIdpsBalanceHostIp(),
-							balanceImage.getImageRepository()+"/"+balanceImage.getImageName(),
-							balance.getIdpsBalancePort()+"",
-							servers.toString()});
-			LOG.debug("---------runImage {}----------",runImage);
+							balanceImage.getImageRepository() + "/"
+									+ balanceImage.getImageName(),
+							balance.getIdpsBalancePort() + "",
+							servers.toString() });
+			LOG.debug("---------runImage {}----------", runImage);
 			boolean run = LocalShellUtil.callShell4Docker(runImage);
-			if(!run)
+			if (!run)
 				throw new PaasException("image server run error.");
 		}
-		
-		
-		
-		
-		
+
 	}
 
-
-	private List<IdpsBalanceResourcePool> selectIdpsBalance(int num) throws Exception {
+	private List<IdpsBalanceResourcePool> selectIdpsBalance(int num)
+			throws Exception {
 		IdpsBalanceResourcePoolMapper rpm = ServiceUtil
 				.getMapper(IdpsBalanceResourcePoolMapper.class);
 		IdpsBalanceResourcePoolCriteria rpmc = new IdpsBalanceResourcePoolCriteria();
@@ -228,64 +241,65 @@ public class IdpsSvImpl implements IIdpsSv {
 		rpmc.setLimitStart(0);
 		rpmc.setLimitEnd(num);
 		List<IdpsBalanceResourcePool> firstRes = rpm.selectByExample(rpmc);
-		if(firstRes == null || firstRes.isEmpty())
+		if (firstRes == null || firstRes.isEmpty())
 			throw new PaasException("IDPS Balance Resource not config.");
 		return firstRes;
 	}
 
-	private List<IdpsResourcePool> selectIdpsResources4Many(int nodeNum) throws Exception {
+	private List<IdpsResourcePool> selectIdpsResources4Many(int nodeNum)
+			throws Exception {
 		List<IdpsResourcePool> irp = selectIdpsResources(nodeNum);
 		int hostNum = irp.size();
 		int i = 0;
 		int k = hostNum;
 		List<IdpsResourcePool> resultList = new ArrayList<>();
 		int count = 0;
-		Map<String,Integer> hostPorts = new HashMap<String,Integer>();
-		while (i < nodeNum
-				&& count < (nodeNum + 1)) {
+		Map<String, Integer> hostPorts = new HashMap<String, Integer>();
+		while (i < nodeNum && count < (nodeNum + 1)) {
 			for (int m = 0; m < k; m++) {
 				boolean canUse = false;
 				IdpsResourcePool res = irp.get(m);
 				IdpsResourcePool target = new IdpsResourcePool();
-				if(!hostPorts.containsKey(res.getIdpsHostIp())){
+				if (!hostPorts.containsKey(res.getIdpsHostIp())) {
 					hostPorts.put(res.getIdpsHostIp(), res.getIdpsPort());
 				}
-				if (res != null&& res.getCycle() == 1) {
+				if (res != null && res.getCycle() == 1) {
 					IdpsUserInstance ui = getCanUseInstance(res.getIdpsHostIp());
-					if(ui!=null){
+					if (ui != null) {
 						res.setIdpsPort(ui.getIdpsHostPort());
 						canUse = true;
 					}
 				} else {
-					if(res.getIdpsPort()<res.getMaxPort()){
-						int port = hostPorts.get(res.getIdpsHostIp())+1;
+					if (res.getIdpsPort() < res.getMaxPort()) {
+						int port = hostPorts.get(res.getIdpsHostIp()) + 1;
 						res.setIdpsPort(port);
 						canUse = true;
 						hostPorts.put(res.getIdpsHostIp(), port);
-					}else{
+					} else {
 						res.setCycle(1);
 						updateResource(res);
 					}
 				}
-				if(canUse){
+				if (canUse) {
 					BeanUtils.copyProperties(res, target);
 					i++;
 					resultList.add(target);
-					LOG.debug("--------------select-ip {}--port-{}---------------------",
-							target.getIdpsHostIp(),target.getIdpsPort());
+					LOG.debug(
+							"--------------select-ip {}--port-{}---------------------",
+							target.getIdpsHostIp(), target.getIdpsPort());
 				}
 			}
 			count++;
 		}
 		if (count > nodeNum)
 			throw new PaasException("idps resource not enough.");
-		//update IdpsResourcePool
+		// update IdpsResourcePool
 		IdpsResourcePoolMapper rpm = ServiceUtil
 				.getMapper(IdpsResourcePoolMapper.class);
 		IdpsResourcePoolCriteria rpmc = new IdpsResourcePoolCriteria();
-		for(Map.Entry<String,Integer> ent: hostPorts.entrySet()){
+		for (Map.Entry<String, Integer> ent : hostPorts.entrySet()) {
 			rpmc.createCriteria().andIdpsHostIpEqualTo(ent.getKey())
-				.andStatusEqualTo(IdpsConstants.VALIDATE_STATUS);
+					.andStatusEqualTo(IdpsConstants.VALIDATE_STATUS);
 			IdpsResourcePool target = new IdpsResourcePool();
 			target.setIdpsPort(ent.getValue());
 			rpm.updateByExampleSelective(target, rpmc);
@@ -295,14 +309,17 @@ public class IdpsSvImpl implements IIdpsSv {
 
 	/**
 	 * 开通单台 图片服务
+	 * 
 	 * @param userId
 	 * @param serviceId
 	 * @param serviceName
-	 * @throws Exception 
+	 * @throws Exception
 	 */
-	private void openOne(String userId, String serviceId,String serviceName) throws Exception {
-		//选择资源
-		List<IdpsResourcePool> idpsResources =  selectIdpsResources(1);
+	private void openOne(String userId, String serviceId, String serviceName,
+			String dssPId, String dssServiceId, String dssServicePwd)
+			throws Exception {
+		// 选择资源
+		List<IdpsResourcePool> idpsResources = selectIdpsResources(1);
 		IdpsResourcePool idpsResourcePool = idpsResources.get(0);
 		// 如果该主机端口已经用完，从idps_user_instance选择该主机最小的已经失效的端口号
 		if (idpsResourcePool != null && idpsResourcePool.getCycle() == 1) {
@@ -320,20 +337,27 @@ public class IdpsSvImpl implements IIdpsSv {
 			}
 
 		}
-		LOG.debug("----------------seelct IdpsResource host :{}，port ：{}---------"
-				,idpsResourcePool.getIdpsHostIp() , idpsResourcePool.getIdpsPort());
-		//处理服务端  docker 命令  拉gm、图片服务器war，启动docker化的实例
-		handleServer(idpsResourcePool);
-		//在zk中记录申请信息
-		addZkConfig(userId,serviceId,
-				getImageServerUrl(idpsResourcePool.getIdpsHostIp(),idpsResourcePool.getIdpsPort()));
-		//沉淀用户实例
-		addIdpsUserInstance(idpsResourcePool.getIdpsHostIp(),idpsResourcePool.getIdpsPort(),
-				userId,serviceId,serviceName,IdpsConstants.IDPS_INSTANCE_TYPE);
-		
+		LOG.debug(
+				"----------------seelct IdpsResource host :{}，port ：{}---------",
+				idpsResourcePool.getIdpsHostIp(),
+				idpsResourcePool.getIdpsPort());
+		// 处理服务端 docker 命令 拉gm、图片服务器war，启动docker化的实例
+		handleServer(idpsResourcePool, dssPId, dssServiceId, dssServicePwd);
+		// 在zk中记录申请信息
+		addZkConfig(
+				userId,
+				serviceId,
+				getImageServerUrl(idpsResourcePool.getIdpsHostIp(),
+						idpsResourcePool.getIdpsPort()));
+		// 沉淀用户实例
+		addIdpsUserInstance(idpsResourcePool.getIdpsHostIp(),
+				idpsResourcePool.getIdpsPort(), userId, serviceId, serviceName,
+				IdpsConstants.IDPS_INSTANCE_TYPE);
+
 	}
-	
-	private void addZkConfig(String userId,String serviceId,String url) throws PaasException {
+
+	private void addZkConfig(String userId, String serviceId, String url)
+			throws PaasException {
 		// 在zk中记录申请信息
 		CCSComponentOperationParam op = new CCSComponentOperationParam();
 		op.setUserId(userId);
@@ -341,89 +365,98 @@ public class IdpsSvImpl implements IIdpsSv {
 		op.setPathType(PathType.READONLY);
 
 		JsonObject dataJson = new JsonObject();
-		dataJson.addProperty(IdpsConstants.IDPS_IMAGE_URL,url );
-		LOG.debug("-------userId {}--serviceId {}--image server {}-------",userId,serviceId,url);
+		dataJson.addProperty(IdpsConstants.IDPS_IMAGE_URL, url);
+		LOG.debug("-------userId {}--serviceId {}--image server {}-------",
+				userId, serviceId, url);
 		iCCSComponentManageSv.add(op, dataJson.toString());
-		
-		op.setPath(IdpsConstants.IDPS_ZK_PATH+serviceId+"/"+IdpsConstants.IDPS_IMAGE_URL_OUT);
+
+		op.setPath(IdpsConstants.IDPS_ZK_PATH + serviceId + "/"
+				+ IdpsConstants.IDPS_IMAGE_URL_OUT);
 		iCCSComponentManageSv.add(op, dataJson.toString());
 	}
 
-	private String getImageServerUrl(String ip,int port) throws PaasException {
+	private String getImageServerUrl(String ip, int port) throws PaasException {
 		IpaasSysConfigMapper rpm = ServiceUtil
 				.getMapper(IpaasSysConfigMapper.class);
 		IpaasSysConfigCriteria rpmc = new IpaasSysConfigCriteria();
-		rpmc.createCriteria().andTableCodeEqualTo(IdpsConstants.IMAGE_SERVER_NAME_T_CODE)
-		.andFieldCodeEqualTo(IdpsConstants.IMAGE_SERVER_NAME_F_CODE);
+		rpmc.createCriteria()
+				.andTableCodeEqualTo(IdpsConstants.IMAGE_SERVER_NAME_T_CODE)
+				.andFieldCodeEqualTo(IdpsConstants.IMAGE_SERVER_NAME_F_CODE);
 		List<IpaasSysConfig> images = rpm.selectByExample(rpmc);
-		if(images==null||images.isEmpty())
+		if (images == null || images.isEmpty())
 			throw new PaasException("not config image server name .");
-		return "http://"+ip+":"+port+"/"+images.get(0).getFieldValue().trim();
+		return "http://" + ip + ":" + port + "/"
+				+ images.get(0).getFieldValue().trim();
 	}
 
 	/**
 	 * 处理单台图片服务器
+	 * 
 	 * @param idpsResourcePool
 	 * @throws Exception
 	 */
-	private void handleServer(IdpsResourcePool idpsResourcePool) throws Exception {
+	private void handleServer(IdpsResourcePool idpsResourcePool, String dssPId,
+			String dssServiceId, String dssServicePwd) throws Exception {
 		String mkSshHosts = IdpsParamUtil.fillStringByArgs(
-				IdpsConstants.CREATE_ANSIBLE_HOSTS, 
-				new String[]{LocalShellUtil.getHomePath()+IdpsConstants.LOCAL_IDPS_PATH,
+				IdpsConstants.CREATE_ANSIBLE_HOSTS, new String[] {
+						LocalShellUtil.getHomePath()
+								+ IdpsConstants.LOCAL_IDPS_PATH,
 						idpsResourcePool.getIdpsHostIp().replace(".", ""),
-						idpsResourcePool.getIdpsHostIp()});
-		LOG.debug("---------mkSshHosts {}----------",mkSshHosts);
+						idpsResourcePool.getIdpsHostIp() });
+		LOG.debug("---------mkSshHosts {}----------", mkSshHosts);
 		LocalShellUtil.callShell(mkSshHosts);
-		
+
 		IpaasImageResource gmImage = getGmImage();
-		
+
 		String runImage = IdpsParamUtil.fillStringByArgs(
-				IdpsConstants.DOCKER_4_GM_AND_TOMCAT, 
-				new String[]{
-						LocalShellUtil.getHomePath()+IdpsConstants.LOCAL_IDPS_PATH,
+				IdpsConstants.DOCKER_4_GM_AND_TOMCAT,
+				new String[] {
+						LocalShellUtil.getHomePath()
+								+ IdpsConstants.LOCAL_IDPS_PATH,
 						idpsResourcePool.getIdpsHostIp().replace(".", ""),
 						idpsResourcePool.getSshUser(),
 						idpsResourcePool.getSshPassword(),
 						idpsResourcePool.getIdpsHostIp(),
-						gmImage.getImageRepository()+"/"+gmImage.getImageName(),
-						idpsResourcePool.getIdpsPort()+"",
-						getSysConf(IdpsConstants.IDPS_IMAGE_SERVER,IdpsConstants.IMAGE_SERVER_JDBC_URL),
-						getSysConf(IdpsConstants.IDPS_IMAGE_SERVER,IdpsConstants.IMAGE_SERVER_JDBC_USER),
-						getSysConf(IdpsConstants.IDPS_IMAGE_SERVER,IdpsConstants.IMAGE_SERVER_JDBC_PWD)
-						});
-		LOG.debug("---------runImage {}----------",runImage);
+						gmImage.getImageRepository() + "/"
+								+ gmImage.getImageName(),
+						idpsResourcePool.getIdpsPort() + "",
+						getSysConf(IdpsConstants.AUTH_TABLE_CODE,
+								IdpsConstants.AUTH_FIELD_CODE), dssPId,
+						dssServiceId, dssServicePwd });
+		LOG.debug("---------runImage {}----------", runImage);
 		boolean run = LocalShellUtil.callShell4Docker(runImage);
-		if(!run)
+		if (!run)
 			throw new PaasException("image server run error.");
 	}
-
 
 	private IpaasImageResource getGmImage() throws PaasException {
 		IpaasImageResourceMapper rpm = ServiceUtil
 				.getMapper(IpaasImageResourceMapper.class);
 		IpaasImageResourceCriteria rpmc = new IpaasImageResourceCriteria();
 		rpmc.createCriteria().andStatusEqualTo(IdpsConstants.VALIDATE_STATUS)
-		.andServiceCodeEqualTo(IdpsConstants.SERVICE_CODE).andImageCodeEqualTo(IdpsConstants.GM_IMAGE_CODE);
+				.andServiceCodeEqualTo(IdpsConstants.SERVICE_CODE)
+				.andImageCodeEqualTo(IdpsConstants.GM_IMAGE_CODE);
 		List<IpaasImageResource> res = rpm.selectByExample(rpmc);
-		if(res == null || res.isEmpty())
+		if (res == null || res.isEmpty())
 			throw new PaasException("IDPS IMAGE gm not config.");
 		return res.get(0);
 	}
-	
+
 	private IpaasImageResource getBalancImage() throws PaasException {
 		IpaasImageResourceMapper rpm = ServiceUtil
 				.getMapper(IpaasImageResourceMapper.class);
 		IpaasImageResourceCriteria rpmc = new IpaasImageResourceCriteria();
 		rpmc.createCriteria().andStatusEqualTo(IdpsConstants.VALIDATE_STATUS)
-		.andServiceCodeEqualTo(IdpsConstants.SERVICE_CODE).andImageCodeEqualTo(IdpsConstants.BALANC_IMAGE_CODE);
+				.andServiceCodeEqualTo(IdpsConstants.SERVICE_CODE)
+				.andImageCodeEqualTo(IdpsConstants.BALANC_IMAGE_CODE);
 		List<IpaasImageResource> res = rpm.selectByExample(rpmc);
-		if(res == null || res.isEmpty())
+		if (res == null || res.isEmpty())
 			throw new PaasException("IDPS IMAGE load balance not config.");
 		return res.get(0);
 	}
 
-	private int addIdpsUserInstance(String ip,int port,
-			String userId, String serviceId, String serviceName,int type) {
+	private int addIdpsUserInstance(String ip, int port, String userId,
+			String serviceId, String serviceName, int type) {
 		IdpsUserInstance idpsUserInstance = new IdpsUserInstance();
 		idpsUserInstance.setIdpsHostIp(ip);
 		idpsUserInstance.setServiceId(serviceId);
@@ -431,7 +464,8 @@ public class IdpsSvImpl implements IIdpsSv {
 		idpsUserInstance.setIdpsHostPort(port);
 		idpsUserInstance.setStatus(IdpsConstants.VALIDATE_STATUS);
 		idpsUserInstance.setUserId(userId);
-		idpsUserInstance.setBeginTime(new Timestamp(System.currentTimeMillis()));
+		idpsUserInstance
+				.setBeginTime(new Timestamp(System.currentTimeMillis()));
 		idpsUserInstance.setType(type);
 		return addInstance(idpsUserInstance);
 	}
@@ -442,12 +476,12 @@ public class IdpsSvImpl implements IIdpsSv {
 	 * @param idpsUserInstance
 	 * @return
 	 */
-	private int addInstance(IdpsUserInstance idpsUserInstance)
-	{
+	private int addInstance(IdpsUserInstance idpsUserInstance) {
 		IdpsUserInstanceMapper im = ServiceUtil
 				.getMapper(IdpsUserInstanceMapper.class);
 		return im.insert(idpsUserInstance);
 	}
+
 	/**
 	 * 更新资源
 	 * 
@@ -460,24 +494,28 @@ public class IdpsSvImpl implements IIdpsSv {
 				.getMapper(IdpsResourcePoolMapper.class);
 		IdpsResourcePoolCriteria rpmc = new IdpsResourcePoolCriteria();
 		rpmc.createCriteria().andIdEqualTo(idpsResourcePool.getId())
-				.andIdpsPortEqualTo(idpsResourcePool.getIdpsPort()-1);
+				.andIdpsPortEqualTo(idpsResourcePool.getIdpsPort() - 1);
 		return rpm.updateByExampleSelective(idpsResourcePool, rpmc);
 	}
+
 	/**
 	 * 更新资源
 	 * 
 	 * @param balanceResourcePool
 	 * @return
 	 */
-	private int updateBalanceResource(IdpsBalanceResourcePool balanceResourcePool)
-			throws PaasException {
+	private int updateBalanceResource(
+			IdpsBalanceResourcePool balanceResourcePool) throws PaasException {
 		IdpsBalanceResourcePoolMapper rpm = ServiceUtil
 				.getMapper(IdpsBalanceResourcePoolMapper.class);
 		IdpsBalanceResourcePoolCriteria rpmc = new IdpsBalanceResourcePoolCriteria();
-		rpmc.createCriteria().andIdEqualTo(balanceResourcePool.getId())
-				.andIdpsBalancePortEqualTo(balanceResourcePool.getIdpsBalancePort()-1);
+		rpmc.createCriteria()
+				.andIdEqualTo(balanceResourcePool.getId())
+				.andIdpsBalancePortEqualTo(
+						balanceResourcePool.getIdpsBalancePort() - 1);
 		return rpm.updateByExampleSelective(balanceResourcePool, rpmc);
 	}
+
 	/**
 	 * 获得IdpsUserInstance中 失效的记录
 	 * 
@@ -489,7 +527,8 @@ public class IdpsSvImpl implements IIdpsSv {
 				.getMapper(IdpsUserInstanceMapper.class);
 		IdpsUserInstanceCriteria imc = new IdpsUserInstanceCriteria();
 		imc.createCriteria().andStatusNotEqualTo(IdpsConstants.VALIDATE_STATUS)
-				.andIdpsHostIpEqualTo(host).andTypeEqualTo(IdpsConstants.IDPS_INSTANCE_TYPE);
+				.andIdpsHostIpEqualTo(host)
+				.andTypeEqualTo(IdpsConstants.IDPS_INSTANCE_TYPE);
 		imc.setLimitStart(0);
 		imc.setLimitEnd(1);
 		List<IdpsUserInstance> list = im.selectByExample(imc);
@@ -498,8 +537,9 @@ public class IdpsSvImpl implements IIdpsSv {
 		return null;
 	}
 
-	private List<IdpsResourcePool> selectIdpsResources(int num) throws PaasException {
-		//best
+	private List<IdpsResourcePool> selectIdpsResources(int num)
+			throws PaasException {
+		// best
 		IdpsResourcePoolMapper rpm = ServiceUtil
 				.getMapper(IdpsResourcePoolMapper.class);
 		IdpsResourcePoolCriteria rpmc = new IdpsResourcePoolCriteria();
@@ -507,11 +547,10 @@ public class IdpsSvImpl implements IIdpsSv {
 		rpmc.setLimitStart(0);
 		rpmc.setLimitEnd(num);
 		List<IdpsResourcePool> firstRes = rpm.selectByExample(rpmc);
-		if(firstRes == null || firstRes.isEmpty())
+		if (firstRes == null || firstRes.isEmpty())
 			throw new PaasException("IDPS Resource not config.");
 		return firstRes;
-		
-		
+
 	}
 
 	private boolean existsService(String userId, String serviceId) {
@@ -553,7 +592,5 @@ public class IdpsSvImpl implements IIdpsSv {
 		// TODO Auto-generated method stub
 		return null;
 	}
-	
-	
 
 }

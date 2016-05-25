@@ -3,7 +3,6 @@ package com.ai.paas.ipaas.idps.service.util;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.InputStreamReader;
-import java.io.OutputStream;
 
 import javax.swing.filechooser.FileSystemView;
 
