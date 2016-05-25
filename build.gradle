@@ -7,7 +7,7 @@ allprojects {
     ext {
         //moduleName="ipaas-config-sdk";
         parentName="ipaas-parent-service"
-        moduleVersion="0.1-SNAPSHOT"
+        moduleVersion="0.3-SNAPSHOT"
         publishUserName = "devadm"
         publishUserPassword = "Devadm@1212"
         publishURL="http://10.1.228.199:18081/nexus/content/repositories/snapshots/"
@@ -33,8 +33,8 @@ subprojects {
     }
 
     dependencies {
-        compile 'com.ai:ipaas-common:0.1-SNAPSHOT'
-        compile 'com.ai:ipaas-base:0.1-SNAPSHOT'
+        compile 'com.ai:ipaas-common:0.3'
+        compile 'com.ai:ipaas-base:0.3'
         compile "commons-beanutils:commons-beanutils:1.8.3"
         compile "org.apache.logging.log4j:log4j-core:2.2"
 
