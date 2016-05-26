@@ -902,8 +902,9 @@ public class McsSvImpl implements IMcsSv {
 			McsResourcePool pool = pools.get(0);
 
 			String cachePath = pool.getCachePath();
-			String cacheHostIp = pool.getCacheHostIp();
 			Integer agentPort = Integer.parseInt(pool.getAgentCmd());
+			
+			String cacheHostIp = tempIns.getCacheHost();
 			Integer cachePort = tempIns.getCachePort();
 			String requirepass = tempIns.getPwd();
 			String commonconfigPath = cachePath + McsConstants.FILE_PATH;
@@ -998,7 +999,7 @@ public class McsSvImpl implements IMcsSv {
 			
 			/** 组织集群创建的命令及返回值 **/
 			String clusterInfo = getClusterInfo(cacheInfoList, " ");
-			String create_cluster = "redis-trib.rb create --replicas 1" + clusterInfo;
+			String create_cluster = "redis-trib.rb create --replicas 1 " + clusterInfo;
 			logger.info("-------- 创建redis集群的命令:" + create_cluster);
 			
 			/** 创建redis集群 **/
@@ -1185,7 +1186,7 @@ public class McsSvImpl implements IMcsSv {
 	 * @param cacheSize
 	 * @throws PaasException
 	 */
-	private void removeMcsServerFileAndUserIns(final String userId, final String serviceId, 
+	private void removeMcsServerFileAndUserIns(String userId, String serviceId, 
 			List<McsUserCacheInstance> userInstanceList) throws PaasException {
 		if (userInstanceList.size() == 1) {
 			logger.info("-------- removeMcsServerFileAndUserIns ---single-----");
@@ -1218,7 +1219,7 @@ public class McsSvImpl implements IMcsSv {
 			
 			/** 删除redis的配置文件  **/
 			logger.info("----- delete redis config file-----");
-			removeMcsConfig(ac, commonconfigPath, agentPort);
+			removeMcsSingleConfig(ac, commonconfigPath, cachePort);
 			
 			/** 删除zk的配置**/
 			logger.info("------ delete config for ["+userId+"].["+serviceId+"] ------");
@@ -1252,7 +1253,7 @@ public class McsSvImpl implements IMcsSv {
 				
 				String cacheHostIp = tempIns.getCacheHost();
 				Integer cachePort = tempIns.getCachePort();
-				String commonconfigPath = cachePath + McsConstants.FILE_PATH;
+				String commonconfigPath = cachePath + McsConstants.CLUSTER_FILE_PATH;
 				logger.info("------- redis info cacheHostIp:["+cacheHostIp+"] ----------");
 				logger.info("------- redis info cachePort:["+cachePort+"] ----------");
 				logger.info("------- redis info agentPort:["+agentPort+"] ----------");
@@ -1265,9 +1266,9 @@ public class McsSvImpl implements IMcsSv {
 				logger.info("----- stop redis ["+cacheHostIp+"]:["+cachePort+"]  -----");
 				stopMcsIns(ac, cachePort);
 				
-				/** 删除redis的配置文件  **/
+				/** 删除redis集群的目录及配置文件: ./redis/cluster/user_id+service_id/ **/
 				logger.info("----- delete redis[cluster] config file -----");
-				removeMcsConfig(ac, commonconfigPath, agentPort, userId, serviceId);
+				removeMcsClusterConfig(ac, commonconfigPath, cachePort, userId, serviceId);
 				
 				/** 删除zk的配置 **/
 				logger.info("----- delete zk config for ["+userId+"].["+serviceId+"] ---cluster-----");
@@ -1372,24 +1373,7 @@ public class McsSvImpl implements IMcsSv {
 	}
 	
 	/**
-	 * 删除 单例的redis配置文件
-	 * @param ac
-	 * @param cachePath
-	 * @param cachePort
-	 * @throws PaasException
-	 */
-	private void removeMcsConfig(AgentClient ac, String commonconfigPath, Integer cachePort) throws PaasException {
-		try {
-			String cmd = "rm -rf redis-" + cachePort + ".conf";
-			ac.executeInstruction(commonconfigPath, cmd);
-		} catch (Exception e) {
-			logger.error(e.getMessage(), e);
-			throw new PaasException("删除redis的配置文件异常，file:" + commonconfigPath+cachePort, e);
-		}
-	}
-	
-	/**
-	 * 删除 集群的redis配置文件
+	 * 删除单节点的redis配置文件
 	 * @param ac
 	 * @param commonconfigPath
 	 * @param cachePort
@@ -1397,11 +1381,31 @@ public class McsSvImpl implements IMcsSv {
 	 * @param serviceId
 	 * @throws PaasException
 	 */
-	private void removeMcsConfig(AgentClient ac, String commonconfigPath, Integer cachePort, 
+	private void removeMcsSingleConfig(AgentClient ac, String commonconfigPath, Integer cachePort) throws PaasException {
+		try {
+			String path = commonconfigPath + cachePort + "/";
+			String cmd = "rm -rf " + path;
+			ac.executeInstruction(commonconfigPath, cmd);
+		} catch (Exception e) {
+			logger.error(e.getMessage(), e);
+			throw new PaasException("集群--删除redis的配置文件异常，fileInfo：" + commonconfigPath+"/"+cachePort, e);
+		}
+	}
+	
+	/**
+	 * 删除集群的redis目录及配置文件
+	 * @param ac
+	 * @param commonconfigPath
+	 * @param cachePort
+	 * @param userId
+	 * @param serviceId
+	 * @throws PaasException
+	 */
+	private void removeMcsClusterConfig(AgentClient ac, String commonconfigPath, Integer cachePort, 
 			String userId, String serviceId) throws PaasException {
 		try {
 			String path = commonconfigPath + userId + "_" + serviceId + "/";
-			String cmd = "rm -rf redis-" + cachePort + ".conf";
+			String cmd = "rm -rf " + path;
 			ac.executeInstruction(path, cmd);
 		} catch (Exception e) {
 			logger.error(e.getMessage(), e);
