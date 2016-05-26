@@ -10,7 +10,7 @@ public class McsConstants {
 
 
   public static final String FILE_PATH = "/commonconfig/";
-  public static final String LOG_PATH = "/log/";
+  public static final String LOG_PATH = "/redis/log/";   //modified by yuanman in 2016-05-21
 
   public static final String CLUSTER_FILE_PATH = "/redis/cluster/";
   public static final String AGENT_URL_BASE = "http://";

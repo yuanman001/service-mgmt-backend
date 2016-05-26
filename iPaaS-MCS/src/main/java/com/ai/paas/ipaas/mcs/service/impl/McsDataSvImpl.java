@@ -22,25 +22,27 @@ import com.ai.paas.ipaas.mcs.service.constant.McsConstants;
 import com.ai.paas.ipaas.mcs.service.interfaces.IMcsDataSv;
 import com.ai.paas.ipaas.mcs.service.util.McsParamUtil;
 import com.ai.paas.ipaas.util.Assert;
+
 @Service
 @Transactional(rollbackFor = Exception.class)
 public class McsDataSvImpl implements IMcsDataSv {
+	private static transient final Logger log = LoggerFactory.getLogger(McsDataSvImpl.class);
+	
 	@Autowired
 	private McsSvHepler mcsSvHepler;
-	private static transient final Logger log = LoggerFactory.getLogger(McsDataSvImpl.class);
 
 	@Override
 	public String get(String param) throws PaasException {
-		String res = "";
-		Map<String,String> map = McsParamUtil.getParamMap(param);
-//		String applyType=map.get(McsConstants.APPLY_TYPE);
 		//获取服务号配置参数
+		Map<String,String> map = McsParamUtil.getParamMap(param);
 		final String serviceId=map.get(McsConstants.SERVICE_ID);
 		final String userId=map.get(McsConstants.USER_ID);
 		final String key=map.get(McsConstants.DDL_KEY);
 		Assert.notNull(serviceId, "serviceId为空");
 		Assert.notNull(userId, "userId为空");
 		Assert.notNull(key, "key为空");
+		
+		String res = "";
 		List<McsUserCacheInstance> cis = mcsSvHepler.getMcsUserCacheInstances(serviceId,userId);
 		if(cis==null||cis.isEmpty())
 			throw new PaasException("该服务未开通过，无法对数据操作！");
@@ -72,16 +74,16 @@ public class McsDataSvImpl implements IMcsDataSv {
 
 	@Override
 	public String del(String param) throws PaasException {
-		long res = 0l;
-		Map<String,String> map = McsParamUtil.getParamMap(param);
-//		String applyType=map.get(McsConstants.APPLY_TYPE);
 		//获取服务号配置参数
+		Map<String,String> map = McsParamUtil.getParamMap(param);
 		final String serviceId=map.get(McsConstants.SERVICE_ID);
 		final String userId=map.get(McsConstants.USER_ID);
 		final String key=map.get(McsConstants.DDL_KEY);
 		Assert.notNull(serviceId, "serviceId为空");
 		Assert.notNull(userId, "userId为空");
 		Assert.notNull(key, "key为空");
+		
+		long res = 0l;
 		List<McsUserCacheInstance> cis = mcsSvHepler.getMcsUserCacheInstances(serviceId,userId);
 		if(cis==null||cis.isEmpty())
 			throw new PaasException("该服务未开通过，无法对数据操作！");
@@ -100,14 +102,14 @@ public class McsDataSvImpl implements IMcsDataSv {
 
 	@Override
 	public String flushDb(String param) throws PaasException {
-		String res = "";
-		Map<String,String> map = McsParamUtil.getParamMap(param);
-//		String applyType=map.get(McsConstants.APPLY_TYPE);
 		//获取服务号配置参数
+		Map<String,String> map = McsParamUtil.getParamMap(param);
 		final String serviceId=map.get(McsConstants.SERVICE_ID);
 		final String userId=map.get(McsConstants.USER_ID);
 		Assert.notNull(serviceId, "serviceId为空");
 		Assert.notNull(userId, "userId为空");
+		
+		String res = "";
 		List<McsUserCacheInstance> cis = mcsSvHepler.getMcsUserCacheInstances(serviceId,userId);
 		if(cis==null||cis.isEmpty())
 			throw new PaasException("该服务未开通过，无法对数据操作！");
@@ -133,7 +135,6 @@ public class McsDataSvImpl implements IMcsDataSv {
 
 	@Override
 	public String set(String param) throws PaasException {
-		String res = "";
 		Map<String,String> map = McsParamUtil.getParamMap(param);
 		final String serviceId=map.get(McsConstants.SERVICE_ID);
 		final String userId=map.get(McsConstants.USER_ID);
@@ -143,6 +144,8 @@ public class McsDataSvImpl implements IMcsDataSv {
 		Assert.notNull(userId, "userId为空");
 		Assert.notNull(key, "key为空");
 		Assert.notNull(value, "value为空");
+		
+		String res = "";
 		List<McsUserCacheInstance> cis = mcsSvHepler.getMcsUserCacheInstances(serviceId,userId);
 		if(cis==null||cis.isEmpty())
 			throw new PaasException("该服务未开通过，无法对数据操作！");
@@ -161,12 +164,13 @@ public class McsDataSvImpl implements IMcsDataSv {
 
 	@Override
 	public String info(String param) throws PaasException {
-		String res = "";
 		Map<String,String> map = McsParamUtil.getParamMap(param);
 		final String serviceId=map.get(McsConstants.SERVICE_ID);
 		final String userId=map.get(McsConstants.USER_ID);
 		Assert.notNull(serviceId, "serviceId为空");
 		Assert.notNull(userId, "userId为空");
+		
+		String res = "";
 		List<McsUserCacheInstance> cis = mcsSvHepler.getMcsUserCacheInstances(serviceId,userId);
 		if(cis==null||cis.isEmpty())
 			throw new PaasException("该服务未开通过，无法对数据操作！");
@@ -186,7 +190,6 @@ public class McsDataSvImpl implements IMcsDataSv {
 					log.error("可以忽略该异常",e);
 				}
 			}			
-			//TODO
 		}
 		return res;
 	}
