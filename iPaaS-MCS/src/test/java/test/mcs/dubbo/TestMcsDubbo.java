@@ -31,14 +31,14 @@ public class TestMcsDubbo {
 //
 //  }
 
-  @Test
-  public void createCluster() {
-    long s = System.currentTimeMillis();
-    String param =
-        "{\"userId\":\"6C4F4DBA96294DDCBC5DBBF2CAD442B5\",\"applyType\":\"create\",\"serviceId\":\"MCS0\",\"capacity\":\"128\",\"haMode\":\"cluster\"}";
-    System.out.println("----------create-res:\n" + iMemoryCacheServiceManager.create(param));
-    System.out.println("----------开通集群，耗时：" + (System.currentTimeMillis() - s));
-  }
+//  @Test
+//  public void createCluster() {
+//    long s = System.currentTimeMillis();
+//    String param =
+//        "{\"userId\":\"6C4F4DBA96294DDCBC5DBBF2CAD442B5\",\"applyType\":\"create\",\"serviceId\":\"MCS001\",\"capacity\":\"128\",\"haMode\":\"cluster\"}";
+//    System.out.println("----------create-res:\n" + iMemoryCacheServiceManager.create(param));
+//    System.out.println("----------开通集群，耗时：" + (System.currentTimeMillis() - s));
+//  }
 
 //  @Test
 //  public void createReplication() {
@@ -87,14 +87,14 @@ public class TestMcsDubbo {
 //    System.out.println("----------停止单例，耗时：" + (System.currentTimeMillis() - s));
 //  }
 
-//  @Test
-//  public void stopCluster() {
-//    long s = System.currentTimeMillis();
-//    String param =
-//        "{\"userId\":\"FFF49D0D518948D0AB28D7A8EEE25D03\",\"applyType\":\"stop\",\"serviceId\":\"106\",\"capacity\":\"256\",\"haMode\":\"cluster\"}";
-//    System.out.println("----------stop-res:\n" + iMemoryCacheServiceManager.stop(param));
-//    System.out.println("----------停止集群，耗时：" + (System.currentTimeMillis() - s));
-//  }
+  @Test
+  public void stopCluster() {
+    long s = System.currentTimeMillis();
+    String param =
+        "{\"userId\":\"6C4F4DBA96294DDCBC5DBBF2CAD442B5\",\"applyType\":\"stop\",\"serviceId\":\"MCS001\",\"capacity\":\"256\",\"haMode\":\"cluster\"}";
+    System.out.println("----------stop-res:\n" + iMemoryCacheServiceManager.stop(param));
+    System.out.println("----------停止集群，耗时：" + (System.currentTimeMillis() - s));
+  }
 
 
 //  @Test
@@ -107,14 +107,6 @@ public class TestMcsDubbo {
 //    System.out.println("----------启动单例，耗时：" + (System.currentTimeMillis() - s));
 //  }
 
-//  @Test
-//  public void startCluster() {
-//    long s = System.currentTimeMillis();
-//    String param =
-//        "{\"userId\":\"FFF49D0D518948D0AB28D7A8EEE25D03\",\"applyType\":\"start\",\"serviceId\":\"106\",\"capacity\":\"256\",\"haMode\":\"cluster\"}";
-//    System.out.println("----------start-res:\n" + iMemoryCacheServiceManager.start(param));
-//    System.out.println("----------启动集群，耗时：" + (System.currentTimeMillis() - s));
-//  }
 
 //  @Test
 //  public void restart() {

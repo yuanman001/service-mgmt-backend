@@ -5,8 +5,6 @@ import java.util.Random;
 
 import org.springframework.stereotype.Repository;
 
-import com.ai.paas.agent.client.AgentClient;
-import com.ai.paas.ipaas.PaasException;
 import com.ai.paas.ipaas.ServiceUtil;
 import com.ai.paas.ipaas.mcs.dao.interfaces.McsUserCacheInstanceMapper;
 import com.ai.paas.ipaas.mcs.dao.mapper.bo.McsUserCacheInstance;

@@ -1107,7 +1107,7 @@ public class McsSvImpl implements IMcsSv {
 				pool = pools.get(0);
 			}
 			
-			String cacheHostIp = pool.getCacheHostIp();
+			String cacheHostIp = tempIns.getCacheHost();
 			Integer cachePort = tempIns.getCachePort();
 			Integer agentPort = Integer.parseInt(pool.getAgentCmd());
 			logger.info("------- redis info cacheHostIp:["+cacheHostIp+"]--------");
@@ -1140,12 +1140,14 @@ public class McsSvImpl implements IMcsSv {
 				List<McsResourcePool> pools = rpm.selectByExample(rpmc);
 				pool = pools.get(0);
 			}
+
+			String cacheHostIp = tempIns.getCacheHost();
+			Integer cachePort = tempIns.getCachePort();
 			
 			String cachePath = pool.getCachePath();
-			String cacheHostIp = pool.getCacheHostIp();
-			Integer cachePort = tempIns.getCachePort();
 			Integer agentPort = Integer.parseInt(pool.getAgentCmd());
 			String commonconfigPath = cachePath + McsConstants.FILE_PATH;
+			
 			logger.info("------- redis info cacheHostIp:["+cacheHostIp+"]-----------");
 			logger.info("------- redis info cachePort:["+cachePort+"]-----------");
 			logger.info("------- redis info agentPort:["+agentPort+"]-----------");
@@ -1195,8 +1197,9 @@ public class McsSvImpl implements IMcsSv {
 			McsResourcePool pool = pools.get(0);
 
 			String cachePath = pool.getCachePath();
-			String cacheHostIp = pool.getCacheHostIp();
 			Integer agentPort = Integer.parseInt(pool.getAgentCmd());
+			
+			String cacheHostIp = tempIns.getCacheHost();
 			Integer cachePort = tempIns.getCachePort();
 			String requirepass = tempIns.getPwd();
 			String commonconfigPath = cachePath + McsConstants.FILE_PATH;
@@ -1245,8 +1248,9 @@ public class McsSvImpl implements IMcsSv {
 				}
 				
 				String cachePath = pool.getCachePath();
-				String cacheHostIp = pool.getCacheHostIp();
 				Integer agentPort = Integer.parseInt(pool.getAgentCmd());
+				
+				String cacheHostIp = tempIns.getCacheHost();
 				Integer cachePort = tempIns.getCachePort();
 				String commonconfigPath = cachePath + McsConstants.FILE_PATH;
 				logger.info("------- redis info cacheHostIp:["+cacheHostIp+"] ----------");
@@ -1304,9 +1308,9 @@ public class McsSvImpl implements IMcsSv {
 	 */
 	private void startMcsIns(AgentClient ac, String path, int port) throws PaasException {
 		try {
-			String cmd =  "cd " + path + port + "/" + "| redis-server " + path + port + "/redis-" + port + ".conf &";
-			String result = ac.executeInstruction(cmd);
-			logger.info("======== startMcsIns =======ac.excute.result:"+ result);
+			String cmd_path = path + port + "/";
+			String cmd_start = "redis-server " + path + port + "/redis-" + port + ".conf &";
+			ac.executeInstruction(cmd_path, cmd_start);
 		} catch (Exception e) {
 			logger.error(e.getMessage(), e);
 			throw new PaasException("启动MCS异常，port：" + port, e);
@@ -1322,13 +1326,12 @@ public class McsSvImpl implements IMcsSv {
 	 */
 	private void startMcsInsForCluster(AgentClient ac, String cachePath, String dir, String cPath, int port) throws PaasException {
 		try {
-			String cmd_rm =  "cd "+cachePath + McsConstants.CLUSTER_FILE_PATH + dir + "/" + port + "/"
-					+"|rm -rf appendonly.aof  dump.rdb  nodes.conf ";
-			String cmd =  "cd "+cachePath + McsConstants.CLUSTER_FILE_PATH + dir + "/" + port + "/"
-					+"|redis-server " + cachePath + McsConstants.CLUSTER_FILE_PATH + dir + "/" + port
+			String path = cachePath + McsConstants.CLUSTER_FILE_PATH + dir + "/" + port + "/";
+			String cmd_rm = "rm -rf appendonly.aof dump.rdb nodes.conf ";
+			String cmd = "redis-server " + cachePath + McsConstants.CLUSTER_FILE_PATH + dir + "/" + port
 					+ "/redis-" + port + ".conf > redis.log &";
-			ac.executeInstruction(cmd_rm);
-			ac.executeInstruction(cmd);
+			ac.executeInstruction(path, cmd_rm);
+			ac.executeInstruction(path, cmd);
 		} catch (Exception e) {
 			logger.error(e.getMessage(), e);
 			throw new PaasException("启动MCS异常，port：" + port, e);
@@ -1377,12 +1380,11 @@ public class McsSvImpl implements IMcsSv {
 	 */
 	private void removeMcsConfig(AgentClient ac, String commonconfigPath, Integer cachePort) throws PaasException {
 		try {
-			String file = commonconfigPath + "redis-" + cachePort + ".conf";
-			String cmd = "rm " + file;
-			ac.executeInstruction(cmd);
+			String cmd = "rm -rf redis-" + cachePort + ".conf";
+			ac.executeInstruction(commonconfigPath, cmd);
 		} catch (Exception e) {
 			logger.error(e.getMessage(), e);
-			throw new PaasException("删除redis的配置文件异常，fileInfo:" + commonconfigPath+cachePort, e);
+			throw new PaasException("删除redis的配置文件异常，file:" + commonconfigPath+cachePort, e);
 		}
 	}
 	
@@ -1398,12 +1400,12 @@ public class McsSvImpl implements IMcsSv {
 	private void removeMcsConfig(AgentClient ac, String commonconfigPath, Integer cachePort, 
 			String userId, String serviceId) throws PaasException {
 		try {
-			String file = commonconfigPath + userId + "_" + serviceId + "/redis-" + cachePort + ".conf";
-			String cmd = "rm " + file;
-			ac.executeInstruction(cmd);
+			String path = commonconfigPath + userId + "_" + serviceId + "/";
+			String cmd = "rm -rf redis-" + cachePort + ".conf";
+			ac.executeInstruction(path, cmd);
 		} catch (Exception e) {
 			logger.error(e.getMessage(), e);
-			throw new PaasException("集群--删除redis的配置文件异常，fileInfo：" + commonconfigPath+cachePort, e);
+			throw new PaasException("集群--删除redis的配置文件异常，fileInfo：" + commonconfigPath+userId+"/"+cachePort, e);
 		}
 	}
 
