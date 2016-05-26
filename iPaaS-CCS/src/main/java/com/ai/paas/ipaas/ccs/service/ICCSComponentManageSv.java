@@ -1,16 +1,15 @@
 package com.ai.paas.ipaas.ccs.service;
 
+import java.util.List;
+
+import org.apache.curator.framework.recipes.locks.InterProcessLock;
+
 import com.ai.paas.ipaas.PaasException;
 import com.ai.paas.ipaas.ccs.constants.AddMode;
 import com.ai.paas.ipaas.ccs.dao.mapper.bo.CcsResourcePool;
 import com.ai.paas.ipaas.ccs.service.dto.CCSComponentOperationParam;
 import com.ai.paas.ipaas.ccs.service.dto.CCSSubListDTO;
 import com.ai.paas.ipaas.ccs.zookeeper.ConfigWatcher;
-
-import java.io.Closeable;
-import java.util.List;
-
-import org.apache.curator.framework.recipes.locks.InterProcessLock;
 
 /**
  * 用于内部管理配置的Service层

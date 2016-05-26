@@ -55,12 +55,10 @@ public class DocumentStoreServiceManagerImpl implements
 		} catch (Exception e) {
 			// 构建错误信息
 			dssResult = DSSHelper.getResult(applyObj, e.getMessage());
-			log.error(e.getMessage());
-			e.printStackTrace();
-		} finally {
-			// 返回处理结果
-			return DSSHelper.getDSSResult(dssResult);
+			log.error("", e);
 		}
+		// 返回处理结果
+		return DSSHelper.getDSSResult(dssResult);
 	}
 
 	@Override
@@ -71,13 +69,11 @@ public class DocumentStoreServiceManagerImpl implements
 			dssResult = dssSv.getFuncList();
 		} catch (Exception e) {
 			// 构建错误信息
-			log.error(e.getMessage());
+			log.error("", e);
 			dssResult = DSSHelper.getResult(e.getMessage());
-			e.printStackTrace();
-		} finally {
-			// 返回处理结果
-			return DSSHelper.getDSSResult(dssResult);
 		}
+		// 返回处理结果
+		return DSSHelper.getDSSResult(dssResult);
 
 	}
 
@@ -93,12 +89,10 @@ public class DocumentStoreServiceManagerImpl implements
 		} catch (Exception e) {
 			// 构建错误信息
 			dssResult = DSSHelper.getResult(recordObj, e.getMessage());
-			log.error(e.getMessage());
-			e.printStackTrace();
-		} finally {
-			// 返回处理结果
-			return DSSHelper.getDSSResult(dssResult);
+			log.error("", e);
 		}
+		// 返回处理结果
+		return DSSHelper.getDSSResult(dssResult);
 	}
 
 	@Override
@@ -131,12 +125,10 @@ public class DocumentStoreServiceManagerImpl implements
 		} catch (Exception e) {
 			// 构建错误信息
 			dssResult = DSSHelper.getResult(cleanObj, e.getMessage());
-			log.error(e.getMessage());
-			e.printStackTrace();
-		} finally {
-			// 返回处理结果
-			return DSSHelper.getDSSResult(dssResult);
+			log.error("", e);
 		}
+		// 返回处理结果
+		return DSSHelper.getDSSResult(dssResult);
 	}
 
 	@Override
@@ -151,12 +143,10 @@ public class DocumentStoreServiceManagerImpl implements
 		} catch (Exception e) {
 			// 构建错误信息
 			dssResult = DSSHelper.getResult(cleanObj, e.getMessage());
-			log.error(e.getMessage());
-			e.printStackTrace();
-		} finally {
-			// 返回处理结果
-			return DSSHelper.getDSSResult(dssResult);
+			log.error("", e);
 		}
+		// 返回处理结果
+		return DSSHelper.getDSSResult(dssResult);
 	}
 
 	@Override
@@ -171,12 +161,10 @@ public class DocumentStoreServiceManagerImpl implements
 		} catch (Exception e) {
 			// 构建错误信息
 			dssResult = DSSHelper.getResult(statusObj, e.getMessage());
-			log.error(e.getMessage());
-			e.printStackTrace();
-		} finally {
-			// 返回处理结果
-			return DSSHelper.getDSSResult(dssResult);
+			log.error("", e);
 		}
+		// 返回处理结果
+		return DSSHelper.getDSSResult(dssResult);
 	}
 
 	@Override
@@ -191,12 +179,10 @@ public class DocumentStoreServiceManagerImpl implements
 		} catch (Exception e) {
 			// 构建错误信息
 			dssResult = DSSHelper.getResult(recordObj, e.getMessage());
-			log.error(e.getMessage());
-			e.printStackTrace();
-		} finally {
-			// 返回处理结果
-			return DSSHelper.getDSSResult(dssResult);
+			log.error("", e);
 		}
+		// 返回处理结果
+		return DSSHelper.getDSSResult(dssResult);
 	}
 
 	@Override
@@ -211,12 +197,10 @@ public class DocumentStoreServiceManagerImpl implements
 		} catch (Exception e) {
 			// 构建错误信息
 			dssResult = DSSHelper.getResult(recordObj, e.getMessage());
-			log.error(e.getMessage());
-			e.printStackTrace();
-		} finally {
-			// 返回处理结果
-			return DSSHelper.getDSSResult(dssResult);
+			log.error("", e);
 		}
+		// 返回处理结果
+		return DSSHelper.getDSSResult(dssResult);
 	}
 
 }

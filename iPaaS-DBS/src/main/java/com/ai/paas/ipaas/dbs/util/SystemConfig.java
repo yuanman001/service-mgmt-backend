@@ -10,7 +10,6 @@ import java.util.Properties;
 
 import org.apache.ibatis.cache.CacheException;
 
-import com.ai.paas.ipaas.PaasException;
 import com.ai.paas.ipaas.PaasRuntimeException;
 
 public class SystemConfig {

@@ -1,6 +1,5 @@
 package com.ai.paas.ipaas.rcs.dao.mapper.bo;
 
-import java.sql.Timestamp;
 import java.util.Date;
 
 public class RcsTaskInfo {

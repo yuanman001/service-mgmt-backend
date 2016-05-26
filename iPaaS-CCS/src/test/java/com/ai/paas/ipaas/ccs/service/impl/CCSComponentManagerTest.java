@@ -1,5 +1,20 @@
 package com.ai.paas.ipaas.ccs.service.impl;
 
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
+
+import java.io.IOException;
+import java.util.List;
+
+import org.junit.After;
+import org.junit.Before;
+import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.test.context.ContextConfiguration;
+import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
+
 import com.ai.paas.ipaas.PaasException;
 import com.ai.paas.ipaas.ServiceUtil;
 import com.ai.paas.ipaas.ccs.constants.AddMode;
@@ -10,25 +25,11 @@ import com.ai.paas.ipaas.ccs.dao.mapper.bo.CcsUserConfigCriteria;
 import com.ai.paas.ipaas.ccs.service.ICCSComponentManageSv;
 import com.ai.paas.ipaas.ccs.service.IConfigCenterServiceManageSv;
 import com.ai.paas.ipaas.ccs.service.dto.CCSComponentOperationParam;
-import com.ai.paas.ipaas.ccs.service.dto.CCSSubListDTO;
 import com.ai.paas.ipaas.ccs.service.dto.ConfigInfo;
 import com.ai.paas.ipaas.ccs.zookeeper.ZKClient;
 import com.ai.paas.ipaas.ccs.zookeeper.impl.ZKPoolFactory;
 import com.ai.paas.ipaas.util.CiperUtil;
 import com.ai.paas.ipaas.util.UUIDTool;
-
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.test.context.ContextConfiguration;
-import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
-
-import java.io.IOException;
-import java.util.List;
-
-import static org.junit.Assert.*;
 
 @RunWith(SpringJUnit4ClassRunner.class)
 @ContextConfiguration({"classpath:dubbo/consumer/applicationContext.xml", "classpath:dubbo/consumer/applicationContext-mybatis.xml"})

@@ -1,14 +1,14 @@
 package com.ai.paas.ipaas.txs.manage.services;
 
-import com.ai.paas.ipaas.txs.manage.rest.interfaces.ITansactionServiceManager;
-import com.google.gson.Gson;
-import com.google.gson.JsonObject;
 import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
+
+import com.google.gson.Gson;
+import com.google.gson.JsonObject;
 
 /**
  * Transaction Service Manager Test

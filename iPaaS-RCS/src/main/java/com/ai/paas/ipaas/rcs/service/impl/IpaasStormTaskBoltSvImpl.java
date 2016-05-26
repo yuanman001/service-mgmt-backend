@@ -10,7 +10,6 @@ import org.springframework.transaction.annotation.Transactional;
 import com.ai.paas.ipaas.rcs.dao.interfaces.RcsBoltInfoMapper;
 import com.ai.paas.ipaas.rcs.dao.mapper.bo.RcsBoltInfo;
 import com.ai.paas.ipaas.rcs.dao.mapper.bo.RcsBoltInfoCriteria;
-import com.ai.paas.ipaas.rcs.dao.mapper.bo.RcsTaskInfoCriteria;
 import com.ai.paas.ipaas.rcs.service.IIpaasStormTaskBoltSv;
 
 //

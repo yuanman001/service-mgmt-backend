@@ -31,12 +31,15 @@ public class OpenWorkflowResultVo implements Serializable {
 		this.serviceId = serviceId;
 	}
 
+	@SuppressWarnings("rawtypes")
 	private  List	 resultContent;
 	
+	@SuppressWarnings("rawtypes")
 	public List getResultContent() {
 		return resultContent;
 	}
 
+	@SuppressWarnings("rawtypes")
 	public void setResultContent(List resultContent) {
 		this.resultContent = resultContent;
 	}

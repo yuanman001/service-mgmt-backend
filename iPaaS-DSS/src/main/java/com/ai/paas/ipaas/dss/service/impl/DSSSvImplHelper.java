@@ -371,6 +371,7 @@ public class DSSSvImplHelper {
 	 * @return
 	 * @throws Exception
 	 */
+	@SuppressWarnings("rawtypes")
 	protected Map getRecord(RecordParam applyObj) throws Exception {
 		// TODO
 		if (existConf(getZKBase(applyObj.getUserId()), DSS_COMMON_ZK_CONF)
@@ -625,6 +626,7 @@ public class DSSSvImplHelper {
 		return result;
 	}
 
+	@SuppressWarnings("rawtypes")
 	protected RecordResult getRecordResult(BaseInfo applyObj, Map record) {
 		RecordResult result = new RecordResult();
 		DSSResult re = successResult(applyObj);
@@ -845,6 +847,7 @@ public class DSSSvImplHelper {
 				Arrays.asList(credential));
 		MongoDatabase db = mc.getDatabase(userId);
 		db.getCollection(collectionName).drop();
+		mc.close();
 	}
 
 	private void deleteDBandUser(DSSCommonConf commConf, String userId) {
@@ -857,6 +860,7 @@ public class DSSSvImplHelper {
 				Arrays.asList(credential));
 		MongoDatabase db = mc.getDatabase(userId);
 		db.drop();
+		mc.close();
 		mc = new MongoClient(getServerAddressList(commConf.getHosts()),
 				MongoClientOptions.builder().serverSelectionTimeout(50000)
 						.build());
@@ -864,6 +868,7 @@ public class DSSSvImplHelper {
 		BasicDBObject bobj = new BasicDBObject();
 		bobj.put("_id", userId + "." + userId);
 		db.getCollection("system.users").deleteOne(bobj);
+		mc.close();
 	}
 
 	protected boolean verifyParam(Object obj) throws Exception {
@@ -1031,6 +1036,7 @@ public class DSSSvImplHelper {
 		}
 	}
 
+	@SuppressWarnings("rawtypes")
 	private Map getGridFSDBFile(List<ServerAddress> seeds, String userId,
 			String pwd, String serviceId, String key) throws Exception {
 		DB db = getDB(seeds, userId, pwd);
@@ -1106,6 +1112,7 @@ public class DSSSvImplHelper {
 			BasicDBObject command = new BasicDBObject(commandArguments);
 			db.runCommand(command);
 		}
+		mc.close();
 	}
 
 	private void createCollection(String hostStr,
@@ -1146,9 +1153,11 @@ public class DSSSvImplHelper {
 		for (String name : mongoDatabase.listCollectionNames()) {
 			if (collectionName.equals(name)) {
 				log.info(name + "已存在");
+				mongo.close();
 				return true;
 			}
 		}
+		mongo.close();
 		return false;
 	}
 

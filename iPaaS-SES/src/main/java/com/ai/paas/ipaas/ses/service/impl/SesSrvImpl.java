@@ -151,6 +151,7 @@ public class SesSrvImpl implements ISesSrv {
 	/*
 	 * 创建搜索客户端 tcp连接搜索服务器 创建索引
 	 */
+	@SuppressWarnings("resource")
 	private TransportClient prepareSearchClient(String ipAndPort) {
 		TransportClient searchClient = null;
 		/* 如果10秒没有连接上搜索服务器，则超时 */

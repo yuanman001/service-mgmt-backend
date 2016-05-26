@@ -1,5 +1,16 @@
 package com.ai.paas.ipaas.ccs.service.impl;
 
+import java.io.UnsupportedEncodingException;
+import java.security.NoSuchAlgorithmException;
+import java.util.ArrayList;
+import java.util.List;
+
+import org.apache.curator.framework.recipes.locks.InterProcessLock;
+import org.apache.log4j.Logger;
+import org.apache.zookeeper.data.ACL;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
 import com.ai.paas.ipaas.PaaSConstant;
 import com.ai.paas.ipaas.PaasException;
 import com.ai.paas.ipaas.ServiceUtil;
@@ -8,12 +19,9 @@ import com.ai.paas.ipaas.ccs.constants.BundleKeyConstants;
 import com.ai.paas.ipaas.ccs.constants.ConfigCenterConstants;
 import com.ai.paas.ipaas.ccs.constants.ConfigCenterDubboConstants;
 import com.ai.paas.ipaas.ccs.dao.interfaces.CcsResourcePoolMapper;
-import com.ai.paas.ipaas.ccs.dao.interfaces.CcsServiceUserConfigMapper;
 import com.ai.paas.ipaas.ccs.dao.interfaces.CcsUserConfigMapper;
 import com.ai.paas.ipaas.ccs.dao.mapper.bo.CcsResourcePool;
 import com.ai.paas.ipaas.ccs.dao.mapper.bo.CcsResourcePoolCriteria;
-import com.ai.paas.ipaas.ccs.dao.mapper.bo.CcsServiceUserConfig;
-import com.ai.paas.ipaas.ccs.dao.mapper.bo.CcsServiceUserConfigCriteria;
 import com.ai.paas.ipaas.ccs.dao.mapper.bo.CcsUserConfig;
 import com.ai.paas.ipaas.ccs.dao.mapper.bo.CcsUserConfigCriteria;
 import com.ai.paas.ipaas.ccs.service.ICCSComponentManageSv;
@@ -26,17 +34,6 @@ import com.ai.paas.ipaas.ccs.zookeeper.ZKClient;
 import com.ai.paas.ipaas.util.CiperUtil;
 import com.ai.paas.ipaas.util.ResourceUtil;
 import com.ai.paas.ipaas.util.StringUtil;
-
-import org.apache.curator.framework.recipes.locks.InterProcessLock;
-import org.apache.log4j.Logger;
-import org.apache.zookeeper.data.ACL;
-import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
-
-import java.io.UnsupportedEncodingException;
-import java.security.NoSuchAlgorithmException;
-import java.util.ArrayList;
-import java.util.List;
 
 @Service
 @Transactional

@@ -11,8 +11,6 @@ import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import com.ai.paas.ipaas.ccs.service.IConfigCenterServiceManageSv;
 import com.ai.paas.ipaas.ccs.service.dto.CreateServiceInfo;
 
-import static org.junit.Assert.*;
-
 /**
  * Created by astraea on 2015/5/5.
  */

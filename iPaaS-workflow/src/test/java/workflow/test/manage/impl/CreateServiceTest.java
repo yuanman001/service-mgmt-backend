@@ -6,7 +6,6 @@ import org.junit.runner.RunWith;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
-import com.ai.paas.ipaas.util.UUIDTool;
 import com.ai.paas.ipaas.workflow.manage.rest.interfaces.IWorkFlowServiceManager;
 import com.ai.paas.ipaas.workflow.manager.vo.OpenWorkflowParamVo;
 import com.alibaba.dubbo.config.annotation.Reference;

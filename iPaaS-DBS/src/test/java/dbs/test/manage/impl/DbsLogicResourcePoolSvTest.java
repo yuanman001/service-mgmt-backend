@@ -10,7 +10,6 @@ import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
 import com.ai.paas.ipaas.ServiceUtil;
 import com.ai.paas.ipaas.dbs.dao.interfaces.DbsPhysicalResourcePoolMapper;
-import com.ai.paas.ipaas.dbs.dao.mapper.bo.DbsLogicResourcePool;
 import com.ai.paas.ipaas.dbs.dao.mapper.bo.DbsPhysicalResourcePool;
 import com.ai.paas.ipaas.dbs.dao.mapper.bo.DbsPhysicalResourcePoolCriteria;
 import com.ai.paas.ipaas.dbs.service.IDbsLogicResourcePoolSv;

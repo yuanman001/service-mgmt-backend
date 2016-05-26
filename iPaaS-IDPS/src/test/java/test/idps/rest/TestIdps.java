@@ -21,6 +21,7 @@ public class TestIdps {
 
 	}
 	
+	@SuppressWarnings("unused")
 	private static void createMany() {
 		long s = System.currentTimeMillis();
 		String param ="{\"userId\":\"FFF49D0D518948D0AB28D7A8EEE25D03\",\"applyType\":\"create\",\"serviceId\":\"IDPS033\",\"nodeNum\":\"2\","
