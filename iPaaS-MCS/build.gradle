@@ -3,4 +3,5 @@ dependencies {
 	compile project(":iPaaS-CCS")
 	compile 'org.restlet.jee:org.restlet:2.2.1'
 	compile 'redis.clients:jedis:3.0.0'
+	compile "com.ai:ipaas-agent-client:0.1-SNAPSHOT"
 }
