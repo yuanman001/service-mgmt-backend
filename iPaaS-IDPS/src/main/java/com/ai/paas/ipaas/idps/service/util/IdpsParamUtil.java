@@ -92,11 +92,27 @@ public class IdpsParamUtil {
 	}
 	
 	public static String fillStringByArgs(String str, String[] arr) {
-		Matcher m = Pattern.compile("\\{(\\d)\\}").matcher(str);
+		Matcher m = Pattern.compile("\\{(\\d+)\\}").matcher(str);
 		while (m.find()) {
 			str = str.replace(m.group(), arr[Integer.parseInt(m.group(1))]);
 		}
 		return str;
 	}
 
+	public static void main(String[] args) {
+		String runImage = IdpsParamUtil.fillStringByArgs(
+				IdpsConstants.DOCKER_4_GM_AND_TOMCAT,
+				new String[] {
+						LocalShellUtil.getHomePath()
+								+ IdpsConstants.LOCAL_IDPS_PATH,
+						"1",
+						"2",
+						"3",
+						"4",
+						"5",
+						 "6",
+						"7", "8",
+						"9", "10"});
+		System.out.println(runImage);
+	}
 }

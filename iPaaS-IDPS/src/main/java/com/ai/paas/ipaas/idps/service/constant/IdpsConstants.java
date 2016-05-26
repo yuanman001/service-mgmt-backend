@@ -28,7 +28,7 @@ public class IdpsConstants {
 	public static final String CREATE_ANSIBLE_HOSTS = "{0}/init_ansible_ssh_hosts.sh {1} {2}";
 	/**图片服务器*/
 	public static final String DOCKER_4_GM_AND_TOMCAT = "{0}/ansible_run_image.sh {1} {2} "
-			+ "{3} {4} {5} {6} {7} {8} {9}";
+			+ "{3} {4} {5} {6} {7} {8} {9} {10}";
 	/**图片服务器 负载均衡*/
 	public static final String DOCKER_4_BALANCE = "{0}/ansible_run_image_balance.sh {1} {2} "
 			+ "{3} {4} {5} {6} {7}";
