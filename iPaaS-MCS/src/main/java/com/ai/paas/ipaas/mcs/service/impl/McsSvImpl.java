@@ -492,6 +492,8 @@ public class McsSvImpl implements IMcsSv {
 						pool.setCycle(1);
 					}
 					int changeRow = updateResource(pool, 1);
+					logger.info("---- 选定的资源信息：id:["+pool.getId()+"],port:["+pool.getCachePort()+"]. ----");
+					logger.info("---- selectMcsResCluster()中，选定资源后，更新了["+changeRow+"]条资源记录 ----");
 					if (changeRow != 1) {
 						logger.error("---- selectMcsResCluster()中，选定资源后，更新资源失败！----");
 						throw new PaasException("---- selectMcsResCluster()中，选定资源后，更新资源失败！----");
