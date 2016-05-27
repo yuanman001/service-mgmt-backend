@@ -491,7 +491,7 @@ public class McsSvImpl implements IMcsSv {
 					if (pool.getCachePort() == pool.getMaxPort()) {
 						pool.setCycle(1);
 					}
-					int changeRow = updateResource(pool, 1);
+					int changeRow = updateResource(pool);
 					logger.info("---- 选定的资源信息：id:["+pool.getId()+"],port:["+pool.getCachePort()+"]. ----");
 					logger.info("---- selectMcsResCluster()中，选定资源后，更新了["+changeRow+"]条资源记录 ----");
 					if (changeRow != 1) {
@@ -525,7 +525,7 @@ public class McsSvImpl implements IMcsSv {
 		/** 如果循环count次后，已选定的实例数量仍小于申请的数量，则表示资源不足 **/
 		if (gotInsNum < redisInsNum) {
 			logger.error("++++ 资源不足:申请开通["+redisInsNum+"]个size为["+cacheSize+"]实例，目前只选择了["+gotInsNum+"]个实例 ++++");
-			throw new PaasException("++++++ mcs resource not enough. ++++++");
+			throw new PaasException("mcs resource not enough. ");
 		}
 		
 		return cacheInfoList;
@@ -1090,6 +1090,18 @@ public class McsSvImpl implements IMcsSv {
 		/** TODO:端口偏移量，重点验证。**/
 		condition.createCriteria().andIdEqualTo(mcsResourcePool.getId())
 			.andCachePortEqualTo(mcsResourcePool.getCachePort() - portOffset); 
+		return rpm.updateByExampleSelective(mcsResourcePool, condition);
+	}
+	
+	/**
+	 * 更新Mcs资源池
+	 * @param mcsResourcePool
+	 * @return
+	 */
+	private int updateResource(McsResourcePool mcsResourcePool) throws PaasException {
+		McsResourcePoolMapper rpm = ServiceUtil.getMapper(McsResourcePoolMapper.class);
+		McsResourcePoolCriteria condition = new McsResourcePoolCriteria();
+		condition.createCriteria().andIdEqualTo(mcsResourcePool.getId()); 
 		return rpm.updateByExampleSelective(mcsResourcePool, condition);
 	}
 
