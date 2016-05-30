@@ -55,3 +55,5 @@
 /iPaaS-TSC/.settings
 /iPaaS-TXS/.settings
 /iPaaS-workflow/.settings
+/iPaaS-CCS/dubbo-registry.dat
+/iPaaS-CCS/dubbo-registry.dat.lock
