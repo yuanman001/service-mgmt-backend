@@ -224,7 +224,7 @@ public class IdpsSvImpl implements IIdpsSv {
 									+ balanceImage.getImageName(),
 							balance.getIdpsBalancePort() + "",
 							servers.toString() });
-			LOG.debug("---------runImage {}----------", runImage);
+			LOG.info("---------runImage {}----------", runImage);
 			boolean run = LocalShellUtil.callShell4Docker(runImage);
 			if (!run)
 				throw new PaasException("image server run error.");
