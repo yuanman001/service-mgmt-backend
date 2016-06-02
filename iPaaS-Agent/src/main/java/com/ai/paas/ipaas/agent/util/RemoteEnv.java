@@ -10,12 +10,14 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import org.apache.http.HttpEntity;
-import org.apache.http.HttpResponse;
+import org.apache.http.HttpStatus;
 import org.apache.http.client.ClientProtocolException;
-import org.apache.http.client.HttpClient;
+import org.apache.http.client.config.RequestConfig;
+import org.apache.http.client.methods.CloseableHttpResponse;
 import org.apache.http.client.methods.HttpPost;
 import org.apache.http.entity.StringEntity;
-import org.apache.http.impl.client.HttpClients;
+import org.apache.http.impl.client.CloseableHttpClient;
+import org.apache.http.impl.client.HttpClientBuilder;
 import org.apache.log4j.Logger;
 import org.hsqldb.lib.StringUtil;
 
@@ -56,85 +58,105 @@ public class RemoteEnv implements ExecuteEnv {
 
 	public static String sendRequest(String url, StringEntity paramEntity)
 			throws ClientProtocolException, IOException, PaasException {
-		HttpClient httpClient = HttpClients.createDefault();
-		HttpPost httpPost = new HttpPost(url);
-		httpPost.setEntity(paramEntity);
-		HttpResponse response = httpClient.execute(httpPost);
-		String result = null;
-		if (200 == response.getStatusLine().getStatusCode()) {
-			HttpEntity entity = response.getEntity();
-			result = new String();
-			if (entity != null) {
-				InputStream instream = entity.getContent();
-				InputStreamReader inputStream = new InputStreamReader(instream,
-						"UTF-8");
-				try {
-					BufferedReader br = new BufferedReader(inputStream);
-					result = br.readLine();
-				} finally {
-					instream.close();
+		CloseableHttpClient httpClient = null;
+		CloseableHttpResponse response = null;
+		try {
+			int timeout = 120;
+			RequestConfig config = RequestConfig.custom()
+					.setConnectTimeout(timeout * 1000)
+					.setConnectionRequestTimeout(timeout * 1000)
+					.setSocketTimeout(timeout * 1000).build();
+			httpClient = HttpClientBuilder.create()
+					.setDefaultRequestConfig(config).build();
+			HttpPost httpPost = new HttpPost(url);
+			httpPost.setEntity(paramEntity);
+			response = httpClient.execute(httpPost);
+			String result = null;
+			if (HttpStatus.SC_OK == response.getStatusLine().getStatusCode()) {
+				HttpEntity entity = response.getEntity();
+				result = new String();
+				if (entity != null) {
+					InputStream instream = entity.getContent();
+					InputStreamReader inputStream = new InputStreamReader(
+							instream, "UTF-8");
+					try {
+						BufferedReader br = new BufferedReader(inputStream);
+						result = br.readLine();
+					} finally {
+						instream.close();
+					}
 				}
-			}
-			Gson gson = new Gson();
-			TransResultVo resultVo = gson.fromJson(result, TransResultVo.class);
+				Gson gson = new Gson();
+				TransResultVo resultVo = gson.fromJson(result,
+						TransResultVo.class);
 
-			if (!url.contains("upload")) {
-				String excResult = resultVo.getMsg();
-				JsonParser parser = new JsonParser();
-				JsonObject o = parser.parse(excResult).getAsJsonObject();
-				String stderr = o.get("stderr").getAsString();
-				String stdout = o.get("stdout").getAsString();
-				// judge the result with stderr and stdout
-				if (!resultVo.getCode().equals("" + 0)) {
-					System.out.println(stderr);
-					logger.error(stderr);
-					throw new PaasException(
-							PaaSConstant.ExceptionCode.SYSTEM_ERROR,
-							resultVo.getMsg());
-				}
-				// analyze stdout��
-				if (stdout.contains("unreachable")) {
-					String pattern = "unreachable=[1-9]";
-					Pattern r = Pattern.compile(pattern);
-					Matcher m = r.matcher(stdout);
-					if (m.find()) {
-						System.out.println(stdout);
-						logger.error(stdout);
+				if (!url.contains("upload")) {
+					String excResult = resultVo.getMsg();
+					JsonParser parser = new JsonParser();
+					JsonObject o = parser.parse(excResult).getAsJsonObject();
+					String stderr = o.get("stderr").getAsString();
+					String stdout = o.get("stdout").getAsString();
+					// judge the result with stderr and stdout
+					if (!resultVo.getCode().equals("" + 0)) {
+						System.out.println(stderr);
+						logger.error(stderr);
 						throw new PaasException(
 								PaaSConstant.ExceptionCode.SYSTEM_ERROR,
 								resultVo.getMsg());
 					}
-				}
-				if (stdout.contains("failed")) {
-					String pattern = "failed=[1-9]";
-					Pattern r = Pattern.compile(pattern);
-					Matcher m = r.matcher(stdout);
-					if (m.find()) {
-						System.out.println(stdout);
-						logger.error(stdout);
+					// analyze stdout��
+					if (stdout.contains("unreachable")) {
+						String pattern = "unreachable=[1-9]";
+						Pattern r = Pattern.compile(pattern);
+						Matcher m = r.matcher(stdout);
+						if (m.find()) {
+							System.out.println(stdout);
+							logger.error(stdout);
+							throw new PaasException(
+									PaaSConstant.ExceptionCode.SYSTEM_ERROR,
+									resultVo.getMsg());
+						}
+					}
+					if (stdout.contains("failed")) {
+						String pattern = "failed=[1-9]";
+						Pattern r = Pattern.compile(pattern);
+						Matcher m = r.matcher(stdout);
+						if (m.find()) {
+							System.out.println(stdout);
+							logger.error(stdout);
+							throw new PaasException(
+									PaaSConstant.ExceptionCode.SYSTEM_ERROR,
+									resultVo.getMsg());
+						}
+					}
+					if (!StringUtil.isEmpty(stderr)) {
+						System.out.println(stderr);
+						logger.error(stderr);
 						throw new PaasException(
 								PaaSConstant.ExceptionCode.SYSTEM_ERROR,
 								resultVo.getMsg());
 					}
+					System.out.println("code:" + resultVo.getCode()
+							+ ";stderr:" + stdout + ";stderr:" + stderr);
+					logger.debug("code:" + resultVo.getCode() + ";stderr:"
+							+ stdout + ";stderr:" + stderr);
 				}
-				if (!StringUtil.isEmpty(stderr)) {
-					System.out.println(stderr);
-					logger.error(stderr);
-					throw new PaasException(
-							PaaSConstant.ExceptionCode.SYSTEM_ERROR,
-							resultVo.getMsg());
-				}
-				System.out.println("code:" + resultVo.getCode() + ";stderr:"
-						+ stdout + ";stderr:" + stderr);
-				logger.debug("code:" + resultVo.getCode() + ";stderr:" + stdout
-						+ ";stderr:" + stderr);
+			} else {
+				throw new PaasException(""
+						+ response.getStatusLine().getStatusCode(), response
+						.getStatusLine().getReasonPhrase());
 			}
-		} else {
-			throw new PaasException(""
-					+ response.getStatusLine().getStatusCode(), response
-					.getStatusLine().getReasonPhrase());
+			return result;
+		} catch (Exception e) {
+			throw e;
+		} finally {
+			if (null != response) {
+				response.close();
+			}
+			if (null != httpClient) {
+				httpClient.close();
+			}
 		}
-		return result;
 	}
 
 	@Override
@@ -169,6 +191,7 @@ public class RemoteEnv implements ExecuteEnv {
 				StandardCharsets.UTF_8);
 		entity.setContentType("application/json");
 		return entity;
+
 	}
 
 	public static StringEntity genCommandParam(String command, String aid)
