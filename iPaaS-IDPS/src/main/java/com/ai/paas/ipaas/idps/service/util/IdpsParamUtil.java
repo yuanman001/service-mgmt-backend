@@ -103,8 +103,7 @@ public class IdpsParamUtil {
 		String runImage = IdpsParamUtil.fillStringByArgs(
 				IdpsConstants.DOCKER_4_GM_AND_TOMCAT,
 				new String[] {
-						LocalShellUtil.getHomePath()
-								+ IdpsConstants.LOCAL_IDPS_PATH,
+						"",
 						"1",
 						"2",
 						"3",

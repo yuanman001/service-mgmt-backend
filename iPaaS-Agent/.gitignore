@@ -1,0 +1,4 @@
+/build/
+/bin/
+/dubbo-registry.dat.lock
+/dubbo-registry.dat

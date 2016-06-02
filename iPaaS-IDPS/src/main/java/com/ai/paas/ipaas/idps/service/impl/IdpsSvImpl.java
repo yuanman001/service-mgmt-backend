@@ -1,5 +1,6 @@
 package com.ai.paas.ipaas.idps.service.impl;
 
+import java.io.InputStream;
 import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -15,6 +16,10 @@ import org.springframework.transaction.annotation.Transactional;
 
 import com.ai.paas.ipaas.PaasException;
 import com.ai.paas.ipaas.ServiceUtil;
+import com.ai.paas.ipaas.agent.util.AgentUtil;
+import com.ai.paas.ipaas.base.dao.interfaces.IpaasSysConfigMapper;
+import com.ai.paas.ipaas.base.dao.mapper.bo.IpaasSysConfig;
+import com.ai.paas.ipaas.base.dao.mapper.bo.IpaasSysConfigCriteria;
 import com.ai.paas.ipaas.ccs.constants.ConfigCenterDubboConstants.PathType;
 import com.ai.paas.ipaas.ccs.service.ICCSComponentManageSv;
 import com.ai.paas.ipaas.ccs.service.dto.CCSComponentOperationParam;
@@ -23,7 +28,6 @@ import com.ai.paas.ipaas.idps.dao.interfaces.IdpsBalanceResourcePoolMapper;
 import com.ai.paas.ipaas.idps.dao.interfaces.IdpsResourcePoolMapper;
 import com.ai.paas.ipaas.idps.dao.interfaces.IdpsUserInstanceMapper;
 import com.ai.paas.ipaas.idps.dao.interfaces.IpaasImageResourceMapper;
-import com.ai.paas.ipaas.idps.dao.interfaces.IpaasSysConfigMapper;
 import com.ai.paas.ipaas.idps.dao.mapper.bo.IdpsInstanceBandDss;
 import com.ai.paas.ipaas.idps.dao.mapper.bo.IdpsBalanceResourcePool;
 import com.ai.paas.ipaas.idps.dao.mapper.bo.IdpsBalanceResourcePoolCriteria;
@@ -33,12 +37,10 @@ import com.ai.paas.ipaas.idps.dao.mapper.bo.IdpsUserInstance;
 import com.ai.paas.ipaas.idps.dao.mapper.bo.IdpsUserInstanceCriteria;
 import com.ai.paas.ipaas.idps.dao.mapper.bo.IpaasImageResource;
 import com.ai.paas.ipaas.idps.dao.mapper.bo.IpaasImageResourceCriteria;
-import com.ai.paas.ipaas.idps.dao.mapper.bo.IpaasSysConfig;
-import com.ai.paas.ipaas.idps.dao.mapper.bo.IpaasSysConfigCriteria;
 import com.ai.paas.ipaas.idps.service.constant.IdpsConstants;
 import com.ai.paas.ipaas.idps.service.interfaces.IIdpsSv;
+import com.ai.paas.ipaas.idps.service.util.AidUtil;
 import com.ai.paas.ipaas.idps.service.util.IdpsParamUtil;
-import com.ai.paas.ipaas.idps.service.util.LocalShellUtil;
 import com.ai.paas.ipaas.uac.service.UserClientFactory;
 import com.ai.paas.ipaas.uac.vo.AuthDescriptor;
 import com.ai.paas.ipaas.uac.vo.AuthResult;
@@ -52,10 +54,6 @@ public class IdpsSvImpl implements IIdpsSv {
 	@Autowired
 	private ICCSComponentManageSv iCCSComponentManageSv;
 
-	// {userId:”xxxxx”,applyType:”create”,serviceId:”xxxxx”,idpsNum:”1”,
-	// serviceName:”xxxxx”,dssUserId:”xxxxx”,dssServiceId:”xxxxx”}
-	// {userId:”xxxxx”,applyType:”create”,serviceId:”xxxxxx”,resultCode:”
-	// 000000/999999”, resultMsg:”apply service successfully created!”}
 	@Override
 	public String open(String param) throws Exception {
 		LOG.debug("----open idps ---param {}-----", param);
@@ -190,6 +188,7 @@ public class IdpsSvImpl implements IIdpsSv {
 			List<IdpsBalanceResourcePool> balances, String userId,
 			String serviceId, String dssPId, String dssServiceId,
 			String dssServicePwd) throws Exception {
+		String basePath = AgentUtil.getAgentFilePath(AidUtil.getAid());
 		StringBuffer servers = new StringBuffer("\"");
 		// 启动每一个 图片服务器
 		for (IdpsResourcePool irp : irps) {
@@ -200,22 +199,46 @@ public class IdpsSvImpl implements IIdpsSv {
 		}
 		servers.append("\"");
 		IpaasImageResource balanceImage = getBalancImage();
+		// 上传文件
+		// 1.先将需要执行镜像命令的机器配置文件上传上去。
+		InputStream in = IdpsSvImpl.class
+				.getResourceAsStream("/playbook/idps/init_ansible_ssh_hosts.sh");
+		String[] cnt = AgentUtil.readFileLines(in);
+		in.close();
+		AgentUtil.uploadFile("idps/init_ansible_ssh_hosts.sh", cnt,
+				AidUtil.getAid());
+		AgentUtil.executeCommand("chmod +x " + basePath
+				+ "idps/init_ansible_ssh_hosts.sh", AidUtil.getAid());
+		in = IdpsSvImpl.class
+				.getResourceAsStream("/playbook/idps/idpsimagebalance.yml");
+		cnt = AgentUtil.readFileLines(in);
+		in.close();
+		AgentUtil
+				.uploadFile("idps/idpsimagebalance.yml", cnt, AidUtil.getAid());
+
+		in = IdpsSvImpl.class
+				.getResourceAsStream("/playbook/idps/ansible_run_image_balance.sh");
+		cnt = AgentUtil.readFileLines(in);
+		in.close();
+		AgentUtil.uploadFile("idps/ansible_run_image_balance.sh", cnt,
+				AidUtil.getAid());
+		AgentUtil.executeCommand("chmod +x " + basePath
+				+ "idps/ansible_run_image_balance.sh", AidUtil.getAid());
 		for (IdpsBalanceResourcePool balance : balances) {
 			balance.setIdpsBalancePort(balance.getIdpsBalancePort() + 1);
+			// 先
 			String mkSshHosts = IdpsParamUtil.fillStringByArgs(
 					IdpsConstants.CREATE_ANSIBLE_HOSTS, new String[] {
-							LocalShellUtil.getHomePath()
-									+ IdpsConstants.LOCAL_IDPS_PATH,
+							basePath + "idps",
 							balance.getIdpsBalanceHostIp().replace(".", ""),
 							balance.getIdpsBalanceHostIp() });
 			LOG.debug("---------mkSshHosts {}----------", mkSshHosts);
-			LocalShellUtil.callShell(mkSshHosts);
+			AgentUtil.executeCommand(basePath + mkSshHosts, AidUtil.getAid());
 
 			String runImage = IdpsParamUtil.fillStringByArgs(
 					IdpsConstants.DOCKER_4_BALANCE,
 					new String[] {
-							LocalShellUtil.getHomePath()
-									+ IdpsConstants.LOCAL_IDPS_PATH,
+							"",
 							balance.getIdpsBalanceHostIp().replace(".", ""),
 							balance.getSshUser(),
 							balance.getSshPassword(),
@@ -223,11 +246,9 @@ public class IdpsSvImpl implements IIdpsSv {
 							balanceImage.getImageRepository() + "/"
 									+ balanceImage.getImageName(),
 							balance.getIdpsBalancePort() + "",
-							servers.toString() });
+							servers.toString(), basePath + "idps" });
 			LOG.info("---------runImage {}----------", runImage);
-			boolean run = LocalShellUtil.callShell4Docker(runImage);
-			if (!run)
-				throw new PaasException("image server run error.");
+			AgentUtil.executeCommand(basePath + runImage, AidUtil.getAid());
 		}
 
 	}
@@ -397,22 +418,45 @@ public class IdpsSvImpl implements IIdpsSv {
 	 */
 	private void handleServer(IdpsResourcePool idpsResourcePool, String dssPId,
 			String dssServiceId, String dssServicePwd) throws Exception {
+		String basePath = AgentUtil.getAgentFilePath(AidUtil.getAid());
+		// 1.先将需要执行镜像命令的机器配置文件上传上去。
+		InputStream in = IdpsSvImpl.class
+				.getResourceAsStream("/playbook/idps/init_ansible_ssh_hosts.sh");
+		String[] cnt = AgentUtil.readFileLines(in);
+		in.close();
+		AgentUtil.uploadFile("idps/init_ansible_ssh_hosts.sh", cnt,
+				AidUtil.getAid());
+		AgentUtil.executeCommand("chmod +x " + basePath
+				+ "idps/init_ansible_ssh_hosts.sh", AidUtil.getAid());
+		in = IdpsSvImpl.class
+				.getResourceAsStream("/playbook/idps/idpsimage.yml");
+		cnt = AgentUtil.readFileLines(in);
+		in.close();
+		AgentUtil.uploadFile("idps/idpsimage.yml", cnt, AidUtil.getAid());
+		// 2.执行这个初始化命令
 		String mkSshHosts = IdpsParamUtil.fillStringByArgs(
 				IdpsConstants.CREATE_ANSIBLE_HOSTS, new String[] {
-						LocalShellUtil.getHomePath()
-								+ IdpsConstants.LOCAL_IDPS_PATH,
+						basePath + "idps",
 						idpsResourcePool.getIdpsHostIp().replace(".", ""),
 						idpsResourcePool.getIdpsHostIp() });
 		LOG.debug("---------mkSshHosts {}----------", mkSshHosts);
-		LocalShellUtil.callShell(mkSshHosts);
+		AgentUtil.executeCommand(basePath + mkSshHosts, AidUtil.getAid());
 
 		IpaasImageResource gmImage = getGmImage();
-
+		// 还得上传文件
+		in = IdpsSvImpl.class
+				.getResourceAsStream("/playbook/idps/ansible_run_image.sh");
+		cnt = AgentUtil.readFileLines(in);
+		in.close();
+		AgentUtil
+				.uploadFile("idps/ansible_run_image.sh", cnt, AidUtil.getAid());
+		AgentUtil.executeCommand("chmod +x " + basePath
+				+ "idps/ansible_run_image.sh", AidUtil.getAid());
+		// 开始执行
 		String runImage = IdpsParamUtil.fillStringByArgs(
 				IdpsConstants.DOCKER_4_GM_AND_TOMCAT,
 				new String[] {
-						LocalShellUtil.getHomePath()
-								+ IdpsConstants.LOCAL_IDPS_PATH,
+						"",
 						idpsResourcePool.getIdpsHostIp().replace(".", ""),
 						idpsResourcePool.getSshUser(),
 						idpsResourcePool.getSshPassword(),
@@ -422,11 +466,10 @@ public class IdpsSvImpl implements IIdpsSv {
 						idpsResourcePool.getIdpsPort() + "",
 						getSysConf(IdpsConstants.AUTH_TABLE_CODE,
 								IdpsConstants.AUTH_FIELD_CODE), dssPId,
-						dssServiceId, dssServicePwd });
+						dssServiceId, dssServicePwd, basePath + "idps" });
+
 		LOG.debug("---------runImage {}----------", runImage);
-		boolean run = LocalShellUtil.callShell4Docker(runImage);
-		if (!run)
-			throw new PaasException("image server run error.");
+		AgentUtil.executeCommand(basePath + runImage, AidUtil.getAid());
 	}
 
 	private IpaasImageResource getGmImage() throws PaasException {

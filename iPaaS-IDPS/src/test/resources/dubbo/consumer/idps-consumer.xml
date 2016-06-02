@@ -14,7 +14,7 @@
     <dubbo:application name="idps_service"/>
    	<dubbo:registry protocol="zookeeper" address="127.0.0.1:2181" />
 	<dubbo:protocol name="dubbo" port="20880" />
-    <dubbo:consumer retries="2"/>
+    <dubbo:consumer timeout="300000" retries="0"/>
 
     <dubbo:annotation package="test.idps.dubbo"/>
 </beans>
