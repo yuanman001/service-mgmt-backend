@@ -57,3 +57,8 @@
 /iPaaS-workflow/.settings
 /iPaaS-CCS/dubbo-registry.dat
 /iPaaS-CCS/dubbo-registry.dat.lock
+/iPaaS-Agent/.classpath
+/iPaaS-Agent/.project
+/iPaaS-Agent/.settings
+/iPaaS-MDS/dubbo-registry.dat
+/iPaaS-MDS/dubbo-registry.dat.lock
