@@ -25,7 +25,7 @@ public class TestIdpsDubbo {
 	@Test
 	public void create() {
 		long s = System.currentTimeMillis();
-		String param ="{\"userId\":\"BF512D2696004534BE9EB66161E52EF7\",\"applyType\":\"create\",\"serviceId\":\"IDPS023\",\"nodeNum\":\"1\","
+		String param ="{\"userId\":\"BF512D2696004534BE9EB66161E52EF7\",\"applyType\":\"create\",\"serviceId\":\"IDPS034\",\"nodeNum\":\"1\","
 				+ "\"dssPId\":\"0A8111DB280044528DF309D501DFFF6A\",\"dssServiceId\":\"DSS001\","
 				+ "\"dssServicePwd\":\"123456\",\"serviceName\":\"first\"}";
 		System.out.println("----------create-res:\n"+imageDynProcServiceManager.create(param));
