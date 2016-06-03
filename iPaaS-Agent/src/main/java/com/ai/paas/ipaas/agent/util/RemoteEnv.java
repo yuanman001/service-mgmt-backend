@@ -19,11 +19,11 @@ import org.apache.http.entity.StringEntity;
 import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.HttpClientBuilder;
 import org.apache.log4j.Logger;
-import org.hsqldb.lib.StringUtil;
 
 import com.ai.paas.ipaas.PaaSConstant;
 import com.ai.paas.ipaas.PaasException;
 import com.ai.paas.ipaas.agent.vo.TransResultVo;
+import com.ai.paas.ipaas.util.StringUtil;
 import com.google.gson.Gson;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
@@ -129,7 +129,7 @@ public class RemoteEnv implements ExecuteEnv {
 									resultVo.getMsg());
 						}
 					}
-					if (!StringUtil.isEmpty(stderr)) {
+					if (!StringUtil.isBlank(stderr)) {
 						System.out.println(stderr);
 						logger.error(stderr);
 						throw new PaasException(
