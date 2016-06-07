@@ -13,6 +13,8 @@ public class ConfigCenterDubboConstants {
         public int getFlag() {
             return flag;
         }
+        
+        //测试
     }
 
     public enum PathType {
