@@ -233,6 +233,8 @@ public class MsgKafkaHelper implements IMsgKafkaHelper {
 				+ PaaSConstant.UNIX_SEPERATOR + "consumer"
 				+ PaaSConstant.UNIX_SEPERATOR + "offsets"
 				+ PaaSConstant.UNIX_SEPERATOR + "partition_" + partition;
+		log.info("=========================getTopicPartitionConsumeOffset:consumerPath==============================");
+		log.info(consumerPath);
 		CCSComponentOperationParam param = new CCSComponentOperationParam();
 		param.setPath(consumerPath);
 		param.setPathType(PathType.WRITABLE);
@@ -240,7 +242,8 @@ public class MsgKafkaHelper implements IMsgKafkaHelper {
 		String content;
 		try {
 			content = configSv.get(param);
-
+			log.info("=========================getTopicPartitionConsumeOffset:content==============================");
+			log.info(content);
 			if (!StringUtil.isBlank(content)) {
 				Gson gson = new Gson();
 				JsonObject json = gson.fromJson(content, JsonObject.class);
