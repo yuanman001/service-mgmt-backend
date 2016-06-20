@@ -9,20 +9,6 @@ COPY ./build/3rd-libs/*.jar /iPaaS-Service-Dubbo/3rd-libs/
 COPY ./build/libs/*.jar /iPaaS-Service-Dubbo/lib/
 COPY ./build/all-config/* /iPaaS-Service-Dubbo/config/
 
-# remove some libs
-RUN rm -rf /iPaaS-Service-Dubbo/3rd-libs/ipaas-uac-0.1-SNAPSHOT.jar
-RUN rm -rf /iPaaS-Service-Dubbo/3rd-libs/zkclient-0.5.jar
-RUN rm -rf /iPaaS-Service-Dubbo/3rd-libs/ipaas-ccs-inner-0.1-SNAPSHOT.jar
-RUN rm -rf /iPaaS-Service-Dubbo/3rd-libs/curator-client-2.7.1.jar
-RUN rm -rf /iPaaS-Service-Dubbo/3rd-libs/curator-framework-2.7.1.jar
-RUN rm -rf /iPaaS-Service-Dubbo/3rd-libs/curator-recipes-2.7.1.jar 
-RUN rm -rf /iPaaS-Service-Dubbo/3rd-libs/ipaas-txs-0.2-SNAPSHOT.jar
-RUN rm -rf /iPaaS-Service-Dubbo/3rd-libs/ipaas-zookeeper-utility-0.2.1-SNAPSHOT.jar
-RUN rm -rf /iPaaS-Service-Dubbo/3rd-libs/kafka-clients-0.8.2.1.jar 
-RUN rm -rf /iPaaS-Service-Dubbo/3rd-libs/kafka_2.10-0.8.2.1.jar 
-RUN rm -rf /iPaaS-Service-Dubbo/3rd-libs/httpcore-4.2.5.jar 
-RUN rm -rf /iPaaS-Service-Dubbo/3rd-libs/httpclient-4.2.6.jar
-
 COPY ./ipaas_service_dubbo.sh /ipaas_service_dubbo.sh
 RUN chmod 755 /ipaas_service_dubbo.sh
 
