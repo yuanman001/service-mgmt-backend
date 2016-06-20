@@ -1,11 +1,9 @@
 allprojects {
-
     apply plugin: 'java'
     apply plugin: 'eclipse'
     apply plugin: 'maven-publish'
     
     ext {
-        //moduleName="ipaas-config-sdk";
         parentName="ipaas-parent-service"
         moduleVersion="0.3-SNAPSHOT"
         publishUserName = "devadm"
@@ -51,24 +49,6 @@ subprojects {
 
         compile 'javax.servlet:javax.servlet-api:3.1.0'
     }
-
-}
-
-project("iPaaS-DES"){
-	project.ext {
-		appName = "ipaas-des"
-	}
-	
-	jar {
-		baseName appName
-        version moduleVersion
-        exclude "*.properties"
-        exclude "*.xml"
-        exclude "mybatis"
-        manifest {
-            attributes 'packageName': appName, 'Built-By': builtBy, 'create-date': new Date().format('yyyy-MM-dd HH:mm:ss')
-        }
-	}
 }
 
 project("iPaaS-Agent") {
@@ -88,43 +68,9 @@ project("iPaaS-Agent") {
     }
 }
 
-project("iPaaS-ATS") {
-    project.ext {
-        appName = "ipaas-ats"
-    }
-
-    jar {
-        baseName appName
-        version moduleVersion
-        exclude "*.properties"
-        exclude "*.xml"
-        exclude "mybatis"
-        manifest {
-            attributes 'packageName': appName, 'Built-By': builtBy, 'create-date': new Date().format('yyyy-MM-dd HH:mm:ss')
-        }
-    }
-}
-
 project("iPaaS-CCS") {
     project.ext {
         appName = "ipaas-ccs"
-    }
-
-    jar {
-        baseName appName
-        version moduleVersion
-        exclude "*.properties"
-        exclude "*.xml"
-        exclude "mybatis"
-        manifest {
-            attributes 'packageName': appName, 'Built-By': builtBy, 'create-date': new Date().format('yyyy-MM-dd HH:mm:ss')
-        }
-    }
-}
-
-project("iPaaS-DBS") {
-    project.ext {
-        appName = "ipaas-dbs"
     }
 
     jar {
@@ -207,40 +153,6 @@ project("iPaaS-RCS") {
     }
 }
 
-project("iPaaS-TSC") {
-    project.ext {
-        appName = "ipaas-tsc"
-    }
-
-    jar {
-        baseName appName
-        version moduleVersion
-        exclude "*.properties"
-        exclude "*.xml"
-        exclude "mybatis"
-        manifest {
-            attributes 'packageName': appName, 'Built-By': builtBy, 'create-date': new Date().format('yyyy-MM-dd HH:mm:ss')
-        }
-    }
-}
-
-project("iPaaS-TXS") {
-    project.ext {
-        appName = "ipaas-txs"
-    }
-
-    jar {
-        baseName appName
-        version moduleVersion
-        exclude "*.properties"
-        exclude "*.xml"
-        exclude "mybatis"
-        manifest {
-            attributes 'packageName': appName, 'Built-By': builtBy, 'create-date': new Date().format('yyyy-MM-dd HH:mm:ss')
-        }
-    }
-}
-
 project("iPaaS-SES") {
     project.ext {
         appName = "ipaas-ses"
@@ -257,6 +169,7 @@ project("iPaaS-SES") {
         }
     }
 }
+
 project("iPaaS-IDPS") {
 	project.ext {
 		appName = "ipaas-idps"
@@ -273,8 +186,8 @@ project("iPaaS-IDPS") {
 		}
 	}
 }
-project("iPaaS-DubboInterfaces") {
 
+project("iPaaS-DubboInterfaces") {
     project.ext {
         appName = "ipaas-service-dubbo-interfaces"
     }
@@ -292,11 +205,11 @@ project("iPaaS-DubboInterfaces") {
     publish.dependsOn build
 }
 
-
 configure(subprojects) { subproject ->
     task sourcesJar(type: Jar, dependsOn: classes) { from sourceSets.main.output }
     artifacts { archives sourcesJar }
 }
+
 task copyChildJar(type: Copy) {
     subprojects.each { subproject ->
         from subproject.jar
@@ -337,7 +250,5 @@ jar {
         attributes 'packageName': parentName, 'Built-By': builtBy, 'create-date': new Date().format('yyyy-MM-dd HH:mm:ss')
     }
 }
-
-
 
 build.dependsOn copyChildJar, copy3rdJars, copyChildConfig,cleanTempDir
