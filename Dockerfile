@@ -7,13 +7,13 @@ RUN yum install -y java-1.8.0-openjdk
 RUN mkdir iPaaS-Service-Dubbo && cd /iPaaS-Service-Dubbo && mkdir 3rd-libs lib config
 COPY ./build/3rd-libs/*.jar /iPaaS-Service-Dubbo/3rd-libs/
 COPY ./build/libs/*.jar /iPaaS-Service-Dubbo/lib/
+COPY ./build/all-config /iPaaS-Service-Dubbo/config/
 
 # remove some libs
 RUN rm -rf /iPaaS-Service-Dubbo/3rd-libs/httpcore-4.2.5.jar 
 RUN rm -rf /iPaaS-Service-Dubbo/3rd-libs/httpclient-4.2.6.jar
 
 ## copy config files
-RUN cp -rf ./build/all-config /iPaaS-Service-Dubbo/config/
 RUN cd /iPaaS-Service-Dubbo/config && mkdir context
 COPY ./context/* /iPaaS-Service-Dubbo/config/context/
 
