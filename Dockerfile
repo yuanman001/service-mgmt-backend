@@ -34,7 +34,7 @@ ENV MEM_ARGS="-Xms256m -Xmx512m -XX:PermSize=64M -XX:MaxPermSize=128M"
 ENV JAVA_OPTIONS="-Dfile.encoding=UTF-8 -Djava.net.preferIPv4Stack=true -Dsun.net.inetaddr.ttl=10 -Dpaas.dubbo.provider.timeout=300000"
 
 # Expose ports.
-EXPOSE 20998
+EXPOSE $DUBBO_PORT
 
 # Define default command.
 CMD ["/ipaas_service_dubbo.sh"]
