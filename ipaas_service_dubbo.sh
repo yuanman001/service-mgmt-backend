@@ -7,7 +7,7 @@ done
 CLASSPATH="${CP}"
 CLASSPATH="${DUBBO_CONFIG_PATH}:${CLASSPATH}"
 export CLASSPATH
-START_CMD="${MEM_ARGS} -Dpaas.dubbo.registry.address=${DUBBO_REGISTRY_ADD} -Dpaas.dubbo.protocol.port=$DUBBO_PORT ${JAVA_OPTIONS} com.ai.paas.ipaas.DubboServiceStart > /iPaaS-Service-Dubbo.log &"
+START_CMD="${MEM_ARGS} -Dpaas.dubbo.registry.address=${DUBBO_REGISTRY_ADD} -Dpaas.dubbo.protocol.port=$DUBBO_PORT ${JAVA_OPTIONS} com.ai.paas.ipaas.DubboServiceStart >> /iPaaS-Service-Dubbo.log & 2 > 1 &"
 
 echo ${JAVA_HOME}
 echo ${CLASSPATH}
