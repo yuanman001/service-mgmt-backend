@@ -22,6 +22,7 @@ import com.ai.paas.ipaas.mcs.service.constant.McsConstants;
 import com.ai.paas.ipaas.mcs.service.interfaces.IMcsDataSv;
 import com.ai.paas.ipaas.mcs.service.util.McsParamUtil;
 import com.ai.paas.ipaas.util.Assert;
+import com.google.gson.Gson;
 
 @Service
 @Transactional(rollbackFor = Exception.class)
@@ -38,23 +39,47 @@ public class McsDataSvImpl implements IMcsDataSv {
 		final String serviceId=map.get(McsConstants.SERVICE_ID);
 		final String userId=map.get(McsConstants.USER_ID);
 		final String key=map.get(McsConstants.DDL_KEY);
+		final String field = map.get(McsConstants.DDL_FIELD);
+		final String selType = map.get(McsConstants.DDL_SEL_TYPE);
 		Assert.notNull(serviceId, "serviceId为空");
 		Assert.notNull(userId, "userId为空");
 		Assert.notNull(key, "key为空");
 		
-		String res = "";
 		List<McsUserCacheInstance> cis = mcsSvHepler.getMcsUserCacheInstances(serviceId,userId);
-		if(cis==null||cis.isEmpty())
+		if(cis==null||cis.isEmpty()) {
 			throw new PaasException("该服务未开通过，无法对数据操作！");
+		}
+		
+		String res = "";
+		Gson gson = new Gson();
 		if(cis.size()==1){
 			//单例
 			Jedis jedis = initJedis(cis.get(0));
 			jedis.auth(cis.get(0).getPwd());
 			res = jedis.get(key);
-		}else{
-			//集群
+			
+			switch(selType){
+				case "String" : res = jedis.get(key);break;
+				case "Hash" : res = jedis.hget(key, field);break;
+				case "List" : List<String> list = jedis.lrange(key, 0, -1);
+								res = gson.toJson(list);break;
+				case "Set" : Set<String> set = jedis.smembers(key);
+								res = gson.toJson(set);break;
+				case "SortedSet" : Set<String> sortedSet = jedis.zrange(key, 0, -1);
+									res = gson.toJson(sortedSet);break;
+			}
+		} else {
 			JedisCluster jedis = initJedisCluster(cis);
-			res = jedis.get(key);
+			switch(selType){
+				case "String" : res = jedis.get(key);break;
+				case "Hash" : res = jedis.hget(key, field);break;
+				case "List" : List<String> list = jedis.lrange(key, 0, -1);
+								res = gson.toJson(list);break;
+				case "Set" : Set<String> set = jedis.smembers(key);
+								res = gson.toJson(set);break;
+				case "SortedSet" : Set<String> sortedSet = jedis.zrange(key, 0, -1);
+								res = gson.toJson(sortedSet);break;
+			}
 		}
 		return res;
 	}

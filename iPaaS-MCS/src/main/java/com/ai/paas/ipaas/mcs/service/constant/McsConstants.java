@@ -59,7 +59,8 @@ public class McsConstants {
 
   public static final String DDL_KEY = "key";
   public static final String DDL_VALUE = "value";
-
+  public static final String DDL_FIELD = "field";
+  public static final String DDL_SEL_TYPE = "selectType";
 
   public static final String APPLY_TYPE_ERROR = "com.ai.paas.ipaas.mcs.apply_type_error";
   public static final String CREATE_FILE_ERROR = "com.ai.paas.ipaas.mcs.create_file_error";
