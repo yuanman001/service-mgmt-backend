@@ -56,8 +56,6 @@ public class McsDataSvImpl implements IMcsDataSv {
 			//单例
 			Jedis jedis = initJedis(cis.get(0));
 			jedis.auth(cis.get(0).getPwd());
-			res = jedis.get(key);
-			
 			switch(selType){
 				case "String" : res = jedis.get(key);break;
 				case "Hash" : res = jedis.hget(key, field);break;
