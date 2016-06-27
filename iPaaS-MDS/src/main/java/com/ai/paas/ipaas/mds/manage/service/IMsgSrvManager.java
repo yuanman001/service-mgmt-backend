@@ -3,6 +3,7 @@ package com.ai.paas.ipaas.mds.manage.service;
 import java.util.List;
 
 import com.ai.paas.ipaas.PaasException;
+import com.ai.paas.ipaas.mds.dao.mapper.bo.MdsUserSubscribe;
 import com.ai.paas.ipaas.mds.manage.vo.MsgSrvApply;
 import com.ai.paas.ipaas.mds.manage.vo.MsgSrvUsageApplyResult;
 
@@ -54,6 +55,17 @@ public interface IMsgSrvManager {
 	 */
 	public List<MsgSrvUsageApplyResult> getTopicUsage(MsgSrvApply msgTopicApply)
 			throws PaasException;
+	
+	/**
+	 * 获得消息队列下所有的消费者
+	 * 
+	 * @param msgTopicApply
+	 * @return
+	 * @throws PaasException
+	 */
+	public List<String> getListSubPath(MsgSrvApply msgTopicApply)
+			throws PaasException;
+	
 
 	/**
 	 * 获取消息队列某个分区的某条消息
@@ -78,4 +90,22 @@ public interface IMsgSrvManager {
 	 */
 	public void sendMessage(MsgSrvApply msgTopicApply);
 
+	/**
+	 * 创建一个订阅者
+	 * 
+	 * @param subscribeApply
+	 * @throws PaasException
+	 */
+	public void createSubscribe(MdsUserSubscribe subscribeApply) throws PaasException;
+	
+	/**
+	 * 获取订阅者
+	 * 
+	 * @param msgTopicApply
+	 * @return
+	 * @throws PaasException
+	 */
+	public List<MdsUserSubscribe> getSubscribe(MdsUserSubscribe subscribeApply)
+			throws PaasException;
+	
 }

@@ -9,6 +9,7 @@ import com.ai.paas.ipaas.ccs.constants.ConfigCenterDubboConstants.PathType;
 import com.ai.paas.ipaas.ccs.service.ICCSComponentManageSv;
 import com.ai.paas.ipaas.ccs.service.dto.CCSComponentOperationParam;
 import com.ai.paas.ipaas.mds.MDSConstant;
+import com.ai.paas.ipaas.mds.dao.mapper.bo.MdsUserSubscribe;
 import com.ai.paas.ipaas.mds.dao.mapper.bo.MdsUserTopic;
 import com.ai.paas.ipaas.mds.manage.service.IMsgConfigHelper;
 
@@ -33,6 +34,20 @@ public class MsgConfigHelper implements IMsgConfigHelper {
 		// 写接收方节点
 		if (!configSv.exists(param)) {
 			configSv.add(param, userTopic.getConsumerConfig());
+		}
+	}
+	
+	@Override
+	public void createConsums(MdsUserSubscribe subscribe) throws PaasException {
+		// 设置订阅者节点
+		CCSComponentOperationParam param = new CCSComponentOperationParam();
+		String consumersPath = "/MDS/" + subscribe.getUserServIpaasId() + "/" +subscribe.getTopicEnName() + "/" 
+		+ "consumers" + "/" + subscribe.getSubscribeName();
+		param.setPath(consumersPath);
+		param.setPathType(PathType.READONLY);
+		param.setUserId(subscribe.getUserId());
+		if (!configSv.exists(param)) {
+			configSv.add(param, "");
 		}
 	}
 

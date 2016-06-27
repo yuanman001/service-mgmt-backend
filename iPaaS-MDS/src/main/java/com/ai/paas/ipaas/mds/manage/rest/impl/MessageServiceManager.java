@@ -7,6 +7,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import com.ai.paas.ipaas.PaaSMgmtConstant;
+import com.ai.paas.ipaas.mds.dao.mapper.bo.MdsUserSubscribe;
 import com.ai.paas.ipaas.mds.manage.rest.interfaces.IMessageServiceManager;
 import com.ai.paas.ipaas.mds.manage.service.IMsgSrvManager;
 import com.ai.paas.ipaas.mds.manage.util.MDSResultWrapper;
@@ -401,6 +402,129 @@ public class MessageServiceManager implements IMessageServiceManager {
 		return MDSResultWrapper.wrapRestfulResult(
 				PaaSMgmtConstant.REST_SERVICE_RESULT_SUCCESS,
 				"Send topic message apply success!", apply, message);
+	}
+
+	//创建订阅信息
+	@Override
+	public String createSubscribe(String subscribeApply) {
+		Gson gson = new Gson();
+		if (MDSValidator.isNullParam(subscribeApply)) {
+			return MDSResultWrapper.wrapSubRestfulResult(
+					PaaSMgmtConstant.REST_SERVICE_RESULT_FAIL,
+					"Message create subscribe apply paramter is null!", null);
+		}
+		MdsUserSubscribe apply = null;
+		try {
+			apply = gson.fromJson(subscribeApply, MdsUserSubscribe.class);
+		} catch (Exception e) {
+			// 转换有错误
+			return MDSResultWrapper
+					.wrapSubRestfulResult(
+							PaaSMgmtConstant.REST_SERVICE_RESULT_FAIL,
+							"Send subscribe message  apply paramter is illegel json!",
+							apply);
+		}
+		try {
+			msgSrvManager.createSubscribe(apply);
+		} catch (Exception e) {
+			logger.error("MessageServiceManager create error!", e);
+			return MDSResultWrapper.wrapSubRestfulResult(
+					PaaSMgmtConstant.REST_SERVICE_RESULT_FAIL,
+					"Message create subscribe apply failed!" + e.getMessage(),
+					apply);
+		}
+		// 成功了
+		return MDSResultWrapper.wrapSubRestfulResult(
+				PaaSMgmtConstant.REST_SERVICE_RESULT_SUCCESS,
+				"Message create subscribe apply success!", null);
+	}
+
+	//查询订阅信息（1.订阅者不能是consumer。2.同一个topic下不能有相同的订阅者）
+	@Override
+	public String getSubscribe(String subscribeApply) {
+		Gson gson = new Gson();
+		if (MDSValidator.isNullParam(subscribeApply)) {
+			return MDSResultWrapper.wrapSubRestfulResult(
+					PaaSMgmtConstant.REST_SERVICE_RESULT_FAIL,
+					"Message subscribe usage apply paramter is null!", null);
+		}
+		MdsUserSubscribe apply = null;
+		try {
+			apply = gson.fromJson(subscribeApply, MdsUserSubscribe.class);
+		} catch (Exception e) {
+			// 转换有错误
+			return MDSResultWrapper
+					.wrapSubRestfulResult(
+							PaaSMgmtConstant.REST_SERVICE_RESULT_FAIL,
+							"Message subscribe usage apply paramter is illegel json!",
+							apply);
+		}
+		List<MdsUserSubscribe> subs = null;
+		String isExis = null;
+		try {
+			subs = msgSrvManager.getSubscribe(apply);
+			if(null == subs || subs.isEmpty()){
+				isExis = "no";
+			}else{
+				isExis = "yes";
+			}
+		} catch (Exception e) {
+			logger.error("MessageServiceManager topic usage error!", e);
+			return MDSResultWrapper
+					.wrapSubRestfulResult(
+							PaaSMgmtConstant.REST_SERVICE_RESULT_FAIL,
+							"Message subscribe usage apply failed!"
+									+ e.getMessage(), apply);
+		}
+		
+		// 成功了
+		return MDSResultWrapper.wrapSubRestfulResult(
+				PaaSMgmtConstant.REST_SERVICE_RESULT_SUCCESS,
+				"Message subscribe usage apply success!", null, isExis);
+	}
+	
+	//获得消息队列下所有的消费者
+	@Override
+	public String getListSubPath(String topicApply) {
+		Gson gson = new Gson();
+		if (MDSValidator.isNullParam(topicApply)) {
+			return MDSResultWrapper.wraplistSubPathfulResult(
+					PaaSMgmtConstant.REST_SERVICE_RESULT_FAIL,
+					"Message getListSubPath apply paramter is null!", null,null);
+		}
+		MsgSrvApply apply = null;
+		try {
+			apply = gson.fromJson(topicApply, MsgSrvApply.class);
+		} catch (Exception e) {
+			// 转换有错误
+			return MDSResultWrapper
+					.wraplistSubPathfulResult(
+							PaaSMgmtConstant.REST_SERVICE_RESULT_FAIL,
+							"Message getListSubPath apply paramter is illegel json!",
+							null,null);
+		}
+		// apply 验证
+		if (MDSValidator.isNullApply(apply)) {
+			return MDSResultWrapper.wraplistSubPathfulResult(
+					PaaSMgmtConstant.REST_SERVICE_RESULT_FAIL,
+					"Message getListSubPath apply paramter has null values!",
+					apply,null);
+		}
+		List<String> listSubPath = null;
+		try {
+			listSubPath = msgSrvManager.getListSubPath(apply);
+		} catch (Exception e) {
+			logger.error("Message getListSubPath apply error!", e);
+			return MDSResultWrapper
+					.wraplistSubPathfulResult(
+							PaaSMgmtConstant.REST_SERVICE_RESULT_FAIL,
+							"Message getListSubPath apply failed!"
+									+ e.getMessage(), apply,null);
+		}
+		// 成功了
+		return MDSResultWrapper.wraplistSubPathfulResult(
+				PaaSMgmtConstant.REST_SERVICE_RESULT_SUCCESS,
+				"Message getListSubPath apply success!", apply, listSubPath);
 	}
 
 }

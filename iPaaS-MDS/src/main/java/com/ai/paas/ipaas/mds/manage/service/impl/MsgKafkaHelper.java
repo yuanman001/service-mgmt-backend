@@ -72,7 +72,7 @@ public class MsgKafkaHelper implements IMsgKafkaHelper {
 	 */
 	@Override
 	public List<MsgSrvUsageApplyResult> getTopicOffsets(String userId,
-			String userSrvId, String topic, MdsResourcePool kafkaCluster) {
+			String userSrvId, String topic,String subscribeName,  MdsResourcePool kafkaCluster) {
 		List<MsgSrvUsageApplyResult> usages = new ArrayList<>();
 		List<String> seedBrokers = new ArrayList<>();
 		String clusterAddr = kafkaCluster.getKafkaAddress();
@@ -90,7 +90,7 @@ public class MsgKafkaHelper implements IMsgKafkaHelper {
 					seedBrokers, port);
 			// 获取消费记录数
 			usage.setConsumedOffset(getTopicPartitionConsumeOffset(userId,
-					userSrvId, topic, partition));
+					userSrvId, topic,subscribeName, partition));
 			usages.add(usage);
 		}
 		return usages;
@@ -227,10 +227,10 @@ public class MsgKafkaHelper implements IMsgKafkaHelper {
 	}
 
 	private long getTopicPartitionConsumeOffset(String userId,
-			String userSrvId, String topic, int partition) {
+			String userSrvId, String topic, String subscribeName, int partition) {
 		String consumerPath = MDSConstant.CONSUMER_ROOT_PATH + userSrvId
 				+ PaaSConstant.UNIX_SEPERATOR + topic
-				+ PaaSConstant.UNIX_SEPERATOR + "consumer"
+				+ PaaSConstant.UNIX_SEPERATOR + (("".equals(subscribeName) || subscribeName ==null)?"consumer":subscribeName)
 				+ PaaSConstant.UNIX_SEPERATOR + "offsets"
 				+ PaaSConstant.UNIX_SEPERATOR + "partition_" + partition;
 		CCSComponentOperationParam param = new CCSComponentOperationParam();
@@ -253,6 +253,25 @@ public class MsgKafkaHelper implements IMsgKafkaHelper {
 			return MDSConstant.CONSUMER_NONE_OFFSET;
 		}
 	}
+	
+	public List<String> getListSubPath(String userId,
+			String userSrvId, String topic) {
+		String consumerPath = MDSConstant.CONSUMER_ROOT_PATH + userSrvId
+				+ PaaSConstant.UNIX_SEPERATOR + topic;
+		CCSComponentOperationParam param = new CCSComponentOperationParam();
+		param.setPath(consumerPath);
+		param.setPathType(PathType.WRITABLE);
+		param.setUserId(userId);
+		List<String> listSubPath =null;
+		try {
+			listSubPath = configSv.listSubPath(param);
+			
+		} catch (PaasException e) {
+			log.error("", e);
+		}
+		return listSubPath;
+	}
+	
 
 	@Override
 	public boolean isTopicExist(MdsResourcePool kafkaCluster, String topicName) {

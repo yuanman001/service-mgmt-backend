@@ -76,7 +76,39 @@ public class MessageServiceManagerTest {
 		assertEquals(gson.fromJson(result, JsonObject.class).get("resultCode")
 				.getAsString(), "000000");
 	}
+	
+	//测试订阅功能
+	@Test
+	public void testCreateSubscribe() throws Exception {
+		String apply = "{userId:'8E7ECAC706994DB9AC2BBB037C18762B',subscribeName:'yinzf789',topicEnName:'8E7ECAC706994DB9AC2BBB037C18762B_MDS002_218700542',userServIpaasId:'MDS002'}";
+		String result = msgSrvManager.createSubscribe(apply);
+		assertEquals(gson.fromJson(result, JsonObject.class).get("resultCode")
+				.getAsString(), "000000");
+	}
 
+	//测试查询订阅
+	@Test
+	public void testGetSubscribe() throws Exception {
+		String apply = "{subscribeName:'test123---',topicEnName:'8E7ECAC706994DB9AC2BBB037C18762B_MDS002_218700542'}";
+		String result = msgSrvManager.getSubscribe(apply);
+		System.out.println(result);
+		assertEquals(gson.fromJson(result, JsonObject.class).get("resultCode")
+				.getAsString(), "000000");
+	}
+	
+	//测试查询订阅
+	@Test
+	public void testGetListSubPath() throws Exception {
+//		String apply = "{subscribeName:'test123---',topicEnName:'8E7ECAC706994DB9AC2BBB037C18762B_MDS002_218700542'}";
+		String apply = "{userId:'8E7ECAC706994DB9AC2BBB037C18762B',applyType:'topicUsage',serviceId:'MDS003',topicEnName:'8E7ECAC706994DB9AC2BBB037C18762B_MDS003_416603763'}";
+		String result = msgSrvManager.getListSubPath(apply);
+		System.out.println(result);
+		assertEquals(gson.fromJson(result, JsonObject.class).get("resultCode")
+				.getAsString(), "000000");
+	}
+	
+	
+	
 	@Test
 	public void testCancelMessageSrv() throws Exception {
 		String apply = "{userId:'B9178FB878834E7BA8CD02FB981C7F4D',applyType:'cancel',serviceId:'MDS003'}";
@@ -105,7 +137,9 @@ public class MessageServiceManagerTest {
 
 	@Test
 	public void testGetTopicUsage() throws Exception {
-		String apply = "{userId:'EACAE677521D46D5A0A5E60A3522AB9B',applyType:'topicUsage',serviceId:'MDS002',topicEnName:'EACAE677521D46D5A0A5E60A3522AB9B_MDS002_1430252852"
+		/*String apply = "{userId:'EACAE677521D46D5A0A5E60A3522AB9B',applyType:'topicUsage',serviceId:'MDS002',topicEnName:'EACAE677521D46D5A0A5E60A3522AB9B_MDS002_1430252852"
+				+ "'}";*/
+		String apply = "{userId:'8E7ECAC706994DB9AC2BBB037C18762B',applyType:'topicUsage',subscribeName:'subscribe001',serviceId:'MDS003',topicEnName:'8E7ECAC706994DB9AC2BBB037C18762B_MDS003_416603763"
 				+ "'}";
 		String result = msgSrvManager.getTopicUsage(apply);
 		System.out.println(result);

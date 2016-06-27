@@ -1,6 +1,7 @@
 package com.ai.paas.ipaas.mds.manage.service;
 
 import com.ai.paas.ipaas.PaasException;
+import com.ai.paas.ipaas.mds.dao.mapper.bo.MdsUserSubscribe;
 import com.ai.paas.ipaas.mds.dao.mapper.bo.MdsUserTopic;
 
 public interface IMsgConfigHelper {
@@ -12,6 +13,13 @@ public interface IMsgConfigHelper {
 	 */
 	public void createConfigInfo(MdsUserTopic userTopic) throws PaasException;
 
+	/**
+	 * 写入统一配置中心---订阅者
+	 * 
+	 * @param userTopic
+	 * @throws PaasException
+	 */
+	public void createConsums(MdsUserSubscribe subscribe) throws PaasException;
 	/**
 	 * 删除用户队列信息
 	 * 

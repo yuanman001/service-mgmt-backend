@@ -1,6 +1,7 @@
 package com.ai.paas.ipaas.mds.manage.service.impl;
 
 import java.io.UnsupportedEncodingException;
+import java.sql.Timestamp;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -14,10 +15,12 @@ import com.ai.paas.ipaas.ServiceUtil;
 import com.ai.paas.ipaas.mds.MDSConstant;
 import com.ai.paas.ipaas.mds.dao.interfaces.MdsResourcePoolMapper;
 import com.ai.paas.ipaas.mds.dao.interfaces.MdsUserServiceMapper;
+import com.ai.paas.ipaas.mds.dao.interfaces.MdsUserSubscribeMapper;
 import com.ai.paas.ipaas.mds.dao.interfaces.MdsUserTopicMapper;
 import com.ai.paas.ipaas.mds.dao.mapper.bo.MdsResourcePool;
 import com.ai.paas.ipaas.mds.dao.mapper.bo.MdsUserService;
 import com.ai.paas.ipaas.mds.dao.mapper.bo.MdsUserServiceCriteria;
+import com.ai.paas.ipaas.mds.dao.mapper.bo.MdsUserSubscribe;
 import com.ai.paas.ipaas.mds.dao.mapper.bo.MdsUserTopic;
 import com.ai.paas.ipaas.mds.dao.mapper.bo.MdsUserTopicCriteria;
 import com.ai.paas.ipaas.mds.manage.service.IMsgConfigHelper;
@@ -27,6 +30,7 @@ import com.ai.paas.ipaas.mds.manage.service.IMsgSrvManagerHelper;
 import com.ai.paas.ipaas.mds.manage.vo.MsgSrvApply;
 import com.ai.paas.ipaas.mds.manage.vo.MsgSrvUsageApplyResult;
 import com.ai.paas.ipaas.util.StringUtil;
+import com.ai.paas.ipaas.util.UUIDTool;
 
 @Transactional(rollbackFor = Exception.class)
 @Service
@@ -198,9 +202,17 @@ public class MsgSrvManagerImpl implements IMsgSrvManager {
 							+ msgTopicApply.getTopicEnName());
 		}
 		return msgKafkaHelper.getTopicOffsets(msgTopicApply.getUserId(),
-				msgTopicApply.getServiceId(), msgTopicApply.getTopicEnName(),
+				msgTopicApply.getServiceId(), msgTopicApply.getTopicEnName(),msgTopicApply.getSubscribeName(),
 				kafkaCluster);
 	}
+	
+	@Override
+	public List<String> getListSubPath(MsgSrvApply msgTopicApply)
+			throws PaasException {
+		return msgKafkaHelper.getListSubPath(msgTopicApply.getUserId(),
+				msgTopicApply.getServiceId(), msgTopicApply.getTopicEnName());
+	}
+	
 
 	@Override
 	public String getTopicMessage(MsgSrvApply msgTopicApply) {
@@ -290,5 +302,30 @@ public class MsgSrvManagerImpl implements IMsgSrvManager {
 		}
 		msgKafkaHelper.sendMessage(msgTopicApply.getTopicEnName(),
 				msgTopicApply.getPartition(), sendConf, bytes);
+	}
+
+	@Override
+	public void createSubscribe(MdsUserSubscribe subscribeApply) throws PaasException {
+		// TODO Auto-generated method stub
+		if(null != subscribeApply){
+			//设置主键
+			subscribeApply.setSubscribeId(UUIDTool.genShortId());
+			//设置时间
+			Timestamp time = new Timestamp(System.currentTimeMillis());
+			subscribeApply.setCreateTime(time);
+			ServiceUtil.getMapper(MdsUserSubscribeMapper.class).insert(subscribeApply);
+			// 写消息到ZK中（路径：/MDS/MDS002/8E7ECAC706994DB9AC2BBB037C18762B_MDS002_218700542/consumers/subscribe1）
+			msgConfigHelper.createConsums(subscribeApply);
+		}
+	}
+
+	@Override
+	public List<MdsUserSubscribe> getSubscribe(MdsUserSubscribe subscribeApply) throws PaasException {
+		List<MdsUserSubscribe> subList = null;
+		if(null != subscribeApply){
+			subList = ServiceUtil.getMapper(MdsUserSubscribeMapper.class).selectBySubscribe(subscribeApply);
+			System.out.println("查询成功------订阅表---yinzf");
+		}
+		return subList;
 	}
 }
