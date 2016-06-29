@@ -1,5 +1,0 @@
-dependencies {
-    compile project(":iPaaS-DubboInterfaces")
-    compile project(":iPaaS-TXS")
-    compile project(":iPaaS-MDS")
-}

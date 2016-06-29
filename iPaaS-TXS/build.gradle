@@ -1,5 +1,0 @@
-dependencies {
-    compile project(":iPaaS-DubboInterfaces")
-    compile project(":iPaaS-CCS")
-    compile 'org.apache.kafka:kafka_2.10:0.8.2.1'
-}

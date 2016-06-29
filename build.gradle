@@ -54,23 +54,6 @@ subprojects {
 
 }
 
-project("iPaaS-DES"){
-	project.ext {
-		appName = "ipaas-des"
-	}
-	
-	jar {
-		baseName appName
-        version moduleVersion
-        exclude "*.properties"
-        exclude "*.xml"
-        exclude "mybatis"
-        manifest {
-            attributes 'packageName': appName, 'Built-By': builtBy, 'create-date': new Date().format('yyyy-MM-dd HH:mm:ss')
-        }
-	}
-}
-
 project("iPaaS-Agent") {
     project.ext {
         appName = "ipaas-agent"
@@ -88,43 +71,9 @@ project("iPaaS-Agent") {
     }
 }
 
-project("iPaaS-ATS") {
-    project.ext {
-        appName = "ipaas-ats"
-    }
-
-    jar {
-        baseName appName
-        version moduleVersion
-        exclude "*.properties"
-        exclude "*.xml"
-        exclude "mybatis"
-        manifest {
-            attributes 'packageName': appName, 'Built-By': builtBy, 'create-date': new Date().format('yyyy-MM-dd HH:mm:ss')
-        }
-    }
-}
-
 project("iPaaS-CCS") {
     project.ext {
         appName = "ipaas-ccs"
-    }
-
-    jar {
-        baseName appName
-        version moduleVersion
-        exclude "*.properties"
-        exclude "*.xml"
-        exclude "mybatis"
-        manifest {
-            attributes 'packageName': appName, 'Built-By': builtBy, 'create-date': new Date().format('yyyy-MM-dd HH:mm:ss')
-        }
-    }
-}
-
-project("iPaaS-DBS") {
-    project.ext {
-        appName = "ipaas-dbs"
     }
 
     jar {
@@ -193,40 +142,6 @@ project("iPaaS-MDS") {
 project("iPaaS-RCS") {
     project.ext {
         appName = "ipaas-rcs"
-    }
-
-    jar {
-        baseName appName
-        version moduleVersion
-        exclude "*.properties"
-        exclude "*.xml"
-        exclude "mybatis"
-        manifest {
-            attributes 'packageName': appName, 'Built-By': builtBy, 'create-date': new Date().format('yyyy-MM-dd HH:mm:ss')
-        }
-    }
-}
-
-project("iPaaS-TSC") {
-    project.ext {
-        appName = "ipaas-tsc"
-    }
-
-    jar {
-        baseName appName
-        version moduleVersion
-        exclude "*.properties"
-        exclude "*.xml"
-        exclude "mybatis"
-        manifest {
-            attributes 'packageName': appName, 'Built-By': builtBy, 'create-date': new Date().format('yyyy-MM-dd HH:mm:ss')
-        }
-    }
-}
-
-project("iPaaS-TXS") {
-    project.ext {
-        appName = "ipaas-txs"
     }
 
     jar {
