@@ -6,4 +6,4 @@
      - name: docker pull
        command: docker pull "{{image}}"
      - name: docker run
-       command: docker run -itd -p 22 -p {{port}}:8080  -v /dev/urandom:/dev/random  --env "AUTH_URL={{auth_url}}" --env "AUTH_USER_PID={{auth_user_pid}}" --env "AUTH_SRV_ID={{auth_srv_id}}" --env "AUTH_SRV_PWD={{auth_srv_pwd}}"  "{{image}}"
+       command: docker run -itd -p 22 -p {{port}}:8080 --name {idps_container_name} -v /dev/urandom:/dev/random  --env "AUTH_URL={{auth_url}}" --env "AUTH_USER_PID={{auth_user_pid}}" --env "AUTH_SRV_ID={{auth_srv_id}}" --env "AUTH_SRV_PWD={{auth_srv_pwd}}"  "{{image}}"

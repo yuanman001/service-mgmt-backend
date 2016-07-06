@@ -192,7 +192,7 @@ public class IdpsSvImpl implements IIdpsSv {
 		StringBuffer servers = new StringBuffer("\"");
 		// 启动每一个 图片服务器
 		for (IdpsResourcePool irp : irps) {
-			handleServer(irp, dssPId, dssServiceId, dssServicePwd);
+			handleServer(irp, dssPId, dssServiceId, dssServicePwd,userId,serviceId);
 			// 便于负载均衡
 			servers.append("_server_").append(irp.getIdpsHostIp()).append(":")
 					.append(irp.getIdpsPort()).append(";");
@@ -246,7 +246,8 @@ public class IdpsSvImpl implements IIdpsSv {
 							balanceImage.getImageRepository() + "/"
 									+ balanceImage.getImageName(),
 							balance.getIdpsBalancePort() + "",
-							servers.toString(), basePath + "idps" });
+							servers.toString(), basePath + "idps" ,
+							"idps_"+userId+"_"+serviceId});
 			LOG.info("---------runImage {}----------", runImage);
 			AgentUtil.executeCommand(basePath + runImage, AidUtil.getAid());
 		}
@@ -363,7 +364,7 @@ public class IdpsSvImpl implements IIdpsSv {
 				idpsResourcePool.getIdpsHostIp(),
 				idpsResourcePool.getIdpsPort());
 		// 处理服务端 docker 命令 拉gm、图片服务器war，启动docker化的实例
-		handleServer(idpsResourcePool, dssPId, dssServiceId, dssServicePwd);
+		handleServer(idpsResourcePool, dssPId, dssServiceId, dssServicePwd,userId,serviceId);
 		// 在zk中记录申请信息
 		addZkConfig(
 				userId,
@@ -417,7 +418,7 @@ public class IdpsSvImpl implements IIdpsSv {
 	 * @throws Exception
 	 */
 	private void handleServer(IdpsResourcePool idpsResourcePool, String dssPId,
-			String dssServiceId, String dssServicePwd) throws Exception {
+			String dssServiceId, String dssServicePwd,String userId,String serviceId) throws Exception {
 		String basePath = AgentUtil.getAgentFilePath(AidUtil.getAid());
 		// 1.先将需要执行镜像命令的机器配置文件上传上去。
 		InputStream in = IdpsSvImpl.class
@@ -466,7 +467,8 @@ public class IdpsSvImpl implements IIdpsSv {
 						idpsResourcePool.getIdpsPort() + "",
 						getSysConf(IdpsConstants.AUTH_TABLE_CODE,
 								IdpsConstants.AUTH_FIELD_CODE), dssPId,
-						dssServiceId, dssServicePwd, basePath + "idps" });
+						dssServiceId, dssServicePwd, basePath + "idps" ,
+						"idps_"+userId+"_"+serviceId});
 
 		LOG.debug("---------runImage {}----------", runImage);
 		AgentUtil.executeCommand(basePath + runImage, AidUtil.getAid());
