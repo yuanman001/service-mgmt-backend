@@ -190,12 +190,15 @@ public class IdpsSvImpl implements IIdpsSv {
 			String dssServicePwd) throws Exception {
 		String basePath = AgentUtil.getAgentFilePath(AidUtil.getAid());
 		StringBuffer servers = new StringBuffer("\"");
+		//用户处理idps容器名字做唯一
+		int ipdsNum = 1; 
 		// 启动每一个 图片服务器
 		for (IdpsResourcePool irp : irps) {
-			handleServer(irp, dssPId, dssServiceId, dssServicePwd,userId,serviceId);
+			handleServer(irp, dssPId, dssServiceId, dssServicePwd,userId,serviceId+"_"+ipdsNum);
 			// 便于负载均衡
 			servers.append("_server_").append(irp.getIdpsHostIp()).append(":")
 					.append(irp.getIdpsPort()).append(";");
+			ipdsNum++;
 		}
 		servers.append("\"");
 		IpaasImageResource balanceImage = getBalancImage();
@@ -224,6 +227,8 @@ public class IdpsSvImpl implements IIdpsSv {
 				AidUtil.getAid());
 		AgentUtil.executeCommand("chmod +x " + basePath
 				+ "idps/ansible_run_image_balance.sh", AidUtil.getAid());
+		//用户处理idps容器名字做唯一
+		int balanceNum = 1; 
 		for (IdpsBalanceResourcePool balance : balances) {
 			balance.setIdpsBalancePort(balance.getIdpsBalancePort() + 1);
 			// 先
@@ -247,9 +252,10 @@ public class IdpsSvImpl implements IIdpsSv {
 									+ balanceImage.getImageName(),
 							balance.getIdpsBalancePort() + "",
 							servers.toString(), basePath + "idps" ,
-							"idps_"+userId+"_"+serviceId});
+							"idps_balance_"+userId+"_"+serviceId+"_"+balanceNum});
 			LOG.info("---------runImage {}----------", runImage);
 			AgentUtil.executeCommand(basePath + runImage, AidUtil.getAid());
+			balanceNum++;
 		}
 
 	}
