@@ -1,8 +1,10 @@
 package com.ai.paas.ipaas.ses.dao.interfaces;
 
-import com.ai.paas.ipaas.ses.dao.mapper.bo.SesAgentConfig;
 import com.ai.paas.ipaas.ses.dao.mapper.bo.SesAgentConfigCriteria;
+import com.ai.paas.ipaas.vo.ses.SesAgentConfig;
+
 import java.util.List;
+
 import org.apache.ibatis.annotations.Param;
 
 public interface SesAgentConfigMapper {

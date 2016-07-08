@@ -1,5 +1,6 @@
 package com.ai.paas.ipaas.ses.service.impl;
 
+import java.io.InputStream;
 import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.Date;
@@ -13,19 +14,22 @@ import org.elasticsearch.action.admin.indices.exists.indices.IndicesExistsReques
 import org.elasticsearch.action.admin.indices.exists.types.TypesExistsRequest;
 import org.elasticsearch.client.IndicesAdminClient;
 import org.elasticsearch.client.transport.TransportClient;
-import org.elasticsearch.common.settings.ImmutableSettings;
 import org.elasticsearch.common.settings.Settings;
 import org.elasticsearch.common.transport.InetSocketTransportAddress;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import com.ai.paas.agent.client.AgentClient;
 import com.ai.paas.ipaas.PaasException;
 import com.ai.paas.ipaas.ServiceUtil;
+import com.ai.paas.ipaas.agent.util.AgentUtil;
+import com.ai.paas.ipaas.agent.util.AidUtil;
 import com.ai.paas.ipaas.ccs.constants.ConfigCenterDubboConstants.PathType;
 import com.ai.paas.ipaas.ccs.service.ICCSComponentManageSv;
 import com.ai.paas.ipaas.ccs.service.dto.CCSComponentOperationParam;
+import com.ai.paas.ipaas.idps.service.constant.IdpsConstants;
+import com.ai.paas.ipaas.idps.service.impl.IdpsSvImpl;
+import com.ai.paas.ipaas.idps.service.util.IdpsParamUtil;
 import com.ai.paas.ipaas.rpc.api.vo.BaseInfo;
 import com.ai.paas.ipaas.ses.dao.interfaces.SesResourcePoolMapper;
 import com.ai.paas.ipaas.ses.dao.interfaces.SesUserInstanceMapper;
@@ -36,7 +40,7 @@ import com.ai.paas.ipaas.ses.dao.mapper.bo.SesUserInstance;
 import com.ai.paas.ipaas.ses.dao.mapper.bo.SesUserInstanceCriteria;
 import com.ai.paas.ipaas.ses.dao.mapper.bo.SesUserMappingCriteria;
 import com.ai.paas.ipaas.ses.service.constant.SesConstants;
-import com.ai.paas.ipaas.ses.service.interfaces.ISesSrv;
+import com.ai.paas.ipaas.ses.service.interfaces.ISesManage;
 import com.ai.paas.ipaas.ses.service.vo.SesHostInfo;
 import com.ai.paas.ipaas.ses.service.vo.SesMappingApply;
 import com.ai.paas.ipaas.ses.service.vo.SesSrvApply;
@@ -44,9 +48,9 @@ import com.google.gson.JsonObject;
 
 @Service
 @Transactional(rollbackFor = Exception.class)
-public class SesSrvImpl implements ISesSrv {
+public class SesManageImpl implements ISesManage {
 	private static transient final Logger LOGGER = Logger
-			.getLogger(SesSrvImpl.class);
+			.getLogger(SesManageImpl.class);
 	@Autowired
 	private ICCSComponentManageSv iCCSComponentManageSv;
 
@@ -59,26 +63,79 @@ public class SesSrvImpl implements ISesSrv {
 		String serviceId = sesSrvApply.getServiceId();
 		StringBuilder clusterString = new StringBuilder();
 		String hosts = queryUnicastHosts(sesHosts);
+		String basePath = AgentUtil.getAgentFilePath(AidUtil.getAid());
+		// 1.先将需要执行镜像命令的机器配置文件上传上去。
+		InputStream in = SesManageImpl.class
+				.getResourceAsStream("/playbook/ses/init_ansible_ssh_hosts.sh");
+		String[] cnt = AgentUtil.readFileLines(in);
+		in.close();
+		AgentUtil.uploadFile("ses/init_ansible_ssh_hosts.sh", cnt,
+				AidUtil.getAid());
+		AgentUtil.executeCommand("chmod +x " + basePath
+				+ "ses/init_ansible_ssh_hosts.sh", AidUtil.getAid());
+		in = SesManageImpl.class.getResourceAsStream("/playbook/ses/ses.yml");
+		cnt = AgentUtil.readFileLines(in);
+		in.close();
+		AgentUtil.uploadFile("ses/ses.yml", cnt, AidUtil.getAid());
+		// 还得上传文件
+		in = SesManageImpl.class
+				.getResourceAsStream("/playbook/ses/ansible_run_ses.sh");
+		cnt = AgentUtil.readFileLines(in);
+		in.close();
+		AgentUtil.uploadFile("ses/ansible_run_ses.sh", cnt, AidUtil.getAid());
+		AgentUtil.executeCommand("chmod +x " + basePath
+				+ "ses/ansible_run_ses.sh", AidUtil.getAid());
 		// 2.启动ses集群
 		for (SesHostInfo sesHostInfo : sesHosts) {
 			String ip = sesHostInfo.getIp();
 			int agentPort = sesHostInfo.getAgentPort();
 			String binPath = sesHostInfo.getBinPath();
 			String userPath = sesHostInfo.getUserPath();
+			// 生成每个主机列表
+			String mkSshHosts = IdpsParamUtil.fillStringByArgs(
+					IdpsConstants.CREATE_ANSIBLE_HOSTS, new String[] {
+							basePath + "idps",
+							idpsResourcePool.getIdpsHostIp().replace(".", ""),
+							idpsResourcePool.getIdpsHostIp() });
+			LOG.debug("---------mkSshHosts {}----------", mkSshHosts);
+			AgentUtil.executeCommand(basePath + mkSshHosts, AidUtil.getAid());
+
+			// 开始执行
+			String runImage = IdpsParamUtil.fillStringByArgs(
+					IdpsConstants.DOCKER_4_GM_AND_TOMCAT,
+					new String[] {
+							"",
+							idpsResourcePool.getIdpsHostIp().replace(".", ""),
+							idpsResourcePool.getSshUser(),
+							idpsResourcePool.getSshPassword(),
+							idpsResourcePool.getIdpsHostIp(),
+							gmImage.getImageRepository() + "/"
+									+ gmImage.getImageName(),
+							idpsResourcePool.getIdpsPort() + "",
+							getSysConf(IdpsConstants.AUTH_TABLE_CODE,
+									IdpsConstants.AUTH_FIELD_CODE), dssPId,
+							dssServiceId, dssServicePwd, basePath + "idps" });
+
+			LOG.debug("---------runImage {}----------", runImage);
+			AgentUtil.executeCommand(basePath + runImage, AidUtil.getAid());
 			AgentClient ac = new AgentClient(ip, agentPort);
 
 			String tcpPort = sesHostInfo.getTcpPort();
 			String execConfPrepare = "sh " + userPath + "/init-ses.sh "
-					+ userId + " " + (userId + "-" + serviceId + "-" + tcpPort) + " "
-					+ sesHostInfo.getIp() + " " + tcpPort
-					+ " " + sesHostInfo.getHttpPort() + " " + serviceId + " "+ hosts + " ";
+					+ userId + " " + (userId + "-" + serviceId + "-" + tcpPort)
+					+ " " + sesHostInfo.getIp() + " " + tcpPort + " "
+					+ sesHostInfo.getHttpPort() + " " + serviceId + " " + hosts
+					+ " ";
 			LOGGER.info("execConfPrepare.........." + execConfPrepare);
 			String execSesStart = " sh " + binPath
 					+ "/bin/elasticsearch -d -Des.config=" + userPath + "/"
-					+ userId + "/conf/" + (userId + "-" + serviceId + "-" + tcpPort) + ".yml";
+					+ userId + "/conf/"
+					+ (userId + "-" + serviceId + "-" + tcpPort) + ".yml";
 			LOGGER.info("execSesStart.........." + execSesStart);
 			ac.executeInstruction(execConfPrepare);
-			ac.executeInstruction("export ES_HEAP_SIZE=" + sesSrvApply.getSesMem() + "m \n"+execSesStart+" \n export ES_HEAP_SIZE= \n");	
+			ac.executeInstruction("export ES_HEAP_SIZE="
+					+ sesSrvApply.getSesMem() + "m \n" + execSesStart
+					+ " \n export ES_HEAP_SIZE= \n");
 
 			// 更新ses_user_instance
 			SesUserInstance sesUser = new SesUserInstance();
@@ -106,9 +163,10 @@ public class SesSrvImpl implements ISesSrv {
 	private String queryUnicastHosts(List<SesHostInfo> sesHosts) {
 		StringBuilder sb = new StringBuilder();
 		for (SesHostInfo sesHostInfo : sesHosts) {
-			sb.append("\\\""+sesHostInfo.getIp()+":"+sesHostInfo.getTcpPort()+"\\\",");
+			sb.append("\\\"" + sesHostInfo.getIp() + ":"
+					+ sesHostInfo.getTcpPort() + "\\\",");
 		}
-		return sb.deleteCharAt(sb.length()-1).toString();
+		return sb.deleteCharAt(sb.length() - 1).toString();
 	}
 
 	/**
@@ -231,6 +289,7 @@ public class SesSrvImpl implements ISesSrv {
 				.selectByExample(sesRsrcPoolExample);
 		return pool;
 	}
+
 	/**
 	 * 获得资源主机信息
 	 * 
@@ -443,20 +502,24 @@ public class SesSrvImpl implements ISesSrv {
 
 	@Override
 	public void start(BaseInfo info) throws PaasException {
-		SesUserInstanceMapper mapper = ServiceUtil.getMapper(SesUserInstanceMapper.class);
+		SesUserInstanceMapper mapper = ServiceUtil
+				.getMapper(SesUserInstanceMapper.class);
 		SesUserInstanceCriteria instanceCriteria = new SesUserInstanceCriteria();
 		instanceCriteria.createCriteria().andUserIdEqualTo(info.getUserId());
-		instanceCriteria.createCriteria().andServiceIdEqualTo(info.getServiceId());
-        List<SesUserInstance> instances = mapper.selectByExample(instanceCriteria);
-        for (SesUserInstance ins : instances) {
-        	String hostIp = ins.getHostIp();
+		instanceCriteria.createCriteria().andServiceIdEqualTo(
+				info.getServiceId());
+		List<SesUserInstance> instances = mapper
+				.selectByExample(instanceCriteria);
+		for (SesUserInstance ins : instances) {
+			String hostIp = ins.getHostIp();
 			SesResourcePool host = quryHostByIp(hostIp);
-			String sesDis =  info.getUserId() + "-" + info.getServiceId() + "-" + ins.getTcpPort();
+			String sesDis = info.getUserId() + "-" + info.getServiceId() + "-"
+					+ ins.getTcpPort();
 			String execSesStart = "sh " + host.getBinPath()
-					+ "/bin/elasticsearch -d -Des.config=" + host.getUserPath() + "/"
-					+ info.getUserId() + "/conf/" + sesDis + ".yml";
-        	AgentClient ac = new AgentClient(hostIp, host.getAgentPort());
-        	
+					+ "/bin/elasticsearch -d -Des.config=" + host.getUserPath()
+					+ "/" + info.getUserId() + "/conf/" + sesDis + ".yml";
+			AgentClient ac = new AgentClient(hostIp, host.getAgentPort());
+
 			LOGGER.info("execSesStart.........." + execSesStart);
 			ac.executeInstruction(execSesStart);
 		}
@@ -464,19 +527,23 @@ public class SesSrvImpl implements ISesSrv {
 
 	@Override
 	public void stop(BaseInfo info) throws PaasException {
-		SesUserInstanceMapper mapper = ServiceUtil.getMapper(SesUserInstanceMapper.class);
+		SesUserInstanceMapper mapper = ServiceUtil
+				.getMapper(SesUserInstanceMapper.class);
 		SesUserInstanceCriteria instanceCriteria = new SesUserInstanceCriteria();
-		instanceCriteria.createCriteria().andUserIdEqualTo(info.getUserId()).andServiceIdEqualTo(info.getServiceId());
-        List<SesUserInstance> instances = mapper.selectByExample(instanceCriteria);
-        Set<String> ips = new HashSet<String>();
-        for (SesUserInstance ins : instances) {
-        	ips.add(ins.getHostIp());
-        }
-        for (String ip : ips) {
-        	SesResourcePool host = quryHostByIp(ip);
-        	AgentClient ac = new AgentClient(ip, host.getAgentPort());
-        	String sesDis =  info.getUserId() + "-" + info.getServiceId();
-			String execSesStop = "ps -ef | grep "+ sesDis +" | awk '{print $2}' | xargs kill -9";
+		instanceCriteria.createCriteria().andUserIdEqualTo(info.getUserId())
+				.andServiceIdEqualTo(info.getServiceId());
+		List<SesUserInstance> instances = mapper
+				.selectByExample(instanceCriteria);
+		Set<String> ips = new HashSet<String>();
+		for (SesUserInstance ins : instances) {
+			ips.add(ins.getHostIp());
+		}
+		for (String ip : ips) {
+			SesResourcePool host = quryHostByIp(ip);
+			AgentClient ac = new AgentClient(ip, host.getAgentPort());
+			String sesDis = info.getUserId() + "-" + info.getServiceId();
+			String execSesStop = "ps -ef | grep " + sesDis
+					+ " | awk '{print $2}' | xargs kill -9";
 			LOGGER.info("execSesStop.........." + execSesStop);
 			ac.executeInstruction(execSesStop);
 		}
@@ -484,43 +551,53 @@ public class SesSrvImpl implements ISesSrv {
 
 	@Override
 	public void recycle(BaseInfo info) throws PaasException {
-		//停服务
+		// 停服务
 		stop(info);
-		//服务器回收资源
-		SesUserInstanceMapper mapper = ServiceUtil.getMapper(SesUserInstanceMapper.class);
+		// 服务器回收资源
+		SesUserInstanceMapper mapper = ServiceUtil
+				.getMapper(SesUserInstanceMapper.class);
 		SesUserInstanceCriteria instanceCriteria = new SesUserInstanceCriteria();
-		instanceCriteria.createCriteria().andUserIdEqualTo(info.getUserId()).andServiceIdEqualTo(info.getServiceId());
-        List<SesUserInstance> instances = mapper.selectByExample(instanceCriteria);
-        Set<String> ips = new HashSet<String>();
-        for (SesUserInstance ins : instances) {
-        	String ip = ins.getHostIp();
+		instanceCriteria.createCriteria().andUserIdEqualTo(info.getUserId())
+				.andServiceIdEqualTo(info.getServiceId());
+		List<SesUserInstance> instances = mapper
+				.selectByExample(instanceCriteria);
+		Set<String> ips = new HashSet<String>();
+		for (SesUserInstance ins : instances) {
+			String ip = ins.getHostIp();
 			ips.add(ip);
-        	//更新ses_resource_pool.mem_used
-        	SesResourcePool host = quryHostByIp(ip);
-        	host.setMemUsed(host.getMemUsed() - ins.getMemUse());
-        	ServiceUtil.getMapper(SesResourcePoolMapper.class).updateByPrimaryKeySelective(host);
-        }
-        for (String ip : ips) {
-        	SesResourcePool host = quryHostByIp(ip);
-        	AgentClient ac = new AgentClient(ip, host.getAgentPort());
-			String execSesRecycle = "rm -rf "+ host.getUserPath() + "/" + info.getUserId();
+			// 更新ses_resource_pool.mem_used
+			SesResourcePool host = quryHostByIp(ip);
+			host.setMemUsed(host.getMemUsed() - ins.getMemUse());
+			ServiceUtil.getMapper(SesResourcePoolMapper.class)
+					.updateByPrimaryKeySelective(host);
+		}
+		for (String ip : ips) {
+			SesResourcePool host = quryHostByIp(ip);
+			AgentClient ac = new AgentClient(ip, host.getAgentPort());
+			String execSesRecycle = "rm -rf " + host.getUserPath() + "/"
+					+ info.getUserId();
 			LOGGER.info("execSesRecycle.........." + execSesRecycle);
 			ac.executeInstruction(execSesRecycle);
-			String execSesIkRecycle = "rm -rf "+ host.getBinPath() + "/config/ik/" +info.getUserId();
+			String execSesIkRecycle = "rm -rf " + host.getBinPath()
+					+ "/config/ik/" + info.getUserId();
 			LOGGER.info("execSesIkRecycle.........." + execSesIkRecycle);
 			ac.executeInstruction(execSesIkRecycle);
 		}
-		//ses_user_instance 删除记录
-        instanceCriteria.createCriteria().andUserIdEqualTo(info.getUserId()).andServiceIdEqualTo(info.getServiceId());
-        mapper.deleteByExample(instanceCriteria);
-		//ses_user_mapping 删除记录
-        SesUserMappingMapper mappingMapper = ServiceUtil.getMapper(SesUserMappingMapper.class);
-        SesUserMappingCriteria sesUserMappingCriteria = new SesUserMappingCriteria();
-        sesUserMappingCriteria.createCriteria().andUserIdEqualTo(info.getUserId()).andServiceIdEqualTo(info.getServiceId());
-        mappingMapper.deleteByExample(sesUserMappingCriteria);
-		
+		// ses_user_instance 删除记录
+		instanceCriteria.createCriteria().andUserIdEqualTo(info.getUserId())
+				.andServiceIdEqualTo(info.getServiceId());
+		mapper.deleteByExample(instanceCriteria);
+		// ses_user_mapping 删除记录
+		SesUserMappingMapper mappingMapper = ServiceUtil
+				.getMapper(SesUserMappingMapper.class);
+		SesUserMappingCriteria sesUserMappingCriteria = new SesUserMappingCriteria();
+		sesUserMappingCriteria.createCriteria()
+				.andUserIdEqualTo(info.getUserId())
+				.andServiceIdEqualTo(info.getServiceId());
+		mappingMapper.deleteByExample(sesUserMappingCriteria);
+
 	}
-	
+
 	public static void main(String[] args) throws PaasException {
 		String indexName = String.valueOf(Math
 				.abs(("1321014990EB4DF79D893600A2F7CCA6SES003").hashCode()));
@@ -530,6 +607,6 @@ public class SesSrvImpl implements ISesSrv {
 		sb.append("1111,");
 		sb.append("1111,");
 		sb.append("1111,");
-		System.out.println(sb.deleteCharAt(sb.length()-1).toString());
+		System.out.println(sb.deleteCharAt(sb.length() - 1).toString());
 	}
 }

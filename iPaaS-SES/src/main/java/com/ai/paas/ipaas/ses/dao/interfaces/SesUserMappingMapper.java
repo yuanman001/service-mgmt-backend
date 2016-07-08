@@ -2,7 +2,9 @@ package com.ai.paas.ipaas.ses.dao.interfaces;
 
 import com.ai.paas.ipaas.ses.dao.mapper.bo.SesUserMapping;
 import com.ai.paas.ipaas.ses.dao.mapper.bo.SesUserMappingCriteria;
+
 import java.util.List;
+
 import org.apache.ibatis.annotations.Param;
 
 public interface SesUserMappingMapper {

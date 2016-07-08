@@ -18,6 +18,7 @@ import com.ai.paas.ipaas.PaasException;
 import com.ai.paas.ipaas.ServiceUtil;
 import com.ai.paas.ipaas.agent.util.AgentUtil;
 import com.ai.paas.ipaas.agent.util.AidUtil;
+import com.ai.paas.ipaas.agent.util.ParamUtil;
 import com.ai.paas.ipaas.base.dao.interfaces.IpaasSysConfigMapper;
 import com.ai.paas.ipaas.base.dao.mapper.bo.IpaasSysConfig;
 import com.ai.paas.ipaas.base.dao.mapper.bo.IpaasSysConfigCriteria;
@@ -227,7 +228,7 @@ public class IdpsSvImpl implements IIdpsSv {
 		for (IdpsBalanceResourcePool balance : balances) {
 			balance.setIdpsBalancePort(balance.getIdpsBalancePort() + 1);
 			// 先
-			String mkSshHosts = IdpsParamUtil.fillStringByArgs(
+			String mkSshHosts = ParamUtil.replace(
 					IdpsConstants.CREATE_ANSIBLE_HOSTS, new String[] {
 							basePath + "idps",
 							balance.getIdpsBalanceHostIp().replace(".", ""),
@@ -235,7 +236,7 @@ public class IdpsSvImpl implements IIdpsSv {
 			LOG.debug("---------mkSshHosts {}----------", mkSshHosts);
 			AgentUtil.executeCommand(basePath + mkSshHosts, AidUtil.getAid());
 
-			String runImage = IdpsParamUtil.fillStringByArgs(
+			String runImage = ParamUtil.replace(
 					IdpsConstants.DOCKER_4_BALANCE,
 					new String[] {
 							"",
@@ -434,7 +435,7 @@ public class IdpsSvImpl implements IIdpsSv {
 		in.close();
 		AgentUtil.uploadFile("idps/idpsimage.yml", cnt, AidUtil.getAid());
 		// 2.执行这个初始化命令
-		String mkSshHosts = IdpsParamUtil.fillStringByArgs(
+		String mkSshHosts = ParamUtil.replace(
 				IdpsConstants.CREATE_ANSIBLE_HOSTS, new String[] {
 						basePath + "idps",
 						idpsResourcePool.getIdpsHostIp().replace(".", ""),
@@ -453,7 +454,7 @@ public class IdpsSvImpl implements IIdpsSv {
 		AgentUtil.executeCommand("chmod +x " + basePath
 				+ "idps/ansible_run_image.sh", AidUtil.getAid());
 		// 开始执行
-		String runImage = IdpsParamUtil.fillStringByArgs(
+		String runImage = ParamUtil.replace(
 				IdpsConstants.DOCKER_4_GM_AND_TOMCAT,
 				new String[] {
 						"",
