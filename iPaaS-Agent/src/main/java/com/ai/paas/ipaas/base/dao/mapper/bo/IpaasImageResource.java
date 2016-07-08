@@ -1,4 +1,4 @@
-package com.ai.paas.ipaas.idps.dao.mapper.bo;
+package com.ai.paas.ipaas.base.dao.mapper.bo;
 
 public class IpaasImageResource {
     private Integer id;

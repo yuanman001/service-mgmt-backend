@@ -29,6 +29,7 @@ import kafka.javaapi.producer.Producer;
 import kafka.message.MessageAndOffset;
 import kafka.producer.KeyedMessage;
 import kafka.producer.ProducerConfig;
+import kafka.utils.ZkUtils;
 
 import org.I0Itec.zkclient.ZkClient;
 import org.I0Itec.zkclient.serialize.ZkSerializer;
@@ -76,18 +77,18 @@ public class MsgKafkaHelper implements IMsgKafkaHelper {
 		List<MsgSrvUsageApplyResult> usages = new ArrayList<>();
 		List<String> seedBrokers = new ArrayList<>();
 		String clusterAddr = kafkaCluster.getKafkaAddress();
-		int port = 0;
+		List<Integer> ports = new ArrayList<>();
 		String[] addrs = clusterAddr.split(",");
 		for (String addr : addrs) {
 			String[] splits = addr.split("\\:");
 			seedBrokers.add(splits[0]);
-			port = Integer.parseInt(splits[1]);
+			ports.add(Integer.parseInt(splits[1]));
 		}
 		List<Integer> topicPartitions = getTopicPartitions(topic, seedBrokers,
-				port);
+				ports);
 		for (Integer partition : topicPartitions) {
 			MsgSrvUsageApplyResult usage = getTopicOffset(topic, partition,
-					seedBrokers, port);
+					seedBrokers, ports);
 			// 获取消费记录数
 			usage.setConsumedOffset(getTopicPartitionConsumeOffset(userId,
 					userSrvId, topic,subscribeName, partition));
@@ -97,13 +98,14 @@ public class MsgKafkaHelper implements IMsgKafkaHelper {
 	}
 
 	private List<Integer> getTopicPartitions(String topic,
-			List<String> seedBrokers, int port) {
+			List<String> seedBrokers, List<Integer> ports) {
 		List<Integer> partitions = new ArrayList<>();
+		int i = 0;
 		for (String seed : seedBrokers) {
 			SimpleConsumer consumer = null;
 			try {
-				consumer = new SimpleConsumer(seed, port, 100000, 64 * 1024,
-						"leaderLookup");
+				consumer = new SimpleConsumer(seed, ports.get(i++), 100000,
+						64 * 1024, "leaderLookup");
 				List<String> topics = Collections.singletonList(topic);
 				TopicMetadataRequest req = new TopicMetadataRequest(topics);
 				kafka.javaapi.TopicMetadataResponse resp = consumer.send(req);
@@ -128,13 +130,13 @@ public class MsgKafkaHelper implements IMsgKafkaHelper {
 	}
 
 	public MsgSrvUsageApplyResult getTopicOffset(String topic, int partition,
-			List<String> seedBrokers, int port) {
+			List<String> seedBrokers, List<Integer> ports) {
 		// find the meta data about the topic and partition we are interested in
 		//
 		MsgSrvUsageApplyResult usage = new MsgSrvUsageApplyResult();
 		usage.setPartitionId(partition);
 		usage.setTopicEnName(topic);
-		PartitionMetadata metadata = findLeader(seedBrokers, port, topic,
+		PartitionMetadata metadata = findLeader(seedBrokers, ports, topic,
 				partition);
 		if (metadata == null) {
 			log.error("Can't find metadata for Topic:" + topic
@@ -149,8 +151,8 @@ public class MsgKafkaHelper implements IMsgKafkaHelper {
 		String leadBroker = metadata.leader().host();
 		String clientName = "Client_" + topic + "_" + partition;
 
-		SimpleConsumer consumer = new SimpleConsumer(leadBroker, port, 100000,
-				64 * 1024, clientName);
+		SimpleConsumer consumer = new SimpleConsumer(leadBroker, metadata
+				.leader().port(), 100000, 64 * 1024, clientName);
 		long readOffset = getLastOffset(consumer, topic, partition,
 				kafka.api.OffsetRequest.EarliestTime(), clientName);
 		usage.setAvalOffset(readOffset);
@@ -158,9 +160,9 @@ public class MsgKafkaHelper implements IMsgKafkaHelper {
 		long totalOffset = getLastOffset(consumer, topic, partition,
 				kafka.api.OffsetRequest.LatestTime(), clientName);
 		// 这里需要判断，如果二者相等
-//		if (readOffset == totalOffset && readOffset > 0) {
-//			usage.setAvalOffset(readOffset - 1);
-//		}
+		// if (readOffset == totalOffset && readOffset > 0) {
+		// usage.setAvalOffset(readOffset - 1);
+		// }
 		usage.setTotalOffset(totalOffset);
 		if (consumer != null)
 			consumer.close();
@@ -186,15 +188,16 @@ public class MsgKafkaHelper implements IMsgKafkaHelper {
 		return offsets[0];
 	}
 
-	private PartitionMetadata findLeader(List<String> seedBrokers, int port,
-			String topic, int partition) {
+	private PartitionMetadata findLeader(List<String> seedBrokers,
+			List<Integer> ports, String topic, int partition) {
 
 		PartitionMetadata returnMetaData = null;
+		int i = 0;
 		loop: for (String seed : seedBrokers) {
 			SimpleConsumer consumer = null;
 			try {
-				consumer = new SimpleConsumer(seed, port, 100000, 64 * 1024,
-						"leaderLookup");
+				consumer = new SimpleConsumer(seed, ports.get(i++), 100000,
+						64 * 1024, "leaderLookup");
 				List<String> topics = Collections.singletonList(topic);
 				TopicMetadataRequest req = new TopicMetadataRequest(topics);
 				kafka.javaapi.TopicMetadataResponse resp = consumer.send(req);
@@ -219,7 +222,8 @@ public class MsgKafkaHelper implements IMsgKafkaHelper {
 		}
 		if (returnMetaData != null) {
 			m_replicaBrokers.clear();
-			for (kafka.cluster.Broker replica : returnMetaData.replicas()) {
+			for (kafka.cluster.BrokerEndPoint replica : returnMetaData
+					.replicas()) {
 				m_replicaBrokers.add(replica.host());
 			}
 		}
@@ -233,6 +237,8 @@ public class MsgKafkaHelper implements IMsgKafkaHelper {
 				+ PaaSConstant.UNIX_SEPERATOR + (("".equals(subscribeName) || subscribeName ==null)?"consumer":subscribeName)
 				+ PaaSConstant.UNIX_SEPERATOR + "offsets"
 				+ PaaSConstant.UNIX_SEPERATOR + "partition_" + partition;
+		log.info("=========================getTopicPartitionConsumeOffset:consumerPath==============================");
+		log.info(consumerPath);
 		CCSComponentOperationParam param = new CCSComponentOperationParam();
 		param.setPath(consumerPath);
 		param.setPathType(PathType.WRITABLE);
@@ -240,7 +246,8 @@ public class MsgKafkaHelper implements IMsgKafkaHelper {
 		String content;
 		try {
 			content = configSv.get(param);
-
+			log.info("=========================getTopicPartitionConsumeOffset:content==============================");
+			log.info(content);
 			if (!StringUtil.isBlank(content)) {
 				Gson gson = new Gson();
 				JsonObject json = gson.fromJson(content, JsonObject.class);
@@ -283,7 +290,7 @@ public class MsgKafkaHelper implements IMsgKafkaHelper {
 						kafkaCluster.getZkAuthPasswd()), topicName);
 	}
 
-	private ZkClient createZKClient(String zkAddress, int sessionTimeoutMs,
+	private ZkUtils createZKClient(String zkAddress, int sessionTimeoutMs,
 			int connectionTimeoutMs, String authUser, String authPasswd) {
 		ZkSerializer zkSerializer = new ZKStringSerializer();
 		ZkClient zkClient = new ZkClient(zkAddress, sessionTimeoutMs,
@@ -296,7 +303,7 @@ public class MsgKafkaHelper implements IMsgKafkaHelper {
 				log.error("ZK auth info error!", ex);
 			}
 		}
-		return zkClient;
+		return ZkUtils.apply(zkClient, false);
 	}
 
 	@Override
@@ -333,9 +340,13 @@ public class MsgKafkaHelper implements IMsgKafkaHelper {
 		brokers.add("10.1.228.198");
 		brokers.add("10.1.228.199");
 		brokers.add("10.1.228.202");
+		List<Integer> ports = new ArrayList<>();
+		ports.add(39091);
+		ports.add(39091);
+		ports.add(39091);
 		MsgSrvUsageApplyResult result = kafkaHelper.getTopicOffset(
-				"signatureId-16cad52b-1be9-4b77-8366-be2b6e02db9f", 0,
-				brokers, 39091);
+				"signatureId-16cad52b-1be9-4b77-8366-be2b6e02db9f", 0, brokers,
+				ports);
 		System.out.println(result.getAvalOffset() + "==="
 				+ result.getTotalOffset());
 	}
@@ -346,14 +357,14 @@ public class MsgKafkaHelper implements IMsgKafkaHelper {
 		String messageCnt = null;
 		List<String> seedBrokers = new ArrayList<>();
 		String clusterAddr = kafkaCluster.getKafkaAddress();
-		int port = 0;
+		List<Integer> ports = new ArrayList<>();
 		String[] addrs = clusterAddr.split(",");
 		for (String addr : addrs) {
 			String[] splits = addr.split("\\:");
 			seedBrokers.add(splits[0]);
-			port = Integer.parseInt(splits[1]);
+			ports.add(Integer.parseInt(splits[1]));
 		}
-		PartitionMetadata metadata = findLeader(seedBrokers, port, topic,
+		PartitionMetadata metadata = findLeader(seedBrokers, ports, topic,
 				partition);
 		if (metadata == null) {
 			log.error("Can't find metadata for Topic:" + topic
@@ -370,8 +381,8 @@ public class MsgKafkaHelper implements IMsgKafkaHelper {
 		String leadBroker = metadata.leader().host();
 		String clientName = "Client_" + topic + "_" + partition;
 
-		SimpleConsumer consumer = new SimpleConsumer(leadBroker, port, 100000,
-				1024 * 1024, clientName);
+		SimpleConsumer consumer = new SimpleConsumer(leadBroker, metadata
+				.leader().port(), 100000, 1024 * 1024, clientName);
 		FetchResponse fetchResponse = fetchMessages(consumer, topic, partition,
 				offset);
 		if (fetchResponse.hasError()) {

@@ -137,9 +137,7 @@ public class MessageServiceManagerTest {
 
 	@Test
 	public void testGetTopicUsage() throws Exception {
-		/*String apply = "{userId:'EACAE677521D46D5A0A5E60A3522AB9B',applyType:'topicUsage',serviceId:'MDS002',topicEnName:'EACAE677521D46D5A0A5E60A3522AB9B_MDS002_1430252852"
-				+ "'}";*/
-		String apply = "{userId:'8E7ECAC706994DB9AC2BBB037C18762B',applyType:'topicUsage',subscribeName:'subscribe001',serviceId:'MDS003',topicEnName:'8E7ECAC706994DB9AC2BBB037C18762B_MDS003_416603763"
+		String apply = "{userId:'605A3649A52548BA8B023CBA233C4696',applyType:'topicUsage',serviceId:'MDS022',topicEnName:'605A3649A52548BA8B023CBA233C4696_MDS022_1389228533"
 				+ "'}";
 		String result = msgSrvManager.getTopicUsage(apply);
 		System.out.println(result);

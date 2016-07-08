@@ -5,7 +5,6 @@ allprojects {
     apply plugin: 'maven-publish'
     
     ext {
-        //moduleName="ipaas-config-sdk";
         parentName="ipaas-parent-service"
         moduleVersion="0.3-SNAPSHOT"
         publishUserName = "devadm"
@@ -51,7 +50,6 @@ subprojects {
 
         compile 'javax.servlet:javax.servlet-api:3.1.0'
     }
-
 }
 
 project("iPaaS-Agent") {
@@ -189,7 +187,6 @@ project("iPaaS-IDPS") {
 	}
 }
 project("iPaaS-DubboInterfaces") {
-
     project.ext {
         appName = "ipaas-service-dubbo-interfaces"
     }
@@ -207,11 +204,11 @@ project("iPaaS-DubboInterfaces") {
     publish.dependsOn build
 }
 
-
 configure(subprojects) { subproject ->
     task sourcesJar(type: Jar, dependsOn: classes) { from sourceSets.main.output }
     artifacts { archives sourcesJar }
 }
+
 task copyChildJar(type: Copy) {
     subprojects.each { subproject ->
         from subproject.jar
@@ -252,7 +249,5 @@ jar {
         attributes 'packageName': parentName, 'Built-By': builtBy, 'create-date': new Date().format('yyyy-MM-dd HH:mm:ss')
     }
 }
-
-
 
 build.dependsOn copyChildJar, copy3rdJars, copyChildConfig,cleanTempDir

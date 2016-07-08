@@ -7,7 +7,7 @@ import com.ai.paas.ipaas.PaasException;
 import com.ai.paas.ipaas.rpc.api.vo.BaseInfo;
 import com.ai.paas.ipaas.ses.manage.rest.interfaces.ISearchEngineServiceManager;
 import com.ai.paas.ipaas.ses.service.constant.SesConstants;
-import com.ai.paas.ipaas.ses.service.interfaces.ISesSrv;
+import com.ai.paas.ipaas.ses.service.interfaces.ISesManage;
 import com.ai.paas.ipaas.ses.service.vo.SesMappingApply;
 import com.ai.paas.ipaas.ses.service.vo.SesSrvApply;
 import com.ai.paas.ipaas.ses.service.vo.SesSrvApplyResult;
@@ -19,7 +19,7 @@ public class SesManagerImpl implements ISearchEngineServiceManager {
 	private static transient final Logger LOGGER = Logger
 			.getLogger(SesManagerImpl.class);
 	@Autowired
-	ISesSrv sesSrv;
+	ISesManage sesSrv;
 
 	@Override
 	public String getFuncList() {

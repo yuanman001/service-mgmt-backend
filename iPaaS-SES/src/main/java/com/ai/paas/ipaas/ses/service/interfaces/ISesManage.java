@@ -14,7 +14,7 @@ import com.ai.paas.ipaas.ses.service.vo.SesSrvApply;
  * @version 
  *
  */
-public interface ISesSrv {
+public interface ISesManage {
 	/**
 	 * 搜索服务是否已经创建(相同用户每个serviceid不能重复创建搜索服务)
 	 * 

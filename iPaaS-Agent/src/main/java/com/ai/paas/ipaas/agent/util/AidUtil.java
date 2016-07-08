@@ -1,4 +1,4 @@
-package com.ai.paas.ipaas.idps.service.util;
+package com.ai.paas.ipaas.agent.util;
 
 import com.ai.paas.ipaas.PaasRuntimeException;
 
