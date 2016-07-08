@@ -60,6 +60,7 @@ public class ImageDynProcServiceManagerImpl implements ImageDynProcServiceManage
 		String res = null;
 		try {
 			res = iIdpsSv.start(startApply);
+			startApply = startApply.replaceAll("[{]", "{\"").replaceAll("[:]", "\":\"").replaceAll("[,]", "\",\"").replaceAll("[}]", "\"}");
 		} catch (Exception e) {
 			LOG.error(e.getMessage(),e);
 			return IdpsParamUtil.getReturn(startApply, IdpsConstants.FAIL_FLAG,e.getMessage());
@@ -72,6 +73,7 @@ public class ImageDynProcServiceManagerImpl implements ImageDynProcServiceManage
 		String res = null;
 		try {
 			res = iIdpsSv.stop(stopApply);
+			stopApply = stopApply.replaceAll("[{]", "{\"").replaceAll("[:]", "\":\"").replaceAll("[,]", "\",\"").replaceAll("[}]", "\"}");
 		} catch (Exception e) {
 			LOG.error(e.getMessage(),e);
 			return IdpsParamUtil.getReturn(stopApply, IdpsConstants.FAIL_FLAG,e.getMessage());
