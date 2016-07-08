@@ -350,7 +350,7 @@ public class IdpsSvImpl implements IIdpsSv {
 			LOG.debug("---------mkSshHosts {}----------", mkSshHosts);
 			AgentUtil.executeCommand(basePath + mkSshHosts, AidUtil.getAid());
 			String runImage = IdpsParamUtil.fillStringByArgs(
-					IdpsConstants.DOCKER_4_BALANCE,
+					IdpsConstants.DOCKER_4_BALANCE_STOP_CONTAINER,
 					new String[] {
 							"",
 							balance.getIdpsBalanceHostIp().replace(".", ""),
@@ -419,7 +419,7 @@ public class IdpsSvImpl implements IIdpsSv {
 				LOG.debug("---------mkSshHosts {}----------", mkSshHosts);
 				AgentUtil.executeCommand(basePath + mkSshHosts, AidUtil.getAid());
 				String runImage = IdpsParamUtil.fillStringByArgs(
-						IdpsConstants.DOCKER_4_BALANCE,
+						IdpsConstants.DOCKER_4_BALANCE_START_CONTAINER,
 						new String[] {
 								"",
 								balance.getIdpsBalanceHostIp().replace(".", ""),
@@ -766,7 +766,7 @@ public class IdpsSvImpl implements IIdpsSv {
 				+ "idps/ansible_start_container.sh", AidUtil.getAid());
 		// 开始执行
 		String runImage = IdpsParamUtil.fillStringByArgs(
-				IdpsConstants.DOCKER_4_GM_AND_TOMCAT,
+				IdpsConstants.DOCKER_4_START_CONTAINER,
 				new String[] {
 						"",
 						idpsResourcePool.getIdpsHostIp().replace(".", ""),
@@ -826,7 +826,7 @@ public class IdpsSvImpl implements IIdpsSv {
 				+ "idps/ansible_stop_container.sh", AidUtil.getAid());
 		// 开始执行
 		String runImage = IdpsParamUtil.fillStringByArgs(
-				IdpsConstants.DOCKER_4_GM_AND_TOMCAT,
+				IdpsConstants.DOCKER_4_STOP_CONTAINER,
 				new String[] {
 						"",
 						idpsResourcePool.getIdpsHostIp().replace(".", ""),
