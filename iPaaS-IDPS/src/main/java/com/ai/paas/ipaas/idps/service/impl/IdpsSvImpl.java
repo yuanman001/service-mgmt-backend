@@ -343,14 +343,14 @@ public class IdpsSvImpl implements IIdpsSv {
 		for (IdpsBalanceResourcePool balance : balances) {
 			balance.setIdpsBalancePort(balance.getIdpsBalancePort() + 1);
 			// 先
-			String mkSshHosts = IdpsParamUtil.fillStringByArgs(
+			String mkSshHosts = ParamUtil.replace(
 					IdpsConstants.CREATE_ANSIBLE_HOSTS, new String[] {
 							basePath + "idps",
 							balance.getIdpsBalanceHostIp().replace(".", ""),
 							balance.getIdpsBalanceHostIp() });
 			LOG.debug("---------mkSshHosts {}----------", mkSshHosts);
 			AgentUtil.executeCommand(basePath + mkSshHosts, AidUtil.getAid());
-			String runImage = IdpsParamUtil.fillStringByArgs(
+			String runImage = ParamUtil.replace(
 					IdpsConstants.DOCKER_4_BALANCE_STOP_CONTAINER,
 					new String[] {
 							"",
@@ -412,14 +412,14 @@ public class IdpsSvImpl implements IIdpsSv {
 			for (IdpsBalanceResourcePool balance : balances) {
 				balance.setIdpsBalancePort(balance.getIdpsBalancePort() + 1);
 				// 先
-				String mkSshHosts = IdpsParamUtil.fillStringByArgs(
+				String mkSshHosts = ParamUtil.replace(
 						IdpsConstants.CREATE_ANSIBLE_HOSTS, new String[] {
 								basePath + "idps",
 								balance.getIdpsBalanceHostIp().replace(".", ""),
 								balance.getIdpsBalanceHostIp() });
 				LOG.debug("---------mkSshHosts {}----------", mkSshHosts);
 				AgentUtil.executeCommand(basePath + mkSshHosts, AidUtil.getAid());
-				String runImage = IdpsParamUtil.fillStringByArgs(
+				String runImage = ParamUtil.replace(
 						IdpsConstants.DOCKER_4_BALANCE_START_CONTAINER,
 						new String[] {
 								"",
@@ -748,7 +748,7 @@ public class IdpsSvImpl implements IIdpsSv {
 		in.close();
 		AgentUtil.uploadFile("idps/startidpscontainer.yml", cnt, AidUtil.getAid());
 		// 2.执行这个初始化命令
-		String mkSshHosts = IdpsParamUtil.fillStringByArgs(
+		String mkSshHosts = ParamUtil.replace(
 				IdpsConstants.CREATE_ANSIBLE_HOSTS, new String[] {
 						basePath + "idps",
 						idpsResourcePool.getIdpsHostIp().replace(".", ""),
@@ -766,7 +766,7 @@ public class IdpsSvImpl implements IIdpsSv {
 		AgentUtil.executeCommand("chmod +x " + basePath
 				+ "idps/ansible_start_container.sh", AidUtil.getAid());
 		// 开始执行
-		String runImage = IdpsParamUtil.fillStringByArgs(
+		String runImage = ParamUtil.replace(
 				IdpsConstants.DOCKER_4_START_CONTAINER,
 				new String[] {
 						"",
@@ -808,7 +808,7 @@ public class IdpsSvImpl implements IIdpsSv {
 		in.close();
 		AgentUtil.uploadFile("idps/stopidpscontainer.yml", cnt, AidUtil.getAid());
 		// 2.执行这个初始化命令
-		String mkSshHosts = IdpsParamUtil.fillStringByArgs(
+		String mkSshHosts = ParamUtil.replace(
 				IdpsConstants.CREATE_ANSIBLE_HOSTS, new String[] {
 						basePath + "idps",
 						idpsResourcePool.getIdpsHostIp().replace(".", ""),
@@ -826,7 +826,7 @@ public class IdpsSvImpl implements IIdpsSv {
 		AgentUtil.executeCommand("chmod +x " + basePath
 				+ "idps/ansible_stop_container.sh", AidUtil.getAid());
 		// 开始执行
-		String runImage = IdpsParamUtil.fillStringByArgs(
+		String runImage = ParamUtil.replace(
 				IdpsConstants.DOCKER_4_STOP_CONTAINER,
 				new String[] {
 						"",
