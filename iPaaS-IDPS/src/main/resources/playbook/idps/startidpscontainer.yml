@@ -1,0 +1,7 @@
+- hosts:  "{{host}}"
+  user: "{{user}}"
+  vars:
+     
+  tasks:
+     - name: docker start
+       command: docker start {{idps_container_name}}

@@ -173,6 +173,46 @@ public class IdpsSvImpl implements IIdpsSv {
 					serviceName, IdpsConstants.IDPS_BALANCE_TYPE);
 		}
 	}
+	
+	/**
+	 * 停用多台 图片容器
+	 * 
+	 * @param userId
+	 * @param serviceId
+	 * @param nodeNum
+	 * @throws Exception
+	 */
+	private void stopMany(String userId, String serviceId, int nodeNum,
+			String serviceName, String dssPId, String dssServiceId,
+			String dssServicePwd) throws Exception {
+		// 选择nodeNum个 图片服务器selectIdpsResources
+		List<IdpsResourcePool> irps = selectIdpsResources4Many(nodeNum);
+		// 选择2个 负载均衡
+		List<IdpsBalanceResourcePool> balances = selectIdpsBalance(IdpsConstants.IDPS_BALANCE_NUM);
+		// 处理服务端 docker 命令 拉gm、图片服务器war,nginx镜像，启动docker化的实例
+		stopServer4Many(irps, balances, userId, serviceId, dssPId,
+				dssServiceId, dssServicePwd);
+	}
+	
+	/**
+	 * 启动多台 图片容器
+	 * 
+	 * @param userId
+	 * @param serviceId
+	 * @param nodeNum
+	 * @throws Exception
+	 */
+	private void startMany(String userId, String serviceId, int nodeNum,
+			String serviceName, String dssPId, String dssServiceId,
+			String dssServicePwd) throws Exception {
+		// 选择nodeNum个 图片服务器selectIdpsResources
+		List<IdpsResourcePool> irps = selectIdpsResources4Many(nodeNum);
+		// 选择2个 负载均衡
+		List<IdpsBalanceResourcePool> balances = selectIdpsBalance(IdpsConstants.IDPS_BALANCE_NUM);
+		// 处理服务端 docker 命令 拉gm、图片服务器war,nginx镜像，启动docker化的实例
+		startServer4Many(irps, balances, userId, serviceId, dssPId,
+				dssServiceId, dssServicePwd);
+	}
 
 	@SuppressWarnings("unused")
 	private IdpsResourcePool convertResource(
@@ -259,6 +299,145 @@ public class IdpsSvImpl implements IIdpsSv {
 		}
 
 	}
+	
+	//停用多个ipds容器
+	private void stopServer4Many(List<IdpsResourcePool> irps,
+			List<IdpsBalanceResourcePool> balances, String userId,
+			String serviceId, String dssPId, String dssServiceId,
+			String dssServicePwd) throws Exception {
+		String basePath = AgentUtil.getAgentFilePath(AidUtil.getAid());
+		StringBuffer servers = new StringBuffer("\"");
+		//用户处理idps容器名字做唯一
+		int ipdsNum = 1; 
+		// 启动每一个 图片服务器
+		for (IdpsResourcePool irp : irps) {
+			stopServer(irp, dssPId, dssServiceId, dssServicePwd,userId,serviceId+"_"+ipdsNum);
+			// 便于负载均衡
+			servers.append("_server_").append(irp.getIdpsHostIp()).append(":")
+					.append(irp.getIdpsPort()).append(";");
+			ipdsNum++;
+		}
+		servers.append("\"");
+		IpaasImageResource balanceImage = getBalancImage();
+		// 上传文件
+		// 1.先将需要执行镜像命令的机器配置文件上传上去。
+		InputStream in = IdpsSvImpl.class
+				.getResourceAsStream("/playbook/idps/init_ansible_ssh_hosts.sh");
+		String[] cnt = AgentUtil.readFileLines(in);
+		in.close();
+		AgentUtil.uploadFile("idps/init_ansible_ssh_hosts.sh", cnt,
+				AidUtil.getAid());
+		AgentUtil.executeCommand("chmod +x " + basePath
+				+ "idps/init_ansible_ssh_hosts.sh", AidUtil.getAid());
+		in = IdpsSvImpl.class
+				.getResourceAsStream("/playbook/idps/ansible_stop_container_balance.sh");
+		cnt = AgentUtil.readFileLines(in);
+		in.close();
+		AgentUtil.uploadFile("idps/ansible_stop_container_balance.sh", cnt,
+				AidUtil.getAid());
+		AgentUtil.executeCommand("chmod +x " + basePath
+				+ "idps/ansible_stop_container_balance.sh", AidUtil.getAid());
+		//用户处理idps容器名字做唯一
+		int balanceNum = 1; 
+		for (IdpsBalanceResourcePool balance : balances) {
+			balance.setIdpsBalancePort(balance.getIdpsBalancePort() + 1);
+			// 先
+			String mkSshHosts = IdpsParamUtil.fillStringByArgs(
+					IdpsConstants.CREATE_ANSIBLE_HOSTS, new String[] {
+							basePath + "idps",
+							balance.getIdpsBalanceHostIp().replace(".", ""),
+							balance.getIdpsBalanceHostIp() });
+			LOG.debug("---------mkSshHosts {}----------", mkSshHosts);
+			AgentUtil.executeCommand(basePath + mkSshHosts, AidUtil.getAid());
+			String runImage = IdpsParamUtil.fillStringByArgs(
+					IdpsConstants.DOCKER_4_BALANCE,
+					new String[] {
+							"",
+							balance.getIdpsBalanceHostIp().replace(".", ""),
+							balance.getSshUser(),
+							balance.getSshPassword(),
+							balance.getIdpsBalanceHostIp(),
+							balanceImage.getImageRepository() + "/"
+									+ balanceImage.getImageName(),
+							balance.getIdpsBalancePort() + "",
+							servers.toString(), basePath + "idps" ,
+							"idps_balance_"+userId+"_"+serviceId+"_"+balanceNum});
+			LOG.info("---------runImage {}----------", runImage);
+			AgentUtil.executeCommand(basePath + runImage, AidUtil.getAid());
+			balanceNum++;
+		}
+
+	}
+	
+	//启动多个ipds容器
+		private void startServer4Many(List<IdpsResourcePool> irps,
+				List<IdpsBalanceResourcePool> balances, String userId,
+				String serviceId, String dssPId, String dssServiceId,
+				String dssServicePwd) throws Exception {
+			String basePath = AgentUtil.getAgentFilePath(AidUtil.getAid());
+			StringBuffer servers = new StringBuffer("\"");
+			//用户处理idps容器名字做唯一
+			int ipdsNum = 1; 
+			// 启动每一个 图片服务器
+			for (IdpsResourcePool irp : irps) {
+				startServer(irp, dssPId, dssServiceId, dssServicePwd,userId,serviceId+"_"+ipdsNum);
+				// 便于负载均衡
+				servers.append("_server_").append(irp.getIdpsHostIp()).append(":")
+						.append(irp.getIdpsPort()).append(";");
+				ipdsNum++;
+			}
+			servers.append("\"");
+			IpaasImageResource balanceImage = getBalancImage();
+			// 上传文件
+			// 1.先将需要执行镜像命令的机器配置文件上传上去。
+			InputStream in = IdpsSvImpl.class
+					.getResourceAsStream("/playbook/idps/init_ansible_ssh_hosts.sh");
+			String[] cnt = AgentUtil.readFileLines(in);
+			in.close();
+			AgentUtil.uploadFile("idps/init_ansible_ssh_hosts.sh", cnt,
+					AidUtil.getAid());
+			AgentUtil.executeCommand("chmod +x " + basePath
+					+ "idps/init_ansible_ssh_hosts.sh", AidUtil.getAid());
+			in = IdpsSvImpl.class
+					.getResourceAsStream("/playbook/idps/ansible_start_container_balance.sh");
+			cnt = AgentUtil.readFileLines(in);
+			in.close();
+			AgentUtil.uploadFile("idps/ansible_start_container_balance.sh", cnt,
+					AidUtil.getAid());
+			AgentUtil.executeCommand("chmod +x " + basePath
+					+ "idps/ansible_start_container_balance.sh", AidUtil.getAid());
+			//用户处理idps容器名字做唯一
+			int balanceNum = 1; 
+			for (IdpsBalanceResourcePool balance : balances) {
+				balance.setIdpsBalancePort(balance.getIdpsBalancePort() + 1);
+				// 先
+				String mkSshHosts = IdpsParamUtil.fillStringByArgs(
+						IdpsConstants.CREATE_ANSIBLE_HOSTS, new String[] {
+								basePath + "idps",
+								balance.getIdpsBalanceHostIp().replace(".", ""),
+								balance.getIdpsBalanceHostIp() });
+				LOG.debug("---------mkSshHosts {}----------", mkSshHosts);
+				AgentUtil.executeCommand(basePath + mkSshHosts, AidUtil.getAid());
+				String runImage = IdpsParamUtil.fillStringByArgs(
+						IdpsConstants.DOCKER_4_BALANCE,
+						new String[] {
+								"",
+								balance.getIdpsBalanceHostIp().replace(".", ""),
+								balance.getSshUser(),
+								balance.getSshPassword(),
+								balance.getIdpsBalanceHostIp(),
+								balanceImage.getImageRepository() + "/"
+										+ balanceImage.getImageName(),
+								balance.getIdpsBalancePort() + "",
+								servers.toString(), basePath + "idps" ,
+								"idps_balance_"+userId+"_"+serviceId+"_"+balanceNum});
+				LOG.info("---------runImage {}----------", runImage);
+				AgentUtil.executeCommand(basePath + runImage, AidUtil.getAid());
+				balanceNum++;
+			}
+
+		}
+		
 
 	private List<IdpsBalanceResourcePool> selectIdpsBalance(int num)
 			throws Exception {
@@ -383,6 +562,70 @@ public class IdpsSvImpl implements IIdpsSv {
 				IdpsConstants.IDPS_INSTANCE_TYPE);
 
 	}
+	
+	/**
+	 * 启动单台 图片容器
+	 * 
+	 * @param userId
+	 * @param serviceId
+	 * @param serviceName
+	 * @throws Exception
+	 */
+	private void startOne(String userId, String serviceId, String serviceName,
+			String dssPId, String dssServiceId, String dssServicePwd)
+			throws Exception {
+		// 选择资源
+		List<IdpsResourcePool> idpsResources = selectIdpsResources(1);
+		IdpsResourcePool idpsResourcePool = idpsResources.get(0);
+		// 如果该主机端口已经用完，从idps_user_instance选择该主机最小的已经失效的端口号
+		if (idpsResourcePool != null && idpsResourcePool.getCycle() == 1) {
+			idpsResourcePool.setIdpsPort(getCanUseInstance(
+					idpsResourcePool.getIdpsHostIp()).getIdpsHostPort());
+		} else {
+			if (idpsResourcePool.getIdpsPort() == idpsResourcePool.getMaxPort()) {
+				idpsResourcePool.setCycle(1);
+			}
+			idpsResourcePool.setIdpsPort(idpsResourcePool.getIdpsPort() + 1);
+		}
+		LOG.debug(
+				"----------------seelct IdpsResource host :{}，port ：{}---------",
+				idpsResourcePool.getIdpsHostIp(),
+				idpsResourcePool.getIdpsPort());
+		// 启动单个容器
+		startServer(idpsResourcePool, dssPId, dssServiceId, dssServicePwd,userId,serviceId);
+	}
+	
+	/**
+	 * 停用单台 图片容器
+	 * 
+	 * @param userId
+	 * @param serviceId
+	 * @param serviceName
+	 * @throws Exception
+	 */
+	private void stopOne(String userId, String serviceId, String serviceName,
+			String dssPId, String dssServiceId, String dssServicePwd)
+			throws Exception {
+		// 选择资源
+		List<IdpsResourcePool> idpsResources = selectIdpsResources(1);
+		IdpsResourcePool idpsResourcePool = idpsResources.get(0);
+		// 如果该主机端口已经用完，从idps_user_instance选择该主机最小的已经失效的端口号
+		if (idpsResourcePool != null && idpsResourcePool.getCycle() == 1) {
+			idpsResourcePool.setIdpsPort(getCanUseInstance(
+					idpsResourcePool.getIdpsHostIp()).getIdpsHostPort());
+		} else {
+			if (idpsResourcePool.getIdpsPort() == idpsResourcePool.getMaxPort()) {
+				idpsResourcePool.setCycle(1);
+			}
+			idpsResourcePool.setIdpsPort(idpsResourcePool.getIdpsPort() + 1);
+		}
+		LOG.debug(
+				"----------------seelct IdpsResource host :{}，port ：{}---------",
+				idpsResourcePool.getIdpsHostIp(),
+				idpsResourcePool.getIdpsPort());
+		// 启动单个容器
+		stopServer(idpsResourcePool, dssPId, dssServiceId, dssServicePwd,userId,serviceId);
+	}
 
 	private void addZkConfig(String userId, String serviceId, String url)
 			throws PaasException {
@@ -479,7 +722,128 @@ public class IdpsSvImpl implements IIdpsSv {
 		LOG.debug("---------runImage {}----------", runImage);
 		AgentUtil.executeCommand(basePath + runImage, AidUtil.getAid());
 	}
-
+	
+	/**
+	 * 启动单台图片容器
+	 * 
+	 * @param idpsResourcePool
+	 * @throws Exception
+	 */
+	private void startServer(IdpsResourcePool idpsResourcePool, String dssPId,
+			String dssServiceId, String dssServicePwd,String userId,String serviceId) throws Exception {
+		String basePath = AgentUtil.getAgentFilePath(AidUtil.getAid());
+		// 1.先将需要执行镜像命令的机器配置文件上传上去。
+		InputStream in = IdpsSvImpl.class
+				.getResourceAsStream("/playbook/idps/init_ansible_ssh_hosts.sh");
+		String[] cnt = AgentUtil.readFileLines(in);
+		in.close();
+		AgentUtil.uploadFile("idps/init_ansible_ssh_hosts.sh", cnt,
+				AidUtil.getAid());
+		AgentUtil.executeCommand("chmod +x " + basePath
+				+ "idps/init_ansible_ssh_hosts.sh", AidUtil.getAid());
+		in = IdpsSvImpl.class
+				.getResourceAsStream("/playbook/idps/startidpscontainer.yml");
+		cnt = AgentUtil.readFileLines(in);
+		in.close();
+		AgentUtil.uploadFile("idps/startidpscontainer.yml", cnt, AidUtil.getAid());
+		// 2.执行这个初始化命令
+		String mkSshHosts = IdpsParamUtil.fillStringByArgs(
+				IdpsConstants.CREATE_ANSIBLE_HOSTS, new String[] {
+						basePath + "idps",
+						idpsResourcePool.getIdpsHostIp().replace(".", ""),
+						idpsResourcePool.getIdpsHostIp() });
+		LOG.debug("---------mkSshHosts {}----------", mkSshHosts);
+		AgentUtil.executeCommand(basePath + mkSshHosts, AidUtil.getAid());
+		IpaasImageResource gmImage = getGmImage();
+		// 还得上传文件
+		in = IdpsSvImpl.class
+				.getResourceAsStream("/playbook/idps/ansible_start_container.sh");
+		cnt = AgentUtil.readFileLines(in);
+		in.close();
+		AgentUtil
+				.uploadFile("idps/ansible_start_container.sh", cnt, AidUtil.getAid());
+		AgentUtil.executeCommand("chmod +x " + basePath
+				+ "idps/ansible_start_container.sh", AidUtil.getAid());
+		// 开始执行
+		String runImage = IdpsParamUtil.fillStringByArgs(
+				IdpsConstants.DOCKER_4_GM_AND_TOMCAT,
+				new String[] {
+						"",
+						idpsResourcePool.getIdpsHostIp().replace(".", ""),
+						idpsResourcePool.getSshUser(),
+						idpsResourcePool.getSshPassword(),
+						idpsResourcePool.getIdpsHostIp(),
+						gmImage.getImageRepository() + "/"
+								+ gmImage.getImageName(),
+						idpsResourcePool.getIdpsPort() + "",
+						getSysConf(IdpsConstants.AUTH_TABLE_CODE,
+								IdpsConstants.AUTH_FIELD_CODE), dssPId,
+						dssServiceId, dssServicePwd, basePath + "idps" ,
+						"idps_"+userId+"_"+serviceId});
+		LOG.debug("---------runImage {}----------", runImage);
+		AgentUtil.executeCommand(basePath + runImage, AidUtil.getAid());
+	}
+	/**
+	 * 停用单台图片容器
+	 * 
+	 * @param idpsResourcePool
+	 * @throws Exception
+	 */
+	private void stopServer(IdpsResourcePool idpsResourcePool, String dssPId,
+			String dssServiceId, String dssServicePwd,String userId,String serviceId) throws Exception {
+		String basePath = AgentUtil.getAgentFilePath(AidUtil.getAid());
+		// 1.先将需要执行镜像命令的机器配置文件上传上去。
+		InputStream in = IdpsSvImpl.class
+				.getResourceAsStream("/playbook/idps/init_ansible_ssh_hosts.sh");
+		String[] cnt = AgentUtil.readFileLines(in);
+		in.close();
+		AgentUtil.uploadFile("idps/init_ansible_ssh_hosts.sh", cnt,
+				AidUtil.getAid());
+		AgentUtil.executeCommand("chmod +x " + basePath
+				+ "idps/init_ansible_ssh_hosts.sh", AidUtil.getAid());
+		in = IdpsSvImpl.class
+				.getResourceAsStream("/playbook/idps/stopidpscontainer.yml");
+		cnt = AgentUtil.readFileLines(in);
+		in.close();
+		AgentUtil.uploadFile("idps/stopidpscontainer.yml", cnt, AidUtil.getAid());
+		// 2.执行这个初始化命令
+		String mkSshHosts = IdpsParamUtil.fillStringByArgs(
+				IdpsConstants.CREATE_ANSIBLE_HOSTS, new String[] {
+						basePath + "idps",
+						idpsResourcePool.getIdpsHostIp().replace(".", ""),
+						idpsResourcePool.getIdpsHostIp() });
+		LOG.debug("---------mkSshHosts {}----------", mkSshHosts);
+		AgentUtil.executeCommand(basePath + mkSshHosts, AidUtil.getAid());
+		IpaasImageResource gmImage = getGmImage();
+		// 还得上传文件
+		in = IdpsSvImpl.class
+				.getResourceAsStream("/playbook/idps/ansible_stop_container.sh");
+		cnt = AgentUtil.readFileLines(in);
+		in.close();
+		AgentUtil
+				.uploadFile("idps/ansible_stop_container.sh", cnt, AidUtil.getAid());
+		AgentUtil.executeCommand("chmod +x " + basePath
+				+ "idps/ansible_stop_container.sh", AidUtil.getAid());
+		// 开始执行
+		String runImage = IdpsParamUtil.fillStringByArgs(
+				IdpsConstants.DOCKER_4_GM_AND_TOMCAT,
+				new String[] {
+						"",
+						idpsResourcePool.getIdpsHostIp().replace(".", ""),
+						idpsResourcePool.getSshUser(),
+						idpsResourcePool.getSshPassword(),
+						idpsResourcePool.getIdpsHostIp(),
+						gmImage.getImageRepository() + "/"
+								+ gmImage.getImageName(),
+						idpsResourcePool.getIdpsPort() + "",
+						getSysConf(IdpsConstants.AUTH_TABLE_CODE,
+								IdpsConstants.AUTH_FIELD_CODE), dssPId,
+						dssServiceId, dssServicePwd, basePath + "idps" ,
+						"idps_"+userId+"_"+serviceId});
+		LOG.debug("---------runImage {}----------", runImage);
+		AgentUtil.executeCommand(basePath + runImage, AidUtil.getAid());
+	}
+	
 	private IpaasImageResource getGmImage() throws PaasException {
 		IpaasImageResourceMapper rpm = ServiceUtil
 				.getMapper(IpaasImageResourceMapper.class);
@@ -621,15 +985,53 @@ public class IdpsSvImpl implements IIdpsSv {
 	}
 
 	@Override
-	public String stop(String param) throws PaasException {
-		// TODO Auto-generated method stub
-		return null;
+	public String stop(String param) throws Exception {
+		LOG.debug("----start idps ---param {}-----", param);
+		//处理传过来的参数为json
+		String jsonParam = param.replaceAll("[{]", "{\"").replaceAll("[:]", "\":\"").replaceAll("[,]", "\",\"").replaceAll("[}]", "\"}");
+		Map<String, String> map = IdpsParamUtil.getParamMap(jsonParam);
+		// 获取服务号配置参数
+		final String serviceId = map.get(IdpsConstants.SERVICE_ID);
+		final String userId = map.get(IdpsConstants.USER_ID);
+		final String serviceName = map.get(IdpsConstants.SERVICE_NAME);
+		final String nodeNumStr = map.get(IdpsConstants.NODE_NUM);
+		final int nodeNum = Integer.valueOf(nodeNumStr);
+		final String dssServiceId = map.get(IdpsConstants.DSS_SERVICE_ID);
+		final String dssServicePwd = map.get(IdpsConstants.DSS_SERVICE_PWD);
+		final String dssPId = map.get(IdpsConstants.DSS_P_ID);
+		if (nodeNum == 1) {
+			stopOne(userId, serviceId, serviceName, dssPId, dssServiceId,
+					dssServicePwd);
+		} else {
+			stopMany(userId, serviceId, nodeNum, serviceName, dssPId,
+					dssServiceId, dssServicePwd);
+		}
+		return IdpsConstants.SUCCESS_FLAG;
 	}
-
+	
 	@Override
-	public String start(String param) throws PaasException {
-		// TODO Auto-generated method stub
-		return null;
+	public String start(String param) throws  Exception  {
+		LOG.debug("----start idps ---param {}-----", param);
+		//处理传过来的参数为json
+		String jsonParam = param.replaceAll("[{]", "{\"").replaceAll("[:]", "\":\"").replaceAll("[,]", "\",\"").replaceAll("[}]", "\"}");
+		Map<String, String> map = IdpsParamUtil.getParamMap(jsonParam);
+		// 获取服务号配置参数
+		final String serviceId = map.get(IdpsConstants.SERVICE_ID);
+		final String userId = map.get(IdpsConstants.USER_ID);
+		final String serviceName = map.get(IdpsConstants.SERVICE_NAME);
+		final String nodeNumStr = map.get(IdpsConstants.NODE_NUM);
+		final int nodeNum = Integer.valueOf(nodeNumStr);
+		final String dssServiceId = map.get(IdpsConstants.DSS_SERVICE_ID);
+		final String dssServicePwd = map.get(IdpsConstants.DSS_SERVICE_PWD);
+		final String dssPId = map.get(IdpsConstants.DSS_P_ID);
+		if (nodeNum == 1) {
+			startOne(userId, serviceId, serviceName, dssPId, dssServiceId,
+					dssServicePwd);
+		} else {
+			startMany(userId, serviceId, nodeNum, serviceName, dssPId,
+					dssServiceId, dssServicePwd);
+		}
+		return IdpsConstants.SUCCESS_FLAG;
 	}
 
 	@Override
