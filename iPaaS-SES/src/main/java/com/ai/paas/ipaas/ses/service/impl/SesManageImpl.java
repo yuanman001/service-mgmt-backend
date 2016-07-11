@@ -1,5 +1,6 @@
 package com.ai.paas.ipaas.ses.service.impl;
 
+import java.io.IOException;
 import java.io.InputStream;
 import java.sql.Timestamp;
 import java.util.ArrayList;
@@ -8,6 +9,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
+import org.apache.http.client.ClientProtocolException;
 import org.apache.log4j.Logger;
 import org.elasticsearch.ElasticsearchException;
 import org.elasticsearch.action.admin.indices.exists.indices.IndicesExistsRequest;
@@ -20,16 +22,21 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import com.ai.paas.ipaas.PaaSConstant;
 import com.ai.paas.ipaas.PaasException;
 import com.ai.paas.ipaas.ServiceUtil;
 import com.ai.paas.ipaas.agent.util.AgentUtil;
 import com.ai.paas.ipaas.agent.util.AidUtil;
+import com.ai.paas.ipaas.agent.util.ParamUtil;
+import com.ai.paas.ipaas.base.dao.interfaces.IpaasImageResourceMapper;
+import com.ai.paas.ipaas.base.dao.interfaces.IpaasSysConfigMapper;
+import com.ai.paas.ipaas.base.dao.mapper.bo.IpaasImageResource;
+import com.ai.paas.ipaas.base.dao.mapper.bo.IpaasImageResourceCriteria;
+import com.ai.paas.ipaas.base.dao.mapper.bo.IpaasSysConfig;
+import com.ai.paas.ipaas.base.dao.mapper.bo.IpaasSysConfigCriteria;
 import com.ai.paas.ipaas.ccs.constants.ConfigCenterDubboConstants.PathType;
 import com.ai.paas.ipaas.ccs.service.ICCSComponentManageSv;
 import com.ai.paas.ipaas.ccs.service.dto.CCSComponentOperationParam;
-import com.ai.paas.ipaas.idps.service.constant.IdpsConstants;
-import com.ai.paas.ipaas.idps.service.impl.IdpsSvImpl;
-import com.ai.paas.ipaas.idps.service.util.IdpsParamUtil;
 import com.ai.paas.ipaas.rpc.api.vo.BaseInfo;
 import com.ai.paas.ipaas.ses.dao.interfaces.SesResourcePoolMapper;
 import com.ai.paas.ipaas.ses.dao.interfaces.SesUserInstanceMapper;
@@ -64,27 +71,85 @@ public class SesManageImpl implements ISesManage {
 		StringBuilder clusterString = new StringBuilder();
 		String hosts = queryUnicastHosts(sesHosts);
 		String basePath = AgentUtil.getAgentFilePath(AidUtil.getAid());
+		String sshUser = getSesSSHUser();
+		String sshUserPwd = getSesSSHUserPwd();
+		IpaasImageResource sesImage = getSesImage();
 		// 1.先将需要执行镜像命令的机器配置文件上传上去。
 		InputStream in = SesManageImpl.class
 				.getResourceAsStream("/playbook/ses/init_ansible_ssh_hosts.sh");
 		String[] cnt = AgentUtil.readFileLines(in);
-		in.close();
-		AgentUtil.uploadFile("ses/init_ansible_ssh_hosts.sh", cnt,
-				AidUtil.getAid());
-		AgentUtil.executeCommand("chmod +x " + basePath
-				+ "ses/init_ansible_ssh_hosts.sh", AidUtil.getAid());
+		try {
+			in.close();
+		} catch (IOException e2) {
+			// TODO Auto-generated catch block
+			e2.printStackTrace();
+		}
+		try {
+			AgentUtil.uploadFile("ses/init_ansible_ssh_hosts.sh", cnt,
+					AidUtil.getAid());
+		} catch (ClientProtocolException e1) {
+			// TODO Auto-generated catch block
+			e1.printStackTrace();
+		} catch (IOException e1) {
+			// TODO Auto-generated catch block
+			e1.printStackTrace();
+		}
+		try {
+			AgentUtil.executeCommand("chmod +x " + basePath
+					+ "ses/init_ansible_ssh_hosts.sh", AidUtil.getAid());
+		} catch (ClientProtocolException e1) {
+			// TODO Auto-generated catch block
+			e1.printStackTrace();
+		} catch (IOException e1) {
+			// TODO Auto-generated catch block
+			e1.printStackTrace();
+		}
 		in = SesManageImpl.class.getResourceAsStream("/playbook/ses/ses.yml");
 		cnt = AgentUtil.readFileLines(in);
-		in.close();
-		AgentUtil.uploadFile("ses/ses.yml", cnt, AidUtil.getAid());
+		try {
+			in.close();
+		} catch (IOException e2) {
+			// TODO Auto-generated catch block
+			e2.printStackTrace();
+		}
+		try {
+			AgentUtil.uploadFile("ses/ses.yml", cnt, AidUtil.getAid());
+		} catch (ClientProtocolException e2) {
+			// TODO Auto-generated catch block
+			e2.printStackTrace();
+		} catch (IOException e2) {
+			// TODO Auto-generated catch block
+			e2.printStackTrace();
+		}
 		// 还得上传文件
 		in = SesManageImpl.class
 				.getResourceAsStream("/playbook/ses/ansible_run_ses.sh");
 		cnt = AgentUtil.readFileLines(in);
-		in.close();
-		AgentUtil.uploadFile("ses/ansible_run_ses.sh", cnt, AidUtil.getAid());
-		AgentUtil.executeCommand("chmod +x " + basePath
-				+ "ses/ansible_run_ses.sh", AidUtil.getAid());
+		try {
+			in.close();
+		} catch (IOException e1) {
+			// TODO Auto-generated catch block
+			e1.printStackTrace();
+		}
+		try {
+			AgentUtil.uploadFile("ses/ansible_run_ses.sh", cnt, AidUtil.getAid());
+		} catch (ClientProtocolException e1) {
+			// TODO Auto-generated catch block
+			e1.printStackTrace();
+		} catch (IOException e1) {
+			// TODO Auto-generated catch block
+			e1.printStackTrace();
+		}
+		try {
+			AgentUtil.executeCommand("chmod +x " + basePath
+					+ "ses/ansible_run_ses.sh", AidUtil.getAid());
+		} catch (ClientProtocolException e1) {
+			// TODO Auto-generated catch block
+			e1.printStackTrace();
+		} catch (IOException e1) {
+			// TODO Auto-generated catch block
+			e1.printStackTrace();
+		}
 		// 2.启动ses集群
 		for (SesHostInfo sesHostInfo : sesHosts) {
 			String ip = sesHostInfo.getIp();
@@ -92,33 +157,42 @@ public class SesManageImpl implements ISesManage {
 			String binPath = sesHostInfo.getBinPath();
 			String userPath = sesHostInfo.getUserPath();
 			// 生成每个主机列表
-			String mkSshHosts = IdpsParamUtil.fillStringByArgs(
-					IdpsConstants.CREATE_ANSIBLE_HOSTS, new String[] {
-							basePath + "idps",
-							idpsResourcePool.getIdpsHostIp().replace(".", ""),
-							idpsResourcePool.getIdpsHostIp() });
-			LOG.debug("---------mkSshHosts {}----------", mkSshHosts);
-			AgentUtil.executeCommand(basePath + mkSshHosts, AidUtil.getAid());
+			String mkSshHosts = ParamUtil.replace(
+					"ses/init_ansible_ssh_hosts.sh {0} {1} {2}", new String[] {
+							basePath + "ses", ip.replace(".", ""), ip });
+			LOGGER.info("---------mkSshHosts {}----------" + mkSshHosts);
+			try {
+				AgentUtil.executeCommand(basePath + mkSshHosts, AidUtil.getAid());
+			} catch (ClientProtocolException e1) {
+				// TODO Auto-generated catch block
+				e1.printStackTrace();
+			} catch (IOException e1) {
+				// TODO Auto-generated catch block
+				e1.printStackTrace();
+			}
 
 			// 开始执行
-			String runImage = IdpsParamUtil.fillStringByArgs(
-					IdpsConstants.DOCKER_4_GM_AND_TOMCAT,
+			String runImage = ParamUtil.replace(
+					"ses/ansible_run_ses.sh {1} {2} "
+							+ "{3} {4} {5} {6} {7} {8} {9} {10} {11} {12}",
 					new String[] {
-							"",
-							idpsResourcePool.getIdpsHostIp().replace(".", ""),
-							idpsResourcePool.getSshUser(),
-							idpsResourcePool.getSshPassword(),
-							idpsResourcePool.getIdpsHostIp(),
-							gmImage.getImageRepository() + "/"
-									+ gmImage.getImageName(),
-							idpsResourcePool.getIdpsPort() + "",
-							getSysConf(IdpsConstants.AUTH_TABLE_CODE,
-									IdpsConstants.AUTH_FIELD_CODE), dssPId,
-							dssServiceId, dssServicePwd, basePath + "idps" });
+							basePath + "ses",
+							ip.replace(".", ""),
+							sshUser,
+							sshUserPwd,
+							ip,
+							sshUser,
+							sesImage.getImageRepository() + "/"
+									+ sesImage.getImageName(), userId,
+							serviceId, sesHostInfo.getTcpPort(),
+							sesHostInfo.getHttpPort(), hosts, ip });
 
-			LOG.debug("---------runImage {}----------", runImage);
-			AgentUtil.executeCommand(basePath + runImage, AidUtil.getAid());
-			AgentClient ac = new AgentClient(ip, agentPort);
+			LOGGER.info("---------runImage {}----------"+ runImage);
+			try {
+				AgentUtil.executeCommand(basePath + runImage, AidUtil.getAid());
+			} catch (ClientProtocolException e) {
+			} catch (IOException e) {
+			}
 
 			String tcpPort = sesHostInfo.getTcpPort();
 			String execConfPrepare = "sh " + userPath + "/init-ses.sh "
@@ -132,10 +206,10 @@ public class SesManageImpl implements ISesManage {
 					+ userId + "/conf/"
 					+ (userId + "-" + serviceId + "-" + tcpPort) + ".yml";
 			LOGGER.info("execSesStart.........." + execSesStart);
-			ac.executeInstruction(execConfPrepare);
-			ac.executeInstruction("export ES_HEAP_SIZE="
-					+ sesSrvApply.getSesMem() + "m \n" + execSesStart
-					+ " \n export ES_HEAP_SIZE= \n");
+//			ac.executeInstruction(execConfPrepare);
+//			ac.executeInstruction("export ES_HEAP_SIZE="
+//					+ sesSrvApply.getSesMem() + "m \n" + execSesStart
+//					+ " \n export ES_HEAP_SIZE= \n");
 
 			// 更新ses_user_instance
 			SesUserInstance sesUser = new SesUserInstance();
@@ -213,18 +287,18 @@ public class SesManageImpl implements ISesManage {
 	private TransportClient prepareSearchClient(String ipAndPort) {
 		TransportClient searchClient = null;
 		/* 如果10秒没有连接上搜索服务器，则超时 */
-		Settings settings = ImmutableSettings.settingsBuilder()
-				.put("client.transport.ping_timeout", "10s")
-				.put("client.transport.sniff", "true")
-				.put("client.transport.ignore_cluster_name", "true").build();
+//		Settings settings = ImmutableSettings.settingsBuilder()
+//				.put("client.transport.ping_timeout", "10s")
+//				.put("client.transport.sniff", "true")
+//				.put("client.transport.ignore_cluster_name", "true").build();
 		/* 创建搜索客户端 */
-		searchClient = new TransportClient(settings);
-		String address = ipAndPort.split(":")[0];
-		int port = Integer.parseInt(ipAndPort.split(":")[1]);
-		/* 通过tcp连接搜索服务器，如果连接不上，有一种可能是服务器端与客户端的jar包版本不匹配 */
-		searchClient = ((TransportClient) searchClient)
-				.addTransportAddress(new InetSocketTransportAddress(address,
-						port));
+//		searchClient = new TransportClient(settings);
+//		String address = ipAndPort.split(":")[0];
+//		int port = Integer.parseInt(ipAndPort.split(":")[1]);
+//		/* 通过tcp连接搜索服务器，如果连接不上，有一种可能是服务器端与客户端的jar包版本不匹配 */
+//		searchClient = ((TransportClient) searchClient)
+//				.addTransportAddress(new InetSocketTransportAddress(address,
+//						port));
 		return searchClient;
 	}
 
@@ -447,8 +521,8 @@ public class SesManageImpl implements ISesManage {
 				createIndex(mappingApply);
 			}
 			if (doesMappingExist(indexName, indexType, client)) {
-				indicesAdminClient.prepareDeleteMapping().setIndices(indexName)
-						.setType(indexType).execute().actionGet();
+//				indicesAdminClient.prepareDeleteMapping().setIndices(indexName)
+//						.setType(indexType).execute().actionGet();
 			}
 			String mapping = mappingApply.getMapping();
 			LOGGER.info("putMapping begin ..........userid:" + userId
@@ -518,10 +592,10 @@ public class SesManageImpl implements ISesManage {
 			String execSesStart = "sh " + host.getBinPath()
 					+ "/bin/elasticsearch -d -Des.config=" + host.getUserPath()
 					+ "/" + info.getUserId() + "/conf/" + sesDis + ".yml";
-			AgentClient ac = new AgentClient(hostIp, host.getAgentPort());
-
-			LOGGER.info("execSesStart.........." + execSesStart);
-			ac.executeInstruction(execSesStart);
+//			AgentClient ac = new AgentClient(hostIp, host.getAgentPort());
+//
+//			LOGGER.info("execSesStart.........." + execSesStart);
+//			ac.executeInstruction(execSesStart);
 		}
 	}
 
@@ -540,12 +614,12 @@ public class SesManageImpl implements ISesManage {
 		}
 		for (String ip : ips) {
 			SesResourcePool host = quryHostByIp(ip);
-			AgentClient ac = new AgentClient(ip, host.getAgentPort());
-			String sesDis = info.getUserId() + "-" + info.getServiceId();
-			String execSesStop = "ps -ef | grep " + sesDis
-					+ " | awk '{print $2}' | xargs kill -9";
-			LOGGER.info("execSesStop.........." + execSesStop);
-			ac.executeInstruction(execSesStop);
+//			AgentClient ac = new AgentClient(ip, host.getAgentPort());
+//			String sesDis = info.getUserId() + "-" + info.getServiceId();
+//			String execSesStop = "ps -ef | grep " + sesDis
+//					+ " | awk '{print $2}' | xargs kill -9";
+//			LOGGER.info("execSesStop.........." + execSesStop);
+//			ac.executeInstruction(execSesStop);
 		}
 	}
 
@@ -573,15 +647,15 @@ public class SesManageImpl implements ISesManage {
 		}
 		for (String ip : ips) {
 			SesResourcePool host = quryHostByIp(ip);
-			AgentClient ac = new AgentClient(ip, host.getAgentPort());
-			String execSesRecycle = "rm -rf " + host.getUserPath() + "/"
-					+ info.getUserId();
-			LOGGER.info("execSesRecycle.........." + execSesRecycle);
-			ac.executeInstruction(execSesRecycle);
-			String execSesIkRecycle = "rm -rf " + host.getBinPath()
-					+ "/config/ik/" + info.getUserId();
-			LOGGER.info("execSesIkRecycle.........." + execSesIkRecycle);
-			ac.executeInstruction(execSesIkRecycle);
+//			AgentClient ac = new AgentClient(ip, host.getAgentPort());
+//			String execSesRecycle = "rm -rf " + host.getUserPath() + "/"
+//					+ info.getUserId();
+//			LOGGER.info("execSesRecycle.........." + execSesRecycle);
+//			ac.executeInstruction(execSesRecycle);
+//			String execSesIkRecycle = "rm -rf " + host.getBinPath()
+//					+ "/config/ik/" + info.getUserId();
+//			LOGGER.info("execSesIkRecycle.........." + execSesIkRecycle);
+//			ac.executeInstruction(execSesIkRecycle);
 		}
 		// ses_user_instance 删除记录
 		instanceCriteria.createCriteria().andUserIdEqualTo(info.getUserId())
@@ -596,6 +670,43 @@ public class SesManageImpl implements ISesManage {
 				.andServiceIdEqualTo(info.getServiceId());
 		mappingMapper.deleteByExample(sesUserMappingCriteria);
 
+	}
+
+	private IpaasImageResource getSesImage() throws PaasException {
+		IpaasImageResourceMapper rpm = ServiceUtil
+				.getMapper(IpaasImageResourceMapper.class);
+		IpaasImageResourceCriteria rpmc = new IpaasImageResourceCriteria();
+		rpmc.createCriteria().andStatusEqualTo(SesConstants.VALIDATE_STATUS)
+				.andServiceCodeEqualTo(SesConstants.SERVICE_CODE)
+				.andImageCodeEqualTo(SesConstants.IMAGE_CODE);
+		List<IpaasImageResource> res = rpm.selectByExample(rpmc);
+		if (res == null || res.isEmpty())
+			throw new PaasException("SES IMAGE not config.");
+		return res.get(0);
+	}
+
+	private String getSesSSHUser() throws PaasException {
+		IpaasSysConfigMapper sysconfigDao = ServiceUtil
+				.getMapper(IpaasSysConfigMapper.class);
+		IpaasSysConfigCriteria rpmc = new IpaasSysConfigCriteria();
+		rpmc.createCriteria().andTableCodeEqualTo(SesConstants.SERVICE_CODE)
+				.andFieldCodeEqualTo(SesConstants.SSH_USER_CODE);
+		List<IpaasSysConfig> res = sysconfigDao.selectByExample(rpmc);
+		if (res == null || res.isEmpty())
+			throw new PaasException("SES ssh user not config.");
+		return res.get(0).getFieldValue();
+	}
+
+	private String getSesSSHUserPwd() throws PaasException {
+		IpaasSysConfigMapper sysconfigDao = ServiceUtil
+				.getMapper(IpaasSysConfigMapper.class);
+		IpaasSysConfigCriteria rpmc = new IpaasSysConfigCriteria();
+		rpmc.createCriteria().andTableCodeEqualTo(SesConstants.SERVICE_CODE)
+				.andFieldCodeEqualTo(SesConstants.SSH_USER_PWD_CODE);
+		List<IpaasSysConfig> res = sysconfigDao.selectByExample(rpmc);
+		if (res == null || res.isEmpty())
+			throw new PaasException("SES ssh user not config.");
+		return res.get(0).getFieldValue();
 	}
 
 	public static void main(String[] args) throws PaasException {

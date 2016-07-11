@@ -1,0 +1,9 @@
+- hosts:  "{{host}}"
+  user: "{{user}}"
+  vars:
+     
+  tasks:
+     - name: docker pull
+       command: docker pull "{{image}}"
+     - name: docker run
+       command: docker run -itd -e "USER_PID={{USER_PID}}" -e "SES_SRV_ID={{SES_SRV_ID}}" -e "SRV_PORT={{SRV_PORT}}" -e "SRV_HTTP_PORT={{SRV_HTTP_PORT}}" -e "SES_CLUSTER={{SES_CLUSTER}}" -e "SRV_HOST={{SRV_HOST}}" --net=host "{{image}}"
