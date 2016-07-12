@@ -1,13 +1,13 @@
 package com.ai.paas.ipaas.ses.service.vo;
 
-import com.ai.paas.ipaas.rpc.api.vo.BaseInfo;
+import com.ai.paas.ipaas.rpc.api.vo.ApplyInfo;
 
 /**
  * 创建mapping入参
  * @author jianhua.ma
  * @version 
  */
-public class SesMappingApply extends BaseInfo{
+public class SesMappingApply extends ApplyInfo{
 
 	private static final long serialVersionUID = -7276753137909397153L;
 	/**

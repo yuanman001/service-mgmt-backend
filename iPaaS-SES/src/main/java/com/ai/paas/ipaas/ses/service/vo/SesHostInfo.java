@@ -10,10 +10,10 @@ package com.ai.paas.ipaas.ses.service.vo;
 
 import java.io.Serializable;
 
-import com.ai.paas.ipaas.rpc.api.vo.BaseInfo;
+import com.ai.paas.ipaas.rpc.api.vo.ApplyInfo;;
 
 
-public class SesHostInfo extends BaseInfo implements Serializable {
+public class SesHostInfo extends ApplyInfo implements Serializable {
 
 	private static final long serialVersionUID = -2343553680948165860L;
 

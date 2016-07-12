@@ -8,10 +8,10 @@
 
 package com.ai.paas.ipaas.ses.service.vo;
 
-import com.ai.paas.ipaas.rpc.api.vo.BaseInfo;
+import com.ai.paas.ipaas.rpc.api.vo.ApplyInfo;
 
 
-public class SesSrvApply extends BaseInfo{
+public class SesSrvApply extends ApplyInfo{
 
 	private static final long serialVersionUID = -7276753137909397160L;
 	/**
