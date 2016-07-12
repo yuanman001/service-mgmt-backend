@@ -401,7 +401,7 @@ public class IdpsSvImpl implements IIdpsSv {
 		int ipdsNum = 1; 
 		// 启动每一个 图片服务器
 		for (IdpsResourcePool irp : irps) {
-			stopServer(irp, dssPId, dssServiceId, dssServicePwd,userId,serviceId+"_"+ipdsNum);
+			deleteServer(irp, dssPId, dssServiceId, dssServicePwd,userId,serviceId+"_"+ipdsNum);
 			// 便于负载均衡
 			servers.append("_server_").append(irp.getIdpsHostIp()).append(":")
 					.append(irp.getIdpsPort()).append(";");
