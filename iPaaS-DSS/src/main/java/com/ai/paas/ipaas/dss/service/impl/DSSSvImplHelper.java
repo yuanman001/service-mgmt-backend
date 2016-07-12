@@ -24,6 +24,7 @@ import org.springframework.transaction.annotation.Transactional;
 import redis.clients.jedis.HostAndPort;
 import redis.clients.jedis.JedisCluster;
 
+import com.ai.dubbo.ext.vo.BaseInfo;
 import com.ai.paas.ipaas.PaasException;
 import com.ai.paas.ipaas.ServiceUtil;
 import com.ai.paas.ipaas.ccs.constants.ConfigCenterDubboConstants.PathType;
@@ -910,7 +911,7 @@ public class DSSSvImplHelper {
 	@SuppressWarnings("rawtypes")
 	private List<Class> getClass(Class clazz, List<Class> classList) {
 		if (clazz.getSuperclass() != null) {
-			if (Object.class.equals(clazz.getSuperclass().getName())) {
+			if (BaseInfo.class.equals(clazz.getSuperclass().getName())) {
 				return classList;
 			} else {
 				classList.add(clazz.getSuperclass());
