@@ -413,7 +413,7 @@ public class DSSSvImplHelper {
 				log.error("系统异常-----commConf为null");
 				throw new Exception("系统异常-----commConf为null");
 			}
-		
+
 			if (doModify(applyObj, commConf)) {
 				log.error("申请变更大小小于已使用容量");
 				throw new Exception("申请变更大小小于已使用容量");
@@ -424,8 +424,8 @@ public class DSSSvImplHelper {
 			DSSConf dssConf = (DSSConf) getConfObj(applyObj.getUserId(),
 					DSS_BASE_ZK_CONF + applyObj.getServiceId());
 			int dssNum = commConf.getHosts().split(";").length;
-//			int perCapacity = Integer.parseInt(applyObj.getSize()) / dssNum
-//					+ Integer.parseInt(applyObj.getSize()) % dssNum;
+			// int perCapacity = Integer.parseInt(applyObj.getSize()) / dssNum
+			// + Integer.parseInt(applyObj.getSize()) % dssNum;
 			int differenceSzie = Integer.parseInt(applyObj.getSize())
 					- Integer.parseInt(applyObj.getSize());
 			int leftSize = getResourceLeftSize(groupId) - differenceSzie;
@@ -911,7 +911,8 @@ public class DSSSvImplHelper {
 	@SuppressWarnings("rawtypes")
 	private List<Class> getClass(Class clazz, List<Class> classList) {
 		if (clazz.getSuperclass() != null) {
-			if (BaseInfo.class.equals(clazz.getSuperclass().getName())) {
+			if (BaseInfo.class.getName()
+					.equals(clazz.getSuperclass().getName())) {
 				return classList;
 			} else {
 				classList.add(clazz.getSuperclass());
@@ -1216,7 +1217,6 @@ public class DSSSvImplHelper {
 	private boolean okSize(long a, long b) {
 		return (a - b) >= 0 ? TRUE : FALSE;
 	}
-
 
 	private boolean doModify(ModifyParam applyObj, DSSCommonConf commConf) {
 		JedisCluster jc = getJedisClusterClient(commConf.getRedisHosts().split(
