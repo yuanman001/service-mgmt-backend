@@ -22,8 +22,9 @@ public class ImageDynProcServiceManagerImpl implements ImageDynProcServiceManage
 	@Override
 	public String create(String createApply) {
 		String res = null;
+		String isUpgrade = "no";
 		try {
-			res = iIdpsSv.open(createApply);
+			res = iIdpsSv.open(createApply,isUpgrade);
 		} catch (Exception e) {
 			LOG.error(e.getMessage(),e);
 			return IdpsParamUtil.getReturn(createApply, IdpsConstants.FAIL_FLAG,e.getMessage());
@@ -110,10 +111,24 @@ public class ImageDynProcServiceManagerImpl implements ImageDynProcServiceManage
 		}
 		return IdpsParamUtil.getReturn(stopApply, res,"stop successfully!");
 	}
-	
+
+	@Override
+	public String upgrade(String createApply) {
+		String res = null;
+		String isUpgrade = "yes";
+		try {
+			res = iIdpsSv.open(createApply,isUpgrade);
+			createApply = createApply.replaceAll("[{]", "{\"").replaceAll("[:]", "\":\"").replaceAll("[,]", "\",\"").replaceAll("[}]", "\"}");
+		} catch (Exception e) {
+			LOG.error(e.getMessage(),e);
+			return IdpsParamUtil.getReturn(createApply, IdpsConstants.FAIL_FLAG,e.getMessage());
+		}
+		return IdpsParamUtil.getReturn(createApply, res,"upgrade successfully!");
+	}
 	
 	
 	
 
+	
 }
 	

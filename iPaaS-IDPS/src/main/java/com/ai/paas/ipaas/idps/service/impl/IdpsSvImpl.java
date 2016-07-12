@@ -56,9 +56,16 @@ public class IdpsSvImpl implements IIdpsSv {
 	private ICCSComponentManageSv iCCSComponentManageSv;
 
 	@Override
-	public String open(String param) throws Exception {
+	public String open(String param,String isUpgrade) throws Exception {
+		
+		Map<String, String> map = new HashMap<String, String>();
 		LOG.debug("----open idps ---param {}-----", param);
-		Map<String, String> map = IdpsParamUtil.getParamMap(param);
+		if("yes".equals(isUpgrade)){
+				String jsonParam = param.replaceAll("[{]", "{\"").replaceAll("[:]", "\":\"").replaceAll("[,]", "\",\"").replaceAll("[}]", "\"}");
+				map = IdpsParamUtil.getParamMap(jsonParam);
+		}else{
+				map = IdpsParamUtil.getParamMap(param);
+		}
 		String applyType = map.get(IdpsConstants.APPLY_TYPE);
 		if (!IdpsConstants.APPLY_TYPE_C.equals(applyType))
 			throw new PaasException("图片服务开通，服务类型不对！");
@@ -83,13 +90,15 @@ public class IdpsSvImpl implements IIdpsSv {
 
 		if (nodeNum == 1) {
 			openOne(userId, serviceId, serviceName, dssPId, dssServiceId,
-					dssServicePwd);
+					dssServicePwd,isUpgrade);
 		} else {
 			openMany(userId, serviceId, nodeNum, serviceName, dssPId,
-					dssServiceId, dssServicePwd);
+					dssServiceId, dssServicePwd,isUpgrade);
 		}
-		// 捆绑DSS
-		bindDss(userId, serviceId, dssPId, dssServiceId, dssServicePwd);
+		if("no".equals(isUpgrade)){
+			// 捆绑DSS
+			bindDss(userId, serviceId, dssPId, dssServiceId, dssServicePwd);
+		}
 		// 开通成功
 		LOG.debug("------------open success-------------");
 		return IdpsConstants.SUCCESS_FLAG;
@@ -141,7 +150,7 @@ public class IdpsSvImpl implements IIdpsSv {
 	 */
 	private void openMany(String userId, String serviceId, int nodeNum,
 			String serviceName, String dssPId, String dssServiceId,
-			String dssServicePwd) throws Exception {
+			String dssServicePwd,String isUpgrade) throws Exception {
 		// 选择nodeNum个 图片服务器selectIdpsResources
 		List<IdpsResourcePool> irps = selectIdpsResources4Many(nodeNum);
 		// 选择2个 负载均衡
@@ -150,29 +159,31 @@ public class IdpsSvImpl implements IIdpsSv {
 		// 处理服务端 docker 命令 拉gm、图片服务器war,nginx镜像，启动docker化的实例
 		handleServer4Many(irps, balances, userId, serviceId, dssPId,
 				dssServiceId, dssServicePwd);
-
-		// updateBalanceResource
-		for (IdpsBalanceResourcePool balanceRe : balances) {
-			updateBalanceResource(balanceRe);
+		
+		if("no".equals(isUpgrade)){
+			// updateBalanceResource
+			for (IdpsBalanceResourcePool balanceRe : balances) {
+				updateBalanceResource(balanceRe);
+			}
+			// 在zk中记录申请信息
+			addZkConfig(
+					userId,
+					serviceId,
+					getImageServerUrl(balances.get(0).getIdpsBalanceHostIp(),
+							balances.get(0).getIdpsBalancePort()));
+			// 沉淀用户实例
+			for (int i = 0; i < irps.size(); i++) {
+				addIdpsUserInstance(irps.get(i).getIdpsHostIp(), irps.get(i)
+						.getIdpsPort(), userId, serviceId, serviceName,
+						IdpsConstants.IDPS_INSTANCE_TYPE);
+			}
+			for (int i = 0; i < balances.size(); i++) {
+				addIdpsUserInstance(balances.get(i).getIdpsBalanceHostIp(),
+						balances.get(i).getIdpsBalancePort(), userId, serviceId,
+						serviceName, IdpsConstants.IDPS_BALANCE_TYPE);
+			}
 		}
-
-		// 在zk中记录申请信息
-		addZkConfig(
-				userId,
-				serviceId,
-				getImageServerUrl(balances.get(0).getIdpsBalanceHostIp(),
-						balances.get(0).getIdpsBalancePort()));
-		// 沉淀用户实例
-		for (int i = 0; i < irps.size(); i++) {
-			addIdpsUserInstance(irps.get(i).getIdpsHostIp(), irps.get(i)
-					.getIdpsPort(), userId, serviceId, serviceName,
-					IdpsConstants.IDPS_INSTANCE_TYPE);
-		}
-		for (int i = 0; i < balances.size(); i++) {
-			addIdpsUserInstance(balances.get(i).getIdpsBalanceHostIp(),
-					balances.get(i).getIdpsBalancePort(), userId, serviceId,
-					serviceName, IdpsConstants.IDPS_BALANCE_TYPE);
-		}
+		
 	}
 	
 	/**
@@ -613,7 +624,7 @@ public class IdpsSvImpl implements IIdpsSv {
 	 * @throws Exception
 	 */
 	private void openOne(String userId, String serviceId, String serviceName,
-			String dssPId, String dssServiceId, String dssServicePwd)
+			String dssPId, String dssServiceId, String dssServicePwd,String isUpgrade)
 			throws Exception {
 		// 选择资源
 		List<IdpsResourcePool> idpsResources = selectIdpsResources(1);
@@ -640,16 +651,18 @@ public class IdpsSvImpl implements IIdpsSv {
 				idpsResourcePool.getIdpsPort());
 		// 处理服务端 docker 命令 拉gm、图片服务器war，启动docker化的实例
 		handleServer(idpsResourcePool, dssPId, dssServiceId, dssServicePwd,userId,serviceId);
-		// 在zk中记录申请信息
-		addZkConfig(
-				userId,
-				serviceId,
-				getImageServerUrl(idpsResourcePool.getIdpsHostIp(),
-						idpsResourcePool.getIdpsPort()));
-		// 沉淀用户实例
-		addIdpsUserInstance(idpsResourcePool.getIdpsHostIp(),
-				idpsResourcePool.getIdpsPort(), userId, serviceId, serviceName,
-				IdpsConstants.IDPS_INSTANCE_TYPE);
+		if("no".equals(isUpgrade)){
+			// 在zk中记录申请信息
+			addZkConfig(
+					userId,
+					serviceId,
+					getImageServerUrl(idpsResourcePool.getIdpsHostIp(),
+							idpsResourcePool.getIdpsPort()));
+			// 沉淀用户实例
+			addIdpsUserInstance(idpsResourcePool.getIdpsHostIp(),
+					idpsResourcePool.getIdpsPort(), userId, serviceId, serviceName,
+					IdpsConstants.IDPS_INSTANCE_TYPE);
+		}
 
 	}
 	
@@ -1253,5 +1266,6 @@ public class IdpsSvImpl implements IIdpsSv {
 		// TODO Auto-generated method stub
 		return null;
 	}
-
+	
+	
 }
