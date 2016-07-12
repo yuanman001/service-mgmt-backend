@@ -97,6 +97,19 @@ public class ImageDynProcServiceManagerImpl implements ImageDynProcServiceManage
 	public String getFuncList() {
 		return IdpsParamUtil.getFuncList();
 	}
+
+	@Override
+	public String clean(String stopApply) {
+		String res = null;
+		try {
+			res = iIdpsSv.clean(stopApply);
+			stopApply = stopApply.replaceAll("[{]", "{\"").replaceAll("[:]", "\":\"").replaceAll("[,]", "\",\"").replaceAll("[}]", "\"}");
+		} catch (Exception e) {
+			LOG.error(e.getMessage(),e);
+			return IdpsParamUtil.getReturn(stopApply, IdpsConstants.FAIL_FLAG,e.getMessage());
+		}
+		return IdpsParamUtil.getReturn(stopApply, res,"stop successfully!");
+	}
 	
 	
 	

@@ -49,6 +49,9 @@ public interface ImageDynProcServiceManager extends ISrvManager {
 	@POST
 	public String restart(String restartApply);	
 	
+	@Path("/clean")
+	@POST
+	public String clean(String startApply);
 	
 	
 }

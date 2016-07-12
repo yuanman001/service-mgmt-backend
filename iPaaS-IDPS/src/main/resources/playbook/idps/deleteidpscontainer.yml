@@ -1,0 +1,7 @@
+- hosts:  "{{host}}"
+  user: "{{user}}"
+  vars:
+     
+  tasks:
+     - name: docker rm
+       command: docker rm {{idps_container_name}}

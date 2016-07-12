@@ -15,4 +15,6 @@ public interface IIdpsSv {
 	String restart(String param) throws Exception;
 	//注销服务
 	String cancel(String param) throws Exception;
+	//删除服务
+	String clean(String param) throws Exception;
 }
