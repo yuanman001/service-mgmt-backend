@@ -8,7 +8,7 @@ import com.ai.paas.ipaas.dss.manage.param.ModifyParam;
 import com.ai.paas.ipaas.dss.manage.param.RecordParam;
 import com.ai.paas.ipaas.dss.manage.param.StatusParam;
 import com.ai.paas.ipaas.dss.manage.param.UploadParam;
-import com.ai.paas.ipaas.rpc.api.vo.BaseInfo;
+import com.ai.paas.ipaas.rpc.api.vo.ApplyInfo;
 import com.google.gson.Gson;
 
 public class DSSHelper {
@@ -56,7 +56,7 @@ public class DSSHelper {
 		return gson.fromJson(param, UploadParam.class);
 	}
 
-	public static DSSResult getResult(BaseInfo applyObj, String failMsg) {
+	public static DSSResult getResult(ApplyInfo applyObj, String failMsg) {
 		DSSResult result = new DSSResult();
 		result.setApplyType(applyObj.getApplyType());
 		result.setResultCode(FAIL);
