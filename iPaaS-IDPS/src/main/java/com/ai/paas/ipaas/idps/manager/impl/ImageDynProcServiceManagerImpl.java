@@ -74,6 +74,7 @@ public class ImageDynProcServiceManagerImpl implements ImageDynProcServiceManage
 		String res = null;
 		try {
 			res = iIdpsSv.stop(stopApply);
+			LOG.info("res========yinzf===="+res);
 			stopApply = stopApply.replaceAll("[{]", "{\"").replaceAll("[:]", "\":\"").replaceAll("[,]", "\",\"").replaceAll("[}]", "\"}");
 		} catch (Exception e) {
 			LOG.error(e.getMessage(),e);
