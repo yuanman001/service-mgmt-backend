@@ -77,7 +77,7 @@ public class IdpsSvImpl implements IIdpsSv {
 		final int nodeNum = Integer.valueOf(nodeNumStr);
 
 		// 判断用户的这个图片服务是否已经开通
-		if (existsService(userId, serviceId)) {
+		if (existsService(userId, serviceId) && "no".equals(isUpgrade)) {
 			LOG.debug("----------------用户服务已存在，开通成功");
 			return IdpsConstants.SUCCESS_FLAG;
 		}
