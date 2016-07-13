@@ -103,9 +103,10 @@ public class ImageDynProcServiceManagerImpl implements ImageDynProcServiceManage
 
 	@Override
 	public String clean(String stopApply) {
+		String destroy = "no";
 		String res = null;
 		try {
-			res = iIdpsSv.clean(stopApply);
+			res = iIdpsSv.clean(stopApply,destroy);
 			stopApply = stopApply.replaceAll("[{]", "{\"").replaceAll("[:]", "\":\"").replaceAll("[,]", "\",\"").replaceAll("[}]", "\"}");
 		} catch (Exception e) {
 			stopApply = stopApply.replaceAll("[{]", "{\"").replaceAll("[:]", "\":\"").replaceAll("[,]", "\",\"").replaceAll("[}]", "\"}");
@@ -128,6 +129,21 @@ public class ImageDynProcServiceManagerImpl implements ImageDynProcServiceManage
 			return IdpsParamUtil.getReturn(createApply, IdpsConstants.FAIL_FLAG,e.getMessage());
 		}
 		return IdpsParamUtil.getReturn(createApply, res,"upgrade successfully!");
+	}
+
+	@Override
+	public String destroy(String stopApply) {
+		String destroy = "yes";
+		String res = null;
+		try {
+			res = iIdpsSv.clean(stopApply,destroy);
+			stopApply = stopApply.replaceAll("[{]", "{\"").replaceAll("[:]", "\":\"").replaceAll("[,]", "\",\"").replaceAll("[}]", "\"}");
+		} catch (Exception e) {
+			stopApply = stopApply.replaceAll("[{]", "{\"").replaceAll("[:]", "\":\"").replaceAll("[,]", "\",\"").replaceAll("[}]", "\"}");
+			LOG.error(e.getMessage(),e);
+			return IdpsParamUtil.getReturn(stopApply, IdpsConstants.FAIL_FLAG,e.getMessage());
+		}
+		return IdpsParamUtil.getReturn(stopApply, res,"stop successfully!");
 	}
 	
 	

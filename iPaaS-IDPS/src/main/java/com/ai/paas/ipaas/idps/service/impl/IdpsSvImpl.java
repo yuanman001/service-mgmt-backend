@@ -55,6 +55,8 @@ public class IdpsSvImpl implements IIdpsSv {
 	@Autowired
 	private ICCSComponentManageSv iCCSComponentManageSv;
 
+	protected static final String IDPS_BASE_ZK_CONF = "/IDPS/";
+	
 	@Override
 	public String open(String param,String isUpgrade) throws Exception {
 		
@@ -780,6 +782,20 @@ public class IdpsSvImpl implements IIdpsSv {
 				+ IdpsConstants.IDPS_IMAGE_URL_OUT);
 		iCCSComponentManageSv.add(op, dataJson.toString());
 	}
+	
+	//删除 指定节点
+	private void deleteConf(String userId, String path) throws PaasException {
+		CCSComponentOperationParam op = getZKBase(userId);
+		op.setPath(path);
+		iCCSComponentManageSv.delete(op);
+	}
+	
+	protected CCSComponentOperationParam getZKBase(String userId) {
+		CCSComponentOperationParam op = new CCSComponentOperationParam();
+		op.setUserId(userId);
+		op.setPathType(PathType.READONLY);
+		return op;
+	}
 
 	private String getImageServerUrl(String ip, int port) throws PaasException {
 		IpaasSysConfigMapper rpm = ServiceUtil
@@ -1206,8 +1222,8 @@ public class IdpsSvImpl implements IIdpsSv {
 	}
 	
 	@Override
-	public String clean(String param) throws Exception {
-		LOG.debug("----start idps ---param {}-----", param);
+	public String clean(String param,String destroy) throws Exception {
+		LOG.debug("----clean idps ---param {}-----", param);
 		//处理传过来的参数为json
 		String jsonParam = param.replaceAll("[{]", "{\"").replaceAll("[:]", "\":\"").replaceAll("[,]", "\",\"").replaceAll("[}]", "\"}");
 		Map<String, String> map = IdpsParamUtil.getParamMap(jsonParam);
@@ -1220,6 +1236,10 @@ public class IdpsSvImpl implements IIdpsSv {
 		final String dssServiceId = map.get(IdpsConstants.DSS_SERVICE_ID);
 		final String dssServicePwd = map.get(IdpsConstants.DSS_SERVICE_PWD);
 		final String dssPId = map.get(IdpsConstants.DSS_P_ID);
+		//如果 是注销（就是销毁），需要清除zk
+		if("yes".equals(destroy)){
+			deleteConf(userId, IDPS_BASE_ZK_CONF+serviceId);
+		}
 		if (nodeNum == 1) {
 			deleteOne(userId, serviceId, serviceName, dssPId, dssServiceId,
 					dssServicePwd);
