@@ -63,6 +63,7 @@ public class ImageDynProcServiceManagerImpl implements ImageDynProcServiceManage
 			res = iIdpsSv.start(startApply);
 			startApply = startApply.replaceAll("[{]", "{\"").replaceAll("[:]", "\":\"").replaceAll("[,]", "\",\"").replaceAll("[}]", "\"}");
 		} catch (Exception e) {
+			startApply = startApply.replaceAll("[{]", "{\"").replaceAll("[:]", "\":\"").replaceAll("[,]", "\",\"").replaceAll("[}]", "\"}");
 			LOG.error(e.getMessage(),e);
 			return IdpsParamUtil.getReturn(startApply, IdpsConstants.FAIL_FLAG,e.getMessage());
 		}
@@ -74,10 +75,10 @@ public class ImageDynProcServiceManagerImpl implements ImageDynProcServiceManage
 		String res = null;
 		try {
 			res = iIdpsSv.stop(stopApply);
-			LOG.info("res========yinzf===="+res);
 			stopApply = stopApply.replaceAll("[{]", "{\"").replaceAll("[:]", "\":\"").replaceAll("[,]", "\",\"").replaceAll("[}]", "\"}");
 		} catch (Exception e) {
 			LOG.error(e.getMessage(),e);
+			stopApply = stopApply.replaceAll("[{]", "{\"").replaceAll("[:]", "\":\"").replaceAll("[,]", "\",\"").replaceAll("[}]", "\"}");
 			return IdpsParamUtil.getReturn(stopApply, IdpsConstants.FAIL_FLAG,e.getMessage());
 		}
 		return IdpsParamUtil.getReturn(stopApply, res,"stop successfully!");
@@ -107,6 +108,7 @@ public class ImageDynProcServiceManagerImpl implements ImageDynProcServiceManage
 			res = iIdpsSv.clean(stopApply);
 			stopApply = stopApply.replaceAll("[{]", "{\"").replaceAll("[:]", "\":\"").replaceAll("[,]", "\",\"").replaceAll("[}]", "\"}");
 		} catch (Exception e) {
+			stopApply = stopApply.replaceAll("[{]", "{\"").replaceAll("[:]", "\":\"").replaceAll("[,]", "\",\"").replaceAll("[}]", "\"}");
 			LOG.error(e.getMessage(),e);
 			return IdpsParamUtil.getReturn(stopApply, IdpsConstants.FAIL_FLAG,e.getMessage());
 		}
@@ -121,6 +123,7 @@ public class ImageDynProcServiceManagerImpl implements ImageDynProcServiceManage
 			res = iIdpsSv.open(createApply,isUpgrade);
 			createApply = createApply.replaceAll("[{]", "{\"").replaceAll("[:]", "\":\"").replaceAll("[,]", "\",\"").replaceAll("[}]", "\"}");
 		} catch (Exception e) {
+			createApply = createApply.replaceAll("[{]", "{\"").replaceAll("[:]", "\":\"").replaceAll("[,]", "\",\"").replaceAll("[}]", "\"}");
 			LOG.error(e.getMessage(),e);
 			return IdpsParamUtil.getReturn(createApply, IdpsConstants.FAIL_FLAG,e.getMessage());
 		}
