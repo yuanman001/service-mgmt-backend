@@ -117,7 +117,7 @@ public class ImageDynProcServiceManagerImpl implements ImageDynProcServiceManage
 	}
 
 	@Override
-	public String upgradle(String createApply) {
+	public String upgrade(String createApply) {
 		String res = null;
 		String isUpgrade = "yes";
 		try {

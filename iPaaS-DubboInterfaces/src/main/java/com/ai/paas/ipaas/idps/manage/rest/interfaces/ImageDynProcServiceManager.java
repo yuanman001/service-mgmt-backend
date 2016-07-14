@@ -53,9 +53,9 @@ public interface ImageDynProcServiceManager extends ISrvManager {
 	@POST
 	public String clean(String startApply);
 	
-	@Path("/upgradle")
+	@Path("/upgrade")
 	@POST
-	public String upgradle(String startApply);
+	public String upgrade(String startApply);
 	
 	@Path("/destroy")
 	@POST

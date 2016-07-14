@@ -24,11 +24,11 @@ public class TestIdps {
 
 	}
 	
-	private static void upgradle(){
+	private static void upgrade(){
 		    long s = System.currentTimeMillis();
 			String param = "{resultMsg:Apply IDPS successfully created!,dssServicePwd:123456,serviceId:IDPS009,dssPId:9A4792E9516B48E28F96AC1DC231708E,nodeNum:2,cpuNum:1,userId:8E7ECAC706994DB9AC2BBB037C18762B,resultCode:000000,mem:512,applyType:create,dssServiceId:DSS007,serviceName:idps_peng_11}";
 
-			System.out.println("----------create-res:\n"+HttpClientUtil.send(url+"/idps/manage/upgradle",param));
+			System.out.println("----------create-res:\n"+HttpClientUtil.send(url+"/idps/manage/upgrade",param));
 			System.out.println("----------删除多台，耗时："+(System.currentTimeMillis()-s));
 	}
 	
