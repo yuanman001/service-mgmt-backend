@@ -7,15 +7,15 @@ import com.ai.paas.ipaas.mds.manage.vo.MsgLstSubPathApplyResult;
 import com.ai.paas.ipaas.mds.manage.vo.MsgSrvApply;
 import com.ai.paas.ipaas.mds.manage.vo.MsgSrvApplyResult;
 import com.ai.paas.ipaas.mds.manage.vo.MsgSrvUsageApplyResult;
+import com.ai.paas.ipaas.rpc.api.vo.ApplyResult;
 import com.ai.paas.ipaas.mds.manage.vo.MsgSubApplyResult;
-import com.ai.paas.ipaas.rpc.api.vo.BaseResult;
 import com.google.gson.Gson;
 
 public class MDSResultWrapper {
 	public static String wrapRestfulResult(String resultCode, String message,
 			MsgSrvApply apply) {
 		Gson gson = new Gson();
-		BaseResult applyResult = new BaseResult();
+		ApplyResult applyResult = new ApplyResult();
 		applyResult.setResultCode(resultCode);
 		applyResult.setResultMsg(message);
 		if (null != apply) {
@@ -64,7 +64,7 @@ public class MDSResultWrapper {
 	public static String wrapSubRestfulResult(String resultCode, String message,
 			MdsUserSubscribe apply) {
 		Gson gson = new Gson();
-		BaseResult applyResult = new BaseResult();
+		ApplyResult applyResult = new ApplyResult();
 		applyResult.setResultCode(resultCode);
 		applyResult.setResultMsg(message);
 		if (null != apply) {

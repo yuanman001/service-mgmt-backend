@@ -37,7 +37,7 @@ import com.ai.paas.ipaas.base.dao.mapper.bo.IpaasSysConfigCriteria;
 import com.ai.paas.ipaas.ccs.constants.ConfigCenterDubboConstants.PathType;
 import com.ai.paas.ipaas.ccs.service.ICCSComponentManageSv;
 import com.ai.paas.ipaas.ccs.service.dto.CCSComponentOperationParam;
-import com.ai.paas.ipaas.rpc.api.vo.BaseInfo;
+import com.ai.paas.ipaas.rpc.api.vo.ApplyInfo;
 import com.ai.paas.ipaas.ses.dao.interfaces.SesResourcePoolMapper;
 import com.ai.paas.ipaas.ses.dao.interfaces.SesUserInstanceMapper;
 import com.ai.paas.ipaas.ses.dao.interfaces.SesUserMappingMapper;
@@ -575,7 +575,7 @@ public class SesManageImpl implements ISesManage {
 	}
 
 	@Override
-	public void start(BaseInfo info) throws PaasException {
+	public void start(ApplyInfo info) throws PaasException {
 		SesUserInstanceMapper mapper = ServiceUtil
 				.getMapper(SesUserInstanceMapper.class);
 		SesUserInstanceCriteria instanceCriteria = new SesUserInstanceCriteria();
@@ -600,7 +600,7 @@ public class SesManageImpl implements ISesManage {
 	}
 
 	@Override
-	public void stop(BaseInfo info) throws PaasException {
+	public void stop(ApplyInfo info) throws PaasException {
 		SesUserInstanceMapper mapper = ServiceUtil
 				.getMapper(SesUserInstanceMapper.class);
 		SesUserInstanceCriteria instanceCriteria = new SesUserInstanceCriteria();
@@ -624,7 +624,7 @@ public class SesManageImpl implements ISesManage {
 	}
 
 	@Override
-	public void recycle(BaseInfo info) throws PaasException {
+	public void recycle(ApplyInfo info) throws PaasException {
 		// 停服务
 		stop(info);
 		// 服务器回收资源

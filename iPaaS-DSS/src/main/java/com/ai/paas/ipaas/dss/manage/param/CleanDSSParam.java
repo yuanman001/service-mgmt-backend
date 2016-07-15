@@ -2,10 +2,10 @@ package com.ai.paas.ipaas.dss.manage.param;
 
 import java.io.Serializable;
 
-import com.ai.paas.ipaas.rpc.api.vo.BaseInfo;
+import com.ai.paas.ipaas.rpc.api.vo.ApplyInfo;
 
 
-public class CleanDSSParam extends BaseInfo implements Serializable {
+public class CleanDSSParam extends ApplyInfo implements Serializable {
 
 	/**
 	 * 

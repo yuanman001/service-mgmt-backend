@@ -2,7 +2,7 @@ package com.ai.paas.ipaas.ses.service.vo;
 
 import java.io.Serializable;
 
-import com.ai.paas.ipaas.rpc.api.vo.BaseInfo;
+import com.ai.paas.ipaas.rpc.api.vo.ApplyInfo;
 
 /**
  * 
@@ -12,7 +12,7 @@ import com.ai.paas.ipaas.rpc.api.vo.BaseInfo;
  * @author jianhua.ma
 
  */
-public class SesSrvApplyResult extends BaseInfo implements Serializable {
+public class SesSrvApplyResult extends ApplyInfo implements Serializable {
 	private static final long serialVersionUID = -305386031613493497L;
 	/**
 	 * 返回结果码
