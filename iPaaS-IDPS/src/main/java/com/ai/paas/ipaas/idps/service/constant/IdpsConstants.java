@@ -26,10 +26,28 @@ public class IdpsConstants {
 	public static final String CREATE_ANSIBLE_HOSTS = "idps/init_ansible_ssh_hosts.sh {0} {1} {2}";
 	/**图片服务器*/
 	public static final String DOCKER_4_GM_AND_TOMCAT = "idps/ansible_run_image.sh {1} {2} "
-			+ "{3} {4} {5} {6} {7} {8} {9} {10} {11}";
+			+ "{3} {4} {5} {6} {7} {8} {9} {10} {11} {12}";
+	/**停用图片容器*/
+	public static final String DOCKER_4_STOP_CONTAINER = "idps/ansible_stop_container.sh {1} {2} "
+			+ "{3} {4} {5} {6} {7} {8} {9} {10} {11} {12}";
+	/**删除图片容器*/
+	public static final String DOCKER_4_DELETE_CONTAINER = "idps/ansible_delete_container.sh {1} {2} "
+			+ "{3} {4} {5} {6} {7} {8} {9} {10} {11} {12}";
+	/**启用图片容器*/
+	public static final String DOCKER_4_START_CONTAINER = "idps/ansible_start_container.sh {1} {2} "
+			+ "{3} {4} {5} {6} {7} {8} {9} {10} {11} {12}";
 	/**图片服务器 负载均衡*/
 	public static final String DOCKER_4_BALANCE = "idps/ansible_run_image_balance.sh {1} {2} "
-			+ "{3} {4} {5} {6} {7} {8}";
+			+ "{3} {4} {5} {6} {7} {8} {9}";
+	/**启用图片容器 负载均衡*/
+	public static final String DOCKER_4_BALANCE_START_CONTAINER = "idps/ansible_start_container_balance.sh {1} {2} "
+			+ "{3} {4} {5} {6} {7} {8} {9}";
+	/**停用图片容器 负载均衡*/
+	public static final String DOCKER_4_BALANCE_STOP_CONTAINER = "idps/ansible_stop_container_balance.sh {1} {2} "
+			+ "{3} {4} {5} {6} {7} {8} {9}";
+	/**删除图片容器 负载均衡*/
+	public static final String DOCKER_4_BALANCE_DELETE_CONTAINER = "idps/ansible_delete_container_balance.sh {1} {2} "
+			+ "{3} {4} {5} {6} {7} {8} {9}";
 	
 	/**绑定的DSS信息*/
 	public static final String DSS_P_ID = "dssPId";

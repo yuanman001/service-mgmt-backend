@@ -1,9 +1,9 @@
 package com.ai.paas.ipaas.mds.manage.vo;
 
-import com.ai.paas.ipaas.rpc.api.vo.BaseInfo;
+import com.ai.paas.ipaas.rpc.api.vo.ApplyInfo;
 
 
-public class MsgSrvApply extends BaseInfo {
+public class MsgSrvApply extends ApplyInfo {
 	/**
 	 * 
 	 */
@@ -16,6 +16,7 @@ public class MsgSrvApply extends BaseInfo {
 	private int partition;
 	private long offset;
 	private String message;
+	private String subscribeName;
 
 	public String getTopicEnName() {
 		return topicEnName;
@@ -81,4 +82,13 @@ public class MsgSrvApply extends BaseInfo {
 		this.message = message;
 	}
 
+	public String getSubscribeName() {
+		return subscribeName;
+	}
+
+	public void setSubscribeName(String subscribeName) {
+		this.subscribeName = subscribeName;
+	}
+
+	
 }

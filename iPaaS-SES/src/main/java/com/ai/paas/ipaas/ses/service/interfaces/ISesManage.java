@@ -1,7 +1,7 @@
 package com.ai.paas.ipaas.ses.service.interfaces;
 
 import com.ai.paas.ipaas.PaasException;
-import com.ai.paas.ipaas.rpc.api.vo.BaseInfo;
+import com.ai.paas.ipaas.rpc.api.vo.ApplyInfo;
 import com.ai.paas.ipaas.ses.service.vo.SesMappingApply;
 import com.ai.paas.ipaas.ses.service.vo.SesSrvApply;
 
@@ -51,19 +51,19 @@ public interface ISesManage {
 	 * @param 
 	 * @throws PaasException
 	 */
-	public void start(BaseInfo info) throws PaasException;
+	public void start(ApplyInfo info) throws PaasException;
 	/**
 	 * 停止服务
 	 * @param 
 	 * @throws PaasException
 	 */
-	public void stop(BaseInfo info) throws PaasException;
+	public void stop(ApplyInfo info) throws PaasException;
 	/**
 	 * 注销服务
 	 * @param 
 	 * @throws PaasException
 	 */
-	public void recycle(BaseInfo info) throws PaasException;
+	public void recycle(ApplyInfo info) throws PaasException;
 	/**
 	 * 
 	 * qryAvlSesHosts:(根据用户输入的节点个数，去数据库查询可用的主机列表). 

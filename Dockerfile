@@ -13,8 +13,8 @@ COPY ./build/all-config /iPaaS-Service-Dubbo/config/
 RUN rm -rf /iPaaS-Service-Dubbo/3rd-libs/httpcore-4.2.5.jar /iPaaS-Service-Dubbo/3rd-libs/httpclient-4.2.6.jar
 
 ## copy config files
-RUN cd /iPaaS-Service-Dubbo/config && mkdir context
-COPY ./context/* /iPaaS-Service-Dubbo/config/context/
+#RUN cd /iPaaS-Service-Dubbo/config && mkdir context 
+#COPY ./context/* /iPaaS-Service-Dubbo/config/context/
 
 ## copy start script
 COPY ./ipaas_service_dubbo.sh /ipaas_service_dubbo.sh

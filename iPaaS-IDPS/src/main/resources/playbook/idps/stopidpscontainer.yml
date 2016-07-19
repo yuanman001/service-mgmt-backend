@@ -1,0 +1,7 @@
+- hosts:  "{{host}}"
+  user: "{{user}}"
+  vars:
+     
+  tasks:
+     - name: docker stop
+       command: docker stop {{idps_container_name}}

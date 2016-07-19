@@ -1,0 +1,193 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.ai.paas.ipaas.mds.dao.interfaces.MdsUserSubscribeMapper" >
+  <resultMap id="BaseResultMap" type="com.ai.paas.ipaas.mds.dao.mapper.bo.MdsUserSubscribe" >
+    <result column="subscribe_id" property="subscribeId" jdbcType="INTEGER" />
+    <result column="subscribe_name" property="subscribeName" jdbcType="VARCHAR" />
+    <result column="user_id" property="userId" jdbcType="VARCHAR" />
+    <result column="topic_en_name" property="topicEnName" jdbcType="VARCHAR" />
+    <result column="user_serv_ipaas_id" property="userServIpaasId" jdbcType="VARCHAR" />
+    <result column="create_time" property="createTime" jdbcType="TIMESTAMP" />
+  </resultMap>
+  <sql id="Example_Where_Clause" >
+    <where >
+      <foreach collection="oredCriteria" item="criteria" separator="or" >
+        <if test="criteria.valid" >
+          <trim prefix="(" suffix=")" prefixOverrides="and" >
+            <foreach collection="criteria.criteria" item="criterion" >
+              <choose >
+                <when test="criterion.noValue" >
+                  and ${criterion.condition}
+                </when>
+                <when test="criterion.singleValue" >
+                  and ${criterion.condition} #{criterion.value}
+                </when>
+                <when test="criterion.betweenValue" >
+                  and ${criterion.condition} #{criterion.value} and #{criterion.secondValue}
+                </when>
+                <when test="criterion.listValue" >
+                  and ${criterion.condition}
+                  <foreach collection="criterion.value" item="listItem" open="(" close=")" separator="," >
+                    #{listItem}
+                  </foreach>
+                </when>
+              </choose>
+            </foreach>
+          </trim>
+        </if>
+      </foreach>
+    </where>
+  </sql>
+  <sql id="Update_By_Example_Where_Clause" >
+    <where >
+      <foreach collection="example.oredCriteria" item="criteria" separator="or" >
+        <if test="criteria.valid" >
+          <trim prefix="(" suffix=")" prefixOverrides="and" >
+            <foreach collection="criteria.criteria" item="criterion" >
+              <choose >
+                <when test="criterion.noValue" >
+                  and ${criterion.condition}
+                </when>
+                <when test="criterion.singleValue" >
+                  and ${criterion.condition} #{criterion.value}
+                </when>
+                <when test="criterion.betweenValue" >
+                  and ${criterion.condition} #{criterion.value} and #{criterion.secondValue}
+                </when>
+                <when test="criterion.listValue" >
+                  and ${criterion.condition}
+                  <foreach collection="criterion.value" item="listItem" open="(" close=")" separator="," >
+                    #{listItem}
+                  </foreach>
+                </when>
+              </choose>
+            </foreach>
+          </trim>
+        </if>
+      </foreach>
+    </where>
+  </sql>
+  <sql id="Base_Column_List" >
+    subscribe_id, subscribe_name, user_id, topic_en_name, user_serv_ipaas_id, create_time
+  </sql>
+  <select id="selectByExample" resultMap="BaseResultMap" parameterType="com.ai.paas.ipaas.mds.dao.mapper.bo.MdsUserSubscribeCriteria" >
+    select
+    <if test="distinct" >
+      distinct
+    </if>
+    <include refid="Base_Column_List" />
+    from mds_user_subscribe
+    <if test="_parameter != null" >
+      <include refid="Example_Where_Clause" />
+    </if>
+    <if test="orderByClause != null" >
+      order by ${orderByClause}
+    </if>
+    <if test="limitStart != null and limitStart>=0" >
+      limit #{limitStart} , #{limitEnd}
+    </if>
+  </select>
+  <select id="selectBySubscribe" resultMap="BaseResultMap" parameterType="com.ai.paas.ipaas.mds.dao.mapper.bo.MdsUserSubscribe" >
+    select
+    <include refid="Base_Column_List" />
+    from mds_user_subscribe 
+    where subscribe_name = #{subscribeName,jdbcType=VARCHAR} and topic_en_name = #{topicEnName,jdbcType=VARCHAR}
+    
+  </select>
+  <delete id="deleteByExample" parameterType="com.ai.paas.ipaas.mds.dao.mapper.bo.MdsUserSubscribeCriteria" >
+    delete from mds_user_subscribe
+    <if test="_parameter != null" >
+      <include refid="Example_Where_Clause" />
+    </if>
+  </delete>
+  <insert id="insert" parameterType="com.ai.paas.ipaas.mds.dao.mapper.bo.MdsUserSubscribe" >
+    insert into mds_user_subscribe (subscribe_id, subscribe_name, user_id, 
+      topic_en_name, user_serv_ipaas_id, create_time)
+    values (#{subscribeId,jdbcType=INTEGER}, #{subscribeName,jdbcType=VARCHAR}, #{userId,jdbcType=VARCHAR}, 
+      #{topicEnName,jdbcType=VARCHAR},#{userServIpaasId,jdbcType=VARCHAR}, #{createTime,jdbcType=TIMESTAMP})
+  </insert>
+  <insert id="insertSelective" parameterType="com.ai.paas.ipaas.mds.dao.mapper.bo.MdsUserSubscribe" >
+    insert into mds_user_subscribe
+    <trim prefix="(" suffix=")" suffixOverrides="," >
+      <if test="subscribeId != null" >
+        subscribe_id,
+      </if>
+      <if test="subscribeName != null" >
+        subscribe_name,
+      </if>
+      <if test="userId != null" >
+        user_id,
+      </if>
+      <if test="topicEnName != null" >
+        topic_en_name,
+      </if>
+      <if test="userServIpaasId != null" >
+        user_serv_ipaas_id,
+      </if>
+      <if test="createTime != null" >
+        create_time,
+      </if>
+    </trim>
+    <trim prefix="values (" suffix=")" suffixOverrides="," >
+      <if test="subscribeId != null" >
+        #{subscribeId,jdbcType=INTEGER},
+      </if>
+      <if test="subscribeName != null" >
+        #{subscribeName,jdbcType=VARCHAR},
+      </if>
+      <if test="userId != null" >
+        #{userId,jdbcType=VARCHAR},
+      </if>
+      <if test="topicEnName != null" >
+        #{topicEnName,jdbcType=VARCHAR},
+      </if>
+      <if test="createTime != null" >
+        #{createTime,jdbcType=TIMESTAMP},
+      </if>
+    </trim>
+  </insert>
+  <select id="countByExample" parameterType="com.ai.paas.ipaas.mds.dao.mapper.bo.MdsUserSubscribeCriteria" resultType="java.lang.Integer" >
+    select count(*) from mds_user_subscribe
+    <if test="_parameter != null" >
+      <include refid="Example_Where_Clause" />
+    </if>
+  </select>
+  <update id="updateByExampleSelective" parameterType="map" >
+    update mds_user_subscribe
+    <set >
+      <if test="record.subscribeId != null" >
+        subscribe_id = #{record.subscribeId,jdbcType=INTEGER},
+      </if>
+      <if test="record.subscribeName != null" >
+        subscribe_name = #{record.subscribeName,jdbcType=VARCHAR},
+      </if>
+      <if test="record.userId != null" >
+        user_id = #{record.userId,jdbcType=VARCHAR},
+      </if>
+      <if test="record.topicEnName != null" >
+        topic_en_name = #{record.topicEnName,jdbcType=VARCHAR},
+      </if>
+      <if test="record.userServIpaasId != null" >
+        user_serv_ipaas_id = #{record.userServIpaasId,jdbcType=VARCHAR},
+      </if>
+      <if test="record.createTime != null" >
+        create_time = #{record.createTime,jdbcType=TIMESTAMP},
+      </if>
+    </set>
+    <if test="_parameter != null" >
+      <include refid="Update_By_Example_Where_Clause" />
+    </if>
+  </update>
+  <update id="updateByExample" parameterType="map" >
+    update mds_user_subscribe
+    set subscribe_id = #{record.subscribeId,jdbcType=INTEGER},
+      subscribe_name = #{record.subscribeName,jdbcType=VARCHAR},
+      user_id = #{record.userId,jdbcType=VARCHAR},
+      topic_en_name = #{record.topicEnName,jdbcType=VARCHAR},
+      user_serv_ipaas_id = #{record.userServIpaasId,jdbcType=VARCHAR},
+      create_time = #{record.createTime,jdbcType=TIMESTAMP}
+    <if test="_parameter != null" >
+      <include refid="Update_By_Example_Where_Clause" />
+    </if>
+  </update>
+</mapper>

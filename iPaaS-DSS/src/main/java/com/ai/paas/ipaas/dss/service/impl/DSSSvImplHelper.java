@@ -24,6 +24,7 @@ import org.springframework.transaction.annotation.Transactional;
 import redis.clients.jedis.HostAndPort;
 import redis.clients.jedis.JedisCluster;
 
+import com.ai.dubbo.ext.vo.BaseInfo;
 import com.ai.paas.ipaas.PaasException;
 import com.ai.paas.ipaas.ServiceUtil;
 import com.ai.paas.ipaas.ccs.constants.ConfigCenterDubboConstants.PathType;
@@ -51,7 +52,7 @@ import com.ai.paas.ipaas.dss.manage.param.StatusParam;
 import com.ai.paas.ipaas.dss.manage.param.StatusResult;
 import com.ai.paas.ipaas.dss.manage.param.UploadParam;
 import com.ai.paas.ipaas.dss.manage.param.UploadResult;
-import com.ai.paas.ipaas.rpc.api.vo.BaseInfo;
+import com.ai.paas.ipaas.rpc.api.vo.ApplyInfo;
 import com.ai.paas.ipaas.util.CiperUtil;
 import com.google.gson.Gson;
 import com.google.gson.JsonSyntaxException;
@@ -412,7 +413,7 @@ public class DSSSvImplHelper {
 				log.error("系统异常-----commConf为null");
 				throw new Exception("系统异常-----commConf为null");
 			}
-		
+
 			if (doModify(applyObj, commConf)) {
 				log.error("申请变更大小小于已使用容量");
 				throw new Exception("申请变更大小小于已使用容量");
@@ -423,11 +424,10 @@ public class DSSSvImplHelper {
 			DSSConf dssConf = (DSSConf) getConfObj(applyObj.getUserId(),
 					DSS_BASE_ZK_CONF + applyObj.getServiceId());
 			int dssNum = commConf.getHosts().split(";").length;
-//			int perCapacity = Integer.parseInt(applyObj.getSize()) / dssNum
-//					+ Integer.parseInt(applyObj.getSize()) % dssNum;
+			// int perCapacity = Integer.parseInt(applyObj.getSize()) / dssNum
+			// + Integer.parseInt(applyObj.getSize()) % dssNum;
 			int differenceSzie = Integer.parseInt(applyObj.getSize())
 					- Integer.parseInt(applyObj.getSize());
-			// TODO
 			int leftSize = getResourceLeftSize(groupId) - differenceSzie;
 			if (leftSize < 0) {
 				log.error(LEFT_SIZE_NOT_ENOUGH);
@@ -595,7 +595,7 @@ public class DSSSvImplHelper {
 		return gson.toJson(obj, obj.getClass());
 	}
 
-	protected DSSResult getResult(BaseInfo applyObj) {
+	protected DSSResult getResult(ApplyInfo applyObj) {
 		DSSResult result = new DSSResult();
 		result.setApplyType(applyObj.getApplyType());
 		result.setResultCode(FAIL);
@@ -605,14 +605,14 @@ public class DSSSvImplHelper {
 		return result;
 	}
 
-	protected DSSResult successResult(BaseInfo applyObj) {
+	protected DSSResult successResult(ApplyInfo applyObj) {
 		DSSResult result = getResult(applyObj);
 		result.setResultCode(SUCCESS);
 		result.setResultMsg(SUCCESS_MSG);
 		return result;
 	}
 
-	protected StatusResult getStatusResult(BaseInfo applyObj, String size,
+	protected StatusResult getStatusResult(ApplyInfo applyObj, String size,
 			String usedSize) {
 		StatusResult result = new StatusResult();
 		DSSResult re = successResult(applyObj);
@@ -627,7 +627,7 @@ public class DSSSvImplHelper {
 	}
 
 	@SuppressWarnings("rawtypes")
-	protected RecordResult getRecordResult(BaseInfo applyObj, Map record) {
+	protected RecordResult getRecordResult(ApplyInfo applyObj, Map record) {
 		RecordResult result = new RecordResult();
 		DSSResult re = successResult(applyObj);
 		result.setApplyType(re.getApplyType());
@@ -639,7 +639,7 @@ public class DSSSvImplHelper {
 		return result;
 	}
 
-	protected UploadResult getUploadResult(BaseInfo applyObj, String key) {
+	protected UploadResult getUploadResult(ApplyInfo applyObj, String key) {
 		UploadResult result = new UploadResult();
 		DSSResult re = successResult(applyObj);
 		result.setApplyType(re.getApplyType());
@@ -911,7 +911,8 @@ public class DSSSvImplHelper {
 	@SuppressWarnings("rawtypes")
 	private List<Class> getClass(Class clazz, List<Class> classList) {
 		if (clazz.getSuperclass() != null) {
-			if (Object.class.equals(clazz.getSuperclass().getName())) {
+			if (BaseInfo.class.getName()
+					.equals(clazz.getSuperclass().getName())) {
 				return classList;
 			} else {
 				classList.add(clazz.getSuperclass());
@@ -1216,7 +1217,6 @@ public class DSSSvImplHelper {
 	private boolean okSize(long a, long b) {
 		return (a - b) >= 0 ? TRUE : FALSE;
 	}
-
 
 	private boolean doModify(ModifyParam applyObj, DSSCommonConf commConf) {
 		JedisCluster jc = getJedisClusterClient(commConf.getRedisHosts().split(

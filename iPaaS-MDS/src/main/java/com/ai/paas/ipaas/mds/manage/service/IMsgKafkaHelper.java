@@ -18,7 +18,20 @@ public interface IMsgKafkaHelper {
 	 * @return
 	 */
 	public List<MsgSrvUsageApplyResult> getTopicOffsets(String userId,
-			String userSrvId, String topic, MdsResourcePool kafkaCluster);
+			String userSrvId, String topic,String subscribeName, MdsResourcePool kafkaCluster);
+	
+	/**
+	 * 获得消息队列下所有的消费者
+	 * 
+	 * @param userId
+	 * @param userSrvId
+	 * @param topic
+	 * @param kafkaCluster
+	 * @return
+	 */
+	public List<String> getListSubPath(String userId,
+			String userSrvId, String topic);
+	
 
 	/**
 	 * 检查topic是否存在

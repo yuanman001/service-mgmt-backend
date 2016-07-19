@@ -5,7 +5,7 @@ import org.junit.runner.RunWith;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
-import com.ai.paas.ipaas.rpc.api.vo.BaseInfo;
+import com.ai.paas.ipaas.rpc.api.vo.ApplyInfo;
 import com.ai.paas.ipaas.ses.manage.rest.interfaces.ISearchEngineServiceManager;
 import com.ai.paas.ipaas.ses.service.vo.SesMappingApply;
 import com.ai.paas.ipaas.ses.service.vo.SesSrvApply;
@@ -20,9 +20,9 @@ public class SesSrvImplTest {
 	private ISearchEngineServiceManager iSearchEngineServiceManager;
 	
 
-    private String userId = "83647DAF5C9C460892E8E8B4125BF8DA";
+    private String userId = "98073DD93D784C128E05BB7D71B34996";
 
-    private String serviceId = "SES003";
+    private String serviceId = "SES311";
 
 
 
@@ -47,7 +47,7 @@ public class SesSrvImplTest {
     @Test
     public void start() throws Exception {
     	
-		 BaseInfo mappingApply = new BaseInfo();
+    	ApplyInfo mappingApply = new ApplyInfo();
 		 mappingApply.setUserId(userId);
 		 mappingApply.setServiceId(serviceId);
 		 iSearchEngineServiceManager.start(new Gson().toJson(mappingApply));
@@ -55,7 +55,7 @@ public class SesSrvImplTest {
     @Test
     public void stop() throws Exception {
     	
-    	BaseInfo mappingApply = new BaseInfo();
+    	ApplyInfo mappingApply = new ApplyInfo();
     	mappingApply.setUserId(userId);
     	mappingApply.setServiceId(serviceId);
     	iSearchEngineServiceManager.stop(new Gson().toJson(mappingApply));
@@ -63,7 +63,7 @@ public class SesSrvImplTest {
     @Test
     public void recycle() throws Exception {
     	
-    	BaseInfo mappingApply = new BaseInfo();
+    	ApplyInfo mappingApply = new ApplyInfo();
     	mappingApply.setUserId(userId);
     	mappingApply.setServiceId(serviceId);
     	iSearchEngineServiceManager.recycle(new Gson().toJson(mappingApply));

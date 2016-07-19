@@ -6,4 +6,4 @@
      - name: docker pull
        command: docker pull "{{image}}"
      - name: docker run
-       command: docker run -itd -p 22 -p {{port}}:8080  -v /dev/urandom:/dev/random  --env "SERVER_LIST="{{server_list}}""  "{{image}}"
+       command: docker run -itd -p 22 -p {{port}}:8080 --name {{idps_container_name}} -v /dev/urandom:/dev/random  --env "SERVER_LIST="{{server_list}}""  "{{image}}"

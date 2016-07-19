@@ -4,7 +4,7 @@ import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import com.ai.paas.ipaas.PaasException;
-import com.ai.paas.ipaas.rpc.api.vo.BaseInfo;
+import com.ai.paas.ipaas.rpc.api.vo.ApplyInfo;
 import com.ai.paas.ipaas.ses.manage.rest.interfaces.ISearchEngineServiceManager;
 import com.ai.paas.ipaas.ses.service.constant.SesConstants;
 import com.ai.paas.ipaas.ses.service.interfaces.ISesManage;
@@ -120,8 +120,8 @@ public class SesManagerImpl implements ISearchEngineServiceManager {
 	public String start(String operateApply) {
 		Gson gson = new Gson();
 
-		BaseInfo operateApplyParam = gson.fromJson(operateApply,
-				BaseInfo.class);
+		ApplyInfo operateApplyParam = gson.fromJson(operateApply,
+				ApplyInfo.class);
 
 		SesSrvApplyResult result = new SesSrvApplyResult();
 
@@ -146,8 +146,8 @@ public class SesManagerImpl implements ISearchEngineServiceManager {
 		
 		Gson gson = new Gson();
 
-		BaseInfo operateApplyParam = gson.fromJson(operateApply,
-				BaseInfo.class);
+		ApplyInfo operateApplyParam = gson.fromJson(operateApply,
+				ApplyInfo.class);
 
 		SesSrvApplyResult result = new SesSrvApplyResult();
 
@@ -172,8 +172,8 @@ public class SesManagerImpl implements ISearchEngineServiceManager {
 		
 		Gson gson = new Gson();
 
-		BaseInfo operateApplyParam = gson.fromJson(operateApply,
-				BaseInfo.class);
+		ApplyInfo operateApplyParam = gson.fromJson(operateApply,
+				ApplyInfo.class);
 
 		SesSrvApplyResult result = new SesSrvApplyResult();
 

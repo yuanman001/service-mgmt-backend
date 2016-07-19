@@ -65,4 +65,15 @@ public interface IMessageServiceManager extends ISrvManager {
 	@POST
 	public String sendMessage(String topicApply);
 
+	@Path("/subscribe/create")
+	@POST
+	public String createSubscribe(String subscribeApply);
+	
+	@Path("/subscribe/get")
+	@POST
+	public String getSubscribe(String subscribeApply);
+	
+	@Path("/subscribe/getListSubPath")
+	@POST
+	public String getListSubPath(String subscribeApply);
 }

@@ -48,7 +48,6 @@ public class SesConstants extends PaaSConstant {
 	public static final String APPLY_TYPE_RESTART = "restart";
 	public static final String FUNCTION_PRE = "/mcs/manage/";
 
-	
 	public static final String MCS_ZK_COMMON_PATH = "/MCS/COMMON";
 	public static final String MCS_ZK_COMMON = "{'maxActive':'500','maxIdle':'100','maxWait':'1000',"
 			+ "'testOnBorrow':'false','testOnReturn':'true'}";
@@ -71,31 +70,40 @@ public class SesConstants extends PaaSConstant {
 	public static final String EXPECT_ONE_RECORD_FAIL = "Expect just one record but got nothing or too many results...";
 	public static final String RECORD_EXISTS = "record already exists...";
 	public static final String SAVE_TO_DB_ERROR = "save to db error...";
-	/**1 单库  2 多库、DBS*/
-	public static final int GROUP_ID_1=1;
-	public static final int GROUP_ID_2=2;
-	/**普通数据库*/
-	public static final int COMMON_DB_TYPE=1;
-	/**DBS数据库*/
-	public static final int DBS_DB_TYPE=2;
-	/**mysql数据库*/
-	public static final int MYSQL_DB=1;
-	/**oracle数据库*/
-	public static final int ORACLE_DB=2;
+	/** 1 单库 2 多库、DBS */
+	public static final int GROUP_ID_1 = 1;
+	public static final int GROUP_ID_2 = 2;
+	/** 普通数据库 */
+	public static final int COMMON_DB_TYPE = 1;
+	/** DBS数据库 */
+	public static final int DBS_DB_TYPE = 2;
+	/** mysql数据库 */
+	public static final int MYSQL_DB = 1;
+	/** oracle数据库 */
+	public static final int ORACLE_DB = 2;
+
+	/** 1主表 */
+	public static final int PRIMARY = 1;
+	/** 非主表 */
+	public static final int IN_PRIMARY = 2;
+
+	public static final String SERVICE_CODE = "ses";
+
+	public static final String IMAGE_CODE = "ses";
 	
-	/**1主表*/
-	public static final int PRIMARY=1;
-	/**非主表*/
-	public static final int IN_PRIMARY=2;
+	public static final String SSH_USER_CODE = "ses_ssh_user";
 	
+	public static final String SSH_USER_PWD_CODE = "ses_ssh_user_pwd";
+
 	/**
 	 * 认证返回结果
 	 */
-	public static class ExecResult{
-		public static final  String SUCCESS = "000000"; //成功
-		public static final  String FAIL = "999999"; //失败
-		private ExecResult(){
-			
+	public static class ExecResult {
+		public static final String SUCCESS = "000000"; // 成功
+		public static final String FAIL = "999999"; // 失败
+
+		private ExecResult() {
+
 		}
 	}
 }

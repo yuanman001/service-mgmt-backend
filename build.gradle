@@ -1,4 +1,5 @@
 allprojects {
+
     apply plugin: 'java'
     apply plugin: 'eclipse'
     apply plugin: 'maven-publish'
@@ -169,7 +170,6 @@ project("iPaaS-SES") {
         }
     }
 }
-
 project("iPaaS-IDPS") {
 	project.ext {
 		appName = "ipaas-idps"
@@ -186,7 +186,6 @@ project("iPaaS-IDPS") {
 		}
 	}
 }
-
 project("iPaaS-DubboInterfaces") {
     project.ext {
         appName = "ipaas-service-dubbo-interfaces"
