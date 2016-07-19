@@ -1,0 +1,15 @@
+- hosts:  "{{host}}"
+  user: "{{user}}"
+  vars:
+     
+  tasks:
+     - name: docker pull
+       command: docker pull "{{image}}"
+       register: docker_pull
+       failed_when: "'FAILED' in docker_pull.stderr"
+     - name: create ses data path
+       command: mkdir -vp {{HOST_DATA}} && mkdir -vp {{IK_EXT}}       
+     - name: docker run
+       command: docker run -itd --name="{{USER_PID}}-{{SES_SRV_ID}}-{{SRV_HTTP_PORT}}" -v "{{HOST_DATA}}:/usr/share/elasticsearch/data" -v "{{IK_EXT}}:/usr/share/elasticsearch/config/ik/{{USER_PID}}/{{SES_SRV_ID}}" -e "USER_PID={{USER_PID}}" -e "SES_SRV_ID={{SES_SRV_ID}}" -e "SRV_PORT={{SRV_PORT}}" -e "SRV_HTTP_PORT={{SRV_HTTP_PORT}}" -e "SES_CLUSTER={{SES_CLUSTER}}" -e "SRV_HOST={{SRV_HOST}}" --net=host "{{image}}"
+       register: docker_run
+       failed_when: "'FAILED' in docker_run.stderr"

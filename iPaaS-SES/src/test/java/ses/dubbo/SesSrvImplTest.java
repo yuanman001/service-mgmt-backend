@@ -20,9 +20,9 @@ public class SesSrvImplTest {
 	private ISearchEngineServiceManager iSearchEngineServiceManager;
 	
 
-    private String userId = "83647DAF5C9C460892E8E8B4125BF8DA";
+    private String userId = "98073DD93D784C128E05BB7D71B34996";
 
-    private String serviceId = "SES003";
+    private String serviceId = "SES311";
 
 
 

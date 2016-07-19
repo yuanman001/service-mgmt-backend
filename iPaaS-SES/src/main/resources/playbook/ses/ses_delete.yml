@@ -1,0 +1,13 @@
+- hosts:  "{{host}}"
+  user: "{{user}}"
+  vars:
+     
+  tasks:
+     - name: docker stop
+       command: docker stop {{USER_PID}}-{{SES_SRV_ID}}-{{SRV_HTTP_PORT}}
+       register: docker_stop
+       failed_when: "'FAILED' in docker_stop.stderr"
+     - name: docker rm
+       command: docker rm {{USER_PID}}-{{SES_SRV_ID}}-{{SRV_HTTP_PORT}}       
+       register: docker_rm
+       failed_when: "'FAILED' in docker_rm.stderr"
