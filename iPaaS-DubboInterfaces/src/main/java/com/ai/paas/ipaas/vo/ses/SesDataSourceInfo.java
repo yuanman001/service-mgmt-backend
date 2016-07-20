@@ -1,8 +1,8 @@
-package com.ai.paas.ipaas.ses.service.vo;
+package com.ai.paas.ipaas.vo.ses;
 
 import java.io.Serializable;
 
-public class DataSourceInfo implements Serializable {
+public class SesDataSourceInfo implements Serializable {
 	
 	/**
 	 * 
