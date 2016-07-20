@@ -1,4 +1,4 @@
-package com.ai.paas.ipaas.ses.service.vo;
+package com.ai.paas.ipaas.vo.ses;
 
 import java.io.Serializable;
 import java.util.List;
@@ -7,7 +7,7 @@ import java.util.List;
  * 配置sql
  *
  */
-public class IndexSqlInfo implements Serializable {
+public class SesIndexSqlInfo implements Serializable {
 
 	/**
 	 * 
@@ -17,21 +17,21 @@ public class IndexSqlInfo implements Serializable {
 	/**主键*/
 	private int id;
 	/**主表*/
-	private transient IndexPrimarySql primarySql;
+	private transient SesIndexPrimarySql primarySql;
 	/**辅助表*/
-	private transient List<IndexFiledSql> filedSqls;
+	private transient List<SesIndexFiledSql> filedSqls;
 	
 	
-	public IndexPrimarySql getPrimarySql() {
+	public SesIndexPrimarySql getPrimarySql() {
 		return primarySql;
 	}
-	public void setPrimarySql(IndexPrimarySql primarySql) {
+	public void setPrimarySql(SesIndexPrimarySql primarySql) {
 		this.primarySql = primarySql;
 	}
-	public List<IndexFiledSql> getFiledSqls() {
+	public List<SesIndexFiledSql> getFiledSqls() {
 		return filedSqls;
 	}
-	public void setFiledSqls(List<IndexFiledSql> filedSqls) {
+	public void setFiledSqls(List<SesIndexFiledSql> filedSqls) {
 		this.filedSqls = filedSqls;
 	}
 	public int getId() {
