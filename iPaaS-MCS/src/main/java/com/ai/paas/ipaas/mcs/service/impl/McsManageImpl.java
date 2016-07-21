@@ -2,7 +2,6 @@ package com.ai.paas.ipaas.mcs.service.impl;
 
 import java.io.InputStream;
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.List;
 import java.util.Map;
 
@@ -12,7 +11,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import com.ai.paas.agent.client.AgentClient;
 import com.ai.paas.ipaas.PaasException;
 import com.ai.paas.ipaas.ServiceUtil;
 import com.ai.paas.ipaas.agent.util.AgentUtil;
@@ -441,6 +439,89 @@ public class McsManageImpl implements IMcsSv {
 	}
 	
 	/**
+	 * 门户管理控制台功能：启动MCS
+	 */
+	@Override
+	public String startMcs(String param) throws PaasException {
+		Map<String, String> map = McsParamUtil.getParamMap(param);
+		String serviceId = map.get(McsConstants.SERVICE_ID);
+		String userId = map.get(McsConstants.USER_ID);
+		
+		/** 根据user_id,service_id,获取用户实例信息 **/
+		List<McsUserCacheInstance> userInstanceList = mcsSvHepler.getMcsUserCacheInstances(serviceId, userId);
+		if (userInstanceList == null || userInstanceList.isEmpty()) {
+			throw new PaasException("UserId["+userId+"]的["+serviceId+"]服务未开通过，无法启动！");
+		}
+		
+		/** 调用启动Mcs的处理方法 **/
+		//TODO:
+		logger.info("----------启动["+userId+"]-["+serviceId+"]的MCS缓存服务,成功");
+		
+		return McsConstants.SUCCESS_FLAG;
+	}
+
+	/**
+	 * 门户管理控制台功能：停止Mcs服务
+	 */
+	@Override
+	public String stopMcs(String param) throws PaasException {
+		Map<String, String> map = McsParamUtil.getParamMap(param);
+		String serviceId = map.get(McsConstants.SERVICE_ID);
+		String userId = map.get(McsConstants.USER_ID);
+		
+		/** 根据user_id,service_id,获取用户实例信息 **/
+		List<McsUserCacheInstance> userInstanceList = mcsSvHepler.getMcsUserCacheInstances(serviceId, userId);
+		if (userInstanceList == null || userInstanceList.isEmpty()) {
+			throw new PaasException("UserId["+userId+"]的["+serviceId+"]服务未开通过，无法停止！");
+		}
+		
+		//TODO:
+		logger.info("----------停止["+userId+"]-["+serviceId+"]的MCS缓存服务,成功");
+		
+		return McsConstants.SUCCESS_FLAG;
+	}
+	
+	/**
+	 * 门户管理控制台功能：重启MCS服务。
+	 */
+	@Override
+	public String restartMcs(String param) throws PaasException {
+		Map<String, String> map = McsParamUtil.getParamMap(param);
+		String serviceId = map.get(McsConstants.SERVICE_ID);
+		String userId = map.get(McsConstants.USER_ID);
+		
+		/** 根据user_id,service_id,获取用户实例信息 **/
+		List<McsUserCacheInstance> userInstanceList = mcsSvHepler.getMcsUserCacheInstances(serviceId, userId);
+		if (userInstanceList == null || userInstanceList.isEmpty()){
+			throw new PaasException("UserId["+userId+"]的["+serviceId+"]服务未开通过，无法重启！");
+		}
+		
+		//TODO:
+		
+		return McsConstants.SUCCESS_FLAG;
+	}
+
+	/**
+	 * 门户管理控制台功能：注销MCS服务
+	 */
+	@Override
+	public String cancelMcs(String param) throws PaasException {
+		Map<String, String> map = McsParamUtil.getParamMap(param);
+		String serviceId = map.get(McsConstants.SERVICE_ID);
+		String userId = map.get(McsConstants.USER_ID);
+	
+		/** 根据user_id,service_id,获取用户实例信息 **/
+		List<McsUserCacheInstance> userInstanceList = mcsSvHepler.getMcsUserCacheInstances(serviceId, userId);
+		if (userInstanceList == null || userInstanceList.isEmpty()) {
+			throw new PaasException("UserId["+userId+"]的["+serviceId+"]服务未开通过，无法注销！");
+		}
+		
+		//TODO:
+		
+		return McsConstants.SUCCESS_FLAG;
+	}
+
+	/**
 	 * 允许修改容量、描述，serviceId userId capacity 都不能为空
 	 * @throws PaasException
 	 */
@@ -466,111 +547,16 @@ public class McsManageImpl implements IMcsSv {
 		logger.info("M2----------------修改mcs_resource");  
 		int cacheSize = userInstanceList.size() == 1 ? Integer.valueOf(capacity)
 				: Math.round(Integer.valueOf(capacity) / McsConstants.CACHE_NUM * 2);
-		modifyMcsResource(userInstanceList, true, cacheSize);
+//		modifyMcsResource(userInstanceList, true, cacheSize);
 		
 		logger.info("M3----------------修改mcs服务端，重启redis");
-		modifyMcsServerFileAndUserIns(userId, serviceId, userInstanceList, cacheSize, serviceName);
+//		modifyMcsServerFileAndUserIns(userId, serviceId, userInstanceList, cacheSize, serviceName);
 		
 		logger.info("----------------修改成功");
 		
 		return McsConstants.SUCCESS_FLAG;
 	}
 	
-	/**
-	 * 门户管理控制台功能：启动MCS
-	 */
-	@Override
-	public String startMcs(String param) throws PaasException {
-		Map<String, String> map = McsParamUtil.getParamMap(param);
-		String serviceId = map.get(McsConstants.SERVICE_ID);
-		String userId = map.get(McsConstants.USER_ID);
-		
-		/** 根据user_id,service_id,获取用户实例信息 **/
-		List<McsUserCacheInstance> userInstanceList = mcsSvHepler.getMcsUserCacheInstances(serviceId, userId);
-		if (userInstanceList == null || userInstanceList.isEmpty()) {
-			throw new PaasException("UserId["+userId+"]的["+serviceId+"]服务未开通过，无法启动！");
-		}
-		
-		/** 调用启动Mcs的处理方法 **/
-		startMcs(userId, serviceId, userInstanceList);
-		logger.info("----------启动["+userId+"]-["+serviceId+"]的MCS缓存服务,成功");
-		
-		return McsConstants.SUCCESS_FLAG;
-	}
-
-	/**
-	 * 门户管理控制台功能：停止Mcs服务
-	 */
-	@Override
-	public String stopMcs(String param) throws PaasException {
-		Map<String, String> map = McsParamUtil.getParamMap(param);
-		String serviceId = map.get(McsConstants.SERVICE_ID);
-		String userId = map.get(McsConstants.USER_ID);
-		
-		/** 根据user_id,service_id,获取用户实例信息 **/
-		List<McsUserCacheInstance> userInstanceList = mcsSvHepler.getMcsUserCacheInstances(serviceId, userId);
-		if (userInstanceList == null || userInstanceList.isEmpty()) {
-			throw new PaasException("UserId["+userId+"]的["+serviceId+"]服务未开通过，无法停止！");
-		}
-		
-		stopMcsInsForCacheIns(userInstanceList);
-		logger.info("----------停止["+userId+"]-["+serviceId+"]的MCS缓存服务,成功");
-		
-		return McsConstants.SUCCESS_FLAG;
-	}
-	
-	/**
-	 * 门户管理控制台功能：重启MCS服务。
-	 */
-	@Override
-	public String restartMcs(String param) throws PaasException {
-		Map<String, String> map = McsParamUtil.getParamMap(param);
-		String serviceId = map.get(McsConstants.SERVICE_ID);
-		String userId = map.get(McsConstants.USER_ID);
-		
-		/** 根据user_id,service_id,获取用户实例信息 **/
-		List<McsUserCacheInstance> userInstanceList = mcsSvHepler.getMcsUserCacheInstances(serviceId, userId);
-		if (userInstanceList == null || userInstanceList.isEmpty()){
-			throw new PaasException("UserId["+userId+"]的["+serviceId+"]服务未开通过，无法重启！");
-		}
-		
-		logger.info("------- 停止["+userId+"]-["+serviceId+"]的MCS缓存服务");
-		stopMcsInsForCacheIns(userInstanceList);
-		
-		logger.info("------- 启动["+userId+"]-["+serviceId+"]的MCS缓存服务");
-		startMcs(userId, serviceId, userInstanceList);
-		
-		logger.info("------- 重启["+userId+"]-["+serviceId+"]的MCS缓存服务OK.");
-		
-		return McsConstants.SUCCESS_FLAG;
-	}
-
-	/**
-	 * 门户管理控制台功能：注销MCS服务
-	 */
-	@Override
-	public String cancelMcs(String param) throws PaasException {
-		Map<String, String> map = McsParamUtil.getParamMap(param);
-		String serviceId = map.get(McsConstants.SERVICE_ID);
-		String userId = map.get(McsConstants.USER_ID);
-	
-		/** 根据user_id,service_id,获取用户实例信息 **/
-		List<McsUserCacheInstance> userInstanceList = mcsSvHepler.getMcsUserCacheInstances(serviceId, userId);
-		if (userInstanceList == null || userInstanceList.isEmpty()) {
-			throw new PaasException("UserId["+userId+"]的["+serviceId+"]服务未开通过，无法注销！");
-		}
-		
-		logger.info("------- 注销["+userId+"]-["+serviceId+"]的MCS缓存服务,更新MCS资源表中已使用缓存的大小.");
-		modifyMcsResource(userInstanceList, false, 0);
-		
-		logger.info("------- 注销["+userId+"]-["+serviceId+"]的MCS缓存服务,删除配置文件.");
-		removeMcsServerFileAndUserIns(userId, serviceId, userInstanceList);
-
-		logger.info("------- 注销["+userId+"]-["+serviceId+"]的MCS缓存服务,OK!");
-		
-		return McsConstants.SUCCESS_FLAG;
-	}
-
 	/**
 	 * 服务是否已经存在
 	 * 
@@ -584,65 +570,6 @@ public class McsManageImpl implements IMcsSv {
 			.andStatusEqualTo(McsConstants.VALIDATE_STATUS);
 		McsUserCacheInstanceMapper im = ServiceUtil.getMapper(McsUserCacheInstanceMapper.class);
 		return im.countByExample(cc) > 0;
-	}
-
-	/**
-	 * 集群模式时，新增服务端的配置文件
-	 * @param cacheInfoList
-	 * @param userId
-	 * @param serviceId
-	 * @param cacheSize
-	 * @return
-	 * @throws PaasException
-	 */
-	private void addMcsConfigCluster(List<McsProcessInfo> cacheInfoList,
-			String userId, String serviceId, int cacheSize)throws PaasException {
-		
-		logger.info("-------- 开始处理集群配置文件的time：" + new Date());
-		for (McsProcessInfo proInfo : cacheInfoList) {
-			String cacheHost = proInfo.getCacheHostIp();
-			String cachePath = proInfo.getCachePath();
-			Integer cachePort = proInfo.getCachePort();
-			Integer agentPort = proInfo.getAgentPort();
-			String clusterPath = cachePath + McsConstants.CLUSTER_FILE_PATH;
-			String logPath = cachePath + McsConstants.LOG_PATH;
-			
-			/** 初始化Agentclint **/
-			AgentClient ac = new AgentClient(cacheHost, agentPort);
-
-			/** 创建redis集群的目录: ./redis/cluster/user_id+service_id/ **/
-			String mkdir_cluster = "mkdir -p " + clusterPath + userId + "_" + serviceId;
-			ac.executeInstruction(mkdir_cluster);
-			logger.info("-------- 创建redis集群的目录：" + mkdir_cluster +", OK!");
-			
-			/**
-			 * 创建redis集群下的server目录: ./redis/cluster/user_id+service_id/redisPort/
-			 **/
-			String mkdir_port = "mkdir -p " + clusterPath + userId + "_" + serviceId + "/" + cachePort;
-			ac.executeInstruction(mkdir_port);
-			logger.info("-------- 创建redis集群下的server目录：" + mkdir_port +", OK!");
-			
-			/** 生成集群中server的配置文件，文件名要有全路径。 **/
-			String configFile = clusterPath + userId + "_" + serviceId + "/" + cachePort + "/" + "redis-" + cachePort + ".conf";
-			String configDetail = "include " + clusterPath
-					+ "redis-common.conf \n" + "pidfile " + clusterPath + "redis-"
-					+ cachePort + ".pid" + "\n" + "port " + cachePort + "\n"
-					+ "cluster-enabled yes \n" + "maxmemory " + cacheSize
-					+ "m \n" + "cluster-config-file nodes.conf \n"
-					+ "cluster-node-timeout 5000 \n" + "appendonly no \n";
-
-			/** 上传配置文件 **/
-			ac.saveFile(configFile, configDetail);
-			logger.info("-------- 上传redis集群的配置文件：" + configFile +", OK!");
-
-			/** 启动集群中的每个redis-server **/
-			String cmd_path = clusterPath + userId + "_" + serviceId + "/" + cachePort + "/";
-			String cmd_start = "redis-server " + configFile + " > " + logPath + "redis-" + cachePort + ".log &";
-			String result = ac.executeInstruction(cmd_path, cmd_start);
-			logger.info("-------- 启动redis集群的server：" + cmd_start + ", result=["+result+"], OK!");
-			
-			logger.info("-------- 处理MCS_CLUSTER中的server["+cacheHost+":"+cachePort+"]结束, time:" + new Date());
-		}
 	}
 
 	/**
@@ -861,194 +788,6 @@ public class McsManageImpl implements IMcsSv {
 	}
 
 	/**
-	 * 上传配置文件，执行命令
-	 * 
-	 * @param mcsResourcePool
-	 * @param capacity
-	 * @param requirepass
-	 * @throws PaasException
-	 */
-	private void addMcsConfig(AgentClient ac, String cachePath, int redisPort, String capacity, String requirepass) 
-			throws PaasException {
-		try {
-			String fileName = cachePath + McsConstants.FILE_PATH + redisPort + "/" + "redis-" + redisPort + ".conf";
-			String configDetail = "include " + cachePath + McsConstants.FILE_PATH + "redis-common.conf" + "\n"
-					+ "pidfile /var/run/redis-" + redisPort + ".pid" + "\n"
-					+ "port " + redisPort + "\n"
-					+ "maxmemory " + capacity + "m" + "\n"
-					+ "requirepass " + requirepass + "\n"
-					+ "logfile " + cachePath + "/redis/log/redis-" + redisPort + ".log";
-			
-			ac.saveFile(fileName, configDetail);
-			logger.info("---------新生成的redis配置文件，上传成功!");
-		} catch (Exception e) {
-			logger.error(e.getMessage(), e);
-			throw new PaasException("单例 上传文件失败：" + e.getMessage(), e);
-		}
-	}
-
-	/**
-	 * 停redis，修改mcs服务端的配置文件，修改用户实例，启动redis
-	 * 
-	 * @param userInstanceList
-	 * @param cacheSize
-	 * @throws PaasException
-	 */
-	//TODO: 与 removeMcsServerFileAndUserIns() 方法类似，需重构。
-	private void modifyMcsServerFileAndUserIns(final String userId,
-			final String serviceId, List<McsUserCacheInstance> userInstanceList,
-			final int cacheSize, String serviceName) throws PaasException {
-		
-		if (userInstanceList.size() == 1) {
-			McsUserCacheInstance tempIns = userInstanceList.get(0);
-			McsResourcePoolMapper mapper = ServiceUtil.getMapper(McsResourcePoolMapper.class);
-			McsResourcePoolCriteria rpmc = new McsResourcePoolCriteria();
-			rpmc.createCriteria().andStatusEqualTo(McsConstants.VALIDATE_STATUS).andCacheHostIpEqualTo(tempIns.getCacheHost());
-			
-			List<McsResourcePool> pools = mapper.selectByExample(rpmc);
-			McsResourcePool pool = pools.get(0);
-
-			String cachePath = pool.getCachePath();
-			Integer agentPort = Integer.parseInt(pool.getAgentCmd());
-			
-			String cacheHostIp = tempIns.getCacheHost();
-			Integer cachePort = tempIns.getCachePort();
-			String requirepass = tempIns.getPwd();
-			String commonconfigPath = cachePath + McsConstants.FILE_PATH;
-			
-			logger.info("------------- redis info cacheHostIp:["+cacheHostIp+"]-----------");
-			logger.info("------------- redis info cachePort:["+cachePort+"]---------------");
-			logger.info("------------- redis info requirepass:["+requirepass+"]-----------");
-			logger.info("------------- redis info agentPort:["+agentPort+"]---------------");
-			logger.info("------------- redis info commonconfigPath:["+commonconfigPath+"]-");
-			
-			/** 1.获取agent客户端 **/
-			AgentClient ac = new AgentClient(cacheHostIp, agentPort);
-			
-			/** 2.停redis  **/
-			logger.info("----- stop redis -----");
-			stopMcsIns(ac, cachePort);
-			
-			/** 3.修改redis的配置文件  **/
-			logger.info("----- modify redis config -----requirepass：" + requirepass);
-			addMcsConfig(ac, cachePath, cachePort, cacheSize + "", requirepass);
-
-			/** 4.启动redis **/
-			logger.info("----- start redis -----");
-			startMcsIns(ac, commonconfigPath, cachePort);
-			
-			/** 5.组织待更新的数据 **/
-			logger.info("------- cacheSize："+cacheSize);
-			tempIns.setCacheMemory(cacheSize);
-			if (serviceName != null && serviceName.length() > 0){
-				tempIns.setServiceName(serviceName);
-			}
-			
-			/** 6.更新用户实例表的“已使用的内存”的字段  **/
-			logger.info("----- update cache size info -------");
-			McsUserCacheInstanceMapper im = ServiceUtil.getMapper(McsUserCacheInstanceMapper.class);
-			im.updateByPrimaryKey(tempIns);
-			
-		} else {  /** 处理集群模式的redis **/
-			McsResourcePool pool = null;
-			List<McsProcessInfo> cacheInfoList = new ArrayList<McsProcessInfo>();
-			for(McsUserCacheInstance tempIns : userInstanceList){
-				/** 获取mcs资源表中的cachePath、agentPort信息 **/
-				McsResourcePoolMapper rpm = ServiceUtil.getMapper(McsResourcePoolMapper.class);
-				McsResourcePoolCriteria rpmc = new McsResourcePoolCriteria();
-				rpmc.createCriteria().andStatusEqualTo(McsConstants.VALIDATE_STATUS).andCacheHostIpEqualTo(tempIns.getCacheHost());
-				List<McsResourcePool> pools = rpm.selectByExample(rpmc);
-				pool = pools.get(0);
-				
-				String cachePath = pool.getCachePath();
-				Integer agentPort = Integer.parseInt(pool.getAgentCmd());
-				String cacheHostIp = tempIns.getCacheHost();
-				Integer cachePort = tempIns.getCachePort();
-				
-				/** 将集群配置文件、集群启动所需的信息，放到value中。 **/
-				McsProcessInfo value = new McsProcessInfo();
-				value.setCacheHostIp(cacheHostIp);
-				value.setCachePort(cachePort);
-				value.setAgentPort(agentPort);
-				value.setCachePath(cachePath);
-				cacheInfoList.add(value);
-				
-				logger.info("------- redis info cacheHostIp:["+cacheHostIp+"]---------");
-				logger.info("------- redis info cachePort:["+cachePort+"]-------------");
-				logger.info("------- redis info agentPort:["+agentPort+"]-------------");
-				logger.info("------- redis info cachePath:["+cachePath+"]-------------");
-				
-				/** 获取agent客户端 **/
-				AgentClient ac = new AgentClient(cacheHostIp, agentPort);
-				
-				/** 停redis  **/
-				stopMcsIns(ac, cachePort);
-				logger.info("----- stop cluster redis is successful-----");
-				
-				/** 组织待更新的数据 **/
-				tempIns.setCacheMemory(cacheSize);
-				if (serviceName != null && serviceName.length() > 0) {
-					tempIns.setServiceName(serviceName);
-				}
-				
-				/** 更新用户实例表 **/
-				logger.info("----- update cache size info -------");
-				McsUserCacheInstanceMapper im = ServiceUtil.getMapper(McsUserCacheInstanceMapper.class);
-				im.updateByPrimaryKey(tempIns);
-			}
-			
-			/** 处理redis集群中的每个server的目录、配置文件，并启动。 **/
-			addMcsConfigCluster(cacheInfoList, userId, serviceId, cacheSize);
-			
-			/** 在集群中的任意台主机上，执行redis集群创建的命令 **/
-			McsProcessInfo vo = cacheInfoList.get(0);
-			AgentClient ac = new AgentClient(vo.getCacheHostIp(), vo.getAgentPort());
-			
-			/** 组织集群创建的命令及返回值 **/
-			String clusterInfo = getClusterInfo(cacheInfoList, " ");
-			String create_cluster = "redis-trib.rb create --replicas 1 " + clusterInfo;
-			logger.info("-------- 创建redis集群的命令:" + create_cluster);
-			
-			/** 创建redis集群 **/
-			ac.executeInstruction(vo.getCachePath()+McsConstants.CLUSTER_FILE_PATH, create_cluster);
-			logger.info("-------- 创建redis集群成功 --------");
-		}
-	}
-
-	/**
-	 * 修改缓存资源池的使用内存量
-	 * 
-	 * @param userInstanceList
-	 * @param cacheSize
-	 */
-	private void modifyMcsResource(List<McsUserCacheInstance> userInstanceList, Boolean isAdd, int cacheSize) {
-		for(McsUserCacheInstance userInstance: userInstanceList) {
-			String host = userInstance.getCacheHost();
-			Integer curentCacheSize = userInstance.getCacheMemory();
-			
-			/** 获取当前用户实例的值对象 **/
-			McsResourcePoolMapper mapper = ServiceUtil.getMapper(McsResourcePoolMapper.class);
-			McsResourcePoolCriteria condition = new McsResourcePoolCriteria();
-			condition.createCriteria().andStatusEqualTo(McsConstants.VALIDATE_STATUS).andCacheHostIpEqualTo(host);
-			List<McsResourcePool> pools = mapper.selectByExample(condition);
-			McsResourcePool pool = pools.get(0);
-			
-			/** 
-			 * 根据操作类型“扩容”／“注销”，更新MCS资源表中的“已使用缓存容量”字段.
-			 * 规则：“扩容”->“加值”；
-			 * 		“注销”->“减值”。
-			 * **/
-			if(isAdd) {
-				pool.setCacheMemoryUsed(curentCacheSize + cacheSize);
-			} else {
-				pool.setCacheMemoryUsed(pool.getCacheMemory() - curentCacheSize);
-			}
-			
-			mapper.updateByExampleSelective(pool, condition);
-		}
-	}
-
-	/**
 	 * 获得最空闲的Mcs资源
 	 * @param num
 	 * @return
@@ -1108,315 +847,5 @@ public class McsManageImpl implements IMcsSv {
 		McsResourcePoolCriteria condition = new McsResourcePoolCriteria();
 		condition.createCriteria().andIdEqualTo(mcsResourcePool.getId()); 
 		return rpm.updateByExampleSelective(mcsResourcePool, condition);
-	}
-
-	/**
-	 * 停止Mcs服务，在管理控制台的“停止”／“重启”的功能中调用。
-	 * @param userInstanceList
-	 * @throws PaasException
-	 */
-	private void stopMcsInsForCacheIns(List<McsUserCacheInstance> userInstanceList) throws PaasException {
-		McsResourcePool pool = null;
-		McsResourcePoolMapper rpm = ServiceUtil.getMapper(McsResourcePoolMapper.class);
-		for(McsUserCacheInstance tempIns: userInstanceList) {
-			if (pool == null) {
-				McsResourcePoolCriteria rpmc = new McsResourcePoolCriteria();
-				rpmc.createCriteria().andStatusEqualTo(McsConstants.VALIDATE_STATUS)
-						.andCacheHostIpEqualTo(tempIns.getCacheHost());
-				List<McsResourcePool> pools = rpm.selectByExample(rpmc);
-				pool = pools.get(0);
-			}
-			
-			String cacheHostIp = tempIns.getCacheHost();
-			Integer cachePort = tempIns.getCachePort();
-			Integer agentPort = Integer.parseInt(pool.getAgentCmd());
-			logger.info("------- redis info cacheHostIp:["+cacheHostIp+"]--------");
-			logger.info("------- redis info cachePort:["+cachePort+"]--------");
-			logger.info("------- redis info agentPort:["+agentPort+"]--------");
-		
-			/** 获取agent客户端 **/
-			AgentClient ac = new AgentClient(cacheHostIp, agentPort);
-			
-			stopMcsIns(ac, tempIns.getCachePort());
-		}
-	}
-
-	/**
-	 * 启动mcs服务
-	 * @param userId
-	 * @param serviceId
-	 * @param userInstance
-	 * @throws PaasException
-	 */
-	private void startMcs(String userId, String serviceId, List<McsUserCacheInstance> userInstance) throws PaasException {
-		McsResourcePoolMapper rpm = ServiceUtil.getMapper(McsResourcePoolMapper.class);
-		McsResourcePool pool = null;
-		
-		String clusterInfo = "";
-		for (McsUserCacheInstance tempIns :userInstance) {
-			if (pool == null) {
-				McsResourcePoolCriteria rpmc = new McsResourcePoolCriteria();
-				rpmc.createCriteria().andStatusEqualTo(McsConstants.VALIDATE_STATUS).andCacheHostIpEqualTo(tempIns.getCacheHost());
-				List<McsResourcePool> pools = rpm.selectByExample(rpmc);
-				pool = pools.get(0);
-			}
-
-			String cacheHostIp = tempIns.getCacheHost();
-			Integer cachePort = tempIns.getCachePort();
-			
-			String cachePath = pool.getCachePath();
-			Integer agentPort = Integer.parseInt(pool.getAgentCmd());
-			String commonconfigPath = cachePath + McsConstants.FILE_PATH;
-			
-			logger.info("------- redis info cacheHostIp:["+cacheHostIp+"]-----------");
-			logger.info("------- redis info cachePort:["+cachePort+"]-----------");
-			logger.info("------- redis info agentPort:["+agentPort+"]-----------");
-			logger.info("------- redis info commonconfigPath:["+commonconfigPath+"]-------");
-			
-			/** 获取agent客户端 **/
-			AgentClient ac = new AgentClient(cacheHostIp, agentPort);
-			
-			if (userInstance.size() == 1) {
-				startMcsIns(ac, commonconfigPath, cachePort);
-			} else {
-				startMcsInsForCluster(ac, cachePath, userId + "_" + serviceId, pool.getCachePath(), tempIns.getCachePort());
-			}
-			
-			/** 生成集群的 ip:port 串，用于拼装创建集群的命令。 **/
-			clusterInfo += " " + tempIns.getCacheHost() + ":" + tempIns.getCachePort();
-		}
-		
-		/** 如果Mcs服务为集群模式，需要执行创建redis集群的命令。 **/
-		if (userInstance.size() > 1) {
-			String cacheHost = userInstance.get(0).getCacheHost();
-			Integer agentPort = Integer.valueOf(pool.getAgentCmd());
-			String cachePath = pool.getCachePath() + McsConstants.CLUSTER_FILE_PATH;
-			AgentClient ac = new AgentClient(cacheHost, agentPort);
-			
-			logger.info("------创建["+userId+"]-["+serviceId+"]的MCS集群:"+clusterInfo);
-			createRedisCluster(ac, cachePath, clusterInfo);
-		}
-	}
-
-	/**
-	 * 停redis，删除mcs服务端的配置文件，修改用户实例为失效
-	 * 
-	 * @param userInstanceList
-	 * @param cacheSize
-	 * @throws PaasException
-	 */
-	private void removeMcsServerFileAndUserIns(String userId, String serviceId, 
-			List<McsUserCacheInstance> userInstanceList) throws PaasException {
-		if (userInstanceList.size() == 1) {
-			logger.info("-------- removeMcsServerFileAndUserIns ---single-----");
-			McsUserCacheInstance tempIns = userInstanceList.get(0);
-			McsResourcePoolMapper rpm = ServiceUtil.getMapper(McsResourcePoolMapper.class);
-			McsResourcePoolCriteria rpmc = new McsResourcePoolCriteria();
-			rpmc.createCriteria().andStatusEqualTo(McsConstants.VALIDATE_STATUS).andCacheHostIpEqualTo(tempIns.getCacheHost());
-			List<McsResourcePool> pools = rpm.selectByExample(rpmc);
-			McsResourcePool pool = pools.get(0);
-
-			String cachePath = pool.getCachePath();
-			Integer agentPort = Integer.parseInt(pool.getAgentCmd());
-			
-			String cacheHostIp = tempIns.getCacheHost();
-			Integer cachePort = tempIns.getCachePort();
-			String requirepass = tempIns.getPwd();
-			String commonconfigPath = cachePath + McsConstants.FILE_PATH;
-			logger.info("------- redis info cacheHostIp:["+cacheHostIp+"]-------------");
-			logger.info("------- redis info cachePort:["+cachePort+"]-------------");
-			logger.info("------- redis info requirepass:["+requirepass+"]-------------");
-			logger.info("------- redis info agentPort:["+agentPort+"]-------------");
-			logger.info("------- redis info commonconfigPath:["+commonconfigPath+"]--------");
-			
-			/** 获取agent客户端 **/
-			AgentClient ac = new AgentClient(cacheHostIp, agentPort);
-			
-			/** 停redis  **/
-			logger.info("----- stop redis ["+cacheHostIp+"]:["+cachePort+"]  -----");
-			stopMcsIns(ac, cachePort);
-			
-			/** 删除redis的配置文件  **/
-			logger.info("----- delete redis config file-----");
-			removeMcsSingleConfig(ac, commonconfigPath, cachePort);
-			
-			/** 删除zk的配置**/
-			logger.info("------ delete config for ["+userId+"].["+serviceId+"] ------");
-			CCSComponentOperationParam op = new CCSComponentOperationParam();
-			op.setUserId(userId);
-			op.setPath("/MCS/" + serviceId);
-			op.setPathType(PathType.READONLY);
-			iCCSComponentManageSv.delete(op);
-			logger.info("------ delete ["+userId+"].["+serviceId+"]'s config successful! ------");
-			
-			/** 更新用户实例表，状态为2. **/
-			logger.info("------- update mcs_user_instance status is ["+McsConstants.INVALIDATE_STATUS+"]");
-			tempIns.setStatus(McsConstants.INVALIDATE_STATUS);
-			McsUserCacheInstanceMapper im = ServiceUtil.getMapper(McsUserCacheInstanceMapper.class);
-			im.updateByPrimaryKey(tempIns);
-
-		} else {
-			logger.info("-------- removeMcsServerFileAndUserIns ---cluster-----");
-			McsResourcePool pool = null;
-			for (McsUserCacheInstance tempIns :userInstanceList) {
-				if (pool == null) {
-					McsResourcePoolMapper rpm = ServiceUtil.getMapper(McsResourcePoolMapper.class);
-					McsResourcePoolCriteria rpmc = new McsResourcePoolCriteria();
-					rpmc.createCriteria().andStatusEqualTo(McsConstants.VALIDATE_STATUS).andCacheHostIpEqualTo(tempIns.getCacheHost());
-					List<McsResourcePool> pools = rpm.selectByExample(rpmc);
-					pool = pools.get(0);
-				}
-				
-				String cachePath = pool.getCachePath();
-				Integer agentPort = Integer.parseInt(pool.getAgentCmd());
-				
-				String cacheHostIp = tempIns.getCacheHost();
-				Integer cachePort = tempIns.getCachePort();
-				String commonconfigPath = cachePath + McsConstants.CLUSTER_FILE_PATH;
-				logger.info("------- redis info cacheHostIp:["+cacheHostIp+"] ----------");
-				logger.info("------- redis info cachePort:["+cachePort+"] ----------");
-				logger.info("------- redis info agentPort:["+agentPort+"] ----------");
-				logger.info("------- redis info commonconfigPath:["+commonconfigPath+"]-----------");
-				
-				/** 获取agent客户端 **/
-				AgentClient ac = new AgentClient(cacheHostIp, agentPort);
-				
-				/** 停redis  **/
-				logger.info("----- stop redis ["+cacheHostIp+"]:["+cachePort+"]  -----");
-				stopMcsIns(ac, cachePort);
-				
-				/** 删除redis集群的目录及配置文件: ./redis/cluster/user_id+service_id/ **/
-				logger.info("----- delete redis[cluster] config file -----");
-				removeMcsClusterConfig(ac, commonconfigPath, cachePort, userId, serviceId);
-				
-				/** 删除zk的配置 **/
-				logger.info("----- delete zk config for ["+userId+"].["+serviceId+"] ---cluster-----");
-				CCSComponentOperationParam op = new CCSComponentOperationParam();
-				op.setUserId(userId);
-				op.setPath("/MCS/" + serviceId);
-				op.setPathType(PathType.READONLY);
-				iCCSComponentManageSv.delete(op);
-				logger.info("----- delete zk info ["+userId+"].["+serviceId+"]'s config successful! ------");
-
-				/** 更新用户实例表，状态为2. **/
-				tempIns.setStatus(McsConstants.INVALIDATE_STATUS);
-				McsUserCacheInstanceMapper im = ServiceUtil.getMapper(McsUserCacheInstanceMapper.class);
-				im.updateByPrimaryKey(tempIns);
-				logger.info("----- update mcs_user_instance status is ["+McsConstants.INVALIDATE_STATUS+"]");
-			}
-		}
-	}
-	
-	/**
-	 * 使用新的agent接口，启动redis服务。
-	 * @param ac
-	 * @param path
-	 * @param port
-	 * @throws PaasException
-	 */
-	private void startMcsIns(AgentClient ac, String path, int port) throws PaasException {
-		try {
-			String cmd_path = path + port + "/";
-			String cmd_start = "redis-server " + path + port + "/redis-" + port + ".conf &";
-			ac.executeInstruction(cmd_path, cmd_start);
-		} catch (Exception e) {
-			logger.error(e.getMessage(), e);
-			throw new PaasException("启动MCS异常，port：" + port, e);
-		}
-	}
-
-	/**
-	 * 使用新的agent接口，启动redis服务。
-	 * @param ac
-	 * @param path
-	 * @param port
-	 * @throws PaasException
-	 */
-	private void startMcsInsForCluster(AgentClient ac, String cachePath, String dir, String cPath, int port) throws PaasException {
-		try {
-			String path = cachePath + McsConstants.CLUSTER_FILE_PATH + dir + "/" + port + "/";
-			String cmd_rm = "rm -rf appendonly.aof dump.rdb nodes.conf ";
-			String cmd = "redis-server " + cachePath + McsConstants.CLUSTER_FILE_PATH + dir + "/" + port
-					+ "/redis-" + port + ".conf > redis.log &";
-			ac.executeInstruction(path, cmd_rm);
-			ac.executeInstruction(path, cmd);
-		} catch (Exception e) {
-			logger.error(e.getMessage(), e);
-			throw new PaasException("启动MCS异常，port：" + port, e);
-		}
-	}
-
-	/**
-	 * 使用新的agent接口，停redis服务。
-	 * @param ac
-	 * @param port
-	 * @throws PaasException
-	 */
-	private void stopMcsIns(AgentClient ac, int port) throws PaasException {
-		try {
-			String cmd =  "ps -ef | grep " + port + " | awk '{print $2}' | xargs kill -9";
-			ac.executeInstruction(cmd);
-		} catch (Exception e) {
-			logger.error(e.getMessage(), e);
-			throw new PaasException("++++++++ 停止Redis异常，port：" + port, e);
-		}
-	}
-	
-	/**
-	 * 删除单节点的redis配置文件
-	 * @param ac
-	 * @param commonconfigPath
-	 * @param cachePort
-	 * @param userId
-	 * @param serviceId
-	 * @throws PaasException
-	 */
-	private void removeMcsSingleConfig(AgentClient ac, String commonconfigPath, Integer cachePort) throws PaasException {
-		try {
-			String path = commonconfigPath + cachePort + "/";
-			String cmd = "rm -rf " + path;
-			ac.executeInstruction(commonconfigPath, cmd);
-		} catch (Exception e) {
-			logger.error(e.getMessage(), e);
-			throw new PaasException("集群--删除redis的配置文件异常，fileInfo：" + commonconfigPath+"/"+cachePort, e);
-		}
-	}
-	
-	/**
-	 * 删除集群的redis目录及配置文件
-	 * @param ac
-	 * @param commonconfigPath
-	 * @param cachePort
-	 * @param userId
-	 * @param serviceId
-	 * @throws PaasException
-	 */
-	private void removeMcsClusterConfig(AgentClient ac, String commonconfigPath, Integer cachePort, 
-			String userId, String serviceId) throws PaasException {
-		try {
-			String path = commonconfigPath + userId + "_" + serviceId + "/";
-			String cmd = "rm -rf " + path;
-			ac.executeInstruction(path, cmd);
-		} catch (Exception e) {
-			logger.error(e.getMessage(), e);
-			throw new PaasException("集群--删除redis的配置文件异常，fileInfo：" + commonconfigPath+userId+"/"+cachePort, e);
-		}
-	}
-
-	/**
-	 * 执行Redis集群创建的命令。
-	 * @param ac
-	 * @param clusterInfo
-	 * @throws PaasException
-	 */
-	private void createRedisCluster(AgentClient ac, String cmdPath, String clusterInfo) throws PaasException {
-		try {
-			String cmd_create_cluster = "redis-trib.rb create --replicas 1 " + clusterInfo;
-			ac.executeInstruction(cmdPath, cmd_create_cluster);
-			logger.info("----------创建Redis集群["+clusterInfo+"]成功----------");
-		} catch (Exception e) {
-			logger.error(e.getMessage(), e);
-			throw new PaasException("++++ 创建Redis集群["+clusterInfo+"]失败：" + e.getMessage(), e);
-		}
 	}
 }
