@@ -25,7 +25,7 @@ sed -i "s/jdbc.username=.*/jdbc.username=${DB_USRER}/g" /iPaaS-Service-Dubbo/con
 sed -i "s/jdbc.password=.*/jdbc.password=${DB_PWD}/g" /iPaaS-Service-Dubbo/config/context/jdbc.properties
 
 if [ -n "$LOG_LEVEL" ]; then  
-    sed -i "s/\<Root level=.*/\<Root level=\"${LOG_LEVEL}\"\>/g" /iPaaS-Service-Dubbo/config/log4j2.xml
+    sed -i "s/<Root level=.*/<Root level=\"${LOG_LEVEL}\">/g" /iPaaS-Service-Dubbo/config/log4j2.xml
 fi
 
 echo "------------------- ipaas service dubbo start --------------------"
