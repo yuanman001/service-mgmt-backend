@@ -10,24 +10,28 @@ import com.ai.paas.ipaas.mcs.service.interfaces.IMcsDataSv;
 import com.ai.paas.ipaas.mcs.service.interfaces.IMcsSv;
 import com.ai.paas.ipaas.mcs.service.util.McsParamUtil;
 import com.alibaba.dubbo.config.annotation.Service;
+
+
 @Service
-public class MemoryCacheServiceManagerImpl implements IMemoryCacheServiceManager {
-	private static final Logger log = LogManager
-			.getLogger(MemoryCacheServiceManagerImpl.class.getName());
+public class McsManagerImpl implements IMemoryCacheServiceManager {
+	private static final Logger logger = LogManager.getLogger(McsManagerImpl.class
+			.getName());
 	@Autowired
 	private IMcsSv iMcsSv;
 	@Autowired
 	private IMcsDataSv iMcsDataSv;
+
 	@Override
 	public String create(String createApply) {
 		String res = null;
 		try {
 			res = iMcsSv.openMcs(createApply);
 		} catch (Exception e) {
-			log.error(e.getMessage(),e);
-			return McsParamUtil.getReturn(createApply, McsConstants.FAIL_FLAG,e.getMessage());
+			logger.error(e.getMessage(), e);
+			return McsParamUtil.getReturn(createApply, McsConstants.FAIL_FLAG,
+					e.getMessage());
 		}
-		return McsParamUtil.getReturn(createApply, res,null);
+		return McsParamUtil.getReturn(createApply, res, null);
 	}
 
 	@Override
@@ -36,10 +40,11 @@ public class MemoryCacheServiceManagerImpl implements IMemoryCacheServiceManager
 		try {
 			res = iMcsSv.cancelMcs(cancelApply);
 		} catch (Exception e) {
-			log.error(e.getMessage(),e);
-			return McsParamUtil.getReturn(cancelApply, McsConstants.FAIL_FLAG,e.getMessage());
+			logger.error(e.getMessage(), e);
+			return McsParamUtil.getReturn(cancelApply, McsConstants.FAIL_FLAG,
+					e.getMessage());
 		}
-		return McsParamUtil.getReturn(cancelApply, res,"cancel successfully!");
+		return McsParamUtil.getReturn(cancelApply, res, "cancel successfully!");
 	}
 
 	@Override
@@ -48,10 +53,11 @@ public class MemoryCacheServiceManagerImpl implements IMemoryCacheServiceManager
 		try {
 			res = iMcsSv.modifyMcs(modifyApply);
 		} catch (Exception e) {
-			log.error(e.getMessage(),e);
-			return McsParamUtil.getReturn(modifyApply, McsConstants.FAIL_FLAG,e.getMessage());
+			logger.error(e.getMessage(), e);
+			return McsParamUtil.getReturn(modifyApply, McsConstants.FAIL_FLAG,
+					e.getMessage());
 		}
-		return McsParamUtil.getReturn(modifyApply, res,"modify successfully!");
+		return McsParamUtil.getReturn(modifyApply, res, "modify successfully!");
 	}
 
 	@Override
@@ -60,10 +66,11 @@ public class MemoryCacheServiceManagerImpl implements IMemoryCacheServiceManager
 		try {
 			res = iMcsSv.startMcs(startApply);
 		} catch (Exception e) {
-			log.error(e.getMessage(),e);
-			return McsParamUtil.getReturn(startApply, McsConstants.FAIL_FLAG,e.getMessage());
+			logger.error(e.getMessage(), e);
+			return McsParamUtil.getReturn(startApply, McsConstants.FAIL_FLAG,
+					e.getMessage());
 		}
-		return McsParamUtil.getReturn(startApply, res,"start successfully!");
+		return McsParamUtil.getReturn(startApply, res, "start successfully!");
 	}
 
 	@Override
@@ -72,10 +79,11 @@ public class MemoryCacheServiceManagerImpl implements IMemoryCacheServiceManager
 		try {
 			res = iMcsSv.stopMcs(stopApply);
 		} catch (Exception e) {
-			log.error(e.getMessage(),e);
-			return McsParamUtil.getReturn(stopApply, McsConstants.FAIL_FLAG,e.getMessage());
+			logger.error(e.getMessage(), e);
+			return McsParamUtil.getReturn(stopApply, McsConstants.FAIL_FLAG,
+					e.getMessage());
 		}
-		return McsParamUtil.getReturn(stopApply, res,"stop successfully!");
+		return McsParamUtil.getReturn(stopApply, res, "stop successfully!");
 	}
 
 	@Override
@@ -84,50 +92,53 @@ public class MemoryCacheServiceManagerImpl implements IMemoryCacheServiceManager
 		try {
 			res = iMcsSv.restartMcs(restartApply);
 		} catch (Exception e) {
-			log.error(e.getMessage(),e);
-			return McsParamUtil.getReturn(restartApply, McsConstants.FAIL_FLAG,e.getMessage());
+			logger.error(e.getMessage(), e);
+			return McsParamUtil.getReturn(restartApply, McsConstants.FAIL_FLAG,
+					e.getMessage());
 		}
-		return McsParamUtil.getReturn(restartApply, res,"restart successfully!");
+		return McsParamUtil.getReturn(restartApply, res,
+				"restart successfully!");
 	}
 
 	@Override
 	public String getFuncList() {
 		return McsParamUtil.getFuncList();
 	}
-	
-	
-	
-	
+
 	public String get(String param) {
 		String res = null;
 		try {
 			res = iMcsDataSv.get(param);
 		} catch (Exception e) {
-			log.error(e.getMessage(),e);
-			return McsParamUtil.getDataReturn( McsConstants.FAIL_FLAG,e.getMessage());
+			logger.error(e.getMessage(), e);
+			return McsParamUtil.getDataReturn(McsConstants.FAIL_FLAG,
+					e.getMessage());
 		}
-		return McsParamUtil.getDataReturn(McsConstants.SUCCESS_FLAG,res);
+		return McsParamUtil.getDataReturn(McsConstants.SUCCESS_FLAG, res);
 	}
-	
+
 	public String del(String param) {
 		String res = null;
 		try {
 			res = iMcsDataSv.del(param);
 		} catch (Exception e) {
-			log.error(e.getMessage(),e);
-			return McsParamUtil.getDataReturn(McsConstants.FAIL_FLAG,e.getMessage());
+			logger.error(e.getMessage(), e);
+			return McsParamUtil.getDataReturn(McsConstants.FAIL_FLAG,
+					e.getMessage());
 		}
-		return McsParamUtil.getDataReturn( McsConstants.SUCCESS_FLAG,res);
+		return McsParamUtil.getDataReturn(McsConstants.SUCCESS_FLAG, res);
 	}
+
 	public String clean(String param) {
 		String res = null;
 		try {
 			res = iMcsDataSv.flushDb(param);
 		} catch (Exception e) {
-			log.error(e.getMessage(),e);
-			return McsParamUtil.getDataReturn( McsConstants.FAIL_FLAG,e.getMessage());
+			logger.error(e.getMessage(), e);
+			return McsParamUtil.getDataReturn(McsConstants.FAIL_FLAG,
+					e.getMessage());
 		}
-		return McsParamUtil.getDataReturn( McsConstants.SUCCESS_FLAG,res);
+		return McsParamUtil.getDataReturn(McsConstants.SUCCESS_FLAG, res);
 	}
 
 	@Override
@@ -143,4 +154,3 @@ public class MemoryCacheServiceManagerImpl implements IMemoryCacheServiceManager
 	}
 
 }
-	

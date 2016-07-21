@@ -20,16 +20,16 @@ public class TestMcsDubbo {
 //    System.out.println(fl);
 //  }
 
-//  @Test
-//  public void createSingle() {
-//    long s = System.currentTimeMillis();
-//    String param =
-//        "{\"userId\":\"6C4F4DBA96294DDCBC5DBBF2CAD442B5\",\"applyType\":\"create\",\"serviceId\":\"MCS023\",\"capacity\":\"128\","
-//            + "\"haMode\":\"single\",\"serviceName\":\"ym-test-2\"}";
-//    System.out.println("----------create-res:\n" + iMemoryCacheServiceManager.create(param));
-//    System.out.println("----------开通单例，耗时：" + (System.currentTimeMillis() - s));
-//
-//  }
+  @Test
+  public void createSingle() {
+    long s = System.currentTimeMillis();
+    String param =
+        "{\"userId\":\"6C4F4DBA96294DDCBC5DBBF2CAD442B5\",\"applyType\":\"create\",\"serviceId\":\"MCS023\",\"capacity\":\"64\","
+            + "\"haMode\":\"single\",\"serviceName\":\"ym-test-2\"}";
+    System.out.println("----------create-res:\n" + iMemoryCacheServiceManager.create(param));
+    System.out.println("----------开通单例，耗时：" + (System.currentTimeMillis() - s));
+
+  }
 
 //  @Test
 //  public void createCluster() {

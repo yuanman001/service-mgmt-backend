@@ -1,7 +1,7 @@
 dependencies {
     compile project(":iPaaS-DubboInterfaces")
 	compile project(":iPaaS-CCS")
+	compile project(":iPaaS-Agent")
 	compile 'org.restlet.jee:org.restlet:2.2.1'
 	compile 'redis.clients:jedis:3.0.0'
-	compile "com.ai:ipaas-agent-client:0.1-SNAPSHOT"
 }
