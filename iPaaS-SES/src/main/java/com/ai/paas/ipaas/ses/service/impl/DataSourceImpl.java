@@ -263,8 +263,8 @@ public class DataSourceImpl implements IDataSource {
 	public void saveIndexDataSql(Map<String, String> dbInfo,
 			SesDataSourceInfo dbAttr, Map<String, String> userInfo) {
 		String falias = dbInfo.get("falias");
-		String overwriteStr = dbInfo.get("overwriteStr");
-		String isPriStr = dbInfo.get("isPriStr");
+		String overwriteStr = dbInfo.get("overwrite");
+		String isPriStr = dbInfo.get("isPrimary");
 		String groupId = dbInfo.get("groupId");
 		int uId = Integer.parseInt(dbInfo.get("uId"));
 		Gson gson = new Gson();
@@ -425,8 +425,9 @@ public class DataSourceImpl implements IDataSource {
 	}
 
 	@Override
-	public SesDataSourceInfo getDataSourceInfo(List<SesDataSourceInfo> dataSources,
-			Map<String, String> userInfo, Map<String, String> dbInfo) {
+	public SesDataSourceInfo getDataSourceInfo(
+			List<SesDataSourceInfo> dataSources, Map<String, String> userInfo,
+			Map<String, String> dbInfo) {
 
 		String groupId = dbInfo.get("groupId");
 		if (groupId != null && groupId.length() > 0) {
@@ -581,4 +582,34 @@ public class DataSourceImpl implements IDataSource {
 
 	}
 
+	@Override
+	public String getDataSourceUserPK(String userId, String srvID) {
+		SesDataimportUserMapper userMapper = ServiceUtil
+				.getMapper(SesDataimportUserMapper.class);
+		SesDataimportUserCriteria c = new SesDataimportUserCriteria();
+		c.createCriteria().andUserIdEqualTo(userId).andSesSidEqualTo(srvID)
+				.andStatusEqualTo(SesConstants.VALIDATE_STATUS);
+		List<SesDataimportUser> users = userMapper.selectByExample(c);
+		if (users != null && !users.isEmpty())
+			return "" + users.get(0).getId();
+		else
+			return null;
+	}
+
+	@Override
+	public List<SesDataSourceInfo> getDataSource(int dataSourceUId,
+			String dbAlias, int groupId) {
+		SesDataimportDsCriteria sc = new SesDataimportDsCriteria();
+
+		sc.createCriteria().andDuIdEqualTo(dataSourceUId)
+				.andAliasEqualTo(dbAlias).andGroupIdEqualTo(groupId);
+		SesDataimportDsMapper dsMapper = ServiceUtil
+				.getMapper(SesDataimportDsMapper.class);
+		List<SesDataimportDs> dss = dsMapper.selectByExample(sc);
+		try {
+			return getDBfromSesDataimportDs(dss, SesConstants.GROUP_ID_2);
+		} catch (Exception e) {
+			throw new PaasRuntimeException("", e);
+		}
+	}
 }

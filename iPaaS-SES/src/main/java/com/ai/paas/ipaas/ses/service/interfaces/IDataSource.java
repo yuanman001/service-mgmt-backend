@@ -16,8 +16,9 @@ public interface IDataSource {
 	public void saveIndexDataSql(Map<String, String> dbInfo,
 			SesDataSourceInfo dbAttr, Map<String, String> userInfo);
 
-	public SesDataSourceInfo getDataSourceInfo(List<SesDataSourceInfo> dataSources,
-			Map<String, String> userInfo, Map<String, String> dbInfo);
+	public SesDataSourceInfo getDataSourceInfo(
+			List<SesDataSourceInfo> dataSources, Map<String, String> userInfo,
+			Map<String, String> dbInfo);
 
 	public void deleteDataSource(List<SesDataSourceInfo> dataSources,
 			Map<String, String> userInfo);
@@ -28,4 +29,8 @@ public interface IDataSource {
 	public void saveDataSource(Map<String, String> userInfo,
 			List<SesDataSourceInfo> dataSources);
 
+	public String getDataSourceUserPK(String userId, String srvID);
+
+	public List<SesDataSourceInfo> getDataSource(int dataSourceUId,
+			String dbAlias, int groupId);
 }

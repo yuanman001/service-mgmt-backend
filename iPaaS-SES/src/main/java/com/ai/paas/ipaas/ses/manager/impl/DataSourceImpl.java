@@ -58,4 +58,15 @@ public class DataSourceImpl implements IDataSource {
 		dsSrv.saveDataSource(userInfo, dataSources);
 	}
 
+	@Override
+	public String getDataSourceUserPK(String userId, String srvID) {
+		return dsSrv.getDataSourceUserPK(userId, srvID);
+	}
+
+	@Override
+	public List<SesDataSourceInfo> getDataSource(int dataSourceUId,
+			String dbAlias, int groupId) {
+		return dsSrv.getDataSource(dataSourceUId, dbAlias, groupId);
+	}
+
 }
