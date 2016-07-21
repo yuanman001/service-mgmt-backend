@@ -33,8 +33,9 @@ public interface IDataSource {
 
 	@Path("getDS")
 	@POST
-	public SesDataSourceInfo getDataSourceInfo(List<SesDataSourceInfo> dataSources,
-			Map<String, String> userInfo, Map<String, String> dbInfo);
+	public SesDataSourceInfo getDataSourceInfo(
+			List<SesDataSourceInfo> dataSources, Map<String, String> userInfo,
+			Map<String, String> dbInfo);
 
 	@Path("deleteAllDS")
 	@POST
@@ -51,4 +52,17 @@ public interface IDataSource {
 	public void saveDataSource(Map<String, String> userInfo,
 			List<SesDataSourceInfo> dataSources);
 
+	/**
+	 * @param userId
+	 * @param srvID
+	 * @return
+	 */
+	@Path("getDBUserPK")
+	@POST
+	public String getDataSourceUserPK(String userId, String srvID);
+
+	@Path("getDSByDuid")
+	@POST
+	public List<SesDataSourceInfo> getDataSource(int dataSourceUId,
+			String dbAlias, int groupId);
 }

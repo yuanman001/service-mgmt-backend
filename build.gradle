@@ -6,9 +6,9 @@ allprojects {
     
     ext {
         parentName="ipaas-parent-service"
-        moduleMode="-SNAPSHOT";
-		//moduleMode="";
-		moduleName="ipaas-base";
+        //moduleMode="-SNAPSHOT";
+		moduleMode="";
+		moduleName="ipaas-service-dubbo-interfaces";
 		moduleVersion="0.3"+moduleMode;
         publishUserName = "devadm"
         publishUserPassword = "Devadm@1212"
