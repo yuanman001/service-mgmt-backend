@@ -3,15 +3,16 @@ package com.ai.paas.ipaas.ses.manager.impl;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import com.ai.paas.ipaas.PaasException;
-import com.ai.paas.ipaas.ses.manage.rest.interfaces.IIndexMapping;
+import com.ai.paas.ipaas.ses.manage.rest.interfaces.IRPCIndexMapping;
+import com.ai.paas.ipaas.ses.service.interfaces.IIndexMapping;
 import com.ai.paas.ipaas.util.CloneTool;
 import com.ai.paas.ipaas.vo.ses.SesUserMapping;
 import com.alibaba.dubbo.config.annotation.Service;
 
 @Service
-public class IndexMappingImpl implements IIndexMapping {
+public class RPCIndexMappingImpl implements IRPCIndexMapping {
 	@Autowired
-	com.ai.paas.ipaas.ses.service.interfaces.IIndexMapping mappingSRV;
+	IIndexMapping mappingSRV;
 
 	@Override
 	public SesUserMapping loadMapping(String userId, String serviceId)

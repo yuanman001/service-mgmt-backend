@@ -5,15 +5,16 @@ import java.util.Map;
 
 import org.springframework.beans.factory.annotation.Autowired;
 
-import com.ai.paas.ipaas.ses.manage.rest.interfaces.IDataSource;
+import com.ai.paas.ipaas.ses.manage.rest.interfaces.IRPCDataSource;
+import com.ai.paas.ipaas.ses.service.interfaces.IDataSource;
 import com.ai.paas.ipaas.vo.ses.SesDataSourceInfo;
 import com.ai.paas.ipaas.vo.ses.SesIndexSqlInfo;
 import com.alibaba.dubbo.config.annotation.Service;
 
-@Service
-public class DataSourceImpl implements IDataSource {
+@Service(validation = "true")
+public class RPCDataSourceImpl implements IRPCDataSource {
 	@Autowired
-	com.ai.paas.ipaas.ses.service.interfaces.IDataSource dsSrv;
+	IDataSource dsSrv;
 
 	@Override
 	public List<SesDataSourceInfo> getIndexDataSources(String userId,

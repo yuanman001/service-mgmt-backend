@@ -7,16 +7,17 @@ import java.util.Map;
 
 import org.springframework.beans.factory.annotation.Autowired;
 
-import com.ai.paas.ipaas.ses.manage.rest.interfaces.IIKDictionary;
+import com.ai.paas.ipaas.ses.manage.rest.interfaces.IRPCIKDictionary;
+import com.ai.paas.ipaas.ses.service.interfaces.IIKDictonary;
 import com.ai.paas.ipaas.util.CloneTool;
 import com.ai.paas.ipaas.vo.ses.SesUserIndexWord;
 import com.ai.paas.ipaas.vo.ses.SesUserStopWord;
 import com.alibaba.dubbo.config.annotation.Service;
 
 @Service
-public class IKDictionaryImpl implements IIKDictionary {
+public class RPCIKDictionaryImpl implements IRPCIKDictionary {
 	@Autowired
-	com.ai.paas.ipaas.ses.service.interfaces.IIKDictonary ikDict;
+	IIKDictonary ikDict;
 
 	@Override
 	public void saveDictonaryWord(List<SesUserIndexWord> indexWordList,
