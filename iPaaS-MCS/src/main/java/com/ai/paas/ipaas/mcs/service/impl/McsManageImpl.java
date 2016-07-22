@@ -44,6 +44,8 @@ import com.google.gson.JsonObject;
 public class McsManageImpl implements IMcsSv {
 	private static transient final Logger logger = LoggerFactory.getLogger(McsManageImpl.class);
 
+	static String basePath = AgentUtil.getAgentFilePath(AidUtil.getAid());
+
 	@Autowired 
 	private McsSvHepler mcsSvHepler;
 	
@@ -98,7 +100,6 @@ public class McsManageImpl implements IMcsSv {
 		String serviceName = paraMap.get(McsConstants.SERVICE_NAME);
 		String capacity = paraMap.get(McsConstants.CAPACITY);
 		Integer cacheSize = Integer.parseInt(capacity);
-		String basePath = AgentUtil.getAgentFilePath(AidUtil.getAid());
 
 		/** 1.获取mcs资源. **/
 		McsResourcePool mcsResourcePool = selectMcsResSingle(cacheSize, 1);
@@ -110,7 +111,8 @@ public class McsManageImpl implements IMcsSv {
 		String sshUser = getMcsSSHInfo(McsConstants.SSH_USER_CODE);
 		String sshUserPwd = getMcsSSHInfo(McsConstants.SSH_USER_PWD_CODE);
 		IpaasImageResource redisImage = getMcsImage(McsConstants.SERVICE_CODE, McsConstants.REDIS_IMAGE_CODE);
-
+		String image = redisImage.getImageRepository() + "/" + redisImage.getImageName();
+		
 		/** 3.创建 mcs_host.cfg 文件，并写入hostIp. **/
 		addHostFile(basePath, hostIp);
 		logger.info("-----创建 mcs_host.cfg 成功！");
@@ -121,7 +123,7 @@ public class McsManageImpl implements IMcsSv {
 
 		/** 5.生成ansible-playbook命令,并执行. **/
 		String ansibleCommand = getRedisServerCommand(capacity, basePath, hostIp, cachePort, 
-				requirepass, McsConstants.MODE_SINGLE, sshUser, sshUserPwd, redisImage);
+				requirepass, McsConstants.MODE_SINGLE, sshUser, sshUserPwd, image);
 		runAnsileCommand(ansibleCommand);
 		logger.info("-----执行ansible-playbook 成功！");
 
@@ -150,14 +152,14 @@ public class McsManageImpl implements IMcsSv {
 		String serviceName = paraMap.get(McsConstants.SERVICE_NAME);
 		String capacity = paraMap.get(McsConstants.CAPACITY);
 		Integer cacheSize = Integer.parseInt(capacity);
-		final String basePath = AgentUtil.getAgentFilePath(AidUtil.getAid());
 		final int clusterCacheSize = Math.round(cacheSize / McsConstants.CACHE_NUM * 2);
 		
 		/** 获取执行ansible命令所需要的主机信息，以及docker镜像信息. **/
 		final String sshUser = getMcsSSHInfo(McsConstants.SSH_USER_CODE);
 		final String sshUserPwd = getMcsSSHInfo(McsConstants.SSH_USER_PWD_CODE);
 		final IpaasImageResource redisImage = getMcsImage(McsConstants.SERVICE_CODE, McsConstants.REDIS_IMAGE_CODE);
-		final IpaasImageResource redisClusterImage = getMcsImage(McsConstants.SERVICE_CODE, McsConstants.REDIS_CLUSTER_IMAGE_CODE);
+		final String image = redisImage.getImageRepository() + "/" + redisImage.getImageName();
+		IpaasImageResource redisClusterImage = getMcsImage(McsConstants.SERVICE_CODE, McsConstants.REDIS_CLUSTER_IMAGE_CODE);
 		
 		/** 上传 ansible的 playbook 文件:mcs_single.yml, mcs_cluster.yml **/
 		uploadMcsFile(McsConstants.PLAYBOOK_MCS_PATH, McsConstants.PLAYBOOK_SINGLE_YML);
@@ -189,7 +191,7 @@ public class McsManageImpl implements IMcsSv {
 
                 			/** 执行ansible-playbook命令. **/
                 			String redisRun = getRedisServerCommand(clusterCacheSize+"", basePath, hostIp, cachePort, 
-                					requirepass, McsConstants.MODE_CLUSTER, sshUser, sshUserPwd, redisImage);
+                					requirepass, McsConstants.MODE_CLUSTER, sshUser, sshUserPwd, image);
                 			runAnsileCommand(redisRun);
                 			logger.info("-----执行ansible-playbook 成功！");
                         } catch (Exception e) {
@@ -236,7 +238,6 @@ public class McsManageImpl implements IMcsSv {
 		String serviceName = paraMap.get(McsConstants.SERVICE_NAME);
 		String capacity = paraMap.get(McsConstants.CAPACITY);
 		Integer cacheSize = Integer.parseInt(capacity);
-		String basePath = AgentUtil.getAgentFilePath(AidUtil.getAid());
 
 		/** 1.获取mcs资源. **/
 		McsResourcePool mcsResourcePool = selectMcsResSingle(cacheSize * 2, 2);
@@ -249,7 +250,8 @@ public class McsManageImpl implements IMcsSv {
 		String sshUser = getMcsSSHInfo(McsConstants.SSH_USER_CODE);
 		String sshUserPwd = getMcsSSHInfo(McsConstants.SSH_USER_PWD_CODE);
 		IpaasImageResource redisImage = getMcsImage(McsConstants.SERVICE_CODE, McsConstants.REDIS_IMAGE_CODE);
-
+		String image = redisImage.getImageRepository() + "/" + redisImage.getImageName();
+		
 		/** 3.创建 mcs_host.cfg 文件，并写入hostIp. **/
 		addHostFile(basePath, hostIp);
 		logger.info("-----创建 mcs_host.cfg 成功！");
@@ -262,7 +264,7 @@ public class McsManageImpl implements IMcsSv {
 
 		/** 5.生成创建master节点的命令,并执行. **/
 		String ansibleCommand = getRedisServerCommand(capacity, basePath, hostIp, masterPort, 
-				masterPwd, McsConstants.MODE_SINGLE, sshUser, sshUserPwd, redisImage);
+				masterPwd, McsConstants.MODE_SINGLE, sshUser, sshUserPwd, image);
 		runAnsileCommand(ansibleCommand);
 		logger.info("-----执行ansible-playbook 成功！");
 		
@@ -301,14 +303,14 @@ public class McsManageImpl implements IMcsSv {
 
 	private String getRedisServerCommand(String capacity, String basePath,
 			String hostIp, Integer cachePort, String requirepass, String mode,
-			String sshUser, String sshUserPwd, IpaasImageResource mcsImage) {
+			String sshUser, String sshUserPwd, String mcsImage) {
 		StringBuilder ansibleCommand = new StringBuilder("/usr/bin/ansible-playbook -i ")
 			.append(basePath).append(McsConstants.PLAYBOOK_CFG_PATH)
 			.append(McsConstants.PLAYBOOK_HOST_CFG).append(" ")
 			.append(basePath).append("/mcs/").append(McsConstants.PLAYBOOK_SINGLE_YML)
 			.append(" --user=").append(sshUser)
 			.append(" --extra-vars \"ansible_ssh_pass=").append(sshUserPwd)
-			.append(" image=").append(mcsImage.getImageRepository()).append("/").append(mcsImage.getImageName())
+			.append(" image=").append(mcsImage)
 			.append(" REDIS_PORT=").append(cachePort)
 			.append(" START_MODE=").append(mode)
 			.append(" host=").append(hostIp)
@@ -353,6 +355,19 @@ public class McsManageImpl implements IMcsSv {
 			.append(" MASTER_PORT=").append(masterPort).append("\"");
 		logger.info("-----ansibleCommand:" + ansibleCommand.toString());
 		return ansibleCommand.toString();
+	}
+	
+	private String getDockerOperateCommand(String basePath, String sshUser, String sshUserPwd, 
+			String operate, String containerName) {
+		StringBuilder commond = new StringBuilder("/usr/bin/ansible-playbook -i ")
+			.append(basePath).append(McsConstants.PLAYBOOK_CFG_PATH)
+			.append(McsConstants.PLAYBOOK_HOST_CFG).append(" ")
+			.append(basePath).append("/mcs/").append(McsConstants.PLAYBOOK_OPERATE_YML)
+			.append(" --user=").append(sshUser)
+			.append(" --extra-vars \"ansible_ssh_pass=").append(sshUserPwd)
+			.append(" operate=").append(operate)
+			.append(" container_name=").append(containerName).append("\"");
+		return commond.toString();
 	}
 	
 	private String getMcsSSHInfo(String field_code) throws PaasException {
@@ -438,6 +453,15 @@ public class McsManageImpl implements IMcsSv {
 		addCcsConfig(userId, serviceId, hostList, null);
 	}
 	
+	private void delZKConfig(String userId, String serviceId) throws PaasException {
+		logger.info("----- delete zk config for ["+userId+"].["+serviceId+"] -----");
+		CCSComponentOperationParam op = new CCSComponentOperationParam();
+		op.setUserId(userId);
+		op.setPath("/MCS/" + serviceId);
+		op.setPathType(PathType.READONLY);
+		iCCSComponentManageSv.delete(op);
+	}
+	
 	/**
 	 * 门户管理控制台功能：启动MCS
 	 */
@@ -447,15 +471,14 @@ public class McsManageImpl implements IMcsSv {
 		String serviceId = map.get(McsConstants.SERVICE_ID);
 		String userId = map.get(McsConstants.USER_ID);
 		
-		/** 根据user_id,service_id,获取用户实例信息 **/
 		List<McsUserCacheInstance> userInstanceList = mcsSvHepler.getMcsUserCacheInstances(serviceId, userId);
 		if (userInstanceList == null || userInstanceList.isEmpty()) {
 			throw new PaasException("UserId["+userId+"]的["+serviceId+"]服务未开通过，无法启动！");
 		}
 		
-		/** 调用启动Mcs的处理方法 **/
-		//TODO:
-		logger.info("----------启动["+userId+"]-["+serviceId+"]的MCS缓存服务,成功");
+		uploadMcsFile(McsConstants.PLAYBOOK_MCS_PATH, McsConstants.PLAYBOOK_OPERATE_YML);
+		
+		operateDocker(userInstanceList, McsConstants.DOCKER_COMMAND_START);
 		
 		return McsConstants.SUCCESS_FLAG;
 	}
@@ -469,18 +492,18 @@ public class McsManageImpl implements IMcsSv {
 		String serviceId = map.get(McsConstants.SERVICE_ID);
 		String userId = map.get(McsConstants.USER_ID);
 		
-		/** 根据user_id,service_id,获取用户实例信息 **/
 		List<McsUserCacheInstance> userInstanceList = mcsSvHepler.getMcsUserCacheInstances(serviceId, userId);
 		if (userInstanceList == null || userInstanceList.isEmpty()) {
 			throw new PaasException("UserId["+userId+"]的["+serviceId+"]服务未开通过，无法停止！");
 		}
 		
-		//TODO:
-		logger.info("----------停止["+userId+"]-["+serviceId+"]的MCS缓存服务,成功");
+		uploadMcsFile(McsConstants.PLAYBOOK_MCS_PATH, McsConstants.PLAYBOOK_OPERATE_YML);
+		
+		operateDocker(userInstanceList, McsConstants.DOCKER_COMMAND_STOP);
 		
 		return McsConstants.SUCCESS_FLAG;
 	}
-	
+
 	/**
 	 * 门户管理控制台功能：重启MCS服务。
 	 */
@@ -490,13 +513,16 @@ public class McsManageImpl implements IMcsSv {
 		String serviceId = map.get(McsConstants.SERVICE_ID);
 		String userId = map.get(McsConstants.USER_ID);
 		
-		/** 根据user_id,service_id,获取用户实例信息 **/
 		List<McsUserCacheInstance> userInstanceList = mcsSvHepler.getMcsUserCacheInstances(serviceId, userId);
 		if (userInstanceList == null || userInstanceList.isEmpty()){
 			throw new PaasException("UserId["+userId+"]的["+serviceId+"]服务未开通过，无法重启！");
 		}
 		
-		//TODO:
+		uploadMcsFile(McsConstants.PLAYBOOK_MCS_PATH, McsConstants.PLAYBOOK_OPERATE_YML);
+		
+		operateDocker(userInstanceList, McsConstants.DOCKER_COMMAND_STOP);
+
+		operateDocker(userInstanceList, McsConstants.DOCKER_COMMAND_START);
 		
 		return McsConstants.SUCCESS_FLAG;
 	}
@@ -510,13 +536,21 @@ public class McsManageImpl implements IMcsSv {
 		String serviceId = map.get(McsConstants.SERVICE_ID);
 		String userId = map.get(McsConstants.USER_ID);
 	
-		/** 根据user_id,service_id,获取用户实例信息 **/
-		List<McsUserCacheInstance> userInstanceList = mcsSvHepler.getMcsUserCacheInstances(serviceId, userId);
-		if (userInstanceList == null || userInstanceList.isEmpty()) {
-			throw new PaasException("UserId["+userId+"]的["+serviceId+"]服务未开通过，无法注销！");
-		}
+		List<McsUserCacheInstance> userInstanceList = getMcsServiceInfo(serviceId, userId);
 		
-		//TODO:
+		uploadMcsFile(McsConstants.PLAYBOOK_MCS_PATH, McsConstants.PLAYBOOK_OPERATE_YML);
+		
+		operateDocker(userInstanceList, McsConstants.DOCKER_COMMAND_STOP);
+		
+		operateDocker(userInstanceList, McsConstants.DOCKER_COMMAND_REMOVE);
+		
+		delZKConfig(userId, serviceId);
+		
+		updateUserInstance(userInstanceList, McsConstants.INVALIDATE_STATUS);
+		
+		modifyMcsResource(userInstanceList, true, 0);
+		
+		logger.info("-------- 注销成功 --------");
 		
 		return McsConstants.SUCCESS_FLAG;
 	}
@@ -532,29 +566,72 @@ public class McsManageImpl implements IMcsSv {
 		String serviceName = map.get(McsConstants.SERVICE_NAME);
 	    String userId = map.get(McsConstants.USER_ID);
 		String capacity = map.get(McsConstants.CAPACITY);
+		int cacheSize = Integer.valueOf(capacity);
 		
 		Assert.notNull(serviceId, "serviceId为空");
 		Assert.notNull(userId, "userId为空");
 		Assert.notNull(capacity, "capacity为空");
 		
-		logger.info("M1----------------获得已申请过的记录");
-		List<McsUserCacheInstance> userInstanceList = mcsSvHepler.getMcsUserCacheInstances(serviceId, userId);
-		if (userInstanceList == null || userInstanceList.isEmpty()) {
-			throw new PaasException("UserId["+userId+"]的["+serviceId+"]服务未开通过，无法修改！");
+		List<McsUserCacheInstance> userInstanceList = getMcsServiceInfo(serviceId, userId);
+		
+		operateDocker(userInstanceList, McsConstants.DOCKER_COMMAND_STOP);
+		
+		/** 重新指定docker运行的缓存大小的参数值. **/
+		runDocker(userInstanceList, cacheSize);
+		
+		/** 如果扩容的MCS是集群模式，需要执行集群创建的命令. **/
+		if(userInstanceList.size() > 1) {
+			createClusterDocker(userInstanceList);
 		}
 		
-		/** 计算扩容的容量大小。 **/
-		logger.info("M2----------------修改mcs_resource");  
-		int cacheSize = userInstanceList.size() == 1 ? Integer.valueOf(capacity)
-				: Math.round(Integer.valueOf(capacity) / McsConstants.CACHE_NUM * 2);
-//		modifyMcsResource(userInstanceList, true, cacheSize);
+		updateUserInstance(userInstanceList, cacheSize, serviceName);
 		
-		logger.info("M3----------------修改mcs服务端，重启redis");
-//		modifyMcsServerFileAndUserIns(userId, serviceId, userInstanceList, cacheSize, serviceName);
+		modifyMcsResource(userInstanceList, false, cacheSize);
 		
-		logger.info("----------------修改成功");
+		logger.info("-------- 扩容成功 --------");
 		
 		return McsConstants.SUCCESS_FLAG;
+	}
+	
+	/**
+	 * 修改缓存资源池的使用内存量
+	 * 
+	 * @param userInstanceList
+	 * @param cacheSize
+	 */
+	private void modifyMcsResource(List<McsUserCacheInstance> userInstanceList, Boolean isAdd, int cacheSize) {
+		for(McsUserCacheInstance userInstance: userInstanceList) {
+			String host = userInstance.getCacheHost();
+			Integer curentCacheSize = userInstance.getCacheMemory();
+			
+			/** 获取当前用户实例的值对象 **/
+			McsResourcePoolMapper mapper = ServiceUtil.getMapper(McsResourcePoolMapper.class);
+			McsResourcePoolCriteria condition = new McsResourcePoolCriteria();
+			condition.createCriteria().andStatusEqualTo(McsConstants.VALIDATE_STATUS).andCacheHostIpEqualTo(host);
+			List<McsResourcePool> pools = mapper.selectByExample(condition);
+			McsResourcePool pool = pools.get(0);
+			
+			/** 
+			 * 根据操作类型“扩容”／“注销”，更新MCS资源表中的“已使用缓存容量”字段.
+			 * 规则：“注销”->“回收资源，加值”；
+			 * 		“扩容”->“使用资源，减值”。
+			 * **/
+			if(isAdd) {
+				pool.setCacheMemoryUsed(curentCacheSize + cacheSize);
+			} else {
+				pool.setCacheMemoryUsed(pool.getCacheMemory() - curentCacheSize);
+			}
+			
+			mapper.updateByExampleSelective(pool, condition);
+		}
+	}
+	
+	private List<McsUserCacheInstance> getMcsServiceInfo(String serviceId, String userId) throws PaasException {
+		List<McsUserCacheInstance> userInstanceList = mcsSvHepler.getMcsUserCacheInstances(serviceId, userId);
+		if (userInstanceList == null || userInstanceList.isEmpty()) {
+			throw new PaasException("UserId["+userId+"]的["+serviceId+"]服务未开通过，无法处理！");
+		}
+		return userInstanceList;
 	}
 	
 	/**
@@ -572,6 +649,64 @@ public class McsManageImpl implements IMcsSv {
 		return im.countByExample(cc) > 0;
 	}
 
+	private void runDocker(List<McsUserCacheInstance> userInstanceList, int addCacheSize)
+			throws PaasException {
+		String sshUser = getMcsSSHInfo(McsConstants.SSH_USER_CODE);
+		String sshUserPwd = getMcsSSHInfo(McsConstants.SSH_USER_PWD_CODE);
+		
+		for (McsUserCacheInstance ins :userInstanceList) {
+			String hostIp = ins.getCacheHost();
+			Integer cachePort = ins.getCachePort();
+			String requirepass = ins.getPwd(); 
+			String redisImage = ins.getRedisImage();
+			String capacity = (ins.getCacheMemory() + addCacheSize) + ""; 
+			
+			addHostFile(basePath, hostIp);
+			uploadMcsFile(McsConstants.PLAYBOOK_MCS_PATH, McsConstants.PLAYBOOK_SINGLE_YML);
+			String ansibleCommand = getRedisServerCommand(capacity, basePath, hostIp, cachePort, 
+					requirepass, McsConstants.MODE_CLUSTER, sshUser, sshUserPwd, redisImage);
+			
+			logger.info("-------- docker command :" + ansibleCommand);
+			runAnsileCommand(ansibleCommand);
+		}
+	}
+	
+	private void createClusterDocker(List<McsUserCacheInstance> userInstanceList) throws PaasException {
+		IpaasImageResource redisClusterImage = getMcsImage(McsConstants.SERVICE_CODE, McsConstants.REDIS_CLUSTER_IMAGE_CODE);
+		String sshUser = getMcsSSHInfo(McsConstants.SSH_USER_CODE);
+		String sshUserPwd = getMcsSSHInfo(McsConstants.SSH_USER_PWD_CODE);
+		
+		String clusterInfo = "";
+		for(McsUserCacheInstance vo: userInstanceList) {
+			clusterInfo += vo.getCacheHost()+ ":" + vo.getCachePort() + " ";
+		}
+		
+		/** 不再上传mcs_cluster.yml、host.cfg文件，使用ansible上已有的即可；
+		 * 创建redis集群在任意台资源主机上执行命令均可。
+		 * 执行redis集群创建命令 **/
+		String redisClusterRun = getCreateClusterCommand(basePath, sshUser, sshUserPwd, clusterInfo, redisClusterImage);
+		runAnsileCommand(redisClusterRun);
+		logger.info("-------- 创建MCS集群成功！");
+	}
+	
+	private void operateDocker(List<McsUserCacheInstance> userInstanceList, String command)
+			throws PaasException {
+		String sshUser = getMcsSSHInfo(McsConstants.SSH_USER_CODE);
+		String sshUserPwd = getMcsSSHInfo(McsConstants.SSH_USER_PWD_CODE);
+		
+		for (McsUserCacheInstance ins :userInstanceList) {
+			String hostIp = ins.getCacheHost();
+			String containerName = ins.getContainerName();
+
+			addHostFile(basePath, hostIp);
+	
+			String ansibleCommand = getDockerOperateCommand(basePath, sshUser,
+					sshUserPwd, command, containerName);
+			logger.info("-------- docker command :" + ansibleCommand);
+			runAnsileCommand(ansibleCommand);
+		}
+	}
+	
 	/**
 	 * 生成"ip1:port1;ip2:port2"格式的集群信息串
 	 * @param list
@@ -584,6 +719,7 @@ public class McsManageImpl implements IMcsSv {
 		for(McsProcessInfo vo: list) {
 			cluster += vo.getCacheHostIp() + ":" + vo.getCachePort() + separator;
 		}
+		
 		return cluster;
 	}
 	
@@ -745,6 +881,36 @@ public class McsManageImpl implements IMcsSv {
 		ServiceUtil.getMapper(McsUserCacheInstanceMapper.class).insert(bean);
 	}
 
+	/**
+	 * 更新用户的缓存实例
+	 * @param userInstanceList
+	 * @param status
+	 * @throws PaasException
+	 */
+	private void updateUserInstance(List<McsUserCacheInstance> userInstanceList, int status) throws PaasException {
+		for (McsUserCacheInstance ins :userInstanceList) {
+			ins.setStatus(status);
+			McsUserCacheInstanceMapper im = ServiceUtil.getMapper(McsUserCacheInstanceMapper.class);
+			im.updateByPrimaryKey(ins);
+		}
+	}
+	
+	/**
+	 * 缓存扩容
+	 * @param userInstanceList
+	 * @param status
+	 * @throws PaasException
+	 */
+	private void updateUserInstance(List<McsUserCacheInstance> userInstanceList, int cacheSize,
+			String serviceName) throws PaasException {
+		for (McsUserCacheInstance ins :userInstanceList) {
+			ins.setCacheMemory(cacheSize);
+			ins.setServiceName(serviceName);
+			McsUserCacheInstanceMapper im = ServiceUtil.getMapper(McsUserCacheInstanceMapper.class);
+			im.updateByPrimaryKey(ins);
+		}
+	}
+	
 	/**
 	 * 在zk中记录申请信息
 	 * 

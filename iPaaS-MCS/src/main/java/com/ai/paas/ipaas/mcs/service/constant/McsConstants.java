@@ -9,6 +9,10 @@ public class McsConstants {
   public static final String SSH_USER_CODE = "mcs_ssh_user";
   public static final String SSH_USER_PWD_CODE = "mcs_ssh_user_pwd";
 	
+  public static final String DOCKER_COMMAND_START = "start";
+  public static final String DOCKER_COMMAND_STOP = "stop";
+  public static final String DOCKER_COMMAND_REMOVE = "rm";
+
   public static final String MODE_SINGLE = "single";
   public static final String MODE_CLUSTER = "cluster";
   public static final String MODE_REPLICATION = "replication";
@@ -17,10 +21,11 @@ public class McsConstants {
   public static final String PLAYBOOK_MCS_PATH = "/playbook/mcs/";
   public static final String PLAYBOOK_CFG_PATH  = "/mcs/ansible_ssh/";
   public static final String PLAYBOOK_HOST_CFG = "mcs_host.cfg";
-  public static final String PLAYBOOK_SINGLE_YML = "mcs_single.yml";
-  public static final String PLAYBOOK_CLUSTER_YML = "mcs_cluster.yml";
-  public static final String PLAYBOOK_REPLICATION_YML = "mcs_replication.yml";
-  public static final String PLAYBOOK_SENTINEL_YML = "mcs_sentinel.yml";
+  public static final String PLAYBOOK_SINGLE_YML = "create_single.yml";
+  public static final String PLAYBOOK_CLUSTER_YML = "create_cluster.yml";
+  public static final String PLAYBOOK_REPLICATION_YML = "create_replication.yml";
+  public static final String PLAYBOOK_SENTINEL_YML = "create_sentinel.yml";
+  public static final String PLAYBOOK_OPERATE_YML = "operate_mcs.yml";
 
   public static final String FILE_PATH = "/commonconfig/";
   public static final String LOG_PATH = "/redis/log/";   //modified by yuanman in 2016-05-21

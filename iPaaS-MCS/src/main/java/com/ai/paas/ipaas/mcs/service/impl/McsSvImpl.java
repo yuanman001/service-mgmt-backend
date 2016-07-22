@@ -11,7 +11,6 @@
 //import org.springframework.stereotype.Service;
 //import org.springframework.transaction.annotation.Transactional;
 //
-//import com.ai.paas.agent.client.AgentClient;
 //import com.ai.paas.ipaas.PaasException;
 //import com.ai.paas.ipaas.ServiceUtil;
 //import com.ai.paas.ipaas.ccs.constants.ConfigCenterDubboConstants.PathType;
@@ -43,173 +42,173 @@
 //	@Autowired 
 //	private ICCSComponentManageSv iCCSComponentManageSv;
 //
-//	/**
-//	 * 服务开通功能
-//	 */
-//	@Override
-//	public String openMcs(String param) throws PaasException {
-//		Map<String, String> map = McsParamUtil.getParamMap(param);
-//		String userId = map.get(McsConstants.USER_ID);
-//		String serviceId = map.get(McsConstants.SERVICE_ID);
-//		String serviceName = map.get(McsConstants.SERVICE_NAME);
-//		String haMode = map.get(McsConstants.HA_MODE);
-//		String capacity = map.get(McsConstants.CAPACITY);
-//		int cacheSize = Integer.valueOf(capacity);
-//
-//		/** 判断用户的这个缓存服务是否已经开通 **/
-//		if (existsService(userId, serviceId)) {
-//			logger.info("------- 用户服务已存在，开通成功 -------");
-//			return McsConstants.SUCCESS_FLAG;
-//		}
-//
-//		/** 开通单例  **/
-//		if (McsConstants.MODE_SINGLE.equals(haMode)) {
-//			/** 1.选择开通服务的资源：选择剩余内存最多的主机  **/
-//			McsResourcePool mcsResourcePool = selectMcsResSingle(cacheSize, 1);
-//			
-//			/** 需更新mcs资源表AgentCmd字段，只存agent端口号！ **/
-//			Integer agentPort = Integer.valueOf(mcsResourcePool.getAgentCmd());
-//			Integer cachePort = mcsResourcePool.getCachePort();
-//			String cacheHostIp = mcsResourcePool.getCacheHostIp();
-//			String cachePath = mcsResourcePool.getCachePath();
-//			String requirepass = mcsSvHepler.getRandomKey();
-//
-//			/** 2.初始化agent  **/
-//			AgentClient ac = new AgentClient(cacheHostIp, agentPort);
-//			
-//			/** 3.创建端口号命名的文件夹  **/
-//			String commonconfigPath = cachePath + McsConstants.FILE_PATH;
-//			addConfigFolder(ac, commonconfigPath, cachePort);
-//			
-//			/** 4.创建配置文件并上传至服务器指定目录  **/
-//			addMcsConfig(ac, cachePath, cachePort, capacity, requirepass);
-//			
-//			/** 5.启动单例  **/
-//			startMcsIns(ac, commonconfigPath, cachePort);
-//			logger.info("---------启动redis成功!");
-//			
-//			/** 6.处理zk 配置 **/
-//			List<String> hostList = new ArrayList<String>();
-//			hostList.add(cacheHostIp + ":" + cachePort);
-//			addCcsConfig(userId, serviceId, hostList, requirepass);
-//			logger.info("----------处理zk 配置成功！");
-//			
-//			/** 7.mcs用户实例表增加纪录  **/
-//			addUserInstance(userId, serviceId, capacity, cacheHostIp, cachePort, requirepass, serviceName);
-//			logger.info("---------处理用户实例成功！");
-//			
-//		} else if (McsConstants.MODE_CLUSTER.equals(haMode)) {
-//			logger.info("-------- 开通集群模式的MCS服务 --------");
-//			/** 计算分配给每个节点的缓存大小 **/
-//			int clusterCacheSize = Math.round(cacheSize / McsConstants.CACHE_NUM * 2);
-//
-//			/** 从Mcs资源池中选取资源  **/
-//			List<McsProcessInfo> cacheInfoList = selectMcsResCluster(clusterCacheSize, McsConstants.CACHE_NUM);
-//			
-//			/** 增加集群中各server的目录及配置文件，并启动redis。 **/
-//			addMcsConfigCluster(cacheInfoList, userId, serviceId, clusterCacheSize);
-//			
-//			/** 组织集群创建的命令及返回值 **/
-//			String clusterInfo = getClusterInfo(cacheInfoList, " ");
-//			
-//			/** 在集群中的任意台主机上，执行redis集群创建的命令 **/
-//			McsProcessInfo vo = cacheInfoList.get(0);
-//			AgentClient ac = new AgentClient(vo.getCacheHostIp(), vo.getAgentPort());
-//			createRedisCluster(ac, vo.getCachePath()+McsConstants.CLUSTER_FILE_PATH, clusterInfo);
-//			
-//			/** 添加zk配置  **/
-//			String hostsCluster = getClusterInfo(cacheInfoList, ";");
-//			logger.info("-------- hostsCluster is :" + hostsCluster);
-//			
-//			List<String> hostList = new ArrayList<String>();
-//			hostList.add(hostsCluster.substring(1));
-//			addCcsConfig(userId, serviceId, hostList, null);
-//			logger.info("-------- 开通MCS集群模式，处理zk 配置 --------");
-//			
-//			/** 循环处理集群模式的MCS用户实例 **/
-//			for (McsProcessInfo cacheInfo : cacheInfoList) {
-//				logger.info("----add mcs_user_Instance---- userId:["+userId+"],serviceId:["+serviceId+"],"
-//						+ "clusterCacheSize:["+clusterCacheSize+",cacheIp["+cacheInfo.getCacheHostIp()+"],"
-//							+ "cachePort:["+cacheInfo.getCachePort()+"],serviceName:["+serviceName+"]");
-//				addUserInstance(userId, serviceId, clusterCacheSize + "", cacheInfo.getCacheHostIp(), 
-//						cacheInfo.getCachePort(), null, serviceName);
-//			}
-//		} else if (McsConstants.MODE_REPLICATION.equals(haMode)) {
-//			logger.info("1----------------进入主从模式选择主机");
-//			// --------选择剩余内存最多的主机 缓存资源
-//			McsResourcePool pool = selectMcsResSingle(cacheSize * 2, 2);
-//			logger.info("2----------------选择主机:" + pool.getCacheHostIp() + "端口：" + pool.getCachePort());
-//			
-//			//获取随机数作为redis密码。
-//			String requirepass = mcsSvHepler.getRandomKey();
-//			
-//			logger.info("3----------------处理mcs服务端");
-//			// 处理mcs服务端配置文件
-//			addMasterConfig(pool, pool.getCachePort(), capacity, requirepass);
-//			addSlaveConfig(pool, pool.getCachePort() - 1, capacity, requirepass);
-//			
-//			// 处理zk 配置
-//			logger.info("4----------------处理zk 配置");
-//			List<String> hostList = new ArrayList<String>();
-//			hostList.add(pool.getCacheHostIp() + ":" + pool.getCachePort());
-//			addCcsConfig(userId, serviceId, hostList, requirepass);
-//			
-//			// -------mcs_user_cache_instance表新增记录
-//			logger.info("5----------------处理用户实例");
-//			addUserInstance(userId, serviceId, capacity,
-//					pool.getCacheHostIp(), pool.getCachePort(), requirepass, serviceName);
-//
-//		} else if (McsConstants.MODE_SENTINEL.equals(haMode)) {
-//			logger.info("1----------------进入集群选择主机");
-//			final int clusterCacheSize = Math.round(cacheSize / McsConstants.CACHE_NUM * 2);
-//			
-//			/** 选取 资源池  **/
-//			List<McsProcessInfo> mcsProcessList = selectMcsResCluster(
-//					clusterCacheSize, McsConstants.SENTINEL_NUM);
-//			logger.info("3----------------处理mcs服务端");
-//			
-//			/** 获取随机数作为redis密码。 **/
-//			String requirepass = mcsSvHepler.getRandomKey();
-//			
-//			/** 临时保存master信息，在配置slave、sentine时使用。 **/
-//			McsProcessInfo masterInfo = null;
-//			
-//			int counter = 0;
-//			/** 选取第一项为主，二三项为从，四五六启动sentinel进程  **/
-//			for(McsProcessInfo vo: mcsProcessList) {
-//				if(counter < 1) {
-//					// 选取第一项为主
-//					masterInfo = vo;
-//					configSenMaster(vo, capacity, requirepass);
-//				} else if (counter < 3) {
-//					// 选取第一项为主，二三项为从
-//					configSenSlave(vo, masterInfo, capacity, requirepass);
-//				} else if(counter < 6) {
-//					// 四五六启动sentinel进程
-//					configSentinel(vo, masterInfo);
-//				}
-//				
-//				counter++;
-//			}
-//			
-//			logger.info("4----------------处理zk 配置");
-//			List<String> hostList = new ArrayList<String>();
-//			for(McsProcessInfo vo: mcsProcessList) {
-//				hostList.add(vo.getCacheHostIp() + ":" + vo.getCachePort());
-//			}
-//			addCcsConfig(userId, serviceId, hostList, requirepass);
-//			
-//			logger.info("5----------------处理用户实例");
-//			for (String address : hostList) {
-//				String[] add = address.split(":");
-//				// -------mcs_user_cache_instance表新增记录
-//				addUserInstance(userId, serviceId, clusterCacheSize + "", add[0], Integer.parseInt(add[1]), null, serviceName);
-//			}
-//		}
-//
-//		logger.info("----------------开通成功");
-//		return McsConstants.SUCCESS_FLAG;
-//	}
+////	/**
+////	 * 服务开通功能
+////	 */
+////	@Override
+////	public String openMcs(String param) throws PaasException {
+////		Map<String, String> map = McsParamUtil.getParamMap(param);
+////		String userId = map.get(McsConstants.USER_ID);
+////		String serviceId = map.get(McsConstants.SERVICE_ID);
+////		String serviceName = map.get(McsConstants.SERVICE_NAME);
+////		String haMode = map.get(McsConstants.HA_MODE);
+////		String capacity = map.get(McsConstants.CAPACITY);
+////		int cacheSize = Integer.valueOf(capacity);
+////
+////		/** 判断用户的这个缓存服务是否已经开通 **/
+////		if (existsService(userId, serviceId)) {
+////			logger.info("------- 用户服务已存在，开通成功 -------");
+////			return McsConstants.SUCCESS_FLAG;
+////		}
+////
+////		/** 开通单例  **/
+////		if (McsConstants.MODE_SINGLE.equals(haMode)) {
+////			/** 1.选择开通服务的资源：选择剩余内存最多的主机  **/
+////			McsResourcePool mcsResourcePool = selectMcsResSingle(cacheSize, 1);
+////			
+////			/** 需更新mcs资源表AgentCmd字段，只存agent端口号！ **/
+////			Integer agentPort = Integer.valueOf(mcsResourcePool.getAgentCmd());
+////			Integer cachePort = mcsResourcePool.getCachePort();
+////			String cacheHostIp = mcsResourcePool.getCacheHostIp();
+////			String cachePath = mcsResourcePool.getCachePath();
+////			String requirepass = mcsSvHepler.getRandomKey();
+////
+////			/** 2.初始化agent  **/
+////			AgentClient ac = new AgentClient(cacheHostIp, agentPort);
+////			
+////			/** 3.创建端口号命名的文件夹  **/
+////			String commonconfigPath = cachePath + McsConstants.FILE_PATH;
+////			addConfigFolder(ac, commonconfigPath, cachePort);
+////			
+////			/** 4.创建配置文件并上传至服务器指定目录  **/
+////			addMcsConfig(ac, cachePath, cachePort, capacity, requirepass);
+////			
+////			/** 5.启动单例  **/
+////			startMcsIns(ac, commonconfigPath, cachePort);
+////			logger.info("---------启动redis成功!");
+////			
+////			/** 6.处理zk 配置 **/
+////			List<String> hostList = new ArrayList<String>();
+////			hostList.add(cacheHostIp + ":" + cachePort);
+////			addCcsConfig(userId, serviceId, hostList, requirepass);
+////			logger.info("----------处理zk 配置成功！");
+////			
+////			/** 7.mcs用户实例表增加纪录  **/
+////			addUserInstance(userId, serviceId, capacity, cacheHostIp, cachePort, requirepass, serviceName);
+////			logger.info("---------处理用户实例成功！");
+////			
+////		} else if (McsConstants.MODE_CLUSTER.equals(haMode)) {
+////			logger.info("-------- 开通集群模式的MCS服务 --------");
+////			/** 计算分配给每个节点的缓存大小 **/
+////			int clusterCacheSize = Math.round(cacheSize / McsConstants.CACHE_NUM * 2);
+////
+////			/** 从Mcs资源池中选取资源  **/
+////			List<McsProcessInfo> cacheInfoList = selectMcsResCluster(clusterCacheSize, McsConstants.CACHE_NUM);
+////			
+////			/** 增加集群中各server的目录及配置文件，并启动redis。 **/
+////			addMcsConfigCluster(cacheInfoList, userId, serviceId, clusterCacheSize);
+////			
+////			/** 组织集群创建的命令及返回值 **/
+////			String clusterInfo = getClusterInfo(cacheInfoList, " ");
+////			
+////			/** 在集群中的任意台主机上，执行redis集群创建的命令 **/
+////			McsProcessInfo vo = cacheInfoList.get(0);
+////			AgentClient ac = new AgentClient(vo.getCacheHostIp(), vo.getAgentPort());
+////			createRedisCluster(ac, vo.getCachePath()+McsConstants.CLUSTER_FILE_PATH, clusterInfo);
+////			
+////			/** 添加zk配置  **/
+////			String hostsCluster = getClusterInfo(cacheInfoList, ";");
+////			logger.info("-------- hostsCluster is :" + hostsCluster);
+////			
+////			List<String> hostList = new ArrayList<String>();
+////			hostList.add(hostsCluster.substring(1));
+////			addCcsConfig(userId, serviceId, hostList, null);
+////			logger.info("-------- 开通MCS集群模式，处理zk 配置 --------");
+////			
+////			/** 循环处理集群模式的MCS用户实例 **/
+////			for (McsProcessInfo cacheInfo : cacheInfoList) {
+////				logger.info("----add mcs_user_Instance---- userId:["+userId+"],serviceId:["+serviceId+"],"
+////						+ "clusterCacheSize:["+clusterCacheSize+",cacheIp["+cacheInfo.getCacheHostIp()+"],"
+////							+ "cachePort:["+cacheInfo.getCachePort()+"],serviceName:["+serviceName+"]");
+////				addUserInstance(userId, serviceId, clusterCacheSize + "", cacheInfo.getCacheHostIp(), 
+////						cacheInfo.getCachePort(), null, serviceName);
+////			}
+////		} else if (McsConstants.MODE_REPLICATION.equals(haMode)) {
+////			logger.info("1----------------进入主从模式选择主机");
+////			// --------选择剩余内存最多的主机 缓存资源
+////			McsResourcePool pool = selectMcsResSingle(cacheSize * 2, 2);
+////			logger.info("2----------------选择主机:" + pool.getCacheHostIp() + "端口：" + pool.getCachePort());
+////			
+////			//获取随机数作为redis密码。
+////			String requirepass = mcsSvHepler.getRandomKey();
+////			
+////			logger.info("3----------------处理mcs服务端");
+////			// 处理mcs服务端配置文件
+////			addMasterConfig(pool, pool.getCachePort(), capacity, requirepass);
+////			addSlaveConfig(pool, pool.getCachePort() - 1, capacity, requirepass);
+////			
+////			// 处理zk 配置
+////			logger.info("4----------------处理zk 配置");
+////			List<String> hostList = new ArrayList<String>();
+////			hostList.add(pool.getCacheHostIp() + ":" + pool.getCachePort());
+////			addCcsConfig(userId, serviceId, hostList, requirepass);
+////			
+////			// -------mcs_user_cache_instance表新增记录
+////			logger.info("5----------------处理用户实例");
+////			addUserInstance(userId, serviceId, capacity,
+////					pool.getCacheHostIp(), pool.getCachePort(), requirepass, serviceName);
+////
+////		} else if (McsConstants.MODE_SENTINEL.equals(haMode)) {
+////			logger.info("1----------------进入集群选择主机");
+////			final int clusterCacheSize = Math.round(cacheSize / McsConstants.CACHE_NUM * 2);
+////			
+////			/** 选取 资源池  **/
+////			List<McsProcessInfo> mcsProcessList = selectMcsResCluster(
+////					clusterCacheSize, McsConstants.SENTINEL_NUM);
+////			logger.info("3----------------处理mcs服务端");
+////			
+////			/** 获取随机数作为redis密码。 **/
+////			String requirepass = mcsSvHepler.getRandomKey();
+////			
+////			/** 临时保存master信息，在配置slave、sentine时使用。 **/
+////			McsProcessInfo masterInfo = null;
+////			
+////			int counter = 0;
+////			/** 选取第一项为主，二三项为从，四五六启动sentinel进程  **/
+////			for(McsProcessInfo vo: mcsProcessList) {
+////				if(counter < 1) {
+////					// 选取第一项为主
+////					masterInfo = vo;
+////					configSenMaster(vo, capacity, requirepass);
+////				} else if (counter < 3) {
+////					// 选取第一项为主，二三项为从
+////					configSenSlave(vo, masterInfo, capacity, requirepass);
+////				} else if(counter < 6) {
+////					// 四五六启动sentinel进程
+////					configSentinel(vo, masterInfo);
+////				}
+////				
+////				counter++;
+////			}
+////			
+////			logger.info("4----------------处理zk 配置");
+////			List<String> hostList = new ArrayList<String>();
+////			for(McsProcessInfo vo: mcsProcessList) {
+////				hostList.add(vo.getCacheHostIp() + ":" + vo.getCachePort());
+////			}
+////			addCcsConfig(userId, serviceId, hostList, requirepass);
+////			
+////			logger.info("5----------------处理用户实例");
+////			for (String address : hostList) {
+////				String[] add = address.split(":");
+////				// -------mcs_user_cache_instance表新增记录
+////				addUserInstance(userId, serviceId, clusterCacheSize + "", add[0], Integer.parseInt(add[1]), null, serviceName);
+////			}
+////		}
+////
+////		logger.info("----------------开通成功");
+////		return McsConstants.SUCCESS_FLAG;
+////	}
 //
 //	/**
 //	 * 允许修改容量、描述，serviceId userId capacity 都不能为空
@@ -247,100 +246,100 @@
 //		return McsConstants.SUCCESS_FLAG;
 //	}
 //	
-//	/**
-//	 * 门户管理控制台功能：启动MCS
-//	 */
-//	@Override
-//	public String startMcs(String param) throws PaasException {
-//		Map<String, String> map = McsParamUtil.getParamMap(param);
-//		String serviceId = map.get(McsConstants.SERVICE_ID);
-//		String userId = map.get(McsConstants.USER_ID);
-//		
-//		/** 根据user_id,service_id,获取用户实例信息 **/
-//		List<McsUserCacheInstance> userInstanceList = mcsSvHepler.getMcsUserCacheInstances(serviceId, userId);
-//		if (userInstanceList == null || userInstanceList.isEmpty()) {
-//			throw new PaasException("UserId["+userId+"]的["+serviceId+"]服务未开通过，无法启动！");
-//		}
-//		
-//		/** 调用启动Mcs的处理方法 **/
-//		startMcs(userId, serviceId, userInstanceList);
-//		logger.info("----------启动["+userId+"]-["+serviceId+"]的MCS缓存服务,成功");
-//		
-//		return McsConstants.SUCCESS_FLAG;
-//	}
+////	/**
+////	 * 门户管理控制台功能：启动MCS
+////	 */
+////	@Override
+////	public String startMcs(String param) throws PaasException {
+////		Map<String, String> map = McsParamUtil.getParamMap(param);
+////		String serviceId = map.get(McsConstants.SERVICE_ID);
+////		String userId = map.get(McsConstants.USER_ID);
+////		
+////		/** 根据user_id,service_id,获取用户实例信息 **/
+////		List<McsUserCacheInstance> userInstanceList = mcsSvHepler.getMcsUserCacheInstances(serviceId, userId);
+////		if (userInstanceList == null || userInstanceList.isEmpty()) {
+////			throw new PaasException("UserId["+userId+"]的["+serviceId+"]服务未开通过，无法启动！");
+////		}
+////		
+////		/** 调用启动Mcs的处理方法 **/
+////		startMcs(userId, serviceId, userInstanceList);
+////		logger.info("----------启动["+userId+"]-["+serviceId+"]的MCS缓存服务,成功");
+////		
+////		return McsConstants.SUCCESS_FLAG;
+////	}
 //
-//	/**
-//	 * 门户管理控制台功能：停止Mcs服务
-//	 */
-//	@Override
-//	public String stopMcs(String param) throws PaasException {
-//		Map<String, String> map = McsParamUtil.getParamMap(param);
-//		String serviceId = map.get(McsConstants.SERVICE_ID);
-//		String userId = map.get(McsConstants.USER_ID);
-//		
-//		/** 根据user_id,service_id,获取用户实例信息 **/
-//		List<McsUserCacheInstance> userInstanceList = mcsSvHepler.getMcsUserCacheInstances(serviceId, userId);
-//		if (userInstanceList == null || userInstanceList.isEmpty()) {
-//			throw new PaasException("UserId["+userId+"]的["+serviceId+"]服务未开通过，无法停止！");
-//		}
-//		
-//		stopMcsInsForCacheIns(userInstanceList);
-//		logger.info("----------停止["+userId+"]-["+serviceId+"]的MCS缓存服务,成功");
-//		
-//		return McsConstants.SUCCESS_FLAG;
-//	}
+////	/**
+////	 * 门户管理控制台功能：停止Mcs服务
+////	 */
+////	@Override
+////	public String stopMcs(String param) throws PaasException {
+////		Map<String, String> map = McsParamUtil.getParamMap(param);
+////		String serviceId = map.get(McsConstants.SERVICE_ID);
+////		String userId = map.get(McsConstants.USER_ID);
+////		
+////		/** 根据user_id,service_id,获取用户实例信息 **/
+////		List<McsUserCacheInstance> userInstanceList = mcsSvHepler.getMcsUserCacheInstances(serviceId, userId);
+////		if (userInstanceList == null || userInstanceList.isEmpty()) {
+////			throw new PaasException("UserId["+userId+"]的["+serviceId+"]服务未开通过，无法停止！");
+////		}
+////		
+////		stopMcsInsForCacheIns(userInstanceList);
+////		logger.info("----------停止["+userId+"]-["+serviceId+"]的MCS缓存服务,成功");
+////		
+////		return McsConstants.SUCCESS_FLAG;
+////	}
 //	
-//	/**
-//	 * 门户管理控制台功能：重启MCS服务。
-//	 */
-//	@Override
-//	public String restartMcs(String param) throws PaasException {
-//		Map<String, String> map = McsParamUtil.getParamMap(param);
-//		String serviceId = map.get(McsConstants.SERVICE_ID);
-//		String userId = map.get(McsConstants.USER_ID);
-//		
-//		/** 根据user_id,service_id,获取用户实例信息 **/
-//		List<McsUserCacheInstance> userInstanceList = mcsSvHepler.getMcsUserCacheInstances(serviceId, userId);
-//		if (userInstanceList == null || userInstanceList.isEmpty()){
-//			throw new PaasException("UserId["+userId+"]的["+serviceId+"]服务未开通过，无法重启！");
-//		}
-//		
-//		logger.info("------- 停止["+userId+"]-["+serviceId+"]的MCS缓存服务");
-//		stopMcsInsForCacheIns(userInstanceList);
-//		
-//		logger.info("------- 启动["+userId+"]-["+serviceId+"]的MCS缓存服务");
-//		startMcs(userId, serviceId, userInstanceList);
-//		
-//		logger.info("------- 重启["+userId+"]-["+serviceId+"]的MCS缓存服务OK.");
-//		
-//		return McsConstants.SUCCESS_FLAG;
-//	}
+////	/**
+////	 * 门户管理控制台功能：重启MCS服务。
+////	 */
+////	@Override
+////	public String restartMcs(String param) throws PaasException {
+////		Map<String, String> map = McsParamUtil.getParamMap(param);
+////		String serviceId = map.get(McsConstants.SERVICE_ID);
+////		String userId = map.get(McsConstants.USER_ID);
+////		
+////		/** 根据user_id,service_id,获取用户实例信息 **/
+////		List<McsUserCacheInstance> userInstanceList = mcsSvHepler.getMcsUserCacheInstances(serviceId, userId);
+////		if (userInstanceList == null || userInstanceList.isEmpty()){
+////			throw new PaasException("UserId["+userId+"]的["+serviceId+"]服务未开通过，无法重启！");
+////		}
+////		
+////		logger.info("------- 停止["+userId+"]-["+serviceId+"]的MCS缓存服务");
+////		stopMcsInsForCacheIns(userInstanceList);
+////		
+////		logger.info("------- 启动["+userId+"]-["+serviceId+"]的MCS缓存服务");
+////		startMcs(userId, serviceId, userInstanceList);
+////		
+////		logger.info("------- 重启["+userId+"]-["+serviceId+"]的MCS缓存服务OK.");
+////		
+////		return McsConstants.SUCCESS_FLAG;
+////	}
 //
-//	/**
-//	 * 门户管理控制台功能：注销MCS服务
-//	 */
-//	@Override
-//	public String cancelMcs(String param) throws PaasException {
-//		Map<String, String> map = McsParamUtil.getParamMap(param);
-//		String serviceId = map.get(McsConstants.SERVICE_ID);
-//		String userId = map.get(McsConstants.USER_ID);
-//	
-//		/** 根据user_id,service_id,获取用户实例信息 **/
-//		List<McsUserCacheInstance> userInstanceList = mcsSvHepler.getMcsUserCacheInstances(serviceId, userId);
-//		if (userInstanceList == null || userInstanceList.isEmpty()) {
-//			throw new PaasException("UserId["+userId+"]的["+serviceId+"]服务未开通过，无法注销！");
-//		}
-//		
-//		logger.info("------- 注销["+userId+"]-["+serviceId+"]的MCS缓存服务,更新MCS资源表中已使用缓存的大小.");
-//		modifyMcsResource(userInstanceList, false, 0);
-//		
-//		logger.info("------- 注销["+userId+"]-["+serviceId+"]的MCS缓存服务,删除配置文件.");
-//		removeMcsServerFileAndUserIns(userId, serviceId, userInstanceList);
-//
-//		logger.info("------- 注销["+userId+"]-["+serviceId+"]的MCS缓存服务,OK!");
-//		
-//		return McsConstants.SUCCESS_FLAG;
-//	}
+////	/**
+////	 * 门户管理控制台功能：注销MCS服务
+////	 */
+////	@Override
+////	public String cancelMcs(String param) throws PaasException {
+////		Map<String, String> map = McsParamUtil.getParamMap(param);
+////		String serviceId = map.get(McsConstants.SERVICE_ID);
+////		String userId = map.get(McsConstants.USER_ID);
+////	
+////		/** 根据user_id,service_id,获取用户实例信息 **/
+////		List<McsUserCacheInstance> userInstanceList = mcsSvHepler.getMcsUserCacheInstances(serviceId, userId);
+////		if (userInstanceList == null || userInstanceList.isEmpty()) {
+////			throw new PaasException("UserId["+userId+"]的["+serviceId+"]服务未开通过，无法注销！");
+////		}
+////		
+////		logger.info("------- 注销["+userId+"]-["+serviceId+"]的MCS缓存服务,更新MCS资源表中已使用缓存的大小.");
+////		modifyMcsResource(userInstanceList, false, 0);
+////		
+////		logger.info("------- 注销["+userId+"]-["+serviceId+"]的MCS缓存服务,删除配置文件.");
+////		removeMcsServerFileAndUserIns(userId, serviceId, userInstanceList);
+////
+////		logger.info("------- 注销["+userId+"]-["+serviceId+"]的MCS缓存服务,OK!");
+////		
+////		return McsConstants.SUCCESS_FLAG;
+////	}
 //
 //	/**
 //	 * 服务是否已经存在
