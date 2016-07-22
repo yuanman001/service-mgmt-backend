@@ -44,13 +44,13 @@ import com.google.gson.JsonObject;
 public class McsManageImpl implements IMcsSv {
 	private static transient final Logger logger = LoggerFactory.getLogger(McsManageImpl.class);
 
-	static String basePath = AgentUtil.getAgentFilePath(AidUtil.getAid());
-
 	@Autowired 
 	private McsSvHepler mcsSvHepler;
 	
 	@Autowired 
 	private ICCSComponentManageSv iCCSComponentManageSv;
+	
+	static String basePath = AgentUtil.getAgentFilePath(AidUtil.getAid());
 	
 	@Override
 	public String openMcs(String param) throws PaasException {
@@ -114,7 +114,8 @@ public class McsManageImpl implements IMcsSv {
 		String image = redisImage.getImageRepository() + "/" + redisImage.getImageName();
 		
 		/** 3.创建 mcs_host.cfg 文件，并写入hostIp. **/
-		addHostFile(basePath, hostIp);
+		createHostCfg(basePath);
+		writeHostCfg(basePath, hostIp);
 		logger.info("-----创建 mcs_host.cfg 成功！");
 
 		/** 4.上传 ansible的 playbook 文件. **/
@@ -253,7 +254,8 @@ public class McsManageImpl implements IMcsSv {
 		String image = redisImage.getImageRepository() + "/" + redisImage.getImageName();
 		
 		/** 3.创建 mcs_host.cfg 文件，并写入hostIp. **/
-		addHostFile(basePath, hostIp);
+		createHostCfg(basePath);
+		writeHostCfg(basePath, hostIp);
 		logger.info("-----创建 mcs_host.cfg 成功！");
 
 		/** 4.上传 ansible的 playbook 文件. **/
@@ -291,176 +293,6 @@ public class McsManageImpl implements IMcsSv {
 	private void openSentinelMcs(Map<String, String> paraMap) throws PaasException {
 	}
 	
-	private void runAnsileCommand(String ansibleCommand) throws PaasException {
-		try {
-			AgentUtil.executeCommand(ansibleCommand, AidUtil.getAid());
-		} catch (Exception ex) {
-			logger.error("Excute runAnsileCommand() error, command is " + ansibleCommand);
-			ex.printStackTrace();
-			throw new PaasException("runAnsileCommand() exception.");
-		}
-	}
-
-	private String getRedisServerCommand(String capacity, String basePath,
-			String hostIp, Integer cachePort, String requirepass, String mode,
-			String sshUser, String sshUserPwd, String mcsImage) {
-		StringBuilder ansibleCommand = new StringBuilder("/usr/bin/ansible-playbook -i ")
-			.append(basePath).append(McsConstants.PLAYBOOK_CFG_PATH)
-			.append(McsConstants.PLAYBOOK_HOST_CFG).append(" ")
-			.append(basePath).append("/mcs/").append(McsConstants.PLAYBOOK_SINGLE_YML)
-			.append(" --user=").append(sshUser)
-			.append(" --extra-vars \"ansible_ssh_pass=").append(sshUserPwd)
-			.append(" image=").append(mcsImage)
-			.append(" REDIS_PORT=").append(cachePort)
-			.append(" START_MODE=").append(mode)
-			.append(" host=").append(hostIp)
-			.append(" user=").append(sshUser)
-			.append(" MAX_MEM=").append(capacity).append("m")
-			.append(" PASSWORD=").append(requirepass).append("\"");
-		logger.info("-----ansibleCommand:" + ansibleCommand.toString());
-		return ansibleCommand.toString();
-	}
-	
-	private String getCreateClusterCommand(String basePath, String sshUser, String sshUserPwd, 
-			String clusterInfo, IpaasImageResource mcsImage) {
-		StringBuilder commond = new StringBuilder("/usr/bin/ansible-playbook -i ")
-			.append(basePath).append(McsConstants.PLAYBOOK_CFG_PATH)
-			.append(McsConstants.PLAYBOOK_HOST_CFG).append(" ")
-			.append(basePath).append("/mcs/").append(McsConstants.PLAYBOOK_CLUSTER_YML)
-			.append(" --user=").append(sshUser)
-			.append(" --extra-vars \"ansible_ssh_pass=").append(sshUserPwd)
-			.append(" image=").append(mcsImage.getImageRepository()).append("/").append(mcsImage.getImageName())
-			.append(" CLUSTER_INFO=").append(clusterInfo).append("\"");
-		logger.info("-----createClusterCommand:" + commond.toString());
-		return commond.toString();
-	}
-	
-	private String getRedisSlaveCommand(String capacity, String basePath,
-			String hostIp, Integer cachePort, String masterpass, String mode,
-			String sshUser, String sshUserPwd, String masterIp, Integer masterPort, IpaasImageResource mcsImage) {
-		StringBuilder ansibleCommand = new StringBuilder("/usr/bin/ansible-playbook -i ")
-			.append(basePath).append(McsConstants.PLAYBOOK_CFG_PATH)
-			.append(McsConstants.PLAYBOOK_HOST_CFG).append(" ")
-			.append(basePath).append("/mcs/").append(McsConstants.PLAYBOOK_REPLICATION_YML)
-			.append(" --user=").append(sshUser)
-			.append(" --extra-vars \"ansible_ssh_pass=").append(sshUserPwd)
-			.append(" image=").append(mcsImage.getImageRepository()).append("/").append(mcsImage.getImageName())
-			.append(" REDIS_PORT=").append(cachePort)
-			.append(" START_MODE=").append(mode)
-			.append(" host=").append(hostIp)
-			.append(" user=").append(sshUser)
-			.append(" MAX_MEM=").append(capacity).append("m")
-			.append(" PASSWORD=").append(masterpass)
-			.append(" MASTER_IP=").append(masterIp)
-			.append(" MASTER_PORT=").append(masterPort).append("\"");
-		logger.info("-----ansibleCommand:" + ansibleCommand.toString());
-		return ansibleCommand.toString();
-	}
-	
-	private String getDockerOperateCommand(String basePath, String sshUser, String sshUserPwd, 
-			String operate, String containerName) {
-		StringBuilder commond = new StringBuilder("/usr/bin/ansible-playbook -i ")
-			.append(basePath).append(McsConstants.PLAYBOOK_CFG_PATH)
-			.append(McsConstants.PLAYBOOK_HOST_CFG).append(" ")
-			.append(basePath).append("/mcs/").append(McsConstants.PLAYBOOK_OPERATE_YML)
-			.append(" --user=").append(sshUser)
-			.append(" --extra-vars \"ansible_ssh_pass=").append(sshUserPwd)
-			.append(" operate=").append(operate)
-			.append(" container_name=").append(containerName).append("\"");
-		return commond.toString();
-	}
-	
-	private String getMcsSSHInfo(String field_code) throws PaasException {
-		IpaasSysConfigMapper sysconfigDao = ServiceUtil.getMapper(IpaasSysConfigMapper.class);
-		IpaasSysConfigCriteria rpmc = new IpaasSysConfigCriteria();
-		rpmc.createCriteria().andTableCodeEqualTo(McsConstants.SERVICE_CODE).andFieldCodeEqualTo(field_code);
-		List<IpaasSysConfig> res = sysconfigDao.selectByExample(rpmc);
-		if (res == null || res.isEmpty())
-			throw new PaasException("MCS ssh user not config.");
-		return res.get(0).getFieldValue();
-	}
-	
-	private IpaasImageResource getMcsImage(String serviceCode, String imageCode) throws PaasException {
-		IpaasImageResourceMapper rpm = ServiceUtil.getMapper(IpaasImageResourceMapper.class);
-		IpaasImageResourceCriteria rpmc = new IpaasImageResourceCriteria();
-		rpmc.createCriteria().andStatusEqualTo(McsConstants.VALIDATE_STATUS)
-				.andServiceCodeEqualTo(serviceCode).andImageCodeEqualTo(imageCode);
-		List<IpaasImageResource> res = rpm.selectByExample(rpmc);
-		if (res == null || res.isEmpty())
-			throw new PaasException("MCS IMAGE not config.");
-		return res.get(0);
-	}
-	
-	private void createHostCfg(String basePath) throws PaasException {
-		StringBuilder command = new StringBuilder();
-		command.append(" mkdir -p ").append(basePath).append(McsConstants.PLAYBOOK_CFG_PATH)
-		.append(" &&cd ").append(basePath).append(McsConstants.PLAYBOOK_CFG_PATH)
-		.append(" &&touch ").append(McsConstants.PLAYBOOK_HOST_CFG);
-		
-		runAnsileCommand(command.toString());
-	}
-	
-	private void writeHostCfg(String basePath, String hostIp) throws PaasException {
-		StringBuilder command = new StringBuilder();
-		command.append("cd ").append(basePath).append(McsConstants.PLAYBOOK_CFG_PATH)
-		.append(" &&echo ").append(hostIp).append("> ").append(McsConstants.PLAYBOOK_HOST_CFG);
-
-		runAnsileCommand(command.toString());
-	}
-	
-	private void addHostFile(String basePath, String hostIp) throws PaasException {
-		StringBuilder command = new StringBuilder();
-		command.append(" mkdir -p ").append(basePath).append(McsConstants.PLAYBOOK_CFG_PATH)
-		.append(" &&cd ").append(basePath).append(McsConstants.PLAYBOOK_CFG_PATH)
-		.append(" &&touch ").append(McsConstants.PLAYBOOK_HOST_CFG)
-		.append(" &&echo ").append(hostIp).append("> ").append(McsConstants.PLAYBOOK_HOST_CFG);
-		
-		runAnsileCommand(command.toString());
-	}
-	
-	/** 
-	 * 上传文件
-	 ***/
-	private void uploadMcsFile(String destPath, String fileName) throws PaasException {
-		InputStream in = McsManageImpl.class.getResourceAsStream(destPath + fileName);
-		try{
-			AgentUtil.uploadFile("mcs/"+fileName, AgentUtil.readFileLines(in), AidUtil.getAid());
-			in.close();
-		} catch (Exception ex) {
-			logger.error("Excute uploadMcsFiles() failed," + ex.getMessage());
-			ex.printStackTrace();
-			throw new PaasException("openSingleMcs.uploadMcsFile() exception.");
-		}
-	}
-
-	private void addMcsUserInstance(String userId, String serviceId, String serviceName, 
-			final int clusterCacheSize, List<McsProcessInfo> cacheInfoList) throws PaasException {
-		for (McsProcessInfo cacheInfo : cacheInfoList) {
-			logger.info("----add mcs_user_Instance---- userId:["+userId+"],serviceId:["+serviceId+"],"
-					+ "clusterCacheSize:["+clusterCacheSize+",cacheIp["+cacheInfo.getCacheHostIp()+"],"
-						+ "cachePort:["+cacheInfo.getCachePort()+"],serviceName:["+serviceName+"]");
-			addUserInstance(userId, serviceId, clusterCacheSize + "", cacheInfo.getCacheHostIp(), 
-					cacheInfo.getCachePort(), null, serviceName);
-		}
-	}
-
-	private void addZKConfig(String userId, String serviceId,
-			List<McsProcessInfo> cacheInfoList) throws PaasException {
-		String redisCluster4ZK = getClusterInfo(cacheInfoList, ";");
-		logger.info("-------- redisCluster4ZK is :" + redisCluster4ZK);
-		List<String> hostList = new ArrayList<String>();
-		hostList.add(redisCluster4ZK.substring(1));
-		addCcsConfig(userId, serviceId, hostList, null);
-	}
-	
-	private void delZKConfig(String userId, String serviceId) throws PaasException {
-		logger.info("----- delete zk config for ["+userId+"].["+serviceId+"] -----");
-		CCSComponentOperationParam op = new CCSComponentOperationParam();
-		op.setUserId(userId);
-		op.setPath("/MCS/" + serviceId);
-		op.setPathType(PathType.READONLY);
-		iCCSComponentManageSv.delete(op);
-	}
 	
 	/**
 	 * 门户管理控制台功能：启动MCS
@@ -471,10 +303,7 @@ public class McsManageImpl implements IMcsSv {
 		String serviceId = map.get(McsConstants.SERVICE_ID);
 		String userId = map.get(McsConstants.USER_ID);
 		
-		List<McsUserCacheInstance> userInstanceList = mcsSvHepler.getMcsUserCacheInstances(serviceId, userId);
-		if (userInstanceList == null || userInstanceList.isEmpty()) {
-			throw new PaasException("UserId["+userId+"]的["+serviceId+"]服务未开通过，无法启动！");
-		}
+		List<McsUserCacheInstance> userInstanceList = getMcsServiceInfo(serviceId, userId);
 		
 		uploadMcsFile(McsConstants.PLAYBOOK_MCS_PATH, McsConstants.PLAYBOOK_OPERATE_YML);
 		
@@ -492,10 +321,7 @@ public class McsManageImpl implements IMcsSv {
 		String serviceId = map.get(McsConstants.SERVICE_ID);
 		String userId = map.get(McsConstants.USER_ID);
 		
-		List<McsUserCacheInstance> userInstanceList = mcsSvHepler.getMcsUserCacheInstances(serviceId, userId);
-		if (userInstanceList == null || userInstanceList.isEmpty()) {
-			throw new PaasException("UserId["+userId+"]的["+serviceId+"]服务未开通过，无法停止！");
-		}
+		List<McsUserCacheInstance> userInstanceList = getMcsServiceInfo(serviceId, userId);
 		
 		uploadMcsFile(McsConstants.PLAYBOOK_MCS_PATH, McsConstants.PLAYBOOK_OPERATE_YML);
 		
@@ -513,10 +339,7 @@ public class McsManageImpl implements IMcsSv {
 		String serviceId = map.get(McsConstants.SERVICE_ID);
 		String userId = map.get(McsConstants.USER_ID);
 		
-		List<McsUserCacheInstance> userInstanceList = mcsSvHepler.getMcsUserCacheInstances(serviceId, userId);
-		if (userInstanceList == null || userInstanceList.isEmpty()){
-			throw new PaasException("UserId["+userId+"]的["+serviceId+"]服务未开通过，无法重启！");
-		}
+		List<McsUserCacheInstance> userInstanceList = getMcsServiceInfo(serviceId, userId);
 		
 		uploadMcsFile(McsConstants.PLAYBOOK_MCS_PATH, McsConstants.PLAYBOOK_OPERATE_YML);
 		
@@ -649,6 +472,144 @@ public class McsManageImpl implements IMcsSv {
 		return im.countByExample(cc) > 0;
 	}
 
+	private void runAnsileCommand(String ansibleCommand) throws PaasException {
+		try {
+			AgentUtil.executeCommand(ansibleCommand, AidUtil.getAid());
+		} catch (Exception ex) {
+			logger.error("Excute runAnsileCommand() error, command is " + ansibleCommand);
+			ex.printStackTrace();
+			throw new PaasException("runAnsileCommand() exception.");
+		}
+	}
+
+	private String getRedisServerCommand(String capacity, String basePath,
+			String hostIp, Integer cachePort, String requirepass, String mode,
+			String sshUser, String sshUserPwd, String mcsImage) {
+		StringBuilder ansibleCommand = new StringBuilder("/usr/bin/ansible-playbook -i ")
+			.append(basePath).append(McsConstants.PLAYBOOK_CFG_PATH)
+			.append(McsConstants.PLAYBOOK_HOST_CFG).append(" ")
+			.append(basePath).append("/mcs/").append(McsConstants.PLAYBOOK_SINGLE_YML)
+			.append(" --user=").append(sshUser)
+			.append(" --extra-vars \"ansible_ssh_pass=").append(sshUserPwd)
+			.append(" image=").append(mcsImage)
+			.append(" REDIS_PORT=").append(cachePort)
+			.append(" START_MODE=").append(mode)
+			.append(" host=").append(hostIp)
+			.append(" user=").append(sshUser)
+			.append(" MAX_MEM=").append(capacity).append("m")
+			.append(" PASSWORD=").append(requirepass).append("\"");
+		logger.info("-----ansibleCommand:" + ansibleCommand.toString());
+		return ansibleCommand.toString();
+	}
+	
+	private String getCreateClusterCommand(String basePath, String sshUser, String sshUserPwd, 
+			String clusterInfo, IpaasImageResource mcsImage) {
+		StringBuilder commond = new StringBuilder("/usr/bin/ansible-playbook -i ")
+			.append(basePath).append(McsConstants.PLAYBOOK_CFG_PATH)
+			.append(McsConstants.PLAYBOOK_HOST_CFG).append(" ")
+			.append(basePath).append("/mcs/").append(McsConstants.PLAYBOOK_CLUSTER_YML)
+			.append(" --user=").append(sshUser)
+			.append(" --extra-vars \"ansible_ssh_pass=").append(sshUserPwd)
+			.append(" image=").append(mcsImage.getImageRepository()).append("/").append(mcsImage.getImageName())
+			.append(" CLUSTER_INFO=").append(clusterInfo).append("\"");
+		logger.info("-----createClusterCommand:" + commond.toString());
+		return commond.toString();
+	}
+	
+	private String getRedisSlaveCommand(String capacity, String basePath,
+			String hostIp, Integer cachePort, String masterpass, String mode,
+			String sshUser, String sshUserPwd, String masterIp, Integer masterPort, IpaasImageResource mcsImage) {
+		StringBuilder ansibleCommand = new StringBuilder("/usr/bin/ansible-playbook -i ")
+			.append(basePath).append(McsConstants.PLAYBOOK_CFG_PATH)
+			.append(McsConstants.PLAYBOOK_HOST_CFG).append(" ")
+			.append(basePath).append("/mcs/").append(McsConstants.PLAYBOOK_REPLICATION_YML)
+			.append(" --user=").append(sshUser)
+			.append(" --extra-vars \"ansible_ssh_pass=").append(sshUserPwd)
+			.append(" image=").append(mcsImage.getImageRepository()).append("/").append(mcsImage.getImageName())
+			.append(" REDIS_PORT=").append(cachePort)
+			.append(" START_MODE=").append(mode)
+			.append(" host=").append(hostIp)
+			.append(" user=").append(sshUser)
+			.append(" MAX_MEM=").append(capacity).append("m")
+			.append(" PASSWORD=").append(masterpass)
+			.append(" MASTER_IP=").append(masterIp)
+			.append(" MASTER_PORT=").append(masterPort).append("\"");
+		logger.info("-----ansibleCommand:" + ansibleCommand.toString());
+		return ansibleCommand.toString();
+	}
+	
+	private String getDockerOperateCommand(String basePath, String sshUser, String sshUserPwd, 
+			String operate, String containerName) {
+		StringBuilder commond = new StringBuilder("/usr/bin/ansible-playbook -i ")
+			.append(basePath).append(McsConstants.PLAYBOOK_CFG_PATH)
+			.append(McsConstants.PLAYBOOK_HOST_CFG).append(" ")
+			.append(basePath).append("/mcs/").append(McsConstants.PLAYBOOK_OPERATE_YML)
+			.append(" --user=").append(sshUser)
+			.append(" --extra-vars \"ansible_ssh_pass=").append(sshUserPwd)
+			.append(" operate=").append(operate)
+			.append(" container_name=").append(containerName).append("\"");
+		return commond.toString();
+	}
+	
+	private String getMcsSSHInfo(String field_code) throws PaasException {
+		IpaasSysConfigMapper sysconfigDao = ServiceUtil.getMapper(IpaasSysConfigMapper.class);
+		IpaasSysConfigCriteria rpmc = new IpaasSysConfigCriteria();
+		rpmc.createCriteria().andTableCodeEqualTo(McsConstants.SERVICE_CODE).andFieldCodeEqualTo(field_code);
+		List<IpaasSysConfig> res = sysconfigDao.selectByExample(rpmc);
+		if (res == null || res.isEmpty())
+			throw new PaasException("MCS ssh user not config.");
+		return res.get(0).getFieldValue();
+	}
+	
+	private IpaasImageResource getMcsImage(String serviceCode, String imageCode) throws PaasException {
+		IpaasImageResourceMapper rpm = ServiceUtil.getMapper(IpaasImageResourceMapper.class);
+		IpaasImageResourceCriteria rpmc = new IpaasImageResourceCriteria();
+		rpmc.createCriteria().andStatusEqualTo(McsConstants.VALIDATE_STATUS)
+				.andServiceCodeEqualTo(serviceCode).andImageCodeEqualTo(imageCode);
+		List<IpaasImageResource> res = rpm.selectByExample(rpmc);
+		if (res == null || res.isEmpty())
+			throw new PaasException("MCS IMAGE not config.");
+		return res.get(0);
+	}
+	
+	/**
+	 * 创建ansibe-playbook所用的 mcs_host.cfg 文件
+	 */
+	private void createHostCfg(String basePath) throws PaasException {
+		StringBuilder command = new StringBuilder();
+		command.append(" mkdir -p ").append(basePath).append(McsConstants.PLAYBOOK_CFG_PATH)
+		.append(" &&cd ").append(basePath).append(McsConstants.PLAYBOOK_CFG_PATH)
+		.append(" &&touch ").append(McsConstants.PLAYBOOK_HOST_CFG);
+		
+		runAnsileCommand(command.toString());
+	}
+	
+	/**
+	 * 将IP信息写入 mcs_host.cfg 文件
+	 */
+	private void writeHostCfg(String basePath, String hostIp) throws PaasException {
+		StringBuilder command = new StringBuilder();
+		command.append("cd ").append(basePath).append(McsConstants.PLAYBOOK_CFG_PATH)
+		.append(" &&echo ").append(hostIp).append("> ").append(McsConstants.PLAYBOOK_HOST_CFG);
+
+		runAnsileCommand(command.toString());
+	}
+	
+	/** 
+	 * 上传文件
+	 ***/
+	private void uploadMcsFile(String destPath, String fileName) throws PaasException {
+		InputStream in = McsManageImpl.class.getResourceAsStream(destPath + fileName);
+		try{
+			AgentUtil.uploadFile("mcs/"+fileName, AgentUtil.readFileLines(in), AidUtil.getAid());
+			in.close();
+		} catch (Exception ex) {
+			logger.error("Excute uploadMcsFiles() failed," + ex.getMessage());
+			ex.printStackTrace();
+			throw new PaasException("openSingleMcs.uploadMcsFile() exception.");
+		}
+	}
+
 	private void runDocker(List<McsUserCacheInstance> userInstanceList, int addCacheSize)
 			throws PaasException {
 		String sshUser = getMcsSSHInfo(McsConstants.SSH_USER_CODE);
@@ -661,7 +622,7 @@ public class McsManageImpl implements IMcsSv {
 			String redisImage = ins.getRedisImage();
 			String capacity = (ins.getCacheMemory() + addCacheSize) + ""; 
 			
-			addHostFile(basePath, hostIp);
+			writeHostCfg(basePath, hostIp);
 			uploadMcsFile(McsConstants.PLAYBOOK_MCS_PATH, McsConstants.PLAYBOOK_SINGLE_YML);
 			String ansibleCommand = getRedisServerCommand(capacity, basePath, hostIp, cachePort, 
 					requirepass, McsConstants.MODE_CLUSTER, sshUser, sshUserPwd, redisImage);
@@ -698,7 +659,7 @@ public class McsManageImpl implements IMcsSv {
 			String hostIp = ins.getCacheHost();
 			String containerName = ins.getContainerName();
 
-			addHostFile(basePath, hostIp);
+			writeHostCfg(basePath, hostIp);
 	
 			String ansibleCommand = getDockerOperateCommand(basePath, sshUser,
 					sshUserPwd, command, containerName);
@@ -709,10 +670,6 @@ public class McsManageImpl implements IMcsSv {
 	
 	/**
 	 * 生成"ip1:port1;ip2:port2"格式的集群信息串
-	 * @param list
-	 * @param separator
-	 * @return
-	 * @throws PaasException
 	 */
 	private String getClusterInfo(List<McsProcessInfo> list, String separator) throws PaasException {
 		String cluster = "";
@@ -857,13 +814,8 @@ public class McsManageImpl implements IMcsSv {
 	
 	/**
 	 * 新增用户的缓存实例
-	 * 
-	 * @param userId
-	 * @param serviceId
-	 * @param capacity
-	 * @param mcsResourcePool
-	 * @throws PaasException
 	 */
+	//TODO:需要增加记录 container_name, redis_image 信息。
 	private void addUserInstance(String userId, String serviceId,
 			String capacity, String ip, int port, String pwd, String serviceName) throws PaasException {
 		McsUserCacheInstance bean = new McsUserCacheInstance();
@@ -882,10 +834,20 @@ public class McsManageImpl implements IMcsSv {
 	}
 
 	/**
+	 * 批量新增用户实例
+	 */
+	private void addMcsUserInstance(String userId, String serviceId, String serviceName, 
+			final int clusterCacheSize, List<McsProcessInfo> cacheInfoList) throws PaasException {
+		for (McsProcessInfo cacheInfo : cacheInfoList) {
+			logger.info("----add mcs_user_Instance---- userId:["+userId+"],serviceId:["+serviceId+"],"
+					+ "clusterCacheSize:["+clusterCacheSize+",cacheIp["+cacheInfo.getCacheHostIp()+"],"
+						+ "cachePort:["+cacheInfo.getCachePort()+"],serviceName:["+serviceName+"]");
+			addUserInstance(userId, serviceId, clusterCacheSize + "", cacheInfo.getCacheHostIp(), 
+					cacheInfo.getCachePort(), null, serviceName);
+		}
+	}
+	/**
 	 * 更新用户的缓存实例
-	 * @param userInstanceList
-	 * @param status
-	 * @throws PaasException
 	 */
 	private void updateUserInstance(List<McsUserCacheInstance> userInstanceList, int status) throws PaasException {
 		for (McsUserCacheInstance ins :userInstanceList) {
@@ -896,10 +858,7 @@ public class McsManageImpl implements IMcsSv {
 	}
 	
 	/**
-	 * 缓存扩容
-	 * @param userInstanceList
-	 * @param status
-	 * @throws PaasException
+	 * 更新缓存扩容后的实例表
 	 */
 	private void updateUserInstance(List<McsUserCacheInstance> userInstanceList, int cacheSize,
 			String serviceName) throws PaasException {
@@ -913,12 +872,6 @@ public class McsManageImpl implements IMcsSv {
 	
 	/**
 	 * 在zk中记录申请信息
-	 * 
-	 * @param userId
-	 * @param serviceId
-	 * @param mcsResourcePool
-	 * @param requirepass
-	 * @throws PaasException
 	 */
 	private void addCcsConfig(String userId, String serviceId, List<String> hosts, String requirepass) throws PaasException {
 		CCSComponentOperationParam op = new CCSComponentOperationParam();
@@ -953,10 +906,26 @@ public class McsManageImpl implements IMcsSv {
 		}
 	}
 
+	private void addZKConfig(String userId, String serviceId,
+			List<McsProcessInfo> cacheInfoList) throws PaasException {
+		String redisCluster4ZK = getClusterInfo(cacheInfoList, ";");
+		logger.info("-------- redisCluster4ZK is :" + redisCluster4ZK);
+		List<String> hostList = new ArrayList<String>();
+		hostList.add(redisCluster4ZK.substring(1));
+		addCcsConfig(userId, serviceId, hostList, null);
+	}
+	
+	private void delZKConfig(String userId, String serviceId) throws PaasException {
+		logger.info("----- delete zk config for ["+userId+"].["+serviceId+"] -----");
+		CCSComponentOperationParam op = new CCSComponentOperationParam();
+		op.setUserId(userId);
+		op.setPath("/MCS/" + serviceId);
+		op.setPathType(PathType.READONLY);
+		iCCSComponentManageSv.delete(op);
+	}
+	
 	/**
 	 * 获得最空闲的Mcs资源
-	 * @param num
-	 * @return
 	 */
 	private List<McsResourcePool> getBestResource(int num) {
 		McsResourcePoolMapper mapper = ServiceUtil.getMapper(McsResourcePoolMapper.class);
@@ -970,8 +939,6 @@ public class McsManageImpl implements IMcsSv {
 
 	/**
 	 * 获得UseInstance中"失效"的记录
-	 * @param host
-	 * @return McsUserCacheInstance
 	 */
 	private McsUserCacheInstance getCanUseInstance(String host) throws PaasException {
 		McsUserCacheInstanceCriteria condition = new McsUserCacheInstanceCriteria();
@@ -991,8 +958,6 @@ public class McsManageImpl implements IMcsSv {
 
 	/**
 	 * 更新Mcs资源池
-	 * @param mcsResourcePool
-	 * @return
 	 */
 	private int updateResource(McsResourcePool mcsResourcePool, int portOffset) throws PaasException {
 		McsResourcePoolMapper rpm = ServiceUtil.getMapper(McsResourcePoolMapper.class);
@@ -1005,8 +970,6 @@ public class McsManageImpl implements IMcsSv {
 	
 	/**
 	 * 更新Mcs资源池
-	 * @param mcsResourcePool
-	 * @return
 	 */
 	private int updateResource(McsResourcePool mcsResourcePool) throws PaasException {
 		McsResourcePoolMapper rpm = ServiceUtil.getMapper(McsResourcePoolMapper.class);
