@@ -12,7 +12,7 @@ import com.ai.paas.ipaas.vo.ses.SesUserMapping;
 @Path("/ses/mapping")
 @Consumes({ MediaType.APPLICATION_JSON })
 @Produces({ MediaType.APPLICATION_JSON, MediaType.TEXT_XML })
-public interface IIndexMapping {
+public interface IRPCIndexMapping {
 	/**
 	 * 加载mapping
 	 * 

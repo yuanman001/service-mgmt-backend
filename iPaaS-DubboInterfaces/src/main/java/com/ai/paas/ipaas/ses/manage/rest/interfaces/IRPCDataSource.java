@@ -15,7 +15,7 @@ import com.ai.paas.ipaas.vo.ses.SesIndexSqlInfo;
 @Path("/ses/import")
 @Consumes({ MediaType.APPLICATION_JSON })
 @Produces({ MediaType.APPLICATION_JSON, MediaType.TEXT_XML })
-public interface IDataSource {
+public interface IRPCDataSource {
 	@Path("getAllDS")
 	@POST
 	public List<SesDataSourceInfo> getIndexDataSources(String userId,

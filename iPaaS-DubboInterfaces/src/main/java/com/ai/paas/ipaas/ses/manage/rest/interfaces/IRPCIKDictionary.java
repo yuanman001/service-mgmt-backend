@@ -15,7 +15,7 @@ import com.ai.paas.ipaas.vo.ses.SesUserStopWord;
 @Path("/ses/dic")
 @Consumes({ MediaType.APPLICATION_JSON })
 @Produces({ MediaType.APPLICATION_JSON, MediaType.TEXT_XML })
-public interface IIKDictionary {
+public interface IRPCIKDictionary {
 
 	@Path("save")
 	@POST

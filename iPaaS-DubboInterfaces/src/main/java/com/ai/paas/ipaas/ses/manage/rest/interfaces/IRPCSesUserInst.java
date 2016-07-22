@@ -12,7 +12,7 @@ import com.ai.paas.ipaas.vo.ses.SesUserInstance;
 @Path("/ses/userInst")
 @Consumes({ MediaType.APPLICATION_JSON })
 @Produces({ MediaType.APPLICATION_JSON, MediaType.TEXT_XML })
-public interface ISesUserInst {
+public interface IRPCSesUserInst {
 	/**
 	 * 根据userid srvId查询主机实例
 	 * 
