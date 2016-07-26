@@ -2,18 +2,17 @@ package com.ai.paas.ipaas.ses.service.impl;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.net.InetSocketAddress;
 import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.Date;
-import java.util.HashSet;
 import java.util.List;
-import java.util.Set;
 
-import org.apache.http.client.ClientProtocolException;
 import org.apache.log4j.Logger;
 import org.elasticsearch.ElasticsearchException;
+import org.elasticsearch.action.admin.indices.delete.DeleteIndexRequest;
+import org.elasticsearch.action.admin.indices.delete.DeleteIndexResponse;
 import org.elasticsearch.action.admin.indices.exists.indices.IndicesExistsRequest;
-import org.elasticsearch.action.admin.indices.exists.types.TypesExistsRequest;
 import org.elasticsearch.client.IndicesAdminClient;
 import org.elasticsearch.client.transport.TransportClient;
 import org.elasticsearch.common.settings.Settings;
@@ -22,8 +21,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import com.ai.paas.ipaas.PaaSConstant;
 import com.ai.paas.ipaas.PaasException;
+import com.ai.paas.ipaas.PaasRuntimeException;
 import com.ai.paas.ipaas.ServiceUtil;
 import com.ai.paas.ipaas.agent.util.AgentUtil;
 import com.ai.paas.ipaas.agent.util.AidUtil;
@@ -51,6 +50,8 @@ import com.ai.paas.ipaas.ses.service.interfaces.ISesManage;
 import com.ai.paas.ipaas.ses.service.vo.SesHostInfo;
 import com.ai.paas.ipaas.ses.service.vo.SesMappingApply;
 import com.ai.paas.ipaas.ses.service.vo.SesSrvApply;
+import com.ai.paas.ipaas.util.StringUtil;
+import com.google.gson.Gson;
 import com.google.gson.JsonObject;
 
 @Service
@@ -69,155 +70,16 @@ public class SesManageImpl implements ISesManage {
 		String userId = sesSrvApply.getUserId();
 		String serviceId = sesSrvApply.getServiceId();
 		StringBuilder clusterString = new StringBuilder();
-		String hosts = queryUnicastHosts(sesHosts);
-		String basePath = AgentUtil.getAgentFilePath(AidUtil.getAid());
-		String sshUser = getSesSSHUser();
-		String sshUserPwd = getSesSSHUserPwd();
-		IpaasImageResource sesImage = getSesImage();
-		// 1.先将需要执行镜像命令的机器配置文件上传上去。
-		InputStream in = SesManageImpl.class
-				.getResourceAsStream("/playbook/ses/init_ansible_ssh_hosts.sh");
-		String[] cnt = AgentUtil.readFileLines(in);
-		try {
-			in.close();
-		} catch (IOException e2) {
-			// TODO Auto-generated catch block
-			e2.printStackTrace();
-		}
-		try {
-			AgentUtil.uploadFile("ses/init_ansible_ssh_hosts.sh", cnt,
-					AidUtil.getAid());
-		} catch (ClientProtocolException e1) {
-			// TODO Auto-generated catch block
-			e1.printStackTrace();
-		} catch (IOException e1) {
-			// TODO Auto-generated catch block
-			e1.printStackTrace();
-		}
-		try {
-			AgentUtil.executeCommand("chmod +x " + basePath
-					+ "ses/init_ansible_ssh_hosts.sh", AidUtil.getAid());
-		} catch (ClientProtocolException e1) {
-			// TODO Auto-generated catch block
-			e1.printStackTrace();
-		} catch (IOException e1) {
-			// TODO Auto-generated catch block
-			e1.printStackTrace();
-		}
-		in = SesManageImpl.class.getResourceAsStream("/playbook/ses/ses.yml");
-		cnt = AgentUtil.readFileLines(in);
-		try {
-			in.close();
-		} catch (IOException e2) {
-			// TODO Auto-generated catch block
-			e2.printStackTrace();
-		}
-		try {
-			AgentUtil.uploadFile("ses/ses.yml", cnt, AidUtil.getAid());
-		} catch (ClientProtocolException e2) {
-			// TODO Auto-generated catch block
-			e2.printStackTrace();
-		} catch (IOException e2) {
-			// TODO Auto-generated catch block
-			e2.printStackTrace();
-		}
-		// 还得上传文件
-		in = SesManageImpl.class
-				.getResourceAsStream("/playbook/ses/ansible_run_ses.sh");
-		cnt = AgentUtil.readFileLines(in);
-		try {
-			in.close();
-		} catch (IOException e1) {
-			// TODO Auto-generated catch block
-			e1.printStackTrace();
-		}
-		try {
-			AgentUtil.uploadFile("ses/ansible_run_ses.sh", cnt, AidUtil.getAid());
-		} catch (ClientProtocolException e1) {
-			// TODO Auto-generated catch block
-			e1.printStackTrace();
-		} catch (IOException e1) {
-			// TODO Auto-generated catch block
-			e1.printStackTrace();
-		}
-		try {
-			AgentUtil.executeCommand("chmod +x " + basePath
-					+ "ses/ansible_run_ses.sh", AidUtil.getAid());
-		} catch (ClientProtocolException e1) {
-			// TODO Auto-generated catch block
-			e1.printStackTrace();
-		} catch (IOException e1) {
-			// TODO Auto-generated catch block
-			e1.printStackTrace();
-		}
-		// 2.启动ses集群
+		String clusterAddr = getClusterAddress(sesHosts);
+		processSESServers(userId, serviceId, sesHosts, clusterAddr);
 		for (SesHostInfo sesHostInfo : sesHosts) {
-			String ip = sesHostInfo.getIp();
-			int agentPort = sesHostInfo.getAgentPort();
-			String binPath = sesHostInfo.getBinPath();
-			String userPath = sesHostInfo.getUserPath();
-			// 生成每个主机列表
-			String mkSshHosts = ParamUtil.replace(
-					"ses/init_ansible_ssh_hosts.sh {0} {1} {2}", new String[] {
-							basePath + "ses", ip.replace(".", ""), ip });
-			LOGGER.info("---------mkSshHosts {}----------" + mkSshHosts);
-			try {
-				AgentUtil.executeCommand(basePath + mkSshHosts, AidUtil.getAid());
-			} catch (ClientProtocolException e1) {
-				// TODO Auto-generated catch block
-				e1.printStackTrace();
-			} catch (IOException e1) {
-				// TODO Auto-generated catch block
-				e1.printStackTrace();
-			}
-
-			// 开始执行
-			String runImage = ParamUtil.replace(
-					"ses/ansible_run_ses.sh {1} {2} "
-							+ "{3} {4} {5} {6} {7} {8} {9} {10} {11} {12}",
-					new String[] {
-							basePath + "ses",
-							ip.replace(".", ""),
-							sshUser,
-							sshUserPwd,
-							ip,
-							sshUser,
-							sesImage.getImageRepository() + "/"
-									+ sesImage.getImageName(), userId,
-							serviceId, sesHostInfo.getTcpPort(),
-							sesHostInfo.getHttpPort(), hosts, ip });
-
-			LOGGER.info("---------runImage {}----------"+ runImage);
-			try {
-				AgentUtil.executeCommand(basePath + runImage, AidUtil.getAid());
-			} catch (ClientProtocolException e) {
-			} catch (IOException e) {
-			}
-
-			String tcpPort = sesHostInfo.getTcpPort();
-			String execConfPrepare = "sh " + userPath + "/init-ses.sh "
-					+ userId + " " + (userId + "-" + serviceId + "-" + tcpPort)
-					+ " " + sesHostInfo.getIp() + " " + tcpPort + " "
-					+ sesHostInfo.getHttpPort() + " " + serviceId + " " + hosts
-					+ " ";
-			LOGGER.info("execConfPrepare.........." + execConfPrepare);
-			String execSesStart = " sh " + binPath
-					+ "/bin/elasticsearch -d -Des.config=" + userPath + "/"
-					+ userId + "/conf/"
-					+ (userId + "-" + serviceId + "-" + tcpPort) + ".yml";
-			LOGGER.info("execSesStart.........." + execSesStart);
-//			ac.executeInstruction(execConfPrepare);
-//			ac.executeInstruction("export ES_HEAP_SIZE="
-//					+ sesSrvApply.getSesMem() + "m \n" + execSesStart
-//					+ " \n export ES_HEAP_SIZE= \n");
-
 			// 更新ses_user_instance
 			SesUserInstance sesUser = new SesUserInstance();
 			sesUser.setHostIp(sesHostInfo.getIp());
 			sesUser.setServiceId(serviceId);
 			sesUser.setServiceName(sesSrvApply.getServiceName());
 			sesUser.setSesPort(Integer.parseInt(sesHostInfo.getHttpPort()));
-			sesUser.setTcpPort(Integer.parseInt(tcpPort));
+			sesUser.setTcpPort(Integer.parseInt(sesHostInfo.getTcpPort()));
 			sesUser.setStatus(SesConstants.SES_SERVICE_START);
 			sesUser.setUserId(userId);
 			sesUser.setBeginTime(new Timestamp(new Date().getTime()));
@@ -234,11 +96,365 @@ public class SesManageImpl implements ISesManage {
 		addZk(userId, serviceId, clusterString.toString());
 	}
 
-	private String queryUnicastHosts(List<SesHostInfo> sesHosts) {
+	private void processSESServers(String userId, String serviceId,
+			List<SesHostInfo> sesHosts, String clusterAddr)
+			throws PaasException {
+
+		String basePath = AgentUtil.getAgentFilePath(AidUtil.getAid());
+		// 1.先将需要执行镜像命令的机器配置文件上传上去。
+		InputStream in = null;
+		try {
+			in = SesManageImpl.class
+					.getResourceAsStream("/playbook/ses/init_ansible_ssh_hosts.sh");
+			String[] cnt = AgentUtil.readFileLines(in);
+
+			in.close();
+			AgentUtil.uploadFile("ses/init_ansible_ssh_hosts.sh", cnt,
+					AidUtil.getAid());
+			in = SesManageImpl.class
+					.getResourceAsStream("/playbook/ses/ses_run.yml");
+			cnt = AgentUtil.readFileLines(in);
+			in.close();
+			AgentUtil.uploadFile("ses/ses_run.yml", cnt, AidUtil.getAid());
+			// 还得上传文件
+			in = SesManageImpl.class
+					.getResourceAsStream("/playbook/ses/ansible_run_ses.sh");
+			cnt = AgentUtil.readFileLines(in);
+			in.close();
+			AgentUtil.uploadFile("ses/ansible_run_ses.sh", cnt,
+					AidUtil.getAid());
+			in = SesManageImpl.class
+					.getResourceAsStream("/playbook/ses/ses_exist.yml");
+			cnt = AgentUtil.readFileLines(in);
+			in.close();
+			AgentUtil.uploadFile("ses/ses_exist.yml", cnt, AidUtil.getAid());
+			// 还得上传文件
+			in = SesManageImpl.class
+					.getResourceAsStream("/playbook/ses/ansible_exist_ses.sh");
+			cnt = AgentUtil.readFileLines(in);
+			in.close();
+			AgentUtil.uploadFile("ses/ansible_exist_ses.sh", cnt,
+					AidUtil.getAid());
+			AgentUtil.executeCommand("chmod +x " + basePath
+					+ "ses/init_ansible_ssh_hosts.sh && chmod +x " + basePath
+					+ "ses/ansible_run_ses.sh &&" + " chmod +x " + basePath
+					+ "ses/ansible_exist_ses.sh", AidUtil.getAid());
+		} catch (Exception ex) {
+			// 发生错误，回滚
+			throw new PaasRuntimeException("", ex);
+		} finally {
+			if (null != in)
+				try {
+					in.close();
+				} catch (IOException e) {
+					LOGGER.error("", e);
+				}
+		}
+		// 2.启动ses集群
+		createSESServers(userId, serviceId, sesHosts, clusterAddr);
+	}
+
+	private void createSESServers(String userId, String serviceId,
+			List<SesHostInfo> sesHosts, String clusterAddr)
+			throws PaasException {
+		String basePath = AgentUtil.getAgentFilePath(AidUtil.getAid());
+		String sshUser = getSesSSHUser();
+		String sshUserPwd = getSesSSHUserPwd();
+		IpaasImageResource sesImage = getSesImage();
+		// 2.启动ses集群
+		for (SesHostInfo sesHostInfo : sesHosts) {
+			String ip = sesHostInfo.getIp();
+			// 生成每个主机列表
+			String mkSshHosts = ParamUtil.replace(
+					"ses/init_ansible_ssh_hosts.sh {0} {1} {2}", new String[] {
+							basePath + "ses", ip.replace(".", ""), ip });
+			LOGGER.info("---------mkSshHosts {}----------" + mkSshHosts);
+			try {
+				// 生成主机文件
+				AgentUtil.executeCommand(basePath + mkSshHosts,
+						AidUtil.getAid());
+				// 先确定是否已经存在，如果已经有了镜像在运行，就不启动了
+				// 开始执行
+				String existImage = ParamUtil.replace(
+						"ses/ansible_exist_ses.sh {0} {1} {2} "
+								+ "{3} {4} {5} {6} {7} {8}", new String[] {
+								basePath + "ses", ip.replace(".", ""), sshUser,
+								sshUserPwd, ip, sshUser, userId, serviceId,
+								sesHostInfo.getHttpPort() });
+
+				String result = AgentUtil.executeCommandWithReturn(basePath
+						+ existImage, AidUtil.getAid());
+				if (result.indexOf(userId + "-" + serviceId + "-"
+						+ sesHostInfo.getHttpPort()) >= 0) {
+					continue;
+				}
+				// 开始执行
+				String runImage = ParamUtil
+						.replace(
+								"ses/ansible_run_ses.sh {0} {1} {2} "
+										+ "{3} {4} {5} {6} {7} {8} {9} {10} {11} {12} {13} {14}",
+								new String[] {
+										basePath + "ses",
+										ip.replace(".", ""),
+										sshUser,
+										sshUserPwd,
+										ip,
+										sshUser,
+										sesImage.getImageRepository() + "/"
+												+ sesImage.getImageName(),
+										userId, serviceId,
+										sesHostInfo.getTcpPort(),
+										sesHostInfo.getHttpPort(), clusterAddr,
+										ip, sesHostInfo.getBinPath(),
+										sesHostInfo.getUserPath() });
+
+				LOGGER.info("---------runImage {}----------" + runImage);
+				AgentUtil.executeCommand(basePath + runImage, AidUtil.getAid());
+			} catch (Exception ex) {
+				// 发生错误，回滚
+				throw new PaasRuntimeException("", ex);
+			}
+		}
+	}
+
+	private void stopSESServers(String userId, String serviceId,
+			List<SesHostInfo> sesHosts) throws PaasException {
+		String basePath = AgentUtil.getAgentFilePath(AidUtil.getAid());
+		String sshUser = getSesSSHUser();
+		String sshUserPwd = getSesSSHUserPwd();
+		// 上传文件
+		// 1.先将需要执行镜像命令的机器配置文件上传上去。
+		InputStream in = null;
+		try {
+			in = SesManageImpl.class
+					.getResourceAsStream("/playbook/ses/init_ansible_ssh_hosts.sh");
+			String[] cnt = AgentUtil.readFileLines(in);
+
+			in.close();
+			AgentUtil.uploadFile("ses/init_ansible_ssh_hosts.sh", cnt,
+					AidUtil.getAid());
+			in = SesManageImpl.class
+					.getResourceAsStream("/playbook/ses/ses_stop.yml");
+			cnt = AgentUtil.readFileLines(in);
+			in.close();
+			AgentUtil.uploadFile("ses/ses_stop.yml", cnt, AidUtil.getAid());
+			// 还得上传文件
+			in = SesManageImpl.class
+					.getResourceAsStream("/playbook/ses/ansible_stop_ses.sh");
+			cnt = AgentUtil.readFileLines(in);
+			in.close();
+			AgentUtil.uploadFile("ses/ansible_stop_ses.sh", cnt,
+					AidUtil.getAid());
+
+			AgentUtil.executeCommand("chmod +x " + basePath
+					+ "ses/init_ansible_ssh_hosts.sh && chmod +x " + basePath
+					+ "ses/ansible_stop_ses.sh ", AidUtil.getAid());
+		} catch (Exception ex) {
+			// 发生错误，回滚
+			throw new PaasRuntimeException("", ex);
+		} finally {
+			if (null != in)
+				try {
+					in.close();
+				} catch (IOException e) {
+					LOGGER.error("", e);
+				}
+		}
+		// 2.停止ses集群
+		for (SesHostInfo sesHostInfo : sesHosts) {
+			String ip = sesHostInfo.getIp();
+			// 生成每个主机列表
+			String mkSshHosts = ParamUtil.replace(
+					"ses/init_ansible_ssh_hosts.sh {0} {1} {2}", new String[] {
+							basePath + "ses", ip.replace(".", ""), ip });
+			LOGGER.info("---------mkSshHosts {}----------" + mkSshHosts);
+			try {
+				// 生成主机文件
+				AgentUtil.executeCommand(basePath + mkSshHosts,
+						AidUtil.getAid());
+				// 开始执行
+				String stopSes = ParamUtil.replace(
+						"ses/ansible_stop_ses.sh {0} {1} {2} "
+								+ "{3} {4} {5} {6} {7} {8}", new String[] {
+								basePath + "ses", ip.replace(".", ""), sshUser,
+								sshUserPwd, ip, sshUser,
+
+								userId, serviceId, sesHostInfo.getHttpPort() });
+
+				String result = AgentUtil.executeCommandWithReturn(basePath
+						+ stopSes, AidUtil.getAid());
+				processResult(result);
+			} catch (Exception ex) {
+				// 发生错误，回滚
+				throw new PaasRuntimeException("", ex);
+			}
+		}
+	}
+
+	private void startSESServers(String userId, String serviceId,
+			List<SesHostInfo> sesHosts) throws PaasException {
+		String basePath = AgentUtil.getAgentFilePath(AidUtil.getAid());
+		String sshUser = getSesSSHUser();
+		String sshUserPwd = getSesSSHUserPwd();
+		// 上传文件
+		// 1.先将需要执行镜像命令的机器配置文件上传上去。
+		InputStream in = null;
+		try {
+			in = SesManageImpl.class
+					.getResourceAsStream("/playbook/ses/init_ansible_ssh_hosts.sh");
+			String[] cnt = AgentUtil.readFileLines(in);
+
+			in.close();
+			AgentUtil.uploadFile("ses/init_ansible_ssh_hosts.sh", cnt,
+					AidUtil.getAid());
+			in = SesManageImpl.class
+					.getResourceAsStream("/playbook/ses/ses_start.yml");
+			cnt = AgentUtil.readFileLines(in);
+			in.close();
+			AgentUtil.uploadFile("ses/ses_start.yml", cnt, AidUtil.getAid());
+			// 还得上传文件
+			in = SesManageImpl.class
+					.getResourceAsStream("/playbook/ses/ansible_start_ses.sh");
+			cnt = AgentUtil.readFileLines(in);
+			in.close();
+			AgentUtil.uploadFile("ses/ansible_start_ses.sh", cnt,
+					AidUtil.getAid());
+
+			AgentUtil.executeCommand("chmod +x " + basePath
+					+ "ses/init_ansible_ssh_hosts.sh && chmod +x " + basePath
+					+ "ses/ansible_start_ses.sh ", AidUtil.getAid());
+		} catch (Exception ex) {
+			// 发生错误，回滚
+			throw new PaasRuntimeException("", ex);
+		} finally {
+			if (null != in)
+				try {
+					in.close();
+				} catch (IOException e) {
+					LOGGER.error("", e);
+				}
+		}
+		// 2.停止ses集群
+		for (SesHostInfo sesHostInfo : sesHosts) {
+			String ip = sesHostInfo.getIp();
+			// 生成每个主机列表
+			String mkSshHosts = ParamUtil.replace(
+					"ses/init_ansible_ssh_hosts.sh {0} {1} {2}", new String[] {
+							basePath + "ses", ip.replace(".", ""), ip });
+			LOGGER.info("---------mkSshHosts {}----------" + mkSshHosts);
+			try {
+				// 生成主机文件
+				AgentUtil.executeCommand(basePath + mkSshHosts,
+						AidUtil.getAid());
+				// 开始执行
+				String stopSes = ParamUtil.replace(
+						"ses/ansible_start_ses.sh {0} {1} {2} "
+								+ "{3} {4} {5} {6} {7} {8}", new String[] {
+								basePath + "ses", ip.replace(".", ""), sshUser,
+								sshUserPwd, ip, sshUser,
+
+								userId, serviceId, sesHostInfo.getHttpPort() });
+
+				String result = AgentUtil.executeCommandWithReturn(basePath
+						+ stopSes, AidUtil.getAid());
+				processResult(result);
+			} catch (Exception ex) {
+				// 发生错误，回滚
+				throw new PaasRuntimeException("", ex);
+			}
+		}
+	}
+
+	private void deleteSESServers(String userId, String serviceId,
+			List<SesHostInfo> sesHosts) throws PaasException {
+		String basePath = AgentUtil.getAgentFilePath(AidUtil.getAid());
+		String sshUser = getSesSSHUser();
+		String sshUserPwd = getSesSSHUserPwd();
+		// 上传文件
+		// 1.先将需要执行镜像命令的机器配置文件上传上去。
+		InputStream in = null;
+		try {
+			in = SesManageImpl.class
+					.getResourceAsStream("/playbook/ses/init_ansible_ssh_hosts.sh");
+			String[] cnt = AgentUtil.readFileLines(in);
+
+			in.close();
+			AgentUtil.uploadFile("ses/init_ansible_ssh_hosts.sh", cnt,
+					AidUtil.getAid());
+			in = SesManageImpl.class
+					.getResourceAsStream("/playbook/ses/ses_delete.yml");
+			cnt = AgentUtil.readFileLines(in);
+			in.close();
+			AgentUtil.uploadFile("ses/ses_delete.yml", cnt, AidUtil.getAid());
+			// 还得上传文件
+			in = SesManageImpl.class
+					.getResourceAsStream("/playbook/ses/ansible_delete_ses.sh");
+			cnt = AgentUtil.readFileLines(in);
+			in.close();
+			AgentUtil.uploadFile("ses/ansible_delete_ses.sh", cnt,
+					AidUtil.getAid());
+
+			AgentUtil.executeCommand("chmod +x " + basePath
+					+ "ses/init_ansible_ssh_hosts.sh && chmod +x " + basePath
+					+ "ses/ansible_delete_ses.sh ", AidUtil.getAid());
+		} catch (Exception ex) {
+			// 发生错误，回滚
+			throw new PaasRuntimeException("", ex);
+		} finally {
+			if (null != in)
+				try {
+					in.close();
+				} catch (IOException e) {
+					LOGGER.error("", e);
+				}
+		}
+		// 2.停止ses集群
+		for (SesHostInfo sesHostInfo : sesHosts) {
+			String ip = sesHostInfo.getIp();
+			// 生成每个主机列表
+			String mkSshHosts = ParamUtil.replace(
+					"ses/init_ansible_ssh_hosts.sh {0} {1} {2}", new String[] {
+							basePath + "ses", ip.replace(".", ""), ip });
+			LOGGER.info("---------mkSshHosts {}----------" + mkSshHosts);
+			try {
+				// 生成主机文件
+				AgentUtil.executeCommand(basePath + mkSshHosts,
+						AidUtil.getAid());
+				// 开始执行
+				String stopSes = ParamUtil.replace(
+						"ses/ansible_delete_ses.sh {0} {1} {2} "
+								+ "{3} {4} {5} {6} {7} {8}", new String[] {
+								basePath + "ses", ip.replace(".", ""), sshUser,
+								sshUserPwd, ip, sshUser,
+
+								userId, serviceId, sesHostInfo.getHttpPort() });
+
+				String result = AgentUtil.executeCommandWithReturn(basePath
+						+ stopSes, AidUtil.getAid());
+				processResult(result);
+			} catch (Exception ex) {
+				// 发生错误，回滚
+				throw new PaasRuntimeException("", ex);
+			}
+		}
+	}
+
+	private void processResult(String result) {
+		if (!StringUtil.isBlank(result)) {
+			Gson gson = new Gson();
+			JsonObject json = gson.fromJson(result, JsonObject.class);
+			String code = json.get("code").getAsString();
+			if (!"0".equals(code)) {
+				throw new PaasRuntimeException(result);
+			}
+		}
+	}
+
+	private String getClusterAddress(List<SesHostInfo> sesHosts) {
 		StringBuilder sb = new StringBuilder();
 		for (SesHostInfo sesHostInfo : sesHosts) {
-			sb.append("\\\"" + sesHostInfo.getIp() + ":"
-					+ sesHostInfo.getTcpPort() + "\\\",");
+			sb.append("\\\\\\\"" + sesHostInfo.getIp() + ":"
+					+ sesHostInfo.getTcpPort() + "\\\\\\\",");
 		}
 		return sb.deleteCharAt(sb.length() - 1).toString();
 	}
@@ -283,22 +499,20 @@ public class SesManageImpl implements ISesManage {
 	/*
 	 * 创建搜索客户端 tcp连接搜索服务器 创建索引
 	 */
-	@SuppressWarnings("resource")
 	private TransportClient prepareSearchClient(String ipAndPort) {
 		TransportClient searchClient = null;
 		/* 如果10秒没有连接上搜索服务器，则超时 */
-//		Settings settings = ImmutableSettings.settingsBuilder()
-//				.put("client.transport.ping_timeout", "10s")
-//				.put("client.transport.sniff", "true")
-//				.put("client.transport.ignore_cluster_name", "true").build();
+		Settings settings = Settings.settingsBuilder()
+				.put("client.transport.ping_timeout", "10s")
+				.put("client.transport.sniff", "true")
+				.put("client.transport.ignore_cluster_name", "true").build();
 		/* 创建搜索客户端 */
-//		searchClient = new TransportClient(settings);
-//		String address = ipAndPort.split(":")[0];
-//		int port = Integer.parseInt(ipAndPort.split(":")[1]);
-//		/* 通过tcp连接搜索服务器，如果连接不上，有一种可能是服务器端与客户端的jar包版本不匹配 */
-//		searchClient = ((TransportClient) searchClient)
-//				.addTransportAddress(new InetSocketTransportAddress(address,
-//						port));
+		searchClient = TransportClient.builder().settings(settings).build();
+		String address = ipAndPort.split(":")[0];
+		int port = Integer.parseInt(ipAndPort.split(":")[1]);
+		// /* 通过tcp连接搜索服务器，如果连接不上，有一种可能是服务器端与客户端的jar包版本不匹配 */
+		searchClient.addTransportAddress(new InetSocketTransportAddress(
+				new InetSocketAddress(address, port)));
 		return searchClient;
 	}
 
@@ -519,10 +733,15 @@ public class SesManageImpl implements ISesManage {
 			IndicesAdminClient indicesAdminClient = client.admin().indices();
 			if (!doesIndexExist(indexName, client)) {
 				createIndex(mappingApply);
-			}
-			if (doesMappingExist(indexName, indexType, client)) {
-//				indicesAdminClient.prepareDeleteMapping().setIndices(indexName)
-//						.setType(indexType).execute().actionGet();
+			} else {
+				// 先删除index，再创建，以保证删除mapping
+				DeleteIndexResponse delete = indicesAdminClient.delete(
+						new DeleteIndexRequest(indexName)).get();
+				if (!delete.isAcknowledged()) {
+					LOGGER.error("Index wasn't deleted" + indexName);
+					throw new PaasRuntimeException("Index wasn't deleted"
+							+ indexName);
+				}
 			}
 			String mapping = mappingApply.getMapping();
 			LOGGER.info("putMapping begin ..........userid:" + userId
@@ -558,45 +777,25 @@ public class SesManageImpl implements ISesManage {
 		}
 	}
 
-	/**
-	 * 检察mapping是否已经存在.
-	 */
-	private boolean doesMappingExist(String indexName, String indexType,
-			TransportClient client) throws PaasException {
-		try {
-			TypesExistsRequest ter = new TypesExistsRequest(
-					new String[] { indexName.toLowerCase() }, indexType);
-			return client.admin().indices().typesExists(ter).actionGet()
-					.isExists();
-		} catch (ElasticsearchException e) {
-			LOGGER.error("doesMappingExist error", e);
-			throw new PaasException("doesMappingExist error", e);
-		}
-	}
-
 	@Override
 	public void start(ApplyInfo info) throws PaasException {
 		SesUserInstanceMapper mapper = ServiceUtil
 				.getMapper(SesUserInstanceMapper.class);
 		SesUserInstanceCriteria instanceCriteria = new SesUserInstanceCriteria();
-		instanceCriteria.createCriteria().andUserIdEqualTo(info.getUserId());
-		instanceCriteria.createCriteria().andServiceIdEqualTo(
-				info.getServiceId());
+		instanceCriteria.createCriteria().andUserIdEqualTo(info.getUserId())
+				.andServiceIdEqualTo(info.getServiceId()).andStatusEqualTo(1);
 		List<SesUserInstance> instances = mapper
 				.selectByExample(instanceCriteria);
-		for (SesUserInstance ins : instances) {
-			String hostIp = ins.getHostIp();
-			SesResourcePool host = quryHostByIp(hostIp);
-			String sesDis = info.getUserId() + "-" + info.getServiceId() + "-"
-					+ ins.getTcpPort();
-			String execSesStart = "sh " + host.getBinPath()
-					+ "/bin/elasticsearch -d -Des.config=" + host.getUserPath()
-					+ "/" + info.getUserId() + "/conf/" + sesDis + ".yml";
-//			AgentClient ac = new AgentClient(hostIp, host.getAgentPort());
-//
-//			LOGGER.info("execSesStart.........." + execSesStart);
-//			ac.executeInstruction(execSesStart);
+		// 应该先看看是否已经启动，没有就进行启动，有就不启动了
+		List<SesHostInfo> sesHosts = new ArrayList<>();
+		for (SesUserInstance instance : instances) {
+			SesHostInfo sesHost = new SesHostInfo();
+			sesHost.setIp(instance.getHostIp());
+			sesHost.setTcpPort("" + instance.getTcpPort());
+			sesHost.setHttpPort("" + instance.getSesPort());
+			sesHosts.add(sesHost);
 		}
+		startSESServers(info.getUserId(), info.getServiceId(), sesHosts);
 	}
 
 	@Override
@@ -605,22 +804,18 @@ public class SesManageImpl implements ISesManage {
 				.getMapper(SesUserInstanceMapper.class);
 		SesUserInstanceCriteria instanceCriteria = new SesUserInstanceCriteria();
 		instanceCriteria.createCriteria().andUserIdEqualTo(info.getUserId())
-				.andServiceIdEqualTo(info.getServiceId());
+				.andServiceIdEqualTo(info.getServiceId()).andStatusEqualTo(1);
 		List<SesUserInstance> instances = mapper
 				.selectByExample(instanceCriteria);
-		Set<String> ips = new HashSet<String>();
+		List<SesHostInfo> sesHosts = new ArrayList<>();
 		for (SesUserInstance ins : instances) {
-			ips.add(ins.getHostIp());
+			SesHostInfo sesHost = new SesHostInfo();
+			sesHost.setIp(ins.getHostIp());
+			sesHost.setTcpPort("" + ins.getTcpPort());
+			sesHost.setHttpPort("" + ins.getSesPort());
+			sesHosts.add(sesHost);
 		}
-		for (String ip : ips) {
-			SesResourcePool host = quryHostByIp(ip);
-//			AgentClient ac = new AgentClient(ip, host.getAgentPort());
-//			String sesDis = info.getUserId() + "-" + info.getServiceId();
-//			String execSesStop = "ps -ef | grep " + sesDis
-//					+ " | awk '{print $2}' | xargs kill -9";
-//			LOGGER.info("execSesStop.........." + execSesStop);
-//			ac.executeInstruction(execSesStop);
-		}
+		stopSESServers(info.getUserId(), info.getServiceId(), sesHosts);
 	}
 
 	@Override
@@ -632,31 +827,26 @@ public class SesManageImpl implements ISesManage {
 				.getMapper(SesUserInstanceMapper.class);
 		SesUserInstanceCriteria instanceCriteria = new SesUserInstanceCriteria();
 		instanceCriteria.createCriteria().andUserIdEqualTo(info.getUserId())
-				.andServiceIdEqualTo(info.getServiceId());
+				.andServiceIdEqualTo(info.getServiceId()).andStatusEqualTo(1);
 		List<SesUserInstance> instances = mapper
 				.selectByExample(instanceCriteria);
-		Set<String> ips = new HashSet<String>();
-		for (SesUserInstance ins : instances) {
-			String ip = ins.getHostIp();
-			ips.add(ip);
+		List<SesHostInfo> sesHosts = new ArrayList<>();
+
+		for (SesUserInstance instance : instances) {
+			String ip = instance.getHostIp();
 			// 更新ses_resource_pool.mem_used
 			SesResourcePool host = quryHostByIp(ip);
-			host.setMemUsed(host.getMemUsed() - ins.getMemUse());
+			host.setMemUsed(host.getMemUsed() - instance.getMemUse());
 			ServiceUtil.getMapper(SesResourcePoolMapper.class)
 					.updateByPrimaryKeySelective(host);
+			SesHostInfo sesHost = new SesHostInfo();
+			sesHost.setIp(instance.getHostIp());
+			sesHost.setTcpPort("" + instance.getTcpPort());
+			sesHost.setHttpPort("" + instance.getSesPort());
+			sesHosts.add(sesHost);
 		}
-		for (String ip : ips) {
-			SesResourcePool host = quryHostByIp(ip);
-//			AgentClient ac = new AgentClient(ip, host.getAgentPort());
-//			String execSesRecycle = "rm -rf " + host.getUserPath() + "/"
-//					+ info.getUserId();
-//			LOGGER.info("execSesRecycle.........." + execSesRecycle);
-//			ac.executeInstruction(execSesRecycle);
-//			String execSesIkRecycle = "rm -rf " + host.getBinPath()
-//					+ "/config/ik/" + info.getUserId();
-//			LOGGER.info("execSesIkRecycle.........." + execSesIkRecycle);
-//			ac.executeInstruction(execSesIkRecycle);
-		}
+		// 此处应停止并删除运行的容器
+		deleteSESServers(info.getUserId(), info.getServiceId(), sesHosts);
 		// ses_user_instance 删除记录
 		instanceCriteria.createCriteria().andUserIdEqualTo(info.getUserId())
 				.andServiceIdEqualTo(info.getServiceId());

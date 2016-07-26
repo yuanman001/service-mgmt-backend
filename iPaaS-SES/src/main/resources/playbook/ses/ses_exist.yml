@@ -1,0 +1,10 @@
+- hosts:  "{{host}}"
+  user: "{{user}}"
+  vars:
+     
+  tasks:
+     - name: docker run
+       command: docker ps -a --filter="name={{USER_PID}}-{{SES_SRV_ID}}-{{SRV_HTTP_PORT}}"
+       register: out
+
+     - debug: var=out.stdout_lines 

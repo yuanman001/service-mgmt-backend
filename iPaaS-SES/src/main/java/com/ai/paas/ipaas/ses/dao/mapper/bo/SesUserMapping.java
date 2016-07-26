@@ -14,6 +14,8 @@ public class SesUserMapping {
     private String indexDisplay;
 
     private String pk;
+    
+    private String copyTo;
 
     private Timestamp updateTime;
 
@@ -72,4 +74,13 @@ public class SesUserMapping {
     public void setUpdateTime(Timestamp updateTime) {
         this.updateTime = updateTime;
     }
+
+	public String getCopyTo() {
+		return copyTo;
+	}
+
+	public void setCopyTo(String copyTo) {
+		this.copyTo = copyTo;
+	}
+    
 }

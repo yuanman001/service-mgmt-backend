@@ -76,6 +76,12 @@ public class AgentUtil {
 		ExecuteEnv executeEnv = AgentUtil.genEnv();
 		executeEnv.executeCommand(command, aid);
 	}
+	
+	public static String executeCommandWithReturn(String command, String aid)
+			throws ClientProtocolException, IOException, PaasException {
+		ExecuteEnv executeEnv = AgentUtil.genEnv();
+		return executeEnv.executeCommand(command, aid);
+	}
 
 	public static ExecuteEnv genEnv() {
 		ExecuteEnv executeEnv = null;

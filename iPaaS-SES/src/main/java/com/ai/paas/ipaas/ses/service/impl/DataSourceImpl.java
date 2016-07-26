@@ -24,10 +24,10 @@ import com.ai.paas.ipaas.ses.dao.mapper.bo.SesDataimportUser;
 import com.ai.paas.ipaas.ses.dao.mapper.bo.SesDataimportUserCriteria;
 import com.ai.paas.ipaas.ses.service.constant.SesConstants;
 import com.ai.paas.ipaas.ses.service.interfaces.IDataSource;
-import com.ai.paas.ipaas.ses.service.vo.DataSourceInfo;
-import com.ai.paas.ipaas.ses.service.vo.IndexSqlInfo;
-import com.ai.paas.ipaas.ses.service.vo.IndexFiledSql;
-import com.ai.paas.ipaas.ses.service.vo.IndexPrimarySql;
+import com.ai.paas.ipaas.vo.ses.SesDataSourceInfo;
+import com.ai.paas.ipaas.vo.ses.SesIndexFiledSql;
+import com.ai.paas.ipaas.vo.ses.SesIndexPrimarySql;
+import com.ai.paas.ipaas.vo.ses.SesIndexSqlInfo;
 import com.google.gson.Gson;
 
 @Service
@@ -37,7 +37,7 @@ public class DataSourceImpl implements IDataSource {
 			.getLogger(DataSourceImpl.class);
 
 	public void saveDataSource(Map<String, String> userInfo,
-			List<DataSourceInfo> dataSources) {
+			List<SesDataSourceInfo> dataSources) {
 		Assert.notEmpty(userInfo);
 		Assert.notEmpty(dataSources);
 
@@ -74,7 +74,7 @@ public class DataSourceImpl implements IDataSource {
 		}
 
 		Gson gson = new Gson();
-		for (DataSourceInfo db : dataSources) {
+		for (SesDataSourceInfo db : dataSources) {
 			if (db.isOverwrite()) {
 				SesDataimportDsCriteria dsc = new SesDataimportDsCriteria();
 				dsc.createCriteria().andDuIdEqualTo(id)
@@ -115,9 +115,9 @@ public class DataSourceImpl implements IDataSource {
 	}
 
 	@Override
-	public List<DataSourceInfo> getIndexDataSources(String userId,
+	public List<SesDataSourceInfo> getIndexDataSources(String userId,
 			String serviceId, int groupId) {
-		List<DataSourceInfo> res = new ArrayList<DataSourceInfo>();
+		List<SesDataSourceInfo> res = new ArrayList<>();
 		try {
 			SesDataimportUserMapper userMapper = ServiceUtil
 					.getMapper(SesDataimportUserMapper.class);
@@ -144,15 +144,15 @@ public class DataSourceImpl implements IDataSource {
 	}
 
 	@SuppressWarnings("rawtypes")
-	private List<DataSourceInfo> getDBfromSesDataimportDs(
+	private List<SesDataSourceInfo> getDBfromSesDataimportDs(
 			List<SesDataimportDs> dss, int groupId) throws Exception {
 		if (dss == null || dss.isEmpty())
 			throw new Exception("datasource is null.");
 
-		List<DataSourceInfo> res = new ArrayList<DataSourceInfo>();
+		List<SesDataSourceInfo> res = new ArrayList<>();
 		Gson gson = new Gson();
 		for (SesDataimportDs ds : dss) {
-			DataSourceInfo attr = new DataSourceInfo();
+			SesDataSourceInfo attr = new SesDataSourceInfo();
 			attr.setId(ds.getId());
 			attr.setAlias(ds.getAlias());
 			attr.setType(ds.getType());
@@ -192,9 +192,9 @@ public class DataSourceImpl implements IDataSource {
 
 	@SuppressWarnings("rawtypes")
 	@Override
-	public IndexSqlInfo getIndexDataSql(String userId, String serviceId,
+	public SesIndexSqlInfo getIndexDataSql(String userId, String serviceId,
 			int groupId) {
-		IndexSqlInfo sql = new IndexSqlInfo();
+		SesIndexSqlInfo sql = new SesIndexSqlInfo();
 		SesDataimportUserMapper userMapper = ServiceUtil
 				.getMapper(SesDataimportUserMapper.class);
 		SesDataimportUserCriteria c = new SesDataimportUserCriteria();
@@ -212,8 +212,8 @@ public class DataSourceImpl implements IDataSource {
 		List<SesDataimportSql> datas = sqlMapper.selectByExample(sc);
 		if (datas != null && datas.size() > 0) {
 			Gson gson = new Gson();
-			List<IndexFiledSql> filedSqls = new ArrayList<IndexFiledSql>();
-			IndexPrimarySql p = new IndexPrimarySql();
+			List<SesIndexFiledSql> filedSqls = new ArrayList<>();
+			SesIndexPrimarySql p = new SesIndexPrimarySql();
 			if (groupId == SesConstants.GROUP_ID_1) {
 				String info = datas.get(0).getInfo();
 				sql.setId(datas.get(0).getId());
@@ -235,7 +235,7 @@ public class DataSourceImpl implements IDataSource {
 						p.setSql(infos.get("sql").toString());
 						sql.setPrimarySql(p);
 					} else {
-						IndexFiledSql fSql = new IndexFiledSql();
+						SesIndexFiledSql fSql = new SesIndexFiledSql();
 						fSql.setAlias(sq.getAlias());
 						fSql.setDrAlias(sq.getDsAlias());
 						fSql.setRelation(Integer.valueOf(infos.get("relation")
@@ -261,10 +261,10 @@ public class DataSourceImpl implements IDataSource {
 
 	@Override
 	public void saveIndexDataSql(Map<String, String> dbInfo,
-			DataSourceInfo dbAttr, Map<String, String> userInfo) {
+			SesDataSourceInfo dbAttr, Map<String, String> userInfo) {
 		String falias = dbInfo.get("falias");
-		String overwriteStr = dbInfo.get("overwriteStr");
-		String isPriStr = dbInfo.get("isPriStr");
+		String overwriteStr = dbInfo.get("overwrite");
+		String isPriStr = dbInfo.get("isPrimary");
 		String groupId = dbInfo.get("groupId");
 		int uId = Integer.parseInt(dbInfo.get("uId"));
 		Gson gson = new Gson();
@@ -425,13 +425,14 @@ public class DataSourceImpl implements IDataSource {
 	}
 
 	@Override
-	public DataSourceInfo getDataSourceInfo(List<DataSourceInfo> dataSources,
-			Map<String, String> userInfo, Map<String, String> dbInfo) {
+	public SesDataSourceInfo getDataSourceInfo(
+			List<SesDataSourceInfo> dataSources, Map<String, String> userInfo,
+			Map<String, String> dbInfo) {
 
 		String groupId = dbInfo.get("groupId");
 		if (groupId != null && groupId.length() > 0) {
 			try {
-				DataSourceInfo db = null;
+				SesDataSourceInfo db = null;
 				if (Integer.valueOf(groupId) == SesConstants.GROUP_ID_1) {
 					db = dataSources.get(0);
 				}
@@ -470,7 +471,7 @@ public class DataSourceImpl implements IDataSource {
 	}
 
 	@Override
-	public void deleteDataSource(List<DataSourceInfo> dataSources,
+	public void deleteDataSource(List<SesDataSourceInfo> dataSources,
 			Map<String, String> userInfo) {
 
 		try {
@@ -581,4 +582,34 @@ public class DataSourceImpl implements IDataSource {
 
 	}
 
+	@Override
+	public String getDataSourceUserPK(String userId, String srvID) {
+		SesDataimportUserMapper userMapper = ServiceUtil
+				.getMapper(SesDataimportUserMapper.class);
+		SesDataimportUserCriteria c = new SesDataimportUserCriteria();
+		c.createCriteria().andUserIdEqualTo(userId).andSesSidEqualTo(srvID)
+				.andStatusEqualTo(SesConstants.VALIDATE_STATUS);
+		List<SesDataimportUser> users = userMapper.selectByExample(c);
+		if (users != null && !users.isEmpty())
+			return "" + users.get(0).getId();
+		else
+			return null;
+	}
+
+	@Override
+	public List<SesDataSourceInfo> getDataSource(int dataSourceUId,
+			String dbAlias, int groupId) {
+		SesDataimportDsCriteria sc = new SesDataimportDsCriteria();
+
+		sc.createCriteria().andDuIdEqualTo(dataSourceUId)
+				.andAliasEqualTo(dbAlias).andGroupIdEqualTo(groupId);
+		SesDataimportDsMapper dsMapper = ServiceUtil
+				.getMapper(SesDataimportDsMapper.class);
+		List<SesDataimportDs> dss = dsMapper.selectByExample(sc);
+		try {
+			return getDBfromSesDataimportDs(dss, SesConstants.GROUP_ID_2);
+		} catch (Exception e) {
+			throw new PaasRuntimeException("", e);
+		}
+	}
 }

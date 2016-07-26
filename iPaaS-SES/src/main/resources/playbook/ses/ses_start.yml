@@ -1,0 +1,9 @@
+- hosts:  "{{host}}"
+  user: "{{user}}"
+  vars:
+     
+  tasks:
+     - name: docker start
+       command: docker start {{USER_PID}}-{{SES_SRV_ID}}-{{SRV_HTTP_PORT}}
+       register: docker_start
+       failed_when: "'FAILED' in docker_start.stderr"

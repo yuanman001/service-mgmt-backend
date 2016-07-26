@@ -1,4 +1,4 @@
-package com.ai.paas.ipaas.ses.service.vo;
+package com.ai.paas.ipaas.vo.ses;
 
 import java.io.Serializable;
 
@@ -6,7 +6,7 @@ import java.io.Serializable;
  * 辅助sql
  *
  */
-public class IndexFiledSql implements Serializable{
+public class SesIndexFiledSql implements Serializable{
 
 	/**
 	 * 
