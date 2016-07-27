@@ -66,7 +66,7 @@ public class McsConstants {
       "{'maxActive':'500','maxIdle':'100','maxWait':'10000',"
           + "'testOnBorrow':'false','testOnReturn':'true'}";
 
-  public static final int CACHE_NUM = 6;
+  public static final int CLUSTER_CACHE_NUM = 6;
   public static final int VALIDATE_STATUS = 1;
   public static final int INVALIDATE_STATUS = 2;
   public static final int SENTINEL_NUM = 6;
