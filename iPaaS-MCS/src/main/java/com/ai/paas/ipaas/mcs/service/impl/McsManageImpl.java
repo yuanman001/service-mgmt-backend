@@ -54,8 +54,6 @@ public class McsManageImpl implements IMcsSv {
 	@Autowired 
 	private ICCSComponentManageSv iCCSComponentManageSv;
 	
-	static String basePath = AgentUtil.getAgentFilePath(AidUtil.getAid());
-	
 	@Override
 	public String openMcs(String param) throws PaasException {
 		Map<String, String> paraMap = McsParamUtil.getParamMap(param);
@@ -107,7 +105,8 @@ public class McsManageImpl implements IMcsSv {
 		String serviceName = paraMap.get(McsConstants.SERVICE_NAME);
 		String capacity = paraMap.get(McsConstants.CAPACITY);
 		Integer cacheSize = Integer.parseInt(capacity);
-
+		String basePath = AgentUtil.getAgentFilePath(AidUtil.getAid());
+		
 		/** 1.获取mcs资源. **/
 		McsResourcePool mcsResourcePool = selectMcsResSingle(cacheSize, 1);
 		String hostIp = mcsResourcePool.getCacheHostIp();
@@ -164,6 +163,7 @@ public class McsManageImpl implements IMcsSv {
 		String capacity = paraMap.get(McsConstants.CAPACITY);
 		Integer cacheSize = Integer.parseInt(capacity);
 		final int clusterCacheSize = Math.round(cacheSize / McsConstants.CLUSTER_CACHE_NUM);
+		String basePath = AgentUtil.getAgentFilePath(AidUtil.getAid());
 		
 		/** 获取执行ansible命令所需要的主机信息，以及docker镜像信息. **/
 		final String sshUser = getMcsSSHInfo(McsConstants.SSH_USER_CODE);
@@ -250,7 +250,8 @@ public class McsManageImpl implements IMcsSv {
 		String serviceName = paraMap.get(McsConstants.SERVICE_NAME);
 		String capacity = paraMap.get(McsConstants.CAPACITY);
 		Integer cacheSize = Integer.parseInt(capacity);
-
+		String basePath = AgentUtil.getAgentFilePath(AidUtil.getAid());
+		
 		/** 1.获取mcs资源. **/
 		McsResourcePool mcsResourcePool = selectMcsResSingle(cacheSize * 2, 2);
 		String hostIp = mcsResourcePool.getCacheHostIp();
@@ -633,6 +634,7 @@ public class McsManageImpl implements IMcsSv {
 			throws PaasException {
 		String sshUser = getMcsSSHInfo(McsConstants.SSH_USER_CODE);
 		String sshUserPwd = getMcsSSHInfo(McsConstants.SSH_USER_PWD_CODE);
+		String basePath = AgentUtil.getAgentFilePath(AidUtil.getAid());
 		
 		for (McsUserCacheInstance ins :userInstanceList) {
 			String hostIp = ins.getCacheHost();
@@ -656,6 +658,7 @@ public class McsManageImpl implements IMcsSv {
 		IpaasImageResource redisClusterImage = getMcsImage(McsConstants.SERVICE_CODE, McsConstants.REDIS_CLUSTER_IMAGE_CODE);
 		String sshUser = getMcsSSHInfo(McsConstants.SSH_USER_CODE);
 		String sshUserPwd = getMcsSSHInfo(McsConstants.SSH_USER_PWD_CODE);
+		String basePath = AgentUtil.getAgentFilePath(AidUtil.getAid());
 		
 		String clusterInfo = "";
 		for(McsUserCacheInstance vo: userInstanceList) {
@@ -674,6 +677,7 @@ public class McsManageImpl implements IMcsSv {
 			throws PaasException {
 		String sshUser = getMcsSSHInfo(McsConstants.SSH_USER_CODE);
 		String sshUserPwd = getMcsSSHInfo(McsConstants.SSH_USER_PWD_CODE);
+		String basePath = AgentUtil.getAgentFilePath(AidUtil.getAid());
 		
 		for (McsUserCacheInstance ins :userInstanceList) {
 			String hostIp = ins.getCacheHost();
