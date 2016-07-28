@@ -23,11 +23,10 @@ import com.ai.paas.ipaas.base.dao.mapper.bo.IpaasImageResourceCriteria;
 import com.ai.paas.ipaas.base.dao.mapper.bo.IpaasSysConfig;
 import com.ai.paas.ipaas.base.dao.mapper.bo.IpaasSysConfigCriteria;
 import com.ai.paas.ipaas.ccs.constants.BundleKeyConstant;
-import com.ai.paas.ipaas.ccs.constants.ConfigException;
 import com.ai.paas.ipaas.ccs.constants.ConfigCenterDubboConstants.PathType;
+import com.ai.paas.ipaas.ccs.constants.ConfigException;
 import com.ai.paas.ipaas.ccs.service.ICCSComponentManageSv;
 import com.ai.paas.ipaas.ccs.service.dto.CCSComponentOperationParam;
-import com.ai.paas.ipaas.ccs.zookeeper.ZKClient;
 import com.ai.paas.ipaas.mcs.dao.interfaces.McsResourcePoolMapper;
 import com.ai.paas.ipaas.mcs.dao.interfaces.McsUserCacheInstanceMapper;
 import com.ai.paas.ipaas.mcs.dao.mapper.bo.McsResourcePool;
@@ -70,8 +69,8 @@ public class McsManageImpl implements IMcsSv {
 		}
 		
 		/** 根据userId，serviceId，查看zk中是否存在node. **/
-		if(!userNodeIsExist(userId, serviceId)) {
-			logger.error("未找到用户["+userId+"]的["+serviceId+"]配置服务，无法开通MCS.");
+		if(!userNodeIsExist(userId)) {
+			logger.error("未找到用户["+userId+"]的配置服务，无法开通MCS.");
 		}
         
 		switch(haMode) {
@@ -121,19 +120,19 @@ public class McsManageImpl implements IMcsSv {
 		IpaasImageResource redisImage = getMcsImage(McsConstants.SERVICE_CODE, McsConstants.REDIS_IMAGE_CODE);
 		String image = redisImage.getImageRepository() + "/" + redisImage.getImageName();
 		
-		/** 容器名称：userId_serviceId_port **/
+		/** 3.容器名称：userId_serviceId_port **/
 		String containerName = userId + "-" + serviceId + "-" + cachePort;
 				
-		/** 3.创建 mcs_host.cfg 文件，并写入hostIp. **/
+		/** 4.创建 mcs_host.cfg 文件，并写入hostIp. **/
 		createHostCfg(basePath);
 		writeHostCfg(basePath, hostIp);
 		logger.info("-----创建 mcs_host.cfg 成功！");
 
-		/** 4.上传 ansible的 playbook 文件. **/
+		/** 5.上传 ansible的 playbook 文件. **/
 		uploadMcsFile(McsConstants.PLAYBOOK_MCS_PATH, McsConstants.PLAYBOOK_SINGLE_YML);
 		logger.info("-----上传 mcs_single.yml 成功！");
 
-		/** 5.生成ansible-playbook命令,并执行. **/
+		/** 6.生成ansible-playbook命令,并执行. **/
 		String ansibleCommand = getRedisServerCommand(capacity, basePath, hostIp, cachePort, 
 				requirepass, McsConstants.MODE_SINGLE, sshUser, sshUserPwd, containerName, image);
 		runAnsileCommand(ansibleCommand);
@@ -718,21 +717,14 @@ public class McsManageImpl implements IMcsSv {
 		 */
 		List<McsResourcePool> resourceList = getBestResource(redisInsNum + 2);
 		for(int i=0; i < redisInsNum/2; i++){
-			McsResourcePool pool = null;
-			/** 选取满足内存要求的资源主机,获取资源主机后则跳出循环. **/
-			for(McsResourcePool value:resourceList){
-				/** 由于要开通1个master/1个slave，可用内存需大于cacheSize乘2. **/
-				if((value.getCacheMemory() - value.getCacheMemoryUsed()) > cacheSize * 2) {
-					pool = value;
-					continue;
-				}
-			}
-			
+			/** 筛选并指定资源 **/
+			McsResourcePool pool = getResourceInfo(resourceList, cacheSize*2, i);
 			if(null==pool) {
 				logger.error("++++ 所有可用资源主机的内存均不足，无法开通redis集群 ++++");
 				throw new PaasException("mcs resource memory not enough.");
 			}
 			
+			/** 已取到的资源信息 **/
 			String hostIp = pool.getCacheHostIp();
 			Integer port = pool.getCachePort();
 			Integer usedCacheSize = pool.getCacheMemoryUsed();
@@ -763,6 +755,33 @@ public class McsManageImpl implements IMcsSv {
 		return returnList;
 	}
 	
+/**
+	 * 获取符合条件的资源主机
+	 * @param resourceList
+	 * @param cacheSize
+	 * @param seed
+	 * @return McsResourcePool
+	 */
+	private McsResourcePool getResourceInfo(List<McsResourcePool> resourceList, int cacheSize, int seed) {
+		/** 首先根据mod值，从资源list中选取一条，并判断是否符合条件，如果符合条件则返回。 **/
+		int mod = seed%(resourceList.size()); 
+		McsResourcePool value = resourceList.get(mod);
+		if((value.getCacheMemory() - value.getCacheMemoryUsed()) > cacheSize) {
+			return value;
+		} 
+		/** 如果根据mod值所取的资源不符合条件，则循环资源list，判断并获取符合条件的资源，没有匹配的资源则最后返回null。
+		 * 注意：由于资源list已按可用内存大小降序排列，所以根据mod值，向上循环list即可，mod值以下的资源主机不必再判断。 **/
+		else {
+			for(int k = mod; k >= 0; k--){
+				value = resourceList.get(k);
+				if((value.getCacheMemory() - value.getCacheMemoryUsed()) > cacheSize) {
+					return value;
+				}
+			}
+			return null;
+		}
+	}
+
 	/**
 	 * 在开通MCS服务的集群(single)模式/主从复制(replication)模式时，选择MCS资源。
 	 * 单例模式端口+1, 主从复制模式端口+2
@@ -863,13 +882,13 @@ public class McsManageImpl implements IMcsSv {
      * @return
      * @throws ConfigException
      */
-    private boolean userNodeIsExist(String userId, String serviceId) throws ConfigException {
+    private boolean userNodeIsExist(String userId) throws ConfigException {
         boolean result = false;
         try {
         	CCSComponentOperationParam op = new CCSComponentOperationParam();
     		op.setUserId(userId);
-    		op.setPath(McsConstants.MCS_ZK_PATH + serviceId);
-    		
+    		op.setPath("/");
+    		op.setPathType(PathType.READONLY);
     		result = iCCSComponentManageSv.exists(op);
         } catch (Exception e) {
             if (e instanceof KeeperException.NoAuthException) {
@@ -877,7 +896,6 @@ public class McsManageImpl implements IMcsSv {
             }
             throw new ConfigException(ResourceUtil.getMessage(BundleKeyConstant.USER_NODE_NOT_EXISTS), e);
         }
-        
         return result;
     }
     
