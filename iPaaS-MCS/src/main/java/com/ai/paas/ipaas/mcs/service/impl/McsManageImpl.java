@@ -5,7 +5,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
-import org.apache.zookeeper.KeeperException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -22,9 +21,7 @@ import com.ai.paas.ipaas.base.dao.mapper.bo.IpaasImageResource;
 import com.ai.paas.ipaas.base.dao.mapper.bo.IpaasImageResourceCriteria;
 import com.ai.paas.ipaas.base.dao.mapper.bo.IpaasSysConfig;
 import com.ai.paas.ipaas.base.dao.mapper.bo.IpaasSysConfigCriteria;
-import com.ai.paas.ipaas.ccs.constants.BundleKeyConstant;
 import com.ai.paas.ipaas.ccs.constants.ConfigCenterDubboConstants.PathType;
-import com.ai.paas.ipaas.ccs.constants.ConfigException;
 import com.ai.paas.ipaas.ccs.service.ICCSComponentManageSv;
 import com.ai.paas.ipaas.ccs.service.dto.CCSComponentOperationParam;
 import com.ai.paas.ipaas.mcs.dao.interfaces.McsResourcePoolMapper;
@@ -40,7 +37,6 @@ import com.ai.paas.ipaas.mcs.service.util.McsProcessInfo;
 import com.ai.paas.ipaas.util.Assert;
 import com.ai.paas.ipaas.util.CiperUtil;
 import com.ai.paas.ipaas.util.DateTimeUtil;
-import com.ai.paas.ipaas.util.ResourceUtil;
 import com.google.gson.JsonObject;
 
 @Service
@@ -66,10 +62,10 @@ public class McsManageImpl implements IMcsSv {
 			return McsConstants.SUCCESS_FLAG;
 		}
 		
-		/** 根据userId，serviceId，查看zk中是否存在node. **/
-		if(!userNodeIsExist(userId)) {
-			logger.error("未找到用户["+userId+"]的配置服务，无法开通MCS.");
-		}
+//		/** 根据userId，serviceId，查看zk中是否存在node. **/
+//		if(!userNodeIsExist(userId)) {
+//			logger.error("未找到用户["+userId+"]的配置服务，无法开通MCS.");
+//		}
         
 		switch(haMode) {
 		case McsConstants.MODE_SINGLE:
@@ -188,35 +184,20 @@ public class McsManageImpl implements IMcsSv {
 		
 		/** 循环处理redis-cluster服务节点。 **/
 		for (McsProcessInfo proInfo : cacheInfoList) {
-			final String hostIp = proInfo.getCacheHostIp();
-			final Integer cachePort = proInfo.getCachePort();
-			final String requirepass = mcsSvHepler.getRandomKey();
-			final String containerName = userId + "-" + serviceId + "-" + cachePort;
-			try{
-				new Thread(new Runnable() {
-                    @Override
-                    public void run() {
-                        try {
-                        	/** 将hostIp写入 mcs_host.cfg 文件. **/
-                        	writeHostCfg(basePath, hostIp);
-                			logger.info("-----["+hostIp+"]写入 mcs_host.cfg 成功！");
+			String hostIp = proInfo.getCacheHostIp();
+			Integer cachePort = proInfo.getCachePort();
+			String requirepass = mcsSvHepler.getRandomKey();
+			String containerName = userId + "-" + serviceId + "-" + cachePort;
+			String redisRun = getRedisServerCommand(clusterCacheSize+"", basePath, hostIp, cachePort, 
+					requirepass, McsConstants.MODE_CLUSTER, sshUser, sshUserPwd, containerName, image);
+			
+			/** 将hostIp写入 mcs_host.cfg 文件. **/
+			writeHostCfg(basePath, hostIp);
+			logger.info("-----[" + hostIp + "]写入 mcs_host.cfg 成功！");
 
-                			/** 执行ansible-playbook命令. **/
-                			String redisRun = getRedisServerCommand(clusterCacheSize+"", basePath, hostIp, cachePort, 
-                					requirepass, McsConstants.MODE_CLUSTER, sshUser, sshUserPwd, containerName, image);
-                			runAnsileCommand(redisRun);
-                			logger.info("-----执行ansible-playbook 成功！");
-                        } catch (Exception e) {
-                        	logger.error("start redis server error!"+e.getMessage());
-                            e.printStackTrace();  
-                        }
-                    }
-                }).start();
-			} catch (Exception ex) {
-				logger.error("start redis-cluster error!"+ex.getMessage());
-				ex.printStackTrace();
-				throw new PaasException("start redis server error.");
-			}
+			/** 执行ansible-playbook命令. **/
+			runAnsileCommand(redisRun);
+			logger.info("-----执行ansible-playbook 成功！");
 		}
 
 		/** 执行redis集群创建命令 **/
@@ -235,6 +216,26 @@ public class McsManageImpl implements IMcsSv {
 		
 		return McsConstants.SUCCESS_FLAG;
 	}
+
+//	private void excuteRunRedis(String basePath, String hostIp, String redisRun) throws PaasException {
+//		Thread runThread = new Thread(new Runnable() {
+//			public void run() {
+//				try {
+//					/** 将hostIp写入 mcs_host.cfg 文件. **/
+//					writeHostCfg(basePath, hostIp);
+//					logger.info("-----[" + hostIp + "]写入 mcs_host.cfg 成功！");
+//
+//					/** 执行ansible-playbook命令. **/
+//					runAnsileCommand(redisRun);
+//					logger.info("-----执行ansible-playbook 成功！");
+//				} catch (Exception ex) {
+//					throw new PaasException("");
+//				}
+//			}
+//		});
+//		
+//		runThread.start();
+//	}
 
 	/**
 	 * 开通主备模式的Mcs服务。
@@ -879,29 +880,29 @@ public class McsManageImpl implements IMcsSv {
 		}
 	}
 	
-	/**
-     * 判断用户的zk节点是否存在
-     * @param client
-     * @param nodePath
-     * @return
-     * @throws ConfigException
-     */
-    private boolean userNodeIsExist(String userId) throws ConfigException {
-        boolean result = false;
-        try {
-        	CCSComponentOperationParam op = new CCSComponentOperationParam();
-    		op.setUserId(userId);
-    		op.setPath("/");
-    		op.setPathType(PathType.READONLY);
-    		result = iCCSComponentManageSv.exists(op);
-        } catch (Exception e) {
-            if (e instanceof KeeperException.NoAuthException) {
-                throw new ConfigException(ResourceUtil.getMessage(BundleKeyConstant.USER_AUTH_FAILED));
-            }
-            throw new ConfigException(ResourceUtil.getMessage(BundleKeyConstant.USER_NODE_NOT_EXISTS), e);
-        }
-        return result;
-    }
+//	/**
+//     * 判断用户的zk节点是否存在
+//     * @param client
+//     * @param nodePath
+//     * @return
+//     * @throws ConfigException
+//     */
+//    private boolean userNodeIsExist(String userId) throws ConfigException {
+//        boolean result = false;
+//        try {
+//        	CCSComponentOperationParam op = new CCSComponentOperationParam();
+//    		op.setUserId(userId);
+//    		op.setPath("/");
+//    		op.setPathType(PathType.READONLY);
+//    		result = iCCSComponentManageSv.exists(op);
+//        } catch (Exception e) {
+//            if (e instanceof KeeperException.NoAuthException) {
+//                throw new ConfigException(ResourceUtil.getMessage(BundleKeyConstant.USER_AUTH_FAILED));
+//            }
+//            throw new ConfigException(ResourceUtil.getMessage(BundleKeyConstant.USER_NODE_NOT_EXISTS), e);
+//        }
+//        return result;
+//    }
     
 	/**
 	 * 在zk中记录申请信息
