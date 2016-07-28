@@ -50,6 +50,8 @@ public class McsManageImpl implements IMcsSv {
 	@Autowired 
 	private ICCSComponentManageSv iCCSComponentManageSv;
 	
+	protected static boolean excuteFlag = true;
+	
 	@Override
 	public String openMcs(String param) throws PaasException {
 		Map<String, String> paraMap = McsParamUtil.getParamMap(param);
@@ -186,6 +188,11 @@ public class McsManageImpl implements IMcsSv {
 		for (McsProcessInfo proInfo : cacheInfoList) {
 			String hostIp = proInfo.getCacheHostIp();
 			Integer cachePort = proInfo.getCachePort();
+			
+			if(!excuteFlag) {
+				throw new PaasException("开通集群模式MCS时，创建其中["+hostIp+":"+cachePort+"]的redis服务出现异常.");
+			}
+
 			String requirepass = mcsSvHepler.getRandomKey();
 			String containerName = userId + "-" + serviceId + "-" + cachePort;
 			String redisRun = getRedisServerCommand(clusterCacheSize+"", basePath, hostIp, cachePort, 
@@ -194,10 +201,13 @@ public class McsManageImpl implements IMcsSv {
 			/** 将hostIp写入 mcs_host.cfg 文件. **/
 			writeHostCfg(basePath, hostIp);
 			logger.info("-----[" + hostIp + "]写入 mcs_host.cfg 成功！");
-
-			/** 执行ansible-playbook命令. **/
-			runAnsileCommand(redisRun);
-			logger.info("-----执行ansible-playbook 成功！");
+			
+//			/** 执行ansible-playbook命令. **/
+//			runAnsileCommand(redisRun);
+//			logger.info("-----执行ansible-playbook 成功！");
+			
+			/** 并发执行创建server的命令 **/
+			excuteRunRedis(redisRun);
 		}
 
 		/** 执行redis集群创建命令 **/
@@ -217,26 +227,25 @@ public class McsManageImpl implements IMcsSv {
 		return McsConstants.SUCCESS_FLAG;
 	}
 
-//	private void excuteRunRedis(String basePath, String hostIp, String redisRun) throws PaasException {
-//		Thread runThread = new Thread(new Runnable() {
-//			public void run() {
-//				try {
-//					/** 将hostIp写入 mcs_host.cfg 文件. **/
-//					writeHostCfg(basePath, hostIp);
-//					logger.info("-----[" + hostIp + "]写入 mcs_host.cfg 成功！");
-//
-//					/** 执行ansible-playbook命令. **/
-//					runAnsileCommand(redisRun);
-//					logger.info("-----执行ansible-playbook 成功！");
-//				} catch (Exception ex) {
-//					throw new PaasException("");
-//				}
-//			}
-//		});
-//		
-//		runThread.start();
-//	}
+	private void excuteRunRedis(String redisRun) {
+		Thread runThread = new Thread(new Runnable() {
+			public void run() {
+				try {
+					runAnsileCommand(redisRun);
+				} catch (Exception ex) {
+					logger.error("------- excute ansible-playbook error -------");
+					setExcuteFlag(false);
+				}
+			}
+		});
+		
+		runThread.start();
+	}
 
+	private static synchronized void setExcuteFlag(boolean flag) {
+		excuteFlag = flag;
+	}
+	
 	/**
 	 * 开通主备模式的Mcs服务。
 	 * 在同一台资源主机上，先启动一个single模式的redis，再增加一个slave节点.
