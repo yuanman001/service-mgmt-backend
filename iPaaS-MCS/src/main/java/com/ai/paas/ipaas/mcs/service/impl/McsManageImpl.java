@@ -179,9 +179,10 @@ public class McsManageImpl implements IMcsSv {
 		List<McsProcessInfo> cacheInfoList = selectMcsResCluster(clusterCacheSize, McsConstants.CLUSTER_CACHE_NUM);
 		logger.info("-----已获取开通redis集群所需资源主机["+cacheInfoList.size() +"]台。");
 		
-		/** 循环处理redis-cluster服务节点。 **/
+		/** 循环处理redis-server节点。 **/
+		String hostIp = "";
 		for (McsProcessInfo proInfo : cacheInfoList) {
-			String hostIp = proInfo.getCacheHostIp();
+			hostIp = proInfo.getCacheHostIp();
 			Integer cachePort = proInfo.getCachePort();
 			
 			String requirepass = mcsSvHepler.getRandomKey();
@@ -204,9 +205,10 @@ public class McsManageImpl implements IMcsSv {
 //			}
 		}
 
-		/** 执行redis集群创建命令 **/
+		/** 执行redis集群创建命令
+		 *  不在重新写入 mcs_host.cfg 文件，直接在最后启动的redis-server主机上，run集群创建docker。 **/
 		String clusterInfo = getClusterInfo(cacheInfoList, " ");
-		String redisClusterRun = getCreateClusterCommand(basePath, sshUser, sshUserPwd, clusterInfo, redisClusterImage);
+		String redisClusterRun = getCreateClusterCommand(basePath, hostIp, sshUser, sshUserPwd, clusterInfo, redisClusterImage);
 		runAnsileCommand(redisClusterRun);
 		logger.info("-------- 开通MCS集群模式，执行集群创建命令成功！");
 		
@@ -332,6 +334,11 @@ public class McsManageImpl implements IMcsSv {
 		
 		operateDocker(userInstanceList, McsConstants.DOCKER_COMMAND_START);
 		
+		/** 如果MCS是集群模式，需要运行集群创建的docker. **/
+		if(userInstanceList.size() > 1) {
+			createClusterDocker(userInstanceList);
+		}
+		
 		return McsConstants.SUCCESS_FLAG;
 	}
 
@@ -369,6 +376,11 @@ public class McsManageImpl implements IMcsSv {
 		operateDocker(userInstanceList, McsConstants.DOCKER_COMMAND_STOP);
 
 		operateDocker(userInstanceList, McsConstants.DOCKER_COMMAND_START);
+		
+		/** 如果MCS是集群模式，需要运行集群创建的docker. **/
+		if(userInstanceList.size() > 1) {
+			createClusterDocker(userInstanceList);
+		}
 		
 		return McsConstants.SUCCESS_FLAG;
 	}
@@ -526,14 +538,16 @@ public class McsManageImpl implements IMcsSv {
 		return ansibleCommand.toString();
 	}
 	
-	private String getCreateClusterCommand(String basePath, String sshUser, String sshUserPwd, 
-			String clusterInfo, IpaasImageResource mcsImage) {
+	private String getCreateClusterCommand(String basePath, String hostIp, String sshUser, 
+			String sshUserPwd, String clusterInfo, IpaasImageResource mcsImage) {
 		StringBuilder commond = new StringBuilder("/usr/bin/ansible-playbook -i ")
 			.append(basePath).append(McsConstants.PLAYBOOK_CFG_PATH)
 			.append(McsConstants.PLAYBOOK_HOST_CFG).append(" ")
 			.append(basePath).append("/mcs/").append(McsConstants.PLAYBOOK_CLUSTER_YML)
 			.append(" --user=").append(sshUser)
 			.append(" --extra-vars \"ansible_ssh_pass=").append(sshUserPwd)
+			.append(" host=").append(hostIp)
+			.append(" user=").append(sshUser)
 			.append(" image=").append(mcsImage.getImageRepository()).append("/").append(mcsImage.getImageName())
 			.append(" CLUSTER_INFO=").append(clusterInfo).append("\"");
 		logger.info("-----createClusterCommand:" + commond.toString());
@@ -563,8 +577,8 @@ public class McsManageImpl implements IMcsSv {
 		return ansibleCommand.toString();
 	}
 	
-	private String getDockerOperateCommand(String basePath, String sshUser, String sshUserPwd, 
-			String operate, String containerName) {
+	private String getDockerOperateCommand(String basePath, String hostIp, String sshUser, 
+			String sshUserPwd, String operate, String containerName) {
 		StringBuilder commond = new StringBuilder("/usr/bin/ansible-playbook -i ")
 			.append(basePath).append(McsConstants.PLAYBOOK_CFG_PATH)
 			.append(McsConstants.PLAYBOOK_HOST_CFG).append(" ")
@@ -572,6 +586,8 @@ public class McsManageImpl implements IMcsSv {
 			.append(" --user=").append(sshUser)
 			.append(" --extra-vars \"ansible_ssh_pass=").append(sshUserPwd)
 			.append(" operate=").append(operate)
+			.append(" host=").append(hostIp)
+			.append(" user=").append(sshUser)
 			.append(" container_name=").append(containerName).append("\"");
 		return commond.toString();
 	}
@@ -665,15 +681,18 @@ public class McsManageImpl implements IMcsSv {
 		String sshUserPwd = getMcsSSHInfo(McsConstants.SSH_USER_PWD_CODE);
 		String basePath = AgentUtil.getAgentFilePath(AidUtil.getAid());
 		
+		String hostIp = "";
 		String clusterInfo = "";
 		for(McsUserCacheInstance vo: userInstanceList) {
 			clusterInfo += vo.getCacheHost()+ ":" + vo.getCachePort() + " ";
+			hostIp = vo.getCacheHost();
 		}
 		
-		/** 不再上传mcs_cluster.yml、host.cfg文件，使用ansible上已有的即可；
+		/** 不再上传mcs_cluster.yml, 需要将hostIp>host.cfg文件；
 		 * 创建redis集群在任意台资源主机上执行命令均可。
 		 * 执行redis集群创建命令 **/
-		String redisClusterRun = getCreateClusterCommand(basePath, sshUser, sshUserPwd, clusterInfo, redisClusterImage);
+		writeHostCfg(basePath, hostIp);
+		String redisClusterRun = getCreateClusterCommand(basePath, hostIp, sshUser, sshUserPwd, clusterInfo, redisClusterImage);
 		runAnsileCommand(redisClusterRun);
 		logger.info("-------- 创建MCS集群成功！");
 	}
@@ -690,7 +709,7 @@ public class McsManageImpl implements IMcsSv {
 
 			writeHostCfg(basePath, hostIp);
 	
-			String ansibleCommand = getDockerOperateCommand(basePath, sshUser,
+			String ansibleCommand = getDockerOperateCommand(basePath, hostIp, sshUser,
 					sshUserPwd, command, containerName);
 			logger.info("-------- docker command :" + ansibleCommand);
 			runAnsileCommand(ansibleCommand);
