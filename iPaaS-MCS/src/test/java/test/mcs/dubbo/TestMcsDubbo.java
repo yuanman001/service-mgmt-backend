@@ -20,34 +20,34 @@ public class TestMcsDubbo {
 //    System.out.println(fl);
 //  }
 
-  @Test
-  public void createSingle() {
-    long s = System.currentTimeMillis();
-    String param =
-        "{\"userId\":\"6C4F4DBA96294DDCBC5DBBF2CAD442B5\",\"applyType\":\"create\",\"serviceId\":\"MCS023\",\"capacity\":\"64\","
-            + "\"haMode\":\"single\",\"serviceName\":\"ym-test-2\"}";
-    System.out.println("----------create-res:\n" + iMemoryCacheServiceManager.create(param));
-    System.out.println("----------开通单例，耗时：" + (System.currentTimeMillis() - s));
-
-  }
-
 //  @Test
-//  public void createCluster() {
+//  public void createSingle() {
 //    long s = System.currentTimeMillis();
 //    String param =
-//        "{\"userId\":\"6C4F4DBA96294DDCBC5DBBF2CAD442B5\",\"applyType\":\"create\",\"serviceId\":\"MCS001\",\"capacity\":\"128\",\"haMode\":\"cluster\"}";
+//        "{\"userId\":\"6C4F4DBA96294DDCBC5DBBF2CAD442B5\",\"applyType\":\"create\",\"serviceId\":\"MCS023\",\"capacity\":\"64\","
+//            + "\"haMode\":\"single\",\"serviceName\":\"ym-test-2\"}";
 //    System.out.println("----------create-res:\n" + iMemoryCacheServiceManager.create(param));
-//    System.out.println("----------开通集群，耗时：" + (System.currentTimeMillis() - s));
+//    System.out.println("----------开通单例，耗时：" + (System.currentTimeMillis() - s));
+//
 //  }
 
-@Test
-public void cancelCluster() {
-  long s = System.currentTimeMillis();
-  String param =
-      "{\"userId\":\"6C4F4DBA96294DDCBC5DBBF2CAD442B5\",\"applyType\":\"cancel\",\"serviceId\":\"MCS001\",\"capacity\":\"128\",\"haMode\":\"cluster\"}";
-  System.out.println("----------create-res:\n" + iMemoryCacheServiceManager.cancel(param));
-  System.out.println("----------开通集群，耗时：" + (System.currentTimeMillis() - s));
-}
+  @Test
+  public void createCluster() {
+    long s = System.currentTimeMillis();
+    String param =
+        "{\"userId\":\"6C4F4DBA96294DDCBC5DBBF2CAD442B5\",\"applyType\":\"create\",\"serviceId\":\"MCS123\",\"capacity\":\"128\",\"haMode\":\"cluster\"}";
+    System.out.println("----------create-res:\n" + iMemoryCacheServiceManager.create(param));
+    System.out.println("----------开通集群，耗时：" + (System.currentTimeMillis() - s));
+  }
+
+//@Test
+//public void cancelCluster() {
+//  long s = System.currentTimeMillis();
+//  String param =
+//      "{\"userId\":\"6C4F4DBA96294DDCBC5DBBF2CAD442B5\",\"applyType\":\"cancel\",\"serviceId\":\"MCS001\",\"capacity\":\"128\",\"haMode\":\"cluster\"}";
+//  System.out.println("----------create-res:\n" + iMemoryCacheServiceManager.cancel(param));
+//  System.out.println("----------开通集群，耗时：" + (System.currentTimeMillis() - s));
+//}
   
 //  @Test
 //  public void createReplication() {
