@@ -48,14 +48,14 @@ public class TestMcsDubbo {
 //  System.out.println("----------注销MCS服务，耗时：" + (System.currentTimeMillis() - s));
 //}
   
-@Test
-public void cancelCluster() {
-  long s = System.currentTimeMillis();
-  String param =
-      "{\"userId\":\"6C4F4DBA96294DDCBC5DBBF2CAD442B5\",\"applyType\":\"cancel\",\"serviceId\":\"MCS234\",\"capacity\":\"128\",\"haMode\":\"cluster\"}";
-  System.out.println("----------create-res:\n" + iMemoryCacheServiceManager.cancel(param));
-  System.out.println("----------开通集群，耗时：" + (System.currentTimeMillis() - s));
-}
+//@Test
+//public void cancelCluster() {
+//  long s = System.currentTimeMillis();
+//  String param =
+//      "{\"userId\":\"6C4F4DBA96294DDCBC5DBBF2CAD442B5\",\"applyType\":\"cancel\",\"serviceId\":\"MCS234\",\"capacity\":\"128\",\"haMode\":\"cluster\"}";
+//  System.out.println("----------create-res:\n" + iMemoryCacheServiceManager.cancel(param));
+//  System.out.println("----------开通集群，耗时：" + (System.currentTimeMillis() - s));
+//}
   
 //  @Test
 //  public void createReplication() {
@@ -142,14 +142,14 @@ public void cancelCluster() {
 //    System.out.println("----------重启单例，耗时：" + (System.currentTimeMillis() - s));
 //  }
 
-//  @Test
-//  public void restartCluster() {
-//    long s = System.currentTimeMillis();
-//    String param =
-//        "{\"userId\":\"6C4F4DBA96294DDCBC5DBBF2CAD442B5\",\"applyType\":\"restart\",\"serviceId\":\"MCS001\",\"capacity\":\"128\",\"haMode\":\"cluster\"}";
-//    System.out.println("----------restart-res:\n" + iMemoryCacheServiceManager.restart(param));
-//    System.out.println("----------重启集群，耗时：" + (System.currentTimeMillis() - s));
-//  }
+  @Test
+  public void restartCluster() {
+    long s = System.currentTimeMillis();
+    String param =
+        "{\"userId\":\"6C4F4DBA96294DDCBC5DBBF2CAD442B5\",\"applyType\":\"restart\",\"serviceId\":\"MCS234\",\"capacity\":\"128\",\"haMode\":\"cluster\"}";
+    System.out.println("----------restart-res:\n" + iMemoryCacheServiceManager.restart(param));
+    System.out.println("----------重启集群，耗时：" + (System.currentTimeMillis() - s));
+  }
 
 
 //  @Test

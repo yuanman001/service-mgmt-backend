@@ -6,4 +6,4 @@
      - name: docker pull
        command: docker pull "{{image}}"
      - name: docker run
-       command: docker run -d --net=host -e "CLUSTER_INFO={{CLUSTER_INFO}}" "{{image}}"
+       command: docker run -d --net=host --name={{container_name}} -e "CLUSTER_INFO={{CLUSTER_INFO}}" "{{image}}"
