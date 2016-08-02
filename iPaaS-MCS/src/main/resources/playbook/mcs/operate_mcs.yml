@@ -3,5 +3,5 @@
   vars:
      
   tasks:
-     - name: docker operate
+     - name: docker stop
        command: docker {{operate}} {{container_name}}
