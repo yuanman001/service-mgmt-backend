@@ -447,6 +447,7 @@ public class McsManageImpl implements IMcsSv {
 		String serviceId = map.get(McsConstants.SERVICE_ID);
 		String serviceName = map.get(McsConstants.SERVICE_NAME);
 	    String userId = map.get(McsConstants.USER_ID);
+	    String haMode = map.get(McsConstants.HA_MODE);
 		String capacity = map.get(McsConstants.CAPACITY);
 		int cacheSize = Integer.valueOf(capacity);
 		
@@ -457,9 +458,10 @@ public class McsManageImpl implements IMcsSv {
 		List<McsUserCacheInstance> userInstanceList = getMcsServiceInfo(serviceId, userId);
 		
 		operateDocker(userInstanceList, McsConstants.DOCKER_COMMAND_STOP);
+		operateDocker(userInstanceList, McsConstants.DOCKER_COMMAND_REMOVE);
 		
 		/** 重新指定docker运行的缓存大小的参数值. **/
-		runDocker(userInstanceList, cacheSize);
+		runDocker(userInstanceList, haMode, cacheSize);
 		
 		/** 如果扩容的MCS是集群模式，需要执行集群创建的命令. **/
 		if(userInstanceList.size() > 1) {
@@ -676,7 +678,7 @@ public class McsManageImpl implements IMcsSv {
 		}
 	}
 
-	private void runDocker(List<McsUserCacheInstance> userInstanceList, int addCacheSize)
+	private void runDocker(List<McsUserCacheInstance> userInstanceList, String haMode, int addCacheSize)
 			throws PaasException {
 		String sshUser = getMcsSSHInfo(McsConstants.SSH_USER_CODE);
 		String sshUserPwd = getMcsSSHInfo(McsConstants.SSH_USER_PWD_CODE);
@@ -693,7 +695,7 @@ public class McsManageImpl implements IMcsSv {
 			writeHostCfg(basePath, hostIp);
 			uploadMcsFile(McsConstants.PLAYBOOK_MCS_PATH, McsConstants.PLAYBOOK_SINGLE_YML);
 			String ansibleCommand = getRedisServerCommand(capacity, basePath, hostIp, cachePort, requirepass, 
-					McsConstants.MODE_CLUSTER, sshUser, sshUserPwd, containerName, redisImage);
+					haMode, sshUser, sshUserPwd, containerName, redisImage);
 			
 			logger.info("-------- docker command :" + ansibleCommand);
 			runAnsileCommand(ansibleCommand);
