@@ -722,6 +722,9 @@ public class McsManageImpl implements IMcsSv {
 		String redisClusterRun = getCreateClusterCommand(basePath, hostIp, sshUser, sshUserPwd, clusterInfo, containerName, redisClusterImage);
 		runAnsileCommand(redisClusterRun);
 		logger.info("-------- 创建MCS集群成功！");
+		
+		/** 释放掉创建集群的docker容器 **/
+		releaseDocker(hostIp, containerName, McsConstants.DOCKER_COMMAND_REMOVE);
 	}
 	
 	private void operateDocker(List<McsUserCacheInstance> userInstanceList, String command)
