@@ -75,15 +75,15 @@ public class TestMcsDubbo {
 //    System.out.println("----------开通集群，耗时：" + (System.currentTimeMillis() - s)/1000 + "秒");
 //  }
 
-  @Test
-  public void modify() {
-    long s = System.currentTimeMillis();
-    String param =
-        "{\"userId\":\"6C4F4DBA96294DDCBC5DBBF2CAD442B5\",\"applyType\":\"modify\",\"serviceId\":\"MCS567\",\"capacity\":\"128\","
-            + "\"haMode\":\"single\",\"serviceName\":\"ym-test-2\"}";
-    System.out.println("----------modify-res:\n" + iMemoryCacheServiceManager.modify(param));
-    System.out.println("----------修改单例，耗时：" + (System.currentTimeMillis() - s)/1000 + "秒");
-  }
+//  @Test
+//  public void modify() {
+//    long s = System.currentTimeMillis();
+//    String param =
+//        "{\"userId\":\"6C4F4DBA96294DDCBC5DBBF2CAD442B5\",\"applyType\":\"modify\",\"serviceId\":\"MCS567\",\"capacity\":\"128\","
+//            + "\"haMode\":\"single\",\"serviceName\":\"ym-test-2\"}";
+//    System.out.println("----------modify-res:\n" + iMemoryCacheServiceManager.modify(param));
+//    System.out.println("----------修改单例，耗时：" + (System.currentTimeMillis() - s)/1000 + "秒");
+//  }
 
 //  @Test
 //  public void modifyCluster() {
@@ -104,14 +104,14 @@ public class TestMcsDubbo {
 //    System.out.println("----------停止单例，耗时：" + (System.currentTimeMillis() - s)/1000 + "秒");
 //  }
 
-//  @Test
-//  public void stopCluster() {
-//    long s = System.currentTimeMillis();
-//    String param =
-//        "{\"userId\":\"6C4F4DBA96294DDCBC5DBBF2CAD442B5\",\"applyType\":\"stop\",\"serviceId\":\"MCS234\",\"capacity\":\"128\",\"haMode\":\"cluster\"}";
-//    System.out.println("----------stop-res:\n" + iMemoryCacheServiceManager.stop(param));
-//    System.out.println("----------停止集群，耗时：" + (System.currentTimeMillis() - s));
-//  }
+  @Test
+  public void stopCluster() {
+    long s = System.currentTimeMillis();
+    String param =
+        "{\"userId\":\"6C4F4DBA96294DDCBC5DBBF2CAD442B5\",\"applyType\":\"stop\",\"serviceId\":\"MCS234\",\"capacity\":\"128\",\"haMode\":\"cluster\"}";
+    System.out.println("----------stop-res:\n" + iMemoryCacheServiceManager.stop(param));
+    System.out.println("----------停止集群，耗时：" + (System.currentTimeMillis() - s));
+  }
 
 //  @Test
 //  public void start() {

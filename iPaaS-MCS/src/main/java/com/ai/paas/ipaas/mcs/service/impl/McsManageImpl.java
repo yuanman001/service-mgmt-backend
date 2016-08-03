@@ -164,7 +164,7 @@ public class McsManageImpl implements IMcsSv {
 		String serviceName = paraMap.get(McsConstants.SERVICE_NAME);
 		String capacity = paraMap.get(McsConstants.CAPACITY);
 		Integer cacheSize = Integer.parseInt(capacity);
-		final int clusterCacheSize = Math.round(cacheSize / McsConstants.CLUSTER_CACHE_NUM);
+		final int clusterCacheSize = Math.round((cacheSize * 2) / McsConstants.CLUSTER_CACHE_NUM);
 		String basePath = AgentUtil.getAgentFilePath(AidUtil.getAid());
 		
 		/** 获取执行ansible命令所需要的主机信息，以及docker镜像信息. **/
