@@ -1,0 +1,11 @@
+- hosts:  "{{host}}"
+  user: "{{user}}"
+  vars:
+     
+  tasks:
+     - name: docker pull
+       command: docker pull "{{image}}"
+     - name: docker run 
+       command: docker run --name {{container_name}} -d --net=host -p {{port}}:{{port}} -v {{mysql_data_path}}:{{mysql_volumn_path}} -e "PORT={{port}}" -e "START_MODE={{mysql_type}}" -e "SLAVE_ID={{db_server_id}}" -e "MASTER_HOST={{master_ip}}" -e "MASTER_PORT={{master_port}}" {{image}}
+#      command: docker run --name {{container_name}} -d --net=host -p {{port}}:{{port}} -v {{mysql_data_path}}:{{mysql_volumn_path}} -e "PORT={{port}}" -e "START_MODE={{mysql_type}}" -e "SLAVE_ID={{db_server_id}}" {{image}}
+

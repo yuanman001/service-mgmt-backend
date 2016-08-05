@@ -1,0 +1,626 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.ai.paas.ipaas.rds.dao.interfaces.RdsIncBaseMapper" >
+  <resultMap id="BaseResultMap" type="com.ai.paas.ipaas.rds.dao.mapper.bo.RdsIncBase" >
+    <id column="id" property="id" jdbcType="INTEGER" />
+    <result column="user_id" property="userId" jdbcType="VARCHAR" />
+    <result column="service_id" property="serviceId" jdbcType="VARCHAR" />
+    <result column="dep_id" property="depId" jdbcType="VARCHAR" />
+    <result column="img_id" property="imgId" jdbcType="INTEGER" />
+    <result column="res_id" property="resId" jdbcType="INTEGER" />
+    <result column="bak_id" property="bakId" jdbcType="VARCHAR" />
+    <result column="slaver_id" property="slaverId" jdbcType="VARCHAR" />
+    <result column="inc_name" property="incName" jdbcType="VARCHAR" />
+    <result column="inc_ip" property="incIp" jdbcType="VARCHAR" />
+    <result column="inc_port" property="incPort" jdbcType="INTEGER" />
+    <result column="inc_type" property="incType" jdbcType="INTEGER" />
+    <result column="inc_tag" property="incTag" jdbcType="VARCHAR" />
+    <result column="inc_location" property="incLocation" jdbcType="VARCHAR" />
+    <result column="inc_status" property="incStatus" jdbcType="INTEGER" />
+    <result column="inc_describe" property="incDescribe" jdbcType="VARCHAR" />
+    <result column="mysql_home" property="mysqlHome" jdbcType="VARCHAR" />
+    <result column="mysql_data_home" property="mysqlDataHome" jdbcType="VARCHAR" />
+    <result column="mysql_volumn_path" property="mysqlVolumnPath" jdbcType="VARCHAR" />
+    <result column="white_list" property="whiteList" jdbcType="VARCHAR" />
+    <result column="root_name" property="rootName" jdbcType="VARCHAR" />
+    <result column="root_password" property="rootPassword" jdbcType="VARCHAR" />
+    <result column="container_name" property="containerName" jdbcType="VARCHAR" />
+    <result column="db_server_id" property="dbServerId" jdbcType="VARCHAR" />
+    <result column="db_storeage" property="dbStoreage" jdbcType="INTEGER" />
+    <result column="db_used_storage" property="dbUsedStorage" jdbcType="INTEGER" />
+    <result column="int_storage" property="intStorage" jdbcType="INTEGER" />
+    <result column="max_connect_num" property="maxConnectNum" jdbcType="INTEGER" />
+    <result column="masterid" property="masterid" jdbcType="INTEGER" />
+    <result column="create_time" property="createTime" jdbcType="TIMESTAMP" />
+    <result column="update_time" property="updateTime" jdbcType="TIMESTAMP" />
+  </resultMap>
+  <sql id="Example_Where_Clause" >
+    <where >
+      <foreach collection="oredCriteria" item="criteria" separator="or" >
+        <if test="criteria.valid" >
+          <trim prefix="(" suffix=")" prefixOverrides="and" >
+            <foreach collection="criteria.criteria" item="criterion" >
+              <choose >
+                <when test="criterion.noValue" >
+                  and ${criterion.condition}
+                </when>
+                <when test="criterion.singleValue" >
+                  and ${criterion.condition} #{criterion.value}
+                </when>
+                <when test="criterion.betweenValue" >
+                  and ${criterion.condition} #{criterion.value} and #{criterion.secondValue}
+                </when>
+                <when test="criterion.listValue" >
+                  and ${criterion.condition}
+                  <foreach collection="criterion.value" item="listItem" open="(" close=")" separator="," >
+                    #{listItem}
+                  </foreach>
+                </when>
+              </choose>
+            </foreach>
+          </trim>
+        </if>
+      </foreach>
+    </where>
+  </sql>
+  <sql id="Update_By_Example_Where_Clause" >
+    <where >
+      <foreach collection="example.oredCriteria" item="criteria" separator="or" >
+        <if test="criteria.valid" >
+          <trim prefix="(" suffix=")" prefixOverrides="and" >
+            <foreach collection="criteria.criteria" item="criterion" >
+              <choose >
+                <when test="criterion.noValue" >
+                  and ${criterion.condition}
+                </when>
+                <when test="criterion.singleValue" >
+                  and ${criterion.condition} #{criterion.value}
+                </when>
+                <when test="criterion.betweenValue" >
+                  and ${criterion.condition} #{criterion.value} and #{criterion.secondValue}
+                </when>
+                <when test="criterion.listValue" >
+                  and ${criterion.condition}
+                  <foreach collection="criterion.value" item="listItem" open="(" close=")" separator="," >
+                    #{listItem}
+                  </foreach>
+                </when>
+              </choose>
+            </foreach>
+          </trim>
+        </if>
+      </foreach>
+    </where>
+  </sql>
+  <sql id="Base_Column_List" >
+    id, user_id, service_id, dep_id, img_id, res_id, bak_id, slaver_id, inc_name, inc_ip, 
+    inc_port, inc_type, inc_tag, inc_location, inc_status, inc_describe, mysql_home, 
+    mysql_data_home, mysql_volumn_path, white_list, root_name, root_password, container_name, 
+    db_server_id, db_storeage, db_used_storage, int_storage, max_connect_num, masterid, 
+    create_time, update_time
+  </sql>
+  <select id="selectByExample" resultMap="BaseResultMap" parameterType="com.ai.paas.ipaas.rds.dao.mapper.bo.RdsIncBaseCriteria" >
+    select
+    <if test="distinct" >
+      distinct
+    </if>
+    <include refid="Base_Column_List" />
+    from rds_inc_base
+    <if test="_parameter != null" >
+      <include refid="Example_Where_Clause" />
+    </if>
+    <if test="orderByClause != null" >
+      order by ${orderByClause}
+    </if>
+    <if test="limitStart != null and limitStart>=0" >
+      limit #{limitStart} , #{limitEnd}
+    </if>
+  </select>
+  <select id="selectByPrimaryKey" resultMap="BaseResultMap" parameterType="Integer" >
+    select 
+    <include refid="Base_Column_List" />
+    from rds_inc_base
+    where id = #{id,jdbcType=INTEGER}
+  </select>
+  <delete id="deleteByPrimaryKey" parameterType="Integer" >
+    delete from rds_inc_base
+    where id = #{id,jdbcType=INTEGER}
+  </delete>
+  <delete id="deleteByExample" parameterType="com.ai.paas.ipaas.rds.dao.mapper.bo.RdsIncBaseCriteria" >
+    delete from rds_inc_base
+    <if test="_parameter != null" >
+      <include refid="Example_Where_Clause" />
+    </if>
+  </delete>
+  <insert id="insert" parameterType="com.ai.paas.ipaas.rds.dao.mapper.bo.RdsIncBase" >
+    insert into rds_inc_base (id, user_id, service_id, 
+      dep_id, img_id, res_id, 
+      bak_id, slaver_id, inc_name, 
+      inc_ip, inc_port, inc_type, 
+      inc_tag, inc_location, inc_status, 
+      inc_describe, mysql_home, mysql_data_home, 
+      mysql_volumn_path, white_list, root_name, 
+      root_password, container_name, db_server_id, 
+      db_storeage, db_used_storage, int_storage, 
+      max_connect_num, masterid, create_time, 
+      update_time)
+    values (#{id,jdbcType=INTEGER}, #{userId,jdbcType=VARCHAR}, #{serviceId,jdbcType=VARCHAR}, 
+      #{depId,jdbcType=VARCHAR}, #{imgId,jdbcType=INTEGER}, #{resId,jdbcType=INTEGER}, 
+      #{bakId,jdbcType=VARCHAR}, #{slaverId,jdbcType=VARCHAR}, #{incName,jdbcType=VARCHAR}, 
+      #{incIp,jdbcType=VARCHAR}, #{incPort,jdbcType=INTEGER}, #{incType,jdbcType=INTEGER}, 
+      #{incTag,jdbcType=VARCHAR}, #{incLocation,jdbcType=VARCHAR}, #{incStatus,jdbcType=INTEGER}, 
+      #{incDescribe,jdbcType=VARCHAR}, #{mysqlHome,jdbcType=VARCHAR}, #{mysqlDataHome,jdbcType=VARCHAR}, 
+      #{mysqlVolumnPath,jdbcType=VARCHAR}, #{whiteList,jdbcType=VARCHAR}, #{rootName,jdbcType=VARCHAR}, 
+      #{rootPassword,jdbcType=VARCHAR}, #{containerName,jdbcType=VARCHAR}, #{dbServerId,jdbcType=VARCHAR}, 
+      #{dbStoreage,jdbcType=INTEGER}, #{dbUsedStorage,jdbcType=INTEGER}, #{intStorage,jdbcType=INTEGER}, 
+      #{maxConnectNum,jdbcType=INTEGER}, #{masterid,jdbcType=INTEGER}, #{createTime,jdbcType=TIMESTAMP}, 
+      #{updateTime,jdbcType=TIMESTAMP})
+  </insert>
+  <insert id="insertSelective" parameterType="com.ai.paas.ipaas.rds.dao.mapper.bo.RdsIncBase" >
+    insert into rds_inc_base
+    <trim prefix="(" suffix=")" suffixOverrides="," >
+      <if test="id != null" >
+        id,
+      </if>
+      <if test="userId != null" >
+        user_id,
+      </if>
+      <if test="serviceId != null" >
+        service_id,
+      </if>
+      <if test="depId != null" >
+        dep_id,
+      </if>
+      <if test="imgId != null" >
+        img_id,
+      </if>
+      <if test="resId != null" >
+        res_id,
+      </if>
+      <if test="bakId != null" >
+        bak_id,
+      </if>
+      <if test="slaverId != null" >
+        slaver_id,
+      </if>
+      <if test="incName != null" >
+        inc_name,
+      </if>
+      <if test="incIp != null" >
+        inc_ip,
+      </if>
+      <if test="incPort != null" >
+        inc_port,
+      </if>
+      <if test="incType != null" >
+        inc_type,
+      </if>
+      <if test="incTag != null" >
+        inc_tag,
+      </if>
+      <if test="incLocation != null" >
+        inc_location,
+      </if>
+      <if test="incStatus != null" >
+        inc_status,
+      </if>
+      <if test="incDescribe != null" >
+        inc_describe,
+      </if>
+      <if test="mysqlHome != null" >
+        mysql_home,
+      </if>
+      <if test="mysqlDataHome != null" >
+        mysql_data_home,
+      </if>
+      <if test="mysqlVolumnPath != null" >
+        mysql_volumn_path,
+      </if>
+      <if test="whiteList != null" >
+        white_list,
+      </if>
+      <if test="rootName != null" >
+        root_name,
+      </if>
+      <if test="rootPassword != null" >
+        root_password,
+      </if>
+      <if test="containerName != null" >
+        container_name,
+      </if>
+      <if test="dbServerId != null" >
+        db_server_id,
+      </if>
+      <if test="dbStoreage != null" >
+        db_storeage,
+      </if>
+      <if test="dbUsedStorage != null" >
+        db_used_storage,
+      </if>
+      <if test="intStorage != null" >
+        int_storage,
+      </if>
+      <if test="maxConnectNum != null" >
+        max_connect_num,
+      </if>
+      <if test="masterid != null" >
+        masterid,
+      </if>
+      <if test="createTime != null" >
+        create_time,
+      </if>
+      <if test="updateTime != null" >
+        update_time,
+      </if>
+    </trim>
+    <trim prefix="values (" suffix=")" suffixOverrides="," >
+      <if test="id != null" >
+        #{id,jdbcType=INTEGER},
+      </if>
+      <if test="userId != null" >
+        #{userId,jdbcType=VARCHAR},
+      </if>
+      <if test="serviceId != null" >
+        #{serviceId,jdbcType=VARCHAR},
+      </if>
+      <if test="depId != null" >
+        #{depId,jdbcType=VARCHAR},
+      </if>
+      <if test="imgId != null" >
+        #{imgId,jdbcType=INTEGER},
+      </if>
+      <if test="resId != null" >
+        #{resId,jdbcType=INTEGER},
+      </if>
+      <if test="bakId != null" >
+        #{bakId,jdbcType=VARCHAR},
+      </if>
+      <if test="slaverId != null" >
+        #{slaverId,jdbcType=VARCHAR},
+      </if>
+      <if test="incName != null" >
+        #{incName,jdbcType=VARCHAR},
+      </if>
+      <if test="incIp != null" >
+        #{incIp,jdbcType=VARCHAR},
+      </if>
+      <if test="incPort != null" >
+        #{incPort,jdbcType=INTEGER},
+      </if>
+      <if test="incType != null" >
+        #{incType,jdbcType=INTEGER},
+      </if>
+      <if test="incTag != null" >
+        #{incTag,jdbcType=VARCHAR},
+      </if>
+      <if test="incLocation != null" >
+        #{incLocation,jdbcType=VARCHAR},
+      </if>
+      <if test="incStatus != null" >
+        #{incStatus,jdbcType=INTEGER},
+      </if>
+      <if test="incDescribe != null" >
+        #{incDescribe,jdbcType=VARCHAR},
+      </if>
+      <if test="mysqlHome != null" >
+        #{mysqlHome,jdbcType=VARCHAR},
+      </if>
+      <if test="mysqlDataHome != null" >
+        #{mysqlDataHome,jdbcType=VARCHAR},
+      </if>
+      <if test="mysqlVolumnPath != null" >
+        #{mysqlVolumnPath,jdbcType=VARCHAR},
+      </if>
+      <if test="whiteList != null" >
+        #{whiteList,jdbcType=VARCHAR},
+      </if>
+      <if test="rootName != null" >
+        #{rootName,jdbcType=VARCHAR},
+      </if>
+      <if test="rootPassword != null" >
+        #{rootPassword,jdbcType=VARCHAR},
+      </if>
+      <if test="containerName != null" >
+        #{containerName,jdbcType=VARCHAR},
+      </if>
+      <if test="dbServerId != null" >
+        #{dbServerId,jdbcType=VARCHAR},
+      </if>
+      <if test="dbStoreage != null" >
+        #{dbStoreage,jdbcType=INTEGER},
+      </if>
+      <if test="dbUsedStorage != null" >
+        #{dbUsedStorage,jdbcType=INTEGER},
+      </if>
+      <if test="intStorage != null" >
+        #{intStorage,jdbcType=INTEGER},
+      </if>
+      <if test="maxConnectNum != null" >
+        #{maxConnectNum,jdbcType=INTEGER},
+      </if>
+      <if test="masterid != null" >
+        #{masterid,jdbcType=INTEGER},
+      </if>
+      <if test="createTime != null" >
+        #{createTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="updateTime != null" >
+        #{updateTime,jdbcType=TIMESTAMP},
+      </if>
+    </trim>
+  </insert>
+  <select id="countByExample" parameterType="com.ai.paas.ipaas.rds.dao.mapper.bo.RdsIncBaseCriteria" resultType="java.lang.Integer" >
+    select count(*) from rds_inc_base
+    <if test="_parameter != null" >
+      <include refid="Example_Where_Clause" />
+    </if>
+  </select>
+  <update id="updateByExampleSelective" parameterType="map" >
+    update rds_inc_base
+    <set >
+      <if test="record.id != null" >
+        id = #{record.id,jdbcType=INTEGER},
+      </if>
+      <if test="record.userId != null" >
+        user_id = #{record.userId,jdbcType=VARCHAR},
+      </if>
+      <if test="record.serviceId != null" >
+        service_id = #{record.serviceId,jdbcType=VARCHAR},
+      </if>
+      <if test="record.depId != null" >
+        dep_id = #{record.depId,jdbcType=VARCHAR},
+      </if>
+      <if test="record.imgId != null" >
+        img_id = #{record.imgId,jdbcType=INTEGER},
+      </if>
+      <if test="record.resId != null" >
+        res_id = #{record.resId,jdbcType=INTEGER},
+      </if>
+      <if test="record.bakId != null" >
+        bak_id = #{record.bakId,jdbcType=VARCHAR},
+      </if>
+      <if test="record.slaverId != null" >
+        slaver_id = #{record.slaverId,jdbcType=VARCHAR},
+      </if>
+      <if test="record.incName != null" >
+        inc_name = #{record.incName,jdbcType=VARCHAR},
+      </if>
+      <if test="record.incIp != null" >
+        inc_ip = #{record.incIp,jdbcType=VARCHAR},
+      </if>
+      <if test="record.incPort != null" >
+        inc_port = #{record.incPort,jdbcType=INTEGER},
+      </if>
+      <if test="record.incType != null" >
+        inc_type = #{record.incType,jdbcType=INTEGER},
+      </if>
+      <if test="record.incTag != null" >
+        inc_tag = #{record.incTag,jdbcType=VARCHAR},
+      </if>
+      <if test="record.incLocation != null" >
+        inc_location = #{record.incLocation,jdbcType=VARCHAR},
+      </if>
+      <if test="record.incStatus != null" >
+        inc_status = #{record.incStatus,jdbcType=INTEGER},
+      </if>
+      <if test="record.incDescribe != null" >
+        inc_describe = #{record.incDescribe,jdbcType=VARCHAR},
+      </if>
+      <if test="record.mysqlHome != null" >
+        mysql_home = #{record.mysqlHome,jdbcType=VARCHAR},
+      </if>
+      <if test="record.mysqlDataHome != null" >
+        mysql_data_home = #{record.mysqlDataHome,jdbcType=VARCHAR},
+      </if>
+      <if test="record.mysqlVolumnPath != null" >
+        mysql_volumn_path = #{record.mysqlVolumnPath,jdbcType=VARCHAR},
+      </if>
+      <if test="record.whiteList != null" >
+        white_list = #{record.whiteList,jdbcType=VARCHAR},
+      </if>
+      <if test="record.rootName != null" >
+        root_name = #{record.rootName,jdbcType=VARCHAR},
+      </if>
+      <if test="record.rootPassword != null" >
+        root_password = #{record.rootPassword,jdbcType=VARCHAR},
+      </if>
+      <if test="record.containerName != null" >
+        container_name = #{record.containerName,jdbcType=VARCHAR},
+      </if>
+      <if test="record.dbServerId != null" >
+        db_server_id = #{record.dbServerId,jdbcType=VARCHAR},
+      </if>
+      <if test="record.dbStoreage != null" >
+        db_storeage = #{record.dbStoreage,jdbcType=INTEGER},
+      </if>
+      <if test="record.dbUsedStorage != null" >
+        db_used_storage = #{record.dbUsedStorage,jdbcType=INTEGER},
+      </if>
+      <if test="record.intStorage != null" >
+        int_storage = #{record.intStorage,jdbcType=INTEGER},
+      </if>
+      <if test="record.maxConnectNum != null" >
+        max_connect_num = #{record.maxConnectNum,jdbcType=INTEGER},
+      </if>
+      <if test="record.masterid != null" >
+        masterid = #{record.masterid,jdbcType=INTEGER},
+      </if>
+      <if test="record.createTime != null" >
+        create_time = #{record.createTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="record.updateTime != null" >
+        update_time = #{record.updateTime,jdbcType=TIMESTAMP},
+      </if>
+    </set>
+    <if test="_parameter != null" >
+      <include refid="Update_By_Example_Where_Clause" />
+    </if>
+  </update>
+  <update id="updateByExample" parameterType="map" >
+    update rds_inc_base
+    set id = #{record.id,jdbcType=INTEGER},
+      user_id = #{record.userId,jdbcType=VARCHAR},
+      service_id = #{record.serviceId,jdbcType=VARCHAR},
+      dep_id = #{record.depId,jdbcType=VARCHAR},
+      img_id = #{record.imgId,jdbcType=INTEGER},
+      res_id = #{record.resId,jdbcType=INTEGER},
+      bak_id = #{record.bakId,jdbcType=VARCHAR},
+      slaver_id = #{record.slaverId,jdbcType=VARCHAR},
+      inc_name = #{record.incName,jdbcType=VARCHAR},
+      inc_ip = #{record.incIp,jdbcType=VARCHAR},
+      inc_port = #{record.incPort,jdbcType=INTEGER},
+      inc_type = #{record.incType,jdbcType=INTEGER},
+      inc_tag = #{record.incTag,jdbcType=VARCHAR},
+      inc_location = #{record.incLocation,jdbcType=VARCHAR},
+      inc_status = #{record.incStatus,jdbcType=INTEGER},
+      inc_describe = #{record.incDescribe,jdbcType=VARCHAR},
+      mysql_home = #{record.mysqlHome,jdbcType=VARCHAR},
+      mysql_data_home = #{record.mysqlDataHome,jdbcType=VARCHAR},
+      mysql_volumn_path = #{record.mysqlVolumnPath,jdbcType=VARCHAR},
+      white_list = #{record.whiteList,jdbcType=VARCHAR},
+      root_name = #{record.rootName,jdbcType=VARCHAR},
+      root_password = #{record.rootPassword,jdbcType=VARCHAR},
+      container_name = #{record.containerName,jdbcType=VARCHAR},
+      db_server_id = #{record.dbServerId,jdbcType=VARCHAR},
+      db_storeage = #{record.dbStoreage,jdbcType=INTEGER},
+      db_used_storage = #{record.dbUsedStorage,jdbcType=INTEGER},
+      int_storage = #{record.intStorage,jdbcType=INTEGER},
+      max_connect_num = #{record.maxConnectNum,jdbcType=INTEGER},
+      masterid = #{record.masterid,jdbcType=INTEGER},
+      create_time = #{record.createTime,jdbcType=TIMESTAMP},
+      update_time = #{record.updateTime,jdbcType=TIMESTAMP}
+    <if test="_parameter != null" >
+      <include refid="Update_By_Example_Where_Clause" />
+    </if>
+  </update>
+  <update id="updateByPrimaryKeySelective" parameterType="com.ai.paas.ipaas.rds.dao.mapper.bo.RdsIncBase" >
+    update rds_inc_base
+    <set >
+      <if test="userId != null" >
+        user_id = #{userId,jdbcType=VARCHAR},
+      </if>
+      <if test="serviceId != null" >
+        service_id = #{serviceId,jdbcType=VARCHAR},
+      </if>
+      <if test="depId != null" >
+        dep_id = #{depId,jdbcType=VARCHAR},
+      </if>
+      <if test="imgId != null" >
+        img_id = #{imgId,jdbcType=INTEGER},
+      </if>
+      <if test="resId != null" >
+        res_id = #{resId,jdbcType=INTEGER},
+      </if>
+      <if test="bakId != null" >
+        bak_id = #{bakId,jdbcType=VARCHAR},
+      </if>
+      <if test="slaverId != null" >
+        slaver_id = #{slaverId,jdbcType=VARCHAR},
+      </if>
+      <if test="incName != null" >
+        inc_name = #{incName,jdbcType=VARCHAR},
+      </if>
+      <if test="incIp != null" >
+        inc_ip = #{incIp,jdbcType=VARCHAR},
+      </if>
+      <if test="incPort != null" >
+        inc_port = #{incPort,jdbcType=INTEGER},
+      </if>
+      <if test="incType != null" >
+        inc_type = #{incType,jdbcType=INTEGER},
+      </if>
+      <if test="incTag != null" >
+        inc_tag = #{incTag,jdbcType=VARCHAR},
+      </if>
+      <if test="incLocation != null" >
+        inc_location = #{incLocation,jdbcType=VARCHAR},
+      </if>
+      <if test="incStatus != null" >
+        inc_status = #{incStatus,jdbcType=INTEGER},
+      </if>
+      <if test="incDescribe != null" >
+        inc_describe = #{incDescribe,jdbcType=VARCHAR},
+      </if>
+      <if test="mysqlHome != null" >
+        mysql_home = #{mysqlHome,jdbcType=VARCHAR},
+      </if>
+      <if test="mysqlDataHome != null" >
+        mysql_data_home = #{mysqlDataHome,jdbcType=VARCHAR},
+      </if>
+      <if test="mysqlVolumnPath != null" >
+        mysql_volumn_path = #{mysqlVolumnPath,jdbcType=VARCHAR},
+      </if>
+      <if test="whiteList != null" >
+        white_list = #{whiteList,jdbcType=VARCHAR},
+      </if>
+      <if test="rootName != null" >
+        root_name = #{rootName,jdbcType=VARCHAR},
+      </if>
+      <if test="rootPassword != null" >
+        root_password = #{rootPassword,jdbcType=VARCHAR},
+      </if>
+      <if test="containerName != null" >
+        container_name = #{containerName,jdbcType=VARCHAR},
+      </if>
+      <if test="dbServerId != null" >
+        db_server_id = #{dbServerId,jdbcType=VARCHAR},
+      </if>
+      <if test="dbStoreage != null" >
+        db_storeage = #{dbStoreage,jdbcType=INTEGER},
+      </if>
+      <if test="dbUsedStorage != null" >
+        db_used_storage = #{dbUsedStorage,jdbcType=INTEGER},
+      </if>
+      <if test="intStorage != null" >
+        int_storage = #{intStorage,jdbcType=INTEGER},
+      </if>
+      <if test="maxConnectNum != null" >
+        max_connect_num = #{maxConnectNum,jdbcType=INTEGER},
+      </if>
+      <if test="masterid != null" >
+        masterid = #{masterid,jdbcType=INTEGER},
+      </if>
+      <if test="createTime != null" >
+        create_time = #{createTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="updateTime != null" >
+        update_time = #{updateTime,jdbcType=TIMESTAMP},
+      </if>
+    </set>
+    where id = #{id,jdbcType=INTEGER}
+  </update>
+  <update id="updateByPrimaryKey" parameterType="com.ai.paas.ipaas.rds.dao.mapper.bo.RdsIncBase" >
+    update rds_inc_base
+    set user_id = #{userId,jdbcType=VARCHAR},
+      service_id = #{serviceId,jdbcType=VARCHAR},
+      dep_id = #{depId,jdbcType=VARCHAR},
+      img_id = #{imgId,jdbcType=INTEGER},
+      res_id = #{resId,jdbcType=INTEGER},
+      bak_id = #{bakId,jdbcType=VARCHAR},
+      slaver_id = #{slaverId,jdbcType=VARCHAR},
+      inc_name = #{incName,jdbcType=VARCHAR},
+      inc_ip = #{incIp,jdbcType=VARCHAR},
+      inc_port = #{incPort,jdbcType=INTEGER},
+      inc_type = #{incType,jdbcType=INTEGER},
+      inc_tag = #{incTag,jdbcType=VARCHAR},
+      inc_location = #{incLocation,jdbcType=VARCHAR},
+      inc_status = #{incStatus,jdbcType=INTEGER},
+      inc_describe = #{incDescribe,jdbcType=VARCHAR},
+      mysql_home = #{mysqlHome,jdbcType=VARCHAR},
+      mysql_data_home = #{mysqlDataHome,jdbcType=VARCHAR},
+      mysql_volumn_path = #{mysqlVolumnPath,jdbcType=VARCHAR},
+      white_list = #{whiteList,jdbcType=VARCHAR},
+      root_name = #{rootName,jdbcType=VARCHAR},
+      root_password = #{rootPassword,jdbcType=VARCHAR},
+      container_name = #{containerName,jdbcType=VARCHAR},
+      db_server_id = #{dbServerId,jdbcType=VARCHAR},
+      db_storeage = #{dbStoreage,jdbcType=INTEGER},
+      db_used_storage = #{dbUsedStorage,jdbcType=INTEGER},
+      int_storage = #{intStorage,jdbcType=INTEGER},
+      max_connect_num = #{maxConnectNum,jdbcType=INTEGER},
+      masterid = #{masterid,jdbcType=INTEGER},
+      create_time = #{createTime,jdbcType=TIMESTAMP},
+      update_time = #{updateTime,jdbcType=TIMESTAMP}
+    where id = #{id,jdbcType=INTEGER}
+  </update>
+</mapper>

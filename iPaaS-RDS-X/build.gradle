@@ -1,0 +1,7 @@
+dependencies {
+	compile project(":iPaaS-DubboInterfaces")
+	compile project(":iPaaS-CCS")
+	compile project(":iPaaS-Agent")
+	compile 'com.ai:ipaas-uac:0.3'
+	
+}

@@ -1,0 +1,358 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ai.paas.ipaas.rds.dao.interfaces.RdsResourcePoolMapper">
+  <resultMap id="BaseResultMap" type="com.ai.paas.ipaas.rds.dao.mapper.bo.RdsResourcePool">
+    <id column="resourceid" jdbcType="INTEGER" property="resourceid" />
+    <result column="hostip" jdbcType="VARCHAR" property="hostip" />
+    <result column="maxport" jdbcType="INTEGER" property="maxport" />
+    <result column="minport" jdbcType="INTEGER" property="minport" />
+    <result column="currentport" jdbcType="INTEGER" property="currentport" />
+    <result column="cycle" jdbcType="INTEGER" property="cycle" />
+    <result column="sshpassword" jdbcType="VARCHAR" property="sshpassword" />
+    <result column="sshuser" jdbcType="VARCHAR" property="sshuser" />
+    <result column="status" jdbcType="INTEGER" property="status" />
+    <result column="totalmemory" jdbcType="INTEGER" property="totalmemory" />
+    <result column="usedmemory" jdbcType="INTEGER" property="usedmemory" />
+    <result column="volumn_path" jdbcType="VARCHAR" property="volumnPath" />
+    <result column="instancecreatetime" jdbcType="TIMESTAMP" property="instancecreatetime" />
+    <result column="instancelastupdatetime" jdbcType="TIMESTAMP" property="instancelastupdatetime" />
+  </resultMap>
+  <sql id="Example_Where_Clause">
+    <where>
+      <foreach collection="oredCriteria" item="criteria" separator="or">
+        <if test="criteria.valid">
+          <trim prefix="(" prefixOverrides="and" suffix=")">
+            <foreach collection="criteria.criteria" item="criterion">
+              <choose>
+                <when test="criterion.noValue">
+                  and ${criterion.condition}
+                </when>
+                <when test="criterion.singleValue">
+                  and ${criterion.condition} #{criterion.value}
+                </when>
+                <when test="criterion.betweenValue">
+                  and ${criterion.condition} #{criterion.value} and #{criterion.secondValue}
+                </when>
+                <when test="criterion.listValue">
+                  and ${criterion.condition}
+                  <foreach close=")" collection="criterion.value" item="listItem" open="(" separator=",">
+                    #{listItem}
+                  </foreach>
+                </when>
+              </choose>
+            </foreach>
+          </trim>
+        </if>
+      </foreach>
+    </where>
+  </sql>
+  <sql id="Update_By_Example_Where_Clause">
+    <where>
+      <foreach collection="example.oredCriteria" item="criteria" separator="or">
+        <if test="criteria.valid">
+          <trim prefix="(" prefixOverrides="and" suffix=")">
+            <foreach collection="criteria.criteria" item="criterion">
+              <choose>
+                <when test="criterion.noValue">
+                  and ${criterion.condition}
+                </when>
+                <when test="criterion.singleValue">
+                  and ${criterion.condition} #{criterion.value}
+                </when>
+                <when test="criterion.betweenValue">
+                  and ${criterion.condition} #{criterion.value} and #{criterion.secondValue}
+                </when>
+                <when test="criterion.listValue">
+                  and ${criterion.condition}
+                  <foreach close=")" collection="criterion.value" item="listItem" open="(" separator=",">
+                    #{listItem}
+                  </foreach>
+                </when>
+              </choose>
+            </foreach>
+          </trim>
+        </if>
+      </foreach>
+    </where>
+  </sql>
+  <sql id="Base_Column_List">
+    resourceid, hostip, maxport, minport, currentport, cycle, sshpassword, sshuser, status, 
+    totalmemory, usedmemory, volumn_path, instancecreatetime, instancelastupdatetime
+  </sql>
+  <select id="selectByExample" parameterType="com.ai.paas.ipaas.rds.dao.mapper.bo.RdsResourcePoolCriteria" resultMap="BaseResultMap">
+    select
+    <if test="distinct">
+      distinct
+    </if>
+    <include refid="Base_Column_List" />
+    from rds_resource_pool
+    <if test="_parameter != null">
+      <include refid="Example_Where_Clause" />
+    </if>
+    <if test="orderByClause != null">
+      order by ${orderByClause}
+    </if>
+    <if test="limitStart != null and limitStart&gt;=0">
+      limit #{limitStart} , #{limitEnd}
+    </if>
+  </select>
+  <select id="selectByPrimaryKey" parameterType="Integer" resultMap="BaseResultMap">
+    select 
+    <include refid="Base_Column_List" />
+    from rds_resource_pool
+    where resourceid = #{resourceid,jdbcType=INTEGER}
+  </select>
+  <delete id="deleteByPrimaryKey" parameterType="Integer">
+    delete from rds_resource_pool
+    where resourceid = #{resourceid,jdbcType=INTEGER}
+  </delete>
+  <delete id="deleteByExample" parameterType="com.ai.paas.ipaas.rds.dao.mapper.bo.RdsResourcePoolCriteria">
+    delete from rds_resource_pool
+    <if test="_parameter != null">
+      <include refid="Example_Where_Clause" />
+    </if>
+  </delete>
+  <insert id="insert" parameterType="com.ai.paas.ipaas.rds.dao.mapper.bo.RdsResourcePool">
+    insert into rds_resource_pool (resourceid, hostip, maxport, 
+      minport, currentport, cycle, 
+      sshpassword, sshuser, status, 
+      totalmemory, usedmemory, volumn_path, 
+      instancecreatetime, instancelastupdatetime
+      )
+    values (#{resourceid,jdbcType=INTEGER}, #{hostip,jdbcType=VARCHAR}, #{maxport,jdbcType=INTEGER}, 
+      #{minport,jdbcType=INTEGER}, #{currentport,jdbcType=INTEGER}, #{cycle,jdbcType=INTEGER}, 
+      #{sshpassword,jdbcType=VARCHAR}, #{sshuser,jdbcType=VARCHAR}, #{status,jdbcType=INTEGER}, 
+      #{totalmemory,jdbcType=INTEGER}, #{usedmemory,jdbcType=INTEGER}, #{volumnPath,jdbcType=VARCHAR}, 
+      #{instancecreatetime,jdbcType=TIMESTAMP}, #{instancelastupdatetime,jdbcType=TIMESTAMP}
+      )
+  </insert>
+  <insert id="insertSelective" parameterType="com.ai.paas.ipaas.rds.dao.mapper.bo.RdsResourcePool">
+    insert into rds_resource_pool
+    <trim prefix="(" suffix=")" suffixOverrides=",">
+      <if test="resourceid != null">
+        resourceid,
+      </if>
+      <if test="hostip != null">
+        hostip,
+      </if>
+      <if test="maxport != null">
+        maxport,
+      </if>
+      <if test="minport != null">
+        minport,
+      </if>
+      <if test="currentport != null">
+        currentport,
+      </if>
+      <if test="cycle != null">
+        cycle,
+      </if>
+      <if test="sshpassword != null">
+        sshpassword,
+      </if>
+      <if test="sshuser != null">
+        sshuser,
+      </if>
+      <if test="status != null">
+        status,
+      </if>
+      <if test="totalmemory != null">
+        totalmemory,
+      </if>
+      <if test="usedmemory != null">
+        usedmemory,
+      </if>
+      <if test="volumnPath != null">
+        volumn_path,
+      </if>
+      <if test="instancecreatetime != null">
+        instancecreatetime,
+      </if>
+      <if test="instancelastupdatetime != null">
+        instancelastupdatetime,
+      </if>
+    </trim>
+    <trim prefix="values (" suffix=")" suffixOverrides=",">
+      <if test="resourceid != null">
+        #{resourceid,jdbcType=INTEGER},
+      </if>
+      <if test="hostip != null">
+        #{hostip,jdbcType=VARCHAR},
+      </if>
+      <if test="maxport != null">
+        #{maxport,jdbcType=INTEGER},
+      </if>
+      <if test="minport != null">
+        #{minport,jdbcType=INTEGER},
+      </if>
+      <if test="currentport != null">
+        #{currentport,jdbcType=INTEGER},
+      </if>
+      <if test="cycle != null">
+        #{cycle,jdbcType=INTEGER},
+      </if>
+      <if test="sshpassword != null">
+        #{sshpassword,jdbcType=VARCHAR},
+      </if>
+      <if test="sshuser != null">
+        #{sshuser,jdbcType=VARCHAR},
+      </if>
+      <if test="status != null">
+        #{status,jdbcType=INTEGER},
+      </if>
+      <if test="totalmemory != null">
+        #{totalmemory,jdbcType=INTEGER},
+      </if>
+      <if test="usedmemory != null">
+        #{usedmemory,jdbcType=INTEGER},
+      </if>
+      <if test="volumnPath != null">
+        #{volumnPath,jdbcType=VARCHAR},
+      </if>
+      <if test="instancecreatetime != null">
+        #{instancecreatetime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="instancelastupdatetime != null">
+        #{instancelastupdatetime,jdbcType=TIMESTAMP},
+      </if>
+    </trim>
+  </insert>
+  <select id="countByExample" parameterType="com.ai.paas.ipaas.rds.dao.mapper.bo.RdsResourcePoolCriteria" resultType="java.lang.Integer">
+    select count(*) from rds_resource_pool
+    <if test="_parameter != null">
+      <include refid="Example_Where_Clause" />
+    </if>
+  </select>
+  <update id="updateByExampleSelective" parameterType="map">
+    update rds_resource_pool
+    <set>
+      <if test="record.resourceid != null">
+        resourceid = #{record.resourceid,jdbcType=INTEGER},
+      </if>
+      <if test="record.hostip != null">
+        hostip = #{record.hostip,jdbcType=VARCHAR},
+      </if>
+      <if test="record.maxport != null">
+        maxport = #{record.maxport,jdbcType=INTEGER},
+      </if>
+      <if test="record.minport != null">
+        minport = #{record.minport,jdbcType=INTEGER},
+      </if>
+      <if test="record.currentport != null">
+        currentport = #{record.currentport,jdbcType=INTEGER},
+      </if>
+      <if test="record.cycle != null">
+        cycle = #{record.cycle,jdbcType=INTEGER},
+      </if>
+      <if test="record.sshpassword != null">
+        sshpassword = #{record.sshpassword,jdbcType=VARCHAR},
+      </if>
+      <if test="record.sshuser != null">
+        sshuser = #{record.sshuser,jdbcType=VARCHAR},
+      </if>
+      <if test="record.status != null">
+        status = #{record.status,jdbcType=INTEGER},
+      </if>
+      <if test="record.totalmemory != null">
+        totalmemory = #{record.totalmemory,jdbcType=INTEGER},
+      </if>
+      <if test="record.usedmemory != null">
+        usedmemory = #{record.usedmemory,jdbcType=INTEGER},
+      </if>
+      <if test="record.volumnPath != null">
+        volumn_path = #{record.volumnPath,jdbcType=VARCHAR},
+      </if>
+      <if test="record.instancecreatetime != null">
+        instancecreatetime = #{record.instancecreatetime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="record.instancelastupdatetime != null">
+        instancelastupdatetime = #{record.instancelastupdatetime,jdbcType=TIMESTAMP},
+      </if>
+    </set>
+    <if test="_parameter != null">
+      <include refid="Update_By_Example_Where_Clause" />
+    </if>
+  </update>
+  <update id="updateByExample" parameterType="map">
+    update rds_resource_pool
+    set resourceid = #{record.resourceid,jdbcType=INTEGER},
+      hostip = #{record.hostip,jdbcType=VARCHAR},
+      maxport = #{record.maxport,jdbcType=INTEGER},
+      minport = #{record.minport,jdbcType=INTEGER},
+      currentport = #{record.currentport,jdbcType=INTEGER},
+      cycle = #{record.cycle,jdbcType=INTEGER},
+      sshpassword = #{record.sshpassword,jdbcType=VARCHAR},
+      sshuser = #{record.sshuser,jdbcType=VARCHAR},
+      status = #{record.status,jdbcType=INTEGER},
+      totalmemory = #{record.totalmemory,jdbcType=INTEGER},
+      usedmemory = #{record.usedmemory,jdbcType=INTEGER},
+      volumn_path = #{record.volumnPath,jdbcType=VARCHAR},
+      instancecreatetime = #{record.instancecreatetime,jdbcType=TIMESTAMP},
+      instancelastupdatetime = #{record.instancelastupdatetime,jdbcType=TIMESTAMP}
+    <if test="_parameter != null">
+      <include refid="Update_By_Example_Where_Clause" />
+    </if>
+  </update>
+  <update id="updateByPrimaryKeySelective" parameterType="com.ai.paas.ipaas.rds.dao.mapper.bo.RdsResourcePool">
+    update rds_resource_pool
+    <set>
+      <if test="hostip != null">
+        hostip = #{hostip,jdbcType=VARCHAR},
+      </if>
+      <if test="maxport != null">
+        maxport = #{maxport,jdbcType=INTEGER},
+      </if>
+      <if test="minport != null">
+        minport = #{minport,jdbcType=INTEGER},
+      </if>
+      <if test="currentport != null">
+        currentport = #{currentport,jdbcType=INTEGER},
+      </if>
+      <if test="cycle != null">
+        cycle = #{cycle,jdbcType=INTEGER},
+      </if>
+      <if test="sshpassword != null">
+        sshpassword = #{sshpassword,jdbcType=VARCHAR},
+      </if>
+      <if test="sshuser != null">
+        sshuser = #{sshuser,jdbcType=VARCHAR},
+      </if>
+      <if test="status != null">
+        status = #{status,jdbcType=INTEGER},
+      </if>
+      <if test="totalmemory != null">
+        totalmemory = #{totalmemory,jdbcType=INTEGER},
+      </if>
+      <if test="usedmemory != null">
+        usedmemory = #{usedmemory,jdbcType=INTEGER},
+      </if>
+      <if test="volumnPath != null">
+        volumn_path = #{volumnPath,jdbcType=VARCHAR},
+      </if>
+      <if test="instancecreatetime != null">
+        instancecreatetime = #{instancecreatetime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="instancelastupdatetime != null">
+        instancelastupdatetime = #{instancelastupdatetime,jdbcType=TIMESTAMP},
+      </if>
+    </set>
+    where resourceid = #{resourceid,jdbcType=INTEGER}
+  </update>
+  <update id="updateByPrimaryKey" parameterType="com.ai.paas.ipaas.rds.dao.mapper.bo.RdsResourcePool">
+    update rds_resource_pool
+    set hostip = #{hostip,jdbcType=VARCHAR},
+      maxport = #{maxport,jdbcType=INTEGER},
+      minport = #{minport,jdbcType=INTEGER},
+      currentport = #{currentport,jdbcType=INTEGER},
+      cycle = #{cycle,jdbcType=INTEGER},
+      sshpassword = #{sshpassword,jdbcType=VARCHAR},
+      sshuser = #{sshuser,jdbcType=VARCHAR},
+      status = #{status,jdbcType=INTEGER},
+      totalmemory = #{totalmemory,jdbcType=INTEGER},
+      usedmemory = #{usedmemory,jdbcType=INTEGER},
+      volumn_path = #{volumnPath,jdbcType=VARCHAR},
+      instancecreatetime = #{instancecreatetime,jdbcType=TIMESTAMP},
+      instancelastupdatetime = #{instancelastupdatetime,jdbcType=TIMESTAMP}
+    where resourceid = #{resourceid,jdbcType=INTEGER}
+  </update>
+</mapper>
