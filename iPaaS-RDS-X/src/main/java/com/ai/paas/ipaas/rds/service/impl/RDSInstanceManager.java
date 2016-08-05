@@ -643,7 +643,7 @@ public class RDSInstanceManager implements IRDSInstanceManager {
 							imgRes.getImageRepository() + "/" + imgRes.getImageName(),
 							savedRdsIncBase.getIncPort() + "",
 //							savedRdsIncBase.getMysqlDataHome(),//incRes.getVolumnPath()
-							incRes.getVolumnPath(),
+							incRes.getVolumnPath() + "/" + savedRdsIncBase.getIncPort(),
 							savedRdsIncBase.getMysqlHome(),
 							"/percona/data",
 							savedRdsIncBase.getUserId() + "-" + savedRdsIncBase.getServiceId() + "-" + savedRdsIncBase.getIncPort(),
