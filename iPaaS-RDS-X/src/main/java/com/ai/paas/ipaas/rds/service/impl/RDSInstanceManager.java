@@ -283,6 +283,9 @@ public class RDSInstanceManager implements IRDSInstanceManager {
 		if(createObject.instanceBase.getIncLocation() == null){
 			createObject.instanceBase.setIncLocation("");
 		}
+		if(createObject.instanceBase.getDbServerId() == null){
+			createObject.instanceBase.setDbServerId("1");
+		}
 		
 		
 		
@@ -478,7 +481,7 @@ public class RDSInstanceManager implements IRDSInstanceManager {
 			if(masterInstance.getSlaverId().isEmpty()){
 				masterInstance.setSlaverId(saveRdsIncBase.getId() + "");
 			}else{
-				masterInstance.setSlaverId(masterInstance.getServiceId() + "|" + saveRdsIncBase.getId());
+				masterInstance.setSlaverId(masterInstance.getSlaverId() + "|" + saveRdsIncBase.getId());
 			}
 			incBaseMapper.updateByPrimaryKey(masterInstance);
 			break;
