@@ -57,7 +57,7 @@ import com.ai.paas.ipaas.rds.service.transfer.vo.StartRDS;
 import com.ai.paas.ipaas.rds.service.transfer.vo.StartRDSResult;
 import com.ai.paas.ipaas.rds.service.transfer.vo.StopRDS;
 import com.ai.paas.ipaas.rds.service.transfer.vo.StopRDSResult;
-import com.ai.paas.ipaas.rds.service.util.EntityToWhere;
+//import com.ai.paas.ipaas.rds.service.util.EntityToWhere;
 import com.ai.paas.ipaas.rds.service.util.GsonSingleton;
 import com.alibaba.dubbo.config.annotation.Service;
 
