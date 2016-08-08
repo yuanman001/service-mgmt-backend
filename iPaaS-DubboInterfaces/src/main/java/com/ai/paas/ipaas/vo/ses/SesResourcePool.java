@@ -15,11 +15,8 @@ public class SesResourcePool {
 
     private Integer memUsed;
 
-    private Integer agentPort;
+    private String dataPath;
 
-    private String binPath;
-
-    private String userPath;
 
     public Integer getId() {
         return id;
@@ -77,27 +74,12 @@ public class SesResourcePool {
         this.memUsed = memUsed;
     }
 
-    public Integer getAgentPort() {
-        return agentPort;
-    }
+	public String getDataPath() {
+		return dataPath;
+	}
 
-    public void setAgentPort(Integer agentPort) {
-        this.agentPort = agentPort;
-    }
-
-    public String getBinPath() {
-        return binPath;
-    }
-
-    public void setBinPath(String binPath) {
-        this.binPath = binPath == null ? null : binPath.trim();
-    }
-
-    public String getUserPath() {
-        return userPath;
-    }
-
-    public void setUserPath(String userPath) {
-        this.userPath = userPath == null ? null : userPath.trim();
-    }
+	public void setDataPath(String dataPath) {
+		this.dataPath = dataPath;
+	}
+    
 }

@@ -1,16 +1,18 @@
 package com.ai.paas.ipaas.ses.manage.rest.interfaces;
 
 import javax.ws.rs.Consumes;
+import javax.ws.rs.FormParam;
 import javax.ws.rs.POST;
 import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
 
+import com.ai.dubbo.ext.vo.BaseResponse;
 import com.ai.paas.ipaas.PaasException;
 import com.ai.paas.ipaas.vo.ses.SesUserMapping;
 
 @Path("/ses/mapping")
-@Consumes({ MediaType.APPLICATION_JSON })
+@Consumes({ MediaType.APPLICATION_JSON, MediaType.APPLICATION_FORM_URLENCODED })
 @Produces({ MediaType.APPLICATION_JSON, MediaType.TEXT_XML })
 public interface IRPCIndexMapping {
 	/**
@@ -23,8 +25,8 @@ public interface IRPCIndexMapping {
 	 */
 	@Path("load")
 	@POST
-	public SesUserMapping loadMapping(String userId, String serviceId)
-			throws PaasException;
+	public SesUserMapping loadMapping(@FormParam("userId") String userId,
+			@FormParam("serviceId") String serviceId) throws PaasException;
 
 	/**
 	 * 
@@ -35,7 +37,7 @@ public interface IRPCIndexMapping {
 	 */
 	@Path("update")
 	@POST
-	void editMapping(SesUserMapping mapping) throws PaasException;
+	public BaseResponse editMapping(SesUserMapping mapping) throws PaasException;
 
 	/**
 	 * 
@@ -46,6 +48,6 @@ public interface IRPCIndexMapping {
 	 */
 	@Path("add")
 	@POST
-	void insertMapping(SesUserMapping mapping) throws PaasException;
+	public BaseResponse insertMapping(SesUserMapping mapping) throws PaasException;
 
 }
