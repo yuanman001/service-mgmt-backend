@@ -16,6 +16,9 @@ public class MoreMemIdleChoice implements ChoiceRes{
 
 	@Override
 	public RdsResourcePool choiceOne(List<RdsResourcePool> canUseResList) {
+		if(canUseResList.size()  == 0){
+			return null;
+		}
 		RdsResourcePool maxMemRes = canUseResList.get(0);
 		for(int i = 0; i < canUseResList.size(); i++){
 			if((maxMemRes.getTotalmemory()-maxMemRes.getUsedmemory()) < (canUseResList.get(i).getTotalmemory()-canUseResList.get(i).getUsedmemory())){
@@ -26,7 +29,7 @@ public class MoreMemIdleChoice implements ChoiceRes{
 	}
 	public RdsResourcePool choiceOne(List<RdsResourcePool> canUseResList, List<RdsResourcePool> exceptList) {
 		canUseResList.removeAll(exceptList);
-		if(canUseResList.size() < 0){
+		if(canUseResList.size() == 0){
 			return null;
 		}
 		RdsResourcePool maxMemRes = canUseResList.get(0);

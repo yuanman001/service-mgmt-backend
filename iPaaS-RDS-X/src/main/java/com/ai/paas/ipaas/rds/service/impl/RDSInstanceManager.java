@@ -292,8 +292,14 @@ public class RDSInstanceManager implements IRDSInstanceManager {
 		// 查询资源情况，根据请求情况与资源情况获取分配计划
 		RdsResourcePoolMapper rdsResPoolMapper =  ServiceUtil.getMapper(RdsResourcePoolMapper.class);
 		RdsResourcePoolCriteria rdsResPoolCri = new RdsResourcePoolCriteria();
-		rdsResPoolCri.createCriteria().andCurrentportLessThan(65000);
+		rdsResPoolCri.createCriteria().andCurrentportLessThan(66000);
 		List<RdsResourcePool> allResource = rdsResPoolMapper.selectByExample(rdsResPoolCri);
+		
+		if(!checkResourceEnough(allResource, createObject.createBatmasterNum + createObject.createSlaverNum + 1, createObject.instanceBase.getDbStoreage())){
+			createResult.setStatus(ResponseResultMark.ERROR_LESS_MEMORY_SPACE);
+			return g.getGson().toJson(createResult);
+		}
+		
 		RDSResourcePlan resourcePlan = getResourcePlan(createObject, allResource);
 		if(null == resourcePlan.instanceresourcebelonger){
 			createResult.setStatus(ResponseResultMark.ERROR_LESS_MEMORY_SPACE);
@@ -433,7 +439,33 @@ public class RDSInstanceManager implements IRDSInstanceManager {
 		return g.getGson().toJson(createResult);
 	}
 	
-	
+	/**
+	 * 空间合法性检测
+	 *  检查可用资源是否充足资源
+	 * @param allResource
+	 * @param incNum
+	 * @param eachStorageNeeded
+	 * @return true if useable res is enough, false if useable res is not enough
+	 */
+	private boolean checkResourceEnough(List<RdsResourcePool> allResource, int incNum, int eachStorageNeeded) {
+		
+		for(int i = 0; i < incNum; i++){
+			List<RdsResourcePool> usableResourceList = getMasterUsableResource(eachStorageNeeded, allResource);
+			// 选择适当的主机进行分配资源
+			ChoiceResStrategy crs = new ChoiceResStrategy(new MoreMemIdleChoice());
+			RdsResourcePool decidedRes = crs.makeDecision(usableResourceList);
+			if(null == decidedRes){
+				return false;
+			}
+			allResource.remove(decidedRes);
+			decidedRes.setUsedmemory(decidedRes.getUsedmemory() + eachStorageNeeded);
+			allResource.add(decidedRes);
+		}
+		
+		return true;
+	}
+
+
 	@Override
 	public String createslobm(String create) {
 		CreateSRDS createObject = g.getGson().fromJson(create, CreateSRDS.class);
