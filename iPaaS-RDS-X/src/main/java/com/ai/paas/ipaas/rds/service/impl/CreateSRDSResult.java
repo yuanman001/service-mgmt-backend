@@ -11,6 +11,6 @@ import com.ai.paas.ipaas.rds.service.transfer.vo.RDSResult;
 public class CreateSRDSResult extends RDSResult {
 
 	public CreateSRDSResult(int status){
-		super.status = status;
+		super.setStatus(status);
 	}
 }
