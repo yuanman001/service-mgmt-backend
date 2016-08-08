@@ -2,6 +2,8 @@ package com.ai.paas.ipaas.ses.manager.impl;
 
 import org.springframework.beans.factory.annotation.Autowired;
 
+import com.ai.dubbo.ext.vo.BaseResponse;
+import com.ai.paas.ipaas.PaaSConstant;
 import com.ai.paas.ipaas.PaasException;
 import com.ai.paas.ipaas.ses.manage.rest.interfaces.IRPCIndexMapping;
 import com.ai.paas.ipaas.ses.service.interfaces.IIndexMapping;
@@ -23,19 +25,29 @@ public class RPCIndexMappingImpl implements IRPCIndexMapping {
 	}
 
 	@Override
-	public void editMapping(SesUserMapping mapping) throws PaasException {
+	public BaseResponse editMapping(SesUserMapping mapping)
+			throws PaasException {
 		mappingSRV
 				.editMapping((com.ai.paas.ipaas.ses.dao.mapper.bo.SesUserMapping) CloneTool
 						.clone(mapping,
 								com.ai.paas.ipaas.ses.dao.mapper.bo.SesUserMapping.class));
+		BaseResponse response = new BaseResponse();
+		response.setSuccess(true);
+		response.setResultCode(PaaSConstant.RPC_CALL_OK);
+		return response;
 	}
 
 	@Override
-	public void insertMapping(SesUserMapping mapping) throws PaasException {
+	public BaseResponse insertMapping(SesUserMapping mapping)
+			throws PaasException {
 		mappingSRV
 				.insertMapping((com.ai.paas.ipaas.ses.dao.mapper.bo.SesUserMapping) CloneTool
 						.clone(mapping,
 								com.ai.paas.ipaas.ses.dao.mapper.bo.SesUserMapping.class));
+		BaseResponse response = new BaseResponse();
+		response.setSuccess(true);
+		response.setResultCode(PaaSConstant.RPC_CALL_OK);
+		return response;
 	}
 
 }

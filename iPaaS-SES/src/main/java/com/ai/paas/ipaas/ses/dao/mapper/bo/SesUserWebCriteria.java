@@ -3,7 +3,7 @@ package com.ai.paas.ipaas.ses.dao.mapper.bo;
 import java.util.ArrayList;
 import java.util.List;
 
-public class SesResourcePoolCriteria {
+public class SesUserWebCriteria {
     protected String orderByClause;
 
     protected boolean distinct;
@@ -14,7 +14,7 @@ public class SesResourcePoolCriteria {
 
     protected Integer limitEnd;
 
-    public SesResourcePoolCriteria() {
+    public SesUserWebCriteria() {
         oredCriteria = new ArrayList<Criteria>();
     }
 
@@ -184,73 +184,73 @@ public class SesResourcePoolCriteria {
             return (Criteria) this;
         }
 
-        public Criteria andHostIpIsNull() {
-            addCriterion("host_ip is null");
+        public Criteria andWebIdIsNull() {
+            addCriterion("web_id is null");
             return (Criteria) this;
         }
 
-        public Criteria andHostIpIsNotNull() {
-            addCriterion("host_ip is not null");
+        public Criteria andWebIdIsNotNull() {
+            addCriterion("web_id is not null");
             return (Criteria) this;
         }
 
-        public Criteria andHostIpEqualTo(String value) {
-            addCriterion("host_ip =", value, "hostIp");
+        public Criteria andWebIdEqualTo(String value) {
+            addCriterion("web_id =", value, "webId");
             return (Criteria) this;
         }
 
-        public Criteria andHostIpNotEqualTo(String value) {
-            addCriterion("host_ip <>", value, "hostIp");
+        public Criteria andWebIdNotEqualTo(String value) {
+            addCriterion("web_id <>", value, "webId");
             return (Criteria) this;
         }
 
-        public Criteria andHostIpGreaterThan(String value) {
-            addCriterion("host_ip >", value, "hostIp");
+        public Criteria andWebIdGreaterThan(String value) {
+            addCriterion("web_id >", value, "webId");
             return (Criteria) this;
         }
 
-        public Criteria andHostIpGreaterThanOrEqualTo(String value) {
-            addCriterion("host_ip >=", value, "hostIp");
+        public Criteria andWebIdGreaterThanOrEqualTo(String value) {
+            addCriterion("web_id >=", value, "webId");
             return (Criteria) this;
         }
 
-        public Criteria andHostIpLessThan(String value) {
-            addCriterion("host_ip <", value, "hostIp");
+        public Criteria andWebIdLessThan(String value) {
+            addCriterion("web_id <", value, "webId");
             return (Criteria) this;
         }
 
-        public Criteria andHostIpLessThanOrEqualTo(String value) {
-            addCriterion("host_ip <=", value, "hostIp");
+        public Criteria andWebIdLessThanOrEqualTo(String value) {
+            addCriterion("web_id <=", value, "webId");
             return (Criteria) this;
         }
 
-        public Criteria andHostIpLike(String value) {
-            addCriterion("host_ip like", value, "hostIp");
+        public Criteria andWebIdLike(String value) {
+            addCriterion("web_id like", value, "webId");
             return (Criteria) this;
         }
 
-        public Criteria andHostIpNotLike(String value) {
-            addCriterion("host_ip not like", value, "hostIp");
+        public Criteria andWebIdNotLike(String value) {
+            addCriterion("web_id not like", value, "webId");
             return (Criteria) this;
         }
 
-        public Criteria andHostIpIn(List<String> values) {
-            addCriterion("host_ip in", values, "hostIp");
+        public Criteria andWebIdIn(List<String> values) {
+            addCriterion("web_id in", values, "webId");
             return (Criteria) this;
         }
 
-        public Criteria andHostIpNotIn(List<String> values) {
-            addCriterion("host_ip not in", values, "hostIp");
+        public Criteria andWebIdNotIn(List<String> values) {
+            addCriterion("web_id not in", values, "webId");
             return (Criteria) this;
         }
 
-        public Criteria andHostIpBetween(String value1, String value2) {
-            addCriterion("host_ip between", value1, value2, "hostIp");
+        public Criteria andWebIdBetween(String value1, String value2) {
+            addCriterion("web_id between", value1, value2, "webId");
             return (Criteria) this;
         }
 
-        public Criteria andHostIpNotBetween(String value1, String value2) {
-            addCriterion("host_ip not between", value1, value2, "hostIp");
+        public Criteria andWebIdNotBetween(String value1, String value2) {
+            addCriterion("web_id not between", value1, value2, "webId");
             return (Criteria) this;
         }
 
@@ -314,313 +314,143 @@ public class SesResourcePoolCriteria {
             return (Criteria) this;
         }
 
-        public Criteria andPortMinIsNull() {
-            addCriterion("port_min is null");
+        public Criteria andUserIdIsNull() {
+            addCriterion("user_id is null");
             return (Criteria) this;
         }
 
-        public Criteria andPortMinIsNotNull() {
-            addCriterion("port_min is not null");
+        public Criteria andUserIdIsNotNull() {
+            addCriterion("user_id is not null");
             return (Criteria) this;
         }
 
-        public Criteria andPortMinEqualTo(Integer value) {
-            addCriterion("port_min =", value, "portMin");
+        public Criteria andUserIdEqualTo(String value) {
+            addCriterion("user_id =", value, "userId");
             return (Criteria) this;
         }
 
-        public Criteria andPortMinNotEqualTo(Integer value) {
-            addCriterion("port_min <>", value, "portMin");
+        public Criteria andUserIdNotEqualTo(String value) {
+            addCriterion("user_id <>", value, "userId");
             return (Criteria) this;
         }
 
-        public Criteria andPortMinGreaterThan(Integer value) {
-            addCriterion("port_min >", value, "portMin");
+        public Criteria andUserIdGreaterThan(String value) {
+            addCriterion("user_id >", value, "userId");
             return (Criteria) this;
         }
 
-        public Criteria andPortMinGreaterThanOrEqualTo(Integer value) {
-            addCriterion("port_min >=", value, "portMin");
+        public Criteria andUserIdGreaterThanOrEqualTo(String value) {
+            addCriterion("user_id >=", value, "userId");
             return (Criteria) this;
         }
 
-        public Criteria andPortMinLessThan(Integer value) {
-            addCriterion("port_min <", value, "portMin");
+        public Criteria andUserIdLessThan(String value) {
+            addCriterion("user_id <", value, "userId");
             return (Criteria) this;
         }
 
-        public Criteria andPortMinLessThanOrEqualTo(Integer value) {
-            addCriterion("port_min <=", value, "portMin");
+        public Criteria andUserIdLessThanOrEqualTo(String value) {
+            addCriterion("user_id <=", value, "userId");
             return (Criteria) this;
         }
 
-        public Criteria andPortMinIn(List<Integer> values) {
-            addCriterion("port_min in", values, "portMin");
+        public Criteria andUserIdLike(String value) {
+            addCriterion("user_id like", value, "userId");
             return (Criteria) this;
         }
 
-        public Criteria andPortMinNotIn(List<Integer> values) {
-            addCriterion("port_min not in", values, "portMin");
+        public Criteria andUserIdNotLike(String value) {
+            addCriterion("user_id not like", value, "userId");
             return (Criteria) this;
         }
 
-        public Criteria andPortMinBetween(Integer value1, Integer value2) {
-            addCriterion("port_min between", value1, value2, "portMin");
+        public Criteria andUserIdIn(List<String> values) {
+            addCriterion("user_id in", values, "userId");
             return (Criteria) this;
         }
 
-        public Criteria andPortMinNotBetween(Integer value1, Integer value2) {
-            addCriterion("port_min not between", value1, value2, "portMin");
+        public Criteria andUserIdNotIn(List<String> values) {
+            addCriterion("user_id not in", values, "userId");
             return (Criteria) this;
         }
 
-        public Criteria andPortMaxIsNull() {
-            addCriterion("port_max is null");
+        public Criteria andUserIdBetween(String value1, String value2) {
+            addCriterion("user_id between", value1, value2, "userId");
             return (Criteria) this;
         }
 
-        public Criteria andPortMaxIsNotNull() {
-            addCriterion("port_max is not null");
+        public Criteria andUserIdNotBetween(String value1, String value2) {
+            addCriterion("user_id not between", value1, value2, "userId");
             return (Criteria) this;
         }
 
-        public Criteria andPortMaxEqualTo(Integer value) {
-            addCriterion("port_max =", value, "portMax");
+        public Criteria andServiceIdIsNull() {
+            addCriterion("service_id is null");
             return (Criteria) this;
         }
 
-        public Criteria andPortMaxNotEqualTo(Integer value) {
-            addCriterion("port_max <>", value, "portMax");
+        public Criteria andServiceIdIsNotNull() {
+            addCriterion("service_id is not null");
             return (Criteria) this;
         }
 
-        public Criteria andPortMaxGreaterThan(Integer value) {
-            addCriterion("port_max >", value, "portMax");
+        public Criteria andServiceIdEqualTo(String value) {
+            addCriterion("service_id =", value, "serviceId");
             return (Criteria) this;
         }
 
-        public Criteria andPortMaxGreaterThanOrEqualTo(Integer value) {
-            addCriterion("port_max >=", value, "portMax");
+        public Criteria andServiceIdNotEqualTo(String value) {
+            addCriterion("service_id <>", value, "serviceId");
             return (Criteria) this;
         }
 
-        public Criteria andPortMaxLessThan(Integer value) {
-            addCriterion("port_max <", value, "portMax");
+        public Criteria andServiceIdGreaterThan(String value) {
+            addCriterion("service_id >", value, "serviceId");
             return (Criteria) this;
         }
 
-        public Criteria andPortMaxLessThanOrEqualTo(Integer value) {
-            addCriterion("port_max <=", value, "portMax");
+        public Criteria andServiceIdGreaterThanOrEqualTo(String value) {
+            addCriterion("service_id >=", value, "serviceId");
             return (Criteria) this;
         }
 
-        public Criteria andPortMaxIn(List<Integer> values) {
-            addCriterion("port_max in", values, "portMax");
+        public Criteria andServiceIdLessThan(String value) {
+            addCriterion("service_id <", value, "serviceId");
             return (Criteria) this;
         }
 
-        public Criteria andPortMaxNotIn(List<Integer> values) {
-            addCriterion("port_max not in", values, "portMax");
+        public Criteria andServiceIdLessThanOrEqualTo(String value) {
+            addCriterion("service_id <=", value, "serviceId");
             return (Criteria) this;
         }
 
-        public Criteria andPortMaxBetween(Integer value1, Integer value2) {
-            addCriterion("port_max between", value1, value2, "portMax");
+        public Criteria andServiceIdLike(String value) {
+            addCriterion("service_id like", value, "serviceId");
             return (Criteria) this;
         }
 
-        public Criteria andPortMaxNotBetween(Integer value1, Integer value2) {
-            addCriterion("port_max not between", value1, value2, "portMax");
+        public Criteria andServiceIdNotLike(String value) {
+            addCriterion("service_id not like", value, "serviceId");
             return (Criteria) this;
         }
 
-        public Criteria andMemTotalIsNull() {
-            addCriterion("mem_total is null");
+        public Criteria andServiceIdIn(List<String> values) {
+            addCriterion("service_id in", values, "serviceId");
             return (Criteria) this;
         }
 
-        public Criteria andMemTotalIsNotNull() {
-            addCriterion("mem_total is not null");
+        public Criteria andServiceIdNotIn(List<String> values) {
+            addCriterion("service_id not in", values, "serviceId");
             return (Criteria) this;
         }
 
-        public Criteria andMemTotalEqualTo(Integer value) {
-            addCriterion("mem_total =", value, "memTotal");
+        public Criteria andServiceIdBetween(String value1, String value2) {
+            addCriterion("service_id between", value1, value2, "serviceId");
             return (Criteria) this;
         }
 
-        public Criteria andMemTotalNotEqualTo(Integer value) {
-            addCriterion("mem_total <>", value, "memTotal");
-            return (Criteria) this;
-        }
-
-        public Criteria andMemTotalGreaterThan(Integer value) {
-            addCriterion("mem_total >", value, "memTotal");
-            return (Criteria) this;
-        }
-
-        public Criteria andMemTotalGreaterThanOrEqualTo(Integer value) {
-            addCriterion("mem_total >=", value, "memTotal");
-            return (Criteria) this;
-        }
-
-        public Criteria andMemTotalLessThan(Integer value) {
-            addCriterion("mem_total <", value, "memTotal");
-            return (Criteria) this;
-        }
-
-        public Criteria andMemTotalLessThanOrEqualTo(Integer value) {
-            addCriterion("mem_total <=", value, "memTotal");
-            return (Criteria) this;
-        }
-
-        public Criteria andMemTotalIn(List<Integer> values) {
-            addCriterion("mem_total in", values, "memTotal");
-            return (Criteria) this;
-        }
-
-        public Criteria andMemTotalNotIn(List<Integer> values) {
-            addCriterion("mem_total not in", values, "memTotal");
-            return (Criteria) this;
-        }
-
-        public Criteria andMemTotalBetween(Integer value1, Integer value2) {
-            addCriterion("mem_total between", value1, value2, "memTotal");
-            return (Criteria) this;
-        }
-
-        public Criteria andMemTotalNotBetween(Integer value1, Integer value2) {
-            addCriterion("mem_total not between", value1, value2, "memTotal");
-            return (Criteria) this;
-        }
-
-        public Criteria andMemUsedIsNull() {
-            addCriterion("mem_used is null");
-            return (Criteria) this;
-        }
-
-        public Criteria andMemUsedIsNotNull() {
-            addCriterion("mem_used is not null");
-            return (Criteria) this;
-        }
-
-        public Criteria andMemUsedEqualTo(Integer value) {
-            addCriterion("mem_used =", value, "memUsed");
-            return (Criteria) this;
-        }
-
-        public Criteria andMemUsedNotEqualTo(Integer value) {
-            addCriterion("mem_used <>", value, "memUsed");
-            return (Criteria) this;
-        }
-
-        public Criteria andMemUsedGreaterThan(Integer value) {
-            addCriterion("mem_used >", value, "memUsed");
-            return (Criteria) this;
-        }
-
-        public Criteria andMemUsedGreaterThanOrEqualTo(Integer value) {
-            addCriterion("mem_used >=", value, "memUsed");
-            return (Criteria) this;
-        }
-
-        public Criteria andMemUsedLessThan(Integer value) {
-            addCriterion("mem_used <", value, "memUsed");
-            return (Criteria) this;
-        }
-
-        public Criteria andMemUsedLessThanOrEqualTo(Integer value) {
-            addCriterion("mem_used <=", value, "memUsed");
-            return (Criteria) this;
-        }
-
-        public Criteria andMemUsedIn(List<Integer> values) {
-            addCriterion("mem_used in", values, "memUsed");
-            return (Criteria) this;
-        }
-
-        public Criteria andMemUsedNotIn(List<Integer> values) {
-            addCriterion("mem_used not in", values, "memUsed");
-            return (Criteria) this;
-        }
-
-        public Criteria andMemUsedBetween(Integer value1, Integer value2) {
-            addCriterion("mem_used between", value1, value2, "memUsed");
-            return (Criteria) this;
-        }
-
-        public Criteria andMemUsedNotBetween(Integer value1, Integer value2) {
-            addCriterion("mem_used not between", value1, value2, "memUsed");
-            return (Criteria) this;
-        }
-
-        public Criteria andDataPathIsNull() {
-            addCriterion("data_path is null");
-            return (Criteria) this;
-        }
-
-        public Criteria andDataPathIsNotNull() {
-            addCriterion("data_path is not null");
-            return (Criteria) this;
-        }
-
-        public Criteria andDataPathEqualTo(String value) {
-            addCriterion("data_path =", value, "dataPath");
-            return (Criteria) this;
-        }
-
-        public Criteria andDataPathNotEqualTo(String value) {
-            addCriterion("data_path <>", value, "dataPath");
-            return (Criteria) this;
-        }
-
-        public Criteria andDataPathGreaterThan(String value) {
-            addCriterion("data_path >", value, "dataPath");
-            return (Criteria) this;
-        }
-
-        public Criteria andDataPathGreaterThanOrEqualTo(String value) {
-            addCriterion("data_path >=", value, "dataPath");
-            return (Criteria) this;
-        }
-
-        public Criteria andDataPathLessThan(String value) {
-            addCriterion("data_path <", value, "dataPath");
-            return (Criteria) this;
-        }
-
-        public Criteria andDataPathLessThanOrEqualTo(String value) {
-            addCriterion("data_path <=", value, "dataPath");
-            return (Criteria) this;
-        }
-
-        public Criteria andDataPathLike(String value) {
-            addCriterion("data_path like", value, "dataPath");
-            return (Criteria) this;
-        }
-
-        public Criteria andDataPathNotLike(String value) {
-            addCriterion("data_path not like", value, "dataPath");
-            return (Criteria) this;
-        }
-
-        public Criteria andDataPathIn(List<String> values) {
-            addCriterion("data_path in", values, "dataPath");
-            return (Criteria) this;
-        }
-
-        public Criteria andDataPathNotIn(List<String> values) {
-            addCriterion("data_path not in", values, "dataPath");
-            return (Criteria) this;
-        }
-
-        public Criteria andDataPathBetween(String value1, String value2) {
-            addCriterion("data_path between", value1, value2, "dataPath");
-            return (Criteria) this;
-        }
-
-        public Criteria andDataPathNotBetween(String value1, String value2) {
-            addCriterion("data_path not between", value1, value2, "dataPath");
+        public Criteria andServiceIdNotBetween(String value1, String value2) {
+            addCriterion("service_id not between", value1, value2, "serviceId");
             return (Criteria) this;
         }
     }

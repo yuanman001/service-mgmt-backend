@@ -5,15 +5,15 @@ import java.io.InputStream;
 import java.net.InetSocketAddress;
 import java.sql.Timestamp;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
 
 import org.apache.log4j.Logger;
-import org.elasticsearch.ElasticsearchException;
 import org.elasticsearch.action.admin.indices.delete.DeleteIndexRequest;
 import org.elasticsearch.action.admin.indices.delete.DeleteIndexResponse;
 import org.elasticsearch.action.admin.indices.exists.indices.IndicesExistsRequest;
-import org.elasticsearch.client.IndicesAdminClient;
+import org.elasticsearch.action.admin.indices.mapping.put.PutMappingResponse;
 import org.elasticsearch.client.transport.TransportClient;
 import org.elasticsearch.common.settings.Settings;
 import org.elasticsearch.common.transport.InetSocketTransportAddress;
@@ -45,8 +45,11 @@ import com.ai.paas.ipaas.ses.dao.mapper.bo.SesResourcePoolCriteria;
 import com.ai.paas.ipaas.ses.dao.mapper.bo.SesUserInstance;
 import com.ai.paas.ipaas.ses.dao.mapper.bo.SesUserInstanceCriteria;
 import com.ai.paas.ipaas.ses.dao.mapper.bo.SesUserMappingCriteria;
+import com.ai.paas.ipaas.ses.dao.mapper.bo.SesUserWeb;
+import com.ai.paas.ipaas.ses.dao.mapper.bo.SesWebPool;
 import com.ai.paas.ipaas.ses.service.constant.SesConstants;
 import com.ai.paas.ipaas.ses.service.interfaces.ISesManage;
+import com.ai.paas.ipaas.ses.service.interfaces.ISesUserWeb;
 import com.ai.paas.ipaas.ses.service.vo.SesHostInfo;
 import com.ai.paas.ipaas.ses.service.vo.SesMappingApply;
 import com.ai.paas.ipaas.ses.service.vo.SesSrvApply;
@@ -61,6 +64,8 @@ public class SesManageImpl implements ISesManage {
 			.getLogger(SesManageImpl.class);
 	@Autowired
 	private ICCSComponentManageSv iCCSComponentManageSv;
+	@Autowired
+	private ISesUserWeb userWebSV;
 
 	@Override
 	public void createSesService(SesSrvApply sesSrvApply) throws PaasException {
@@ -71,7 +76,9 @@ public class SesManageImpl implements ISesManage {
 		String serviceId = sesSrvApply.getServiceId();
 		StringBuilder clusterString = new StringBuilder();
 		String clusterAddr = getClusterAddress(sesHosts);
-		processSESServers(userId, serviceId, sesHosts, clusterAddr);
+		// 获取可用的web端
+		SesWebPool webPool = userWebSV.getAvlWeb(userId, serviceId);
+		processSESServers(userId, serviceId, sesHosts, clusterAddr, webPool);
 		for (SesHostInfo sesHostInfo : sesHosts) {
 			// 更新ses_user_instance
 			SesUserInstance sesUser = new SesUserInstance();
@@ -91,13 +98,20 @@ public class SesManageImpl implements ISesManage {
 			clusterString.append(sesUser.getHostIp()
 					+ SesConstants.SPLITER_COLON + sesUser.getTcpPort());
 		}
+		// 写入用户的web端地址
+		SesUserWeb userWeb = new SesUserWeb();
+		userWeb.setWebId("" + webPool.getId());
+		userWeb.setServiceId(serviceId);
+		userWeb.setUserId(userId);
+		userWeb.setStatus(SesConstants.VALIDATE_STATUS);
+		userWebSV.saveUserWeb(userWeb);
 		LOGGER.info("write to zk..........");
 		// 写入zk
 		addZk(userId, serviceId, clusterString.toString());
 	}
 
 	private void processSESServers(String userId, String serviceId,
-			List<SesHostInfo> sesHosts, String clusterAddr)
+			List<SesHostInfo> sesHosts, String clusterAddr, SesWebPool webPool)
 			throws PaasException {
 
 		String basePath = AgentUtil.getAgentFilePath(AidUtil.getAid());
@@ -151,11 +165,11 @@ public class SesManageImpl implements ISesManage {
 				}
 		}
 		// 2.启动ses集群
-		createSESServers(userId, serviceId, sesHosts, clusterAddr);
+		createSESServers(userId, serviceId, sesHosts, clusterAddr, webPool);
 	}
 
 	private void createSESServers(String userId, String serviceId,
-			List<SesHostInfo> sesHosts, String clusterAddr)
+			List<SesHostInfo> sesHosts, String clusterAddr, SesWebPool webPool)
 			throws PaasException {
 		String basePath = AgentUtil.getAgentFilePath(AidUtil.getAid());
 		String sshUser = getSesSSHUser();
@@ -205,8 +219,9 @@ public class SesManageImpl implements ISesManage {
 										userId, serviceId,
 										sesHostInfo.getTcpPort(),
 										sesHostInfo.getHttpPort(), clusterAddr,
-										ip, sesHostInfo.getBinPath(),
-										sesHostInfo.getUserPath() });
+										ip, sesHostInfo.getDataPath(),
+										// 需要传入用户可以使用的web地址，去选择
+										webPool.getWebUrl() });
 
 				LOGGER.info("---------runImage {}----------" + runImage);
 				AgentUtil.executeCommand(basePath + runImage, AidUtil.getAid());
@@ -459,6 +474,46 @@ public class SesManageImpl implements ISesManage {
 		return sb.deleteCharAt(sb.length() - 1).toString();
 	}
 
+	private void createIndex(TransportClient client,
+			SesMappingApply mappingApply) {
+		String userId = mappingApply.getUserId();
+		String serviceId = mappingApply.getServiceId();
+		String indexName = String.valueOf(Math.abs((userId + serviceId)
+				.hashCode()));
+		LOGGER.info("createIndex ..........userid:" + userId
+				+ ".....serviceId:" + serviceId + ".....indexName:" + indexName);
+		try {
+			if (!doesIndexExist(indexName, client)) {
+				String settings = " {\"client.transport.ping_timeout\":\"120s\","
+						+ " \"analysis\": {"
+						+ "         \"filter\": {"
+						+ "            \"nGram_filter\": {"
+						+ "               \"type\": \"nGram\","
+						+ "               \"min_gram\": 1,"
+						+ "               \"max_gram\": 10"
+						+ "            }"
+						+ "         },"
+						+ "         \"analyzer\": {"
+						+ "            \"nGram_analyzer\": {"
+						+ "               \"type\": \"custom\","
+						+ "               \"tokenizer\": \"ik_max_word\","
+						+ "               \"filter\": ["
+						+ "                  \"lowercase\","
+						+ "                  \"nGram_filter\""
+						+ "               ]"
+						+ "            }"
+						+ "         }"
+						+ "      }" + "   " + "}";
+				client.admin().indices().prepareCreate(indexName)
+						.setSettings(settings).get();
+			}
+		} catch (Exception e) {
+			LOGGER.error("createIndex error..........userid:" + userId
+					+ ".....serviceId:" + serviceId + ".....indexName:"
+					+ indexName, e);
+		}
+	}
+
 	/**
 	 * createIndex:(初始化集群后创建一个空索引).
 	 * 
@@ -480,10 +535,7 @@ public class SesManageImpl implements ISesManage {
 				+ ".....serviceId:" + serviceId + ".....indexName:" + indexName);
 		try {
 			client = prepareSearchClient(ipAndPort);
-			if (!doesIndexExist(indexName, client)) {
-				client.admin().indices().prepareCreate(indexName).execute()
-						.actionGet();
-			}
+			createIndex(client, mappingApply);
 		} catch (Exception e) {
 			LOGGER.error("createIndex error..........userid:" + userId
 					+ ".....serviceId:" + serviceId + ".....indexName:"
@@ -503,16 +555,25 @@ public class SesManageImpl implements ISesManage {
 		TransportClient searchClient = null;
 		/* 如果10秒没有连接上搜索服务器，则超时 */
 		Settings settings = Settings.settingsBuilder()
-				.put("client.transport.ping_timeout", "10s")
+				.put("client.transport.ping_timeout", "100s")
 				.put("client.transport.sniff", "true")
 				.put("client.transport.ignore_cluster_name", "true").build();
 		/* 创建搜索客户端 */
 		searchClient = TransportClient.builder().settings(settings).build();
-		String address = ipAndPort.split(":")[0];
-		int port = Integer.parseInt(ipAndPort.split(":")[1]);
-		// /* 通过tcp连接搜索服务器，如果连接不上，有一种可能是服务器端与客户端的jar包版本不匹配 */
-		searchClient.addTransportAddress(new InetSocketTransportAddress(
-				new InetSocketAddress(address, port)));
+		List<String> clusterList = new ArrayList<String>();
+		if (!StringUtil.isBlank(ipAndPort)) {
+			clusterList = Arrays.asList(ipAndPort.split(","));
+		}
+		for (String item : clusterList) {
+			if (!StringUtil.isBlank(item)) {
+				String address = item.split(":")[0];
+				int port = Integer.parseInt(item.split(":")[1]);
+				/* 通过tcp连接搜索服务器，如果连接不上，有一种可能是服务器端与客户端的jar包版本不匹配 */
+				searchClient
+						.addTransportAddress(new InetSocketTransportAddress(
+								new InetSocketAddress(address, port)));
+			}
+		}
 		return searchClient;
 	}
 
@@ -630,9 +691,7 @@ public class SesManageImpl implements ISesManage {
 						host.setMemUsed(host.getMemUsed() + esMem);
 						host.setHttpPort(String.valueOf(port_min));
 						host.setTcpPort(String.valueOf(port_min + 1));
-						host.setAgentPort(res.getAgentPort());
-						host.setBinPath(res.getBinPath());
-						host.setUserPath(res.getUserPath());
+						host.setDataPath(res.getDataPath());
 						result.add(host);
 						res.setPortMin(port_min + 2);
 						res.setMemUsed(res.getMemUsed() + host.getMemUsed());
@@ -678,10 +737,12 @@ public class SesManageImpl implements ISesManage {
 		TransportClient client = null;
 		try {
 			client = prepareSearchClient(ipAndPort);
-			client.admin().indices().preparePutMapping().setIndices(indices)
-					.setType(mappingType).setSource(mapping).execute()
-					.actionGet();
-		} catch (ElasticsearchException e) {
+			PutMappingResponse putMappingResponse = client.admin().indices()
+					.preparePutMapping().setIndices(indices)
+					.setType(mappingType).setSource(mapping).get();
+			if (!putMappingResponse.isAcknowledged())
+				throw new PaasRuntimeException(putMappingResponse.toString());
+		} catch (Exception e) {
 			LOGGER.error("createMapping error", e);
 			throw new PaasException("createMapping error", e);
 		} finally {
@@ -701,17 +762,16 @@ public class SesManageImpl implements ISesManage {
 	 */
 	private String quryIpAndPort(String userId, String serviceId) {
 		SesUserInstanceCriteria example = new SesUserInstanceCriteria();
-		example.setLimitStart(0);
-		example.setLimitEnd(1);
 		example.createCriteria().andUserIdEqualTo(userId)
 				.andServiceIdEqualTo(serviceId).andStatusEqualTo(1);
 		List<SesUserInstance> insts = ServiceUtil.getMapper(
 				SesUserInstanceMapper.class).selectByExample(example);
 		String ipAndPort = "";
-		if (insts != null && insts.size() == 1) {
-			SesUserInstance inst = insts.get(0);
-			ipAndPort = inst.getHostIp() + SesConstants.SPLITER_COLON
-					+ inst.getTcpPort();
+		if (insts != null) {
+			for (SesUserInstance inst : insts) {
+				ipAndPort += inst.getHostIp() + SesConstants.SPLITER_COLON
+						+ inst.getTcpPort() + ",";
+			}
 		}
 		return ipAndPort;
 	}
@@ -730,26 +790,25 @@ public class SesManageImpl implements ISesManage {
 			client = prepareSearchClient(ipAndPort);
 			String indexName = mappingApply.getIndexName();
 			String indexType = mappingApply.getIndexType();
-			IndicesAdminClient indicesAdminClient = client.admin().indices();
 			if (!doesIndexExist(indexName, client)) {
-				createIndex(mappingApply);
+				createIndex(client, mappingApply);
 			} else {
 				// 先删除index，再创建，以保证删除mapping
-				DeleteIndexResponse delete = indicesAdminClient.delete(
-						new DeleteIndexRequest(indexName)).get();
+				DeleteIndexResponse delete = client.admin().indices()
+						.delete(new DeleteIndexRequest(indexName)).get();
 				if (!delete.isAcknowledged()) {
 					LOGGER.error("Index wasn't deleted" + indexName);
 					throw new PaasRuntimeException("Index wasn't deleted"
 							+ indexName);
 				}
+				createIndex(client, mappingApply);
 			}
 			String mapping = mappingApply.getMapping();
 			LOGGER.info("putMapping begin ..........userid:" + userId
 					+ ".....serviceId:" + serviceId + ".....indexName:"
 					+ indexName + ".....mapping:" + mapping);
-			indicesAdminClient.preparePutMapping().setIndices(indexName)
-					.setType(indexType).setSource(mapping).execute()
-					.actionGet();
+			client.admin().indices().preparePutMapping().setIndices(indexName)
+					.setType(indexType).setSource(mapping).get();
 			addMapping2Zk(userId, serviceId, mapping);
 		} catch (Exception e) {
 			LOGGER.error("createMapping error", e);
@@ -770,7 +829,7 @@ public class SesManageImpl implements ISesManage {
 		try {
 			IndicesExistsRequest ier = new IndicesExistsRequest();
 			ier.indices(new String[] { indexName.toLowerCase() });
-			return client.admin().indices().exists(ier).actionGet().isExists();
+			return client.admin().indices().exists(ier).get().isExists();
 		} catch (Exception e) {
 			LOGGER.error("doesIndexExist error", e);
 			throw new PaasException("doesIndexExist error", e);

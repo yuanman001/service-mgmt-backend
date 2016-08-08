@@ -1,12 +1,12 @@
 package com.ai.paas.ipaas.ses.manager.impl;
 
 import java.util.List;
-import java.util.Map;
 
 import org.springframework.beans.factory.annotation.Autowired;
 
 import com.ai.paas.ipaas.ses.manage.rest.interfaces.IRPCDataSource;
 import com.ai.paas.ipaas.ses.service.interfaces.IDataSource;
+import com.ai.paas.ipaas.vo.ses.RPCDataSource;
 import com.ai.paas.ipaas.vo.ses.SesDataSourceInfo;
 import com.ai.paas.ipaas.vo.ses.SesIndexSqlInfo;
 import com.alibaba.dubbo.config.annotation.Service;
@@ -18,45 +18,44 @@ public class RPCDataSourceImpl implements IRPCDataSource {
 
 	@Override
 	public List<SesDataSourceInfo> getIndexDataSources(String userId,
-			String serviceId, int groupId) {
+			String serviceId, Integer groupId) {
 		return dsSrv.getIndexDataSources(userId, serviceId, groupId);
 	}
 
 	@Override
 	public SesIndexSqlInfo getIndexDataSql(String userId, String serviceId,
-			int groupId) {
+			Integer groupId) {
 		return dsSrv.getIndexDataSql(userId, serviceId, groupId);
 	}
 
 	@Override
-	public void saveIndexDataSql(Map<String, String> dbInfo,
-			SesDataSourceInfo dbAttr, Map<String, String> userInfo) {
-		dsSrv.saveIndexDataSql(dbInfo, dbAttr, userInfo);
+	public void saveIndexDataSql(RPCDataSource rpcDataSource) {
+		dsSrv.saveIndexDataSql(rpcDataSource.getDbInfo(),
+				rpcDataSource.getDbAttr(), rpcDataSource.getUserInfo());
 	}
 
 	@Override
-	public SesDataSourceInfo getDataSourceInfo(
-			List<SesDataSourceInfo> dataSources, Map<String, String> userInfo,
-			Map<String, String> dbInfo) {
-		return dsSrv.getDataSourceInfo(dataSources, userInfo, dbInfo);
+	public SesDataSourceInfo getDataSourceInfo(RPCDataSource rpcDataSource) {
+		return dsSrv.getDataSourceInfo(rpcDataSource.getDataSources(),
+				rpcDataSource.getUserInfo(), rpcDataSource.getDbInfo());
 	}
 
 	@Override
-	public void deleteDataSource(List<SesDataSourceInfo> dataSources,
-			Map<String, String> userInfo) {
-		dsSrv.deleteDataSource(dataSources, userInfo);
+	public void deleteDataSource(RPCDataSource rpcDataSource) {
+		dsSrv.deleteDataSource(rpcDataSource.getDataSources(),
+				rpcDataSource.getUserInfo());
 	}
 
 	@Override
-	public void deleteIndexDataSql(Map<String, String> sqlInfo,
-			Map<String, String> userInfo) {
-		dsSrv.deleteIndexDataSql(sqlInfo, userInfo);
+	public void deleteIndexDataSql(RPCDataSource rpcDataSource) {
+		dsSrv.deleteIndexDataSql(rpcDataSource.getSqlInfo(),
+				rpcDataSource.getUserInfo());
 	}
 
 	@Override
-	public void saveDataSource(Map<String, String> userInfo,
-			List<SesDataSourceInfo> dataSources) {
-		dsSrv.saveDataSource(userInfo, dataSources);
+	public void saveDataSource(RPCDataSource rpcDataSource) {
+		dsSrv.saveDataSource(rpcDataSource.getUserInfo(),
+				rpcDataSource.getDataSources());
 	}
 
 	@Override
@@ -65,8 +64,8 @@ public class RPCDataSourceImpl implements IRPCDataSource {
 	}
 
 	@Override
-	public List<SesDataSourceInfo> getDataSource(int dataSourceUId,
-			String dbAlias, int groupId) {
+	public List<SesDataSourceInfo> getDataSource(Integer dataSourceUId,
+			String dbAlias, Integer groupId) {
 		return dsSrv.getDataSource(dataSourceUId, dbAlias, groupId);
 	}
 

@@ -107,7 +107,7 @@
   </delete>
   <insert id="insert" parameterType="com.ai.paas.ipaas.ses.dao.mapper.bo.SesUserMapping" >
     insert into ses_user_mapping (id, user_id, service_id, 
-      mapping, index_display, pk, copy_to
+      mapping, index_display, pk, copy_to,
       update_time)
     values (#{id,jdbcType=INTEGER}, #{userId,jdbcType=VARCHAR}, #{serviceId,jdbcType=VARCHAR}, 
       #{mapping,jdbcType=VARCHAR}, #{indexDisplay,jdbcType=VARCHAR}, #{pk,jdbcType=VARCHAR}, 

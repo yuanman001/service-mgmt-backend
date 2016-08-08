@@ -10,8 +10,9 @@ package com.ai.paas.ipaas.ses.service.vo;
 
 import java.io.Serializable;
 
-import com.ai.paas.ipaas.rpc.api.vo.ApplyInfo;;
+import com.ai.paas.ipaas.rpc.api.vo.ApplyInfo;
 
+;
 
 public class SesHostInfo extends ApplyInfo implements Serializable {
 
@@ -43,17 +44,9 @@ public class SesHostInfo extends ApplyInfo implements Serializable {
 	private int memUsed;
 
 	/**
-	 * 搜索引擎安装跟路径
+	 * 搜索引擎数据根路径
 	 */
-	private String binPath;
-	/**
-	 * 用户数据存放路径
-	 */
-	private String userPath;
-	/**
-	 * agnet引擎执行端口
-	 */
-	private int agentPort;
+	private String dataPath;
 
 	public String getIp() {
 		return ip;
@@ -129,67 +122,12 @@ public class SesHostInfo extends ApplyInfo implements Serializable {
 		this.memUsed = memUsed;
 	}
 
-	/**
-	 * binPath.
-	 *
-	 * @return the binPath
-	 * @since JDK 1.7
-	 */
-	public String getBinPath() {
-		return binPath;
+	public String getDataPath() {
+		return dataPath;
 	}
 
-	/**
-	 * binPath.
-	 *
-	 * @param binPath
-	 *            the binPath to set
-	 * @since JDK 1.7
-	 */
-	public void setBinPath(String binPath) {
-		this.binPath = binPath;
-	}
-
-	/**
-	 * userPath.
-	 *
-	 * @return the userPath
-	 * @since JDK 1.7
-	 */
-	public String getUserPath() {
-		return userPath;
-	}
-
-	/**
-	 * userPath.
-	 *
-	 * @param userPath
-	 *            the userPath to set
-	 * @since JDK 1.7
-	 */
-	public void setUserPath(String userPath) {
-		this.userPath = userPath;
-	}
-
-	/**
-	 * agentPort.
-	 *
-	 * @return the agentPort
-	 * @since JDK 1.7
-	 */
-	public int getAgentPort() {
-		return agentPort;
-	}
-
-	/**
-	 * agentPort.
-	 *
-	 * @param agentPort
-	 *            the agentPort to set
-	 * @since JDK 1.7
-	 */
-	public void setAgentPort(int agentPort) {
-		this.agentPort = agentPort;
+	public void setDataPath(String dataPath) {
+		this.dataPath = dataPath;
 	}
 
 }

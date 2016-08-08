@@ -221,7 +221,8 @@ public class DataSourceImpl implements IDataSource {
 				if (datas.get(0).getIsPrimary() == SesConstants.PRIMARY) {
 					p.setAlias(datas.get(0).getAlias());
 					p.setDrAlias(datas.get(0).getDsAlias());
-					p.setSql(infos.get("sql").toString());
+					p.setSql(null != infos && null != infos.get("sql") ? infos
+							.get("sql").toString() : "");
 					sql.setPrimarySql(p);
 				}
 			} else {
@@ -231,8 +232,9 @@ public class DataSourceImpl implements IDataSource {
 					if (sq.getIsPrimary() == SesConstants.PRIMARY) {
 						p.setAlias(sq.getAlias());
 						p.setDrAlias(sq.getDsAlias());
-						p.setPrimaryKey(infos.get("primaryKey").toString());
-						p.setSql(infos.get("sql").toString());
+						p.setPrimaryKey(""+sq.getIsPrimary());
+						p.setSql(null != infos && null != infos.get("sql") ? infos
+								.get("sql").toString() : "");
 						sql.setPrimarySql(p);
 					} else {
 						SesIndexFiledSql fSql = new SesIndexFiledSql();
@@ -376,7 +378,7 @@ public class DataSourceImpl implements IDataSource {
 					Map<String, String> info = new HashMap<String, String>();
 					info.put("relation", dbInfo.get("relation"));
 					info.put("mapObj", dbInfo.get("mapObj"));
-					if (fdrAlias != null && fdrAlias.split("_").length == 2) {
+					if (fdrAlias != null && fdrAlias.split("___").length == 2) {
 						info.put("indexAlias", dbInfo.get("indexAlias"));
 						info.put("indexSql", dbInfo.get("indexSql"));
 					}
