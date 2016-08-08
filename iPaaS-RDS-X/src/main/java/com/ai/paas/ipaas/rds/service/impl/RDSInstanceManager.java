@@ -1267,6 +1267,8 @@ public class RDSInstanceManager implements IRDSInstanceManager {
 
 	@Override
 	public String start(String startApply) {
+		LOG.info("----------startApply: " + startApply);
+		
 		StartRDS startRDSObject = g.getGson().fromJson(startApply, StartRDS.class);
 		Stack<RdsIncBase> instanceStack ;
 		RdsIncBaseMapper incBaseMapper = ServiceUtil.getMapper(RdsIncBaseMapper.class);
@@ -1309,6 +1311,7 @@ public class RDSInstanceManager implements IRDSInstanceManager {
 
 	@Override
 	public String stop(String stopApply) {
+		LOG.info("----------stopApply: " + stopApply);
 		StopRDS stopRDSObject = g.getGson().fromJson(stopApply, StopRDS.class);
 		Stack<RdsIncBase> instanceStack;
 		RdsIncBaseMapper incBaseMapper = ServiceUtil.getMapper(RdsIncBaseMapper.class);
