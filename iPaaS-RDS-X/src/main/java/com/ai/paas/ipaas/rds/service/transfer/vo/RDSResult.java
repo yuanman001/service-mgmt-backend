@@ -10,13 +10,13 @@ import com.ai.paas.ipaas.rds.service.constant.ResponseResultMark;
  * @since  
  */
 public class RDSResult implements RDSResultInterface{
-	public int resultCode = ResponseResultMark.WARN_INIT_STATUS;
+	public String resultCode = String.valueOf(ResponseResultMark.WARN_INIT_STATUS);
 	public String resultMsg;
 	public String content;
 	public String ExceptionTrace;
 	public RDSResult(int status) {
 		super();
-		this.resultCode = status;
+		this.resultCode = String.valueOf(status);
 		switch(status){
 		case ResponseResultMark.SUCCESS:
 			resultMsg = "SUCCESS";
@@ -66,7 +66,7 @@ public class RDSResult implements RDSResultInterface{
 	}
 	public RDSResult(int status, String discribe, String content, String exceptionTrace) {
 		super();
-		this.resultCode = status;
+		this.resultCode = String.valueOf(status);
 		this.resultMsg = discribe;
 		this.content = content;
 		ExceptionTrace = exceptionTrace;
@@ -119,7 +119,7 @@ public class RDSResult implements RDSResultInterface{
 		}
 	}
 	public void setStatus(int status){
-		this.resultCode = status;
+		this.resultCode = String.valueOf(status);
 		switch(status){
 		case ResponseResultMark.SUCCESS:
 			resultMsg = "SUCCESS";
