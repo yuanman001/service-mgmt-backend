@@ -2,7 +2,7 @@ package test.rds.rest;
 
 import java.sql.Timestamp;
 
-import com.ai.paas.ipaas.rds.service.transfer.vo.CancelRDS;
+import com.ai.paas.ipaas.rds.service.transfer.vo.StopRDS;
 import com.google.gson.Gson;
 
 public class TestRds {
@@ -43,15 +43,16 @@ public class TestRds {
 		
 		
 //		StopRDS stopObject = new StopRDS();
-//		stopObject.instanceid = 83;
+//		stopObject.instanceid = 101;
 //		String request = g.toJson(stopObject);
 //		System.out.println(request);
 //		String result = RdsHttpClientUtil.send(url+"/rds/mysql/manager/stop",request);
+//		System.out.println(url+"/rds/mysql/manager/stop");
 //		System.out.println(result);
 		
 		
 //		StartRDS startObject = new StartRDS();
-//		startObject.instanceid = 83;
+//		startObject.instanceid = 101;
 //		String request = g.toJson(startObject);
 //		System.out.println(request);
 //		String result = RdsHttpClientUtil.send(url+"/rds/mysql/manager/start",request);

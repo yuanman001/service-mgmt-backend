@@ -107,7 +107,6 @@ public class RDSInstanceManager implements IRDSInstanceManager {
 		
 		// 查询实例情况
 		instanceStack = getInstanceStack(cancelObject.instanceid);
-		
 		if(instanceStack.isEmpty()){
 			cancelResult.setStatus(ResponseResultMark.WARNING_INSTANCE_STACK_EMPTY);
 			return g.getGson().toJson(cancelResult);
@@ -142,8 +141,12 @@ public class RDSInstanceManager implements IRDSInstanceManager {
 		Stack<RdsIncBase> instanceStack = new Stack<RdsIncBase>();
 		RdsIncBaseMapper ibm = ServiceUtil.getMapper(RdsIncBaseMapper.class);
 		RdsIncBase instanceInfo = ibm.selectByPrimaryKey(instanceid);
-		if(null != instanceInfo)
+		
+		if(null != instanceInfo){
 			instanceStack.push(instanceInfo);
+		}else {
+			return instanceStack;
+		}
 		if(InstanceType.MASTER == instanceInfo.getIncType()){
 //			System.out.println("$$$$$$$$$$$$$$$$$$$$"+instanceInfo.getBakId());
 			if(null != instanceInfo.getBakId() && !instanceInfo.getBakId().equals("")){
@@ -237,6 +240,7 @@ public class RDSInstanceManager implements IRDSInstanceManager {
 	 */
 	@Override
 	public String create(String create) {
+		LOG.info("$$$$$$$$$$$$$$$ create : "+create);
 		// 解析JSON对象
 		CreateRDS createObject = g.getGson().fromJson(create, CreateRDS.class);
 		CreateRDSResult createResult = new CreateRDSResult(ResponseResultMark.WARN_INIT_STATUS);
@@ -478,6 +482,10 @@ public class RDSInstanceManager implements IRDSInstanceManager {
 		
 		// 查询实例情况
 		Stack<RdsIncBase> instanceStack = getInstanceStack(createObject.masterinstanceid);
+		if(instanceStack.isEmpty()){
+			createResult.setStatus(ResponseResultMark.ERROR_NOT_EXIST_THIS_MASTER);
+			return g.getGson().toJson(createResult);
+		}
 		List<RdsResourcePool> exceptResourceResourceList = new ArrayList<RdsResourcePool>();
 		
 		for(int i = 0; i < instanceStack.size(); i++){

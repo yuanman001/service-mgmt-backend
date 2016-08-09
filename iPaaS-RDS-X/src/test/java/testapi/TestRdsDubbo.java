@@ -1,15 +1,17 @@
 package testapi;
 
+import java.sql.Timestamp;
+
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
+import com.ai.paas.ipaas.rds.dao.mapper.bo.RdsIncBase;
 import com.ai.paas.ipaas.rds.manage.rest.interfaces.IRDSInstanceManager;
 import com.ai.paas.ipaas.rds.manage.rest.interfaces.IRDSResourcePool;
-import com.ai.paas.ipaas.rds.service.transfer.vo.CancelRDS;
-import com.ai.paas.ipaas.rds.service.transfer.vo.StartRDS;
-import com.ai.paas.ipaas.rds.service.transfer.vo.StopRDS;
+import com.ai.paas.ipaas.rds.service.transfer.vo.CreateRDS;
+import com.ai.paas.ipaas.rds.service.transfer.vo.CreateRDSResult;
 import com.alibaba.dubbo.config.annotation.Reference;
 import com.google.gson.Gson;
 
@@ -81,29 +83,33 @@ public class TestRdsDubbo {
 //	}
 
 	/**
+	 * 
+	 * ["{\"instanceBase\":{\"incName\":\"实例名称5\",\"serviceId\":\"RDS005\",\"incDescribe\":\"实例描述\",\"userId\":\"8E7ECAC706994DB9AC2BBB037C18762B\",\"maxConnectNum\":\"300\",\"dbStoreage\":\"10000\",\"incType\":\"1\",\"incTag\":\"实例标签5\",\"incLocation\":\"实例位置55\",\"depId\":\"部门名称5\"},\"createBatmasterNum\":0,\"createSlaverNum\":1}"]
 	 * passed
 	 * 解析方法:CreateRDSResult ct = g.fromGson(obj,CreateRDSResult.class)
 	 * 主要是status值有用
 	 */
-//	@Test
-//	public void create(){
-//		Timestamp time = new Timestamp(System.currentTimeMillis()); 
-//		CreateRDS creatObject = new CreateRDS();
-//		creatObject.createSlaverNum = 1;
-//		creatObject.createBatmasterNum = 0;
-//		// user_id对应ccs_user_config中的用户
-//		creatObject.instanceBase = new RdsIncBase("6C4F4DBA96294DDCBC5DBBF2CAD442B5", "testmysql", "BIU", 5, 100, "","",
-//				"mysql6", "", 0, 1, "BIU,MYSQL,TEST","BEIJING", 1, "no describe", "/aifs01", 
-//				"/aifs01/mysqldata","", "192.168.*.*", "root", "root", "containerName",
-//				"1234", 50000, 2000, 123, 500,time,time);
-//		String request = g.toJson(creatObject);
-//		System.out.println(request);
-//		String result = incManager.create(request);
-//		System.out.println("$$$$$$$$$$$$$$$$$$$$result$$$$$$$$$$$$$$$$$$$");
-//		System.out.println(result);
-//		CreateRDSResult ssss = g.fromJson(result, CreateRDSResult.class);
-//		System.out.println("$$$$$$$$$$$$$$$$$$$$result$$$$$$$$$$$$$$$$$$$");
-//	}
+	@Test
+	public void create(){
+		Timestamp time = new Timestamp(System.currentTimeMillis()); 
+		CreateRDS creatObject = new CreateRDS();
+		creatObject.createSlaverNum = 1;
+		creatObject.createBatmasterNum = 0;
+		// user_id对应ccs_user_config中的用户
+		creatObject.instanceBase = new RdsIncBase("6C4F4DBA96294DDCBC5DBBF2CAD442B5", "testmysql", "BIU", 5, 100, "","",
+				"mysql6", "", 0, 1, "BIU,MYSQL,TEST","BEIJING", 1, "no describe", "/aifs01", 
+				"/aifs01/mysqldata","", "192.168.*.*", "root", "root", "containerName",
+				"1234", 10000, 2000, 123, 500,time,time);
+		String request = g.toJson(creatObject);
+		System.out.println(request);
+		String result = incManager.create(request);
+		System.out.println("$$$$$$$$$$$$$$$$$$$$result$$$$$$$$$$$$$$$$$$$");
+		System.out.println(result);
+		CreateRDSResult ssss = g.fromJson(result, CreateRDSResult.class);
+		System.out.println("$$$$$$$$$$$$$$$$$$$$result$$$$$$$$$$$$$$$$$$$");
+	}
+	
+	
 	
 	/**
 	 * passed
@@ -140,62 +146,47 @@ public class TestRdsDubbo {
 	 * 解析方法:CancelRDSResult ct = g.fromGson(obj,CancelRDSResult.class)
 	 * 主要是status值有用
 	 */
-	@Test
-	public void cancel(){
-		CancelRDS cancelObject = new CancelRDS();
-		cancelObject.instanceid = 106;
-		String request = g.toJson(cancelObject);
-		System.out.println(request);
-		String result = incManager.cancel(request);
-		System.out.println("$$$$$$$$$$$$$$$$$$$$result$$$$$$$$$$$$$$$$$$$");
-		System.out.println(result);
-		System.out.println("$$$$$$$$$$$$$$$$$$$$result$$$$$$$$$$$$$$$$$$$");
-		
-		cancelObject.instanceid = 108;
-		String request1 = g.toJson(cancelObject);
-		System.out.println(request1);
-		String result1 = incManager.cancel(request1);
-		System.out.println("$$$$$$$$$$$$$$$$$$$$result$$$$$$$$$$$$$$$$$$$");
-		System.out.println(result1);
-		System.out.println("$$$$$$$$$$$$$$$$$$$$result$$$$$$$$$$$$$$$$$$$");
-		
-//		cancelObject.instanceid = 96;
-//		String request2 = g.toJson(cancelObject);
+//	@Test
+//	public void cancel(){
+//		CancelRDS cancelObject = new CancelRDS();
+//		cancelObject.instanceid = 106;
+//		String request = g.toJson(cancelObject);
 //		System.out.println(request);
-//		String result2 = incManager.cancel(request2);
+//		String result = incManager.cancel(request);
 //		System.out.println("$$$$$$$$$$$$$$$$$$$$result$$$$$$$$$$$$$$$$$$$");
-//		System.out.println(result2);
+//		System.out.println(result);
 //		System.out.println("$$$$$$$$$$$$$$$$$$$$result$$$$$$$$$$$$$$$$$$$");
-	}
+//		
+//	}
 	
 	/**
 	 * passed
 	 * 解析方法:StopRDSResult ct = g.fromGson(obj,StopRDSResult.class)
 	 * 主要是status值有用
 	 */
-	@Test
-	public void stop(){
-		StopRDS stopObject = new StopRDS();
-		stopObject.instanceid = 90;
-		String request = g.toJson(stopObject);
-		System.out.println(request);
-		String result = incManager.stop(request);
-		System.out.println(result);
-	}
+//	@Test
+//	public void stop(){
+//		StopRDS stopObject = new StopRDS();
+//		stopObject.instanceid = 90;
+//		String request = g.toJson(stopObject);
+//		System.out.println(request);
+//		String result = incManager.stop(request);
+//		System.out.println(result);
+//	}
 	
 	/**
 	 * passed
 	 * 解析方法:StartRDSResult ct = g.fromGson(obj,StartRDSResult.class)
 	 * 主要是status值有用
 	 */
-	@Test
-	public void start(){
-		StartRDS startObject = new StartRDS();
-		startObject.instanceid = 90;
-		String request = g.toJson(startObject);
-		System.out.println(request);
-		String result = incManager.start(request);
-		System.out.println(result);
-	}
+//	@Test
+//	public void start(){
+//		StartRDS startObject = new StartRDS();
+//		startObject.instanceid = 90;
+//		String request = g.toJson(startObject);
+//		System.out.println(request);
+//		String result = incManager.start(request);
+//		System.out.println(result);
+//	}
 	
 }

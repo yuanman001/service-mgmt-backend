@@ -22,6 +22,7 @@ public interface ResponseResultMark {
 	public int ERROR_ONLY_CAN_CREATE_MASTER = 210;
 	public int ERROR_BAD_CONFIG = 211;
 	public int ERROR_BAD_CONFIG_ZK = 212;
+	public int ERROR_NOT_EXIST_THIS_MASTER = 213;
 	
 }
 		
