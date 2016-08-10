@@ -20,9 +20,9 @@ public class SesSrvImplTest {
 	private ISearchEngineServiceManager iSearchEngineServiceManager;
 	
 
-    private String userId = "98073DD93D784C128E05BB7D71B34996";
+    private String userId = "6CB51434BC4D4B6DAE70D807AC4ED3FF";
 
-    private String serviceId = "SES311";
+    private String serviceId = "SES003";
 
 
 
@@ -31,7 +31,7 @@ public class SesSrvImplTest {
     public void testCreateSesService() throws Exception {
     	SesSrvApply apply = new SesSrvApply();
     	apply.setApplyType("create");
-    	apply.setClusterNum(2);
+    	apply.setClusterNum(3);
     	apply.setReplicasNum(1);
     	apply.setServiceId(serviceId);
     	apply.setServiceName("sb service");
