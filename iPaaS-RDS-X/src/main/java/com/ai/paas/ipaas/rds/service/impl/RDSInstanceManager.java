@@ -3,6 +3,7 @@ package com.ai.paas.ipaas.rds.service.impl;
 import java.io.IOException;
 import java.io.InputStream;
 import java.lang.reflect.Method;
+import java.lang.reflect.Type;
 import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.Calendar;
@@ -60,6 +61,7 @@ import com.ai.paas.ipaas.rds.service.transfer.vo.StopRDSResult;
 //import com.ai.paas.ipaas.rds.service.util.EntityToWhere;
 import com.ai.paas.ipaas.rds.service.util.GsonSingleton;
 import com.alibaba.dubbo.config.annotation.Service;
+import com.google.gson.reflect.TypeToken;
 
 /**
  * 传输对象命名规则就是对应方法名
@@ -304,11 +306,15 @@ public class RDSInstanceManager implements IRDSInstanceManager {
 		rdsResPoolCri.createCriteria().andCurrentportLessThan(66000);
 		List<RdsResourcePool> allResource = rdsResPoolMapper.selectByExample(rdsResPoolCri);
 		
-		if(!checkResourceEnough(allResource, createObject.createBatmasterNum + createObject.createSlaverNum + 1, createObject.instanceBase.getDbStoreage())){
+		// 为了深度拷贝数据
+		Type rdsResourcePoolListType = new TypeToken<List<RdsResourcePool>>(){}.getType();
+		List<RdsResourcePool> allResourceCp = g.getGson().fromJson(g.getGson().toJson(allResource), rdsResourcePoolListType);
+		if(!checkResourceEnough(allResourceCp, createObject.createBatmasterNum + createObject.createSlaverNum + 1, createObject.instanceBase.getDbStoreage())){
 			createResult.setStatus(ResponseResultMark.ERROR_LESS_MEMORY_SPACE);
 			return g.getGson().toJson(createResult);
 		}
 		
+//		List<RdsResourcePool> allResource = rdsResPoolMapper.selectByExample(rdsResPoolCri);
 		RDSResourcePlan resourcePlan = getResourcePlan(createObject, allResource);
 		if(null == resourcePlan.instanceresourcebelonger){
 			createResult.setStatus(ResponseResultMark.ERROR_LESS_MEMORY_SPACE);
@@ -615,6 +621,8 @@ public class RDSInstanceManager implements IRDSInstanceManager {
 		IpaasImageResourceMapper imgResMapper = ServiceUtil.getMapper(IpaasImageResourceMapper.class);
 //		IpaasImageResource imgRes = imgResMapper.selectByPrimaryKey(savedRdsIncBase.getImgId());
 		IpaasImageResourceCriteria imgCri = new IpaasImageResourceCriteria();
+		
+		// 以后镜像作为可选项
 		imgCri.createCriteria().andImageCodeEqualTo("mysql").andServiceCodeEqualTo("RDS").andStatusEqualTo(1);
 		List<IpaasImageResource> imgResConstant = imgResMapper.selectByExample(imgCri);
 		IpaasImageResource imgRes = imgResConstant.get(0);
@@ -1096,20 +1104,18 @@ public class RDSInstanceManager implements IRDSInstanceManager {
 //	}
 	/**
 	 * 获取可用资源 空间满足需求，状态满足需求，端口满足需求
-	 * 
+	 * debug... 数据遭到修改
 	 * @param createObject
 	 * @param resourceList
 	 * @return
 	 */
 	private List<RdsResourcePool> getMasterUsableResource(int externalStorage, List<RdsResourcePool> resourceList) {
-		// for(int i = 0; i < resourceList.size(); i++){
 		List<RdsResourcePool> canUseRes = new LinkedList<RdsResourcePool>();
 		for (RdsResourcePool rp : resourceList) {
 			int canUseExtMemSize = rp.getTotalmemory() - rp.getUsedmemory();
 			if ((RDSCommonConstant.RES_STATUS_USABLE == rp.getStatus()) && (RDSCommonConstant.RES_CYCLE_USABLE == rp.getCycle())
 					&& (canUseExtMemSize > externalStorage)
 					&& ((rp.getCurrentport() + 1) < rp.getMaxport())) {
-				// if((decidedRes.currentport+1) < decidedRes.maxport){
 				canUseRes.add(rp);
 			}
 		}
