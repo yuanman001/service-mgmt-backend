@@ -98,7 +98,7 @@ public class TestRdsDubbo {
 		// user_id对应ccs_user_config中的用户
 		creatObject.instanceBase = new RdsIncBase("6C4F4DBA96294DDCBC5DBBF2CAD442B5", "testmysql", "BIU", 5, 100, "","",
 				"mysql6", "", 0, 1, "BIU,MYSQL,TEST","BEIJING", 1, "no describe", "/aifs01", 
-				"/aifs01/mysqldata","", "192.168.*.*", "root", "root", "containerName",
+				"/aifs01/mysqldata","", "192.168.*.*", "root", "123456", "containerName",
 				"1234", 10000, 2000, 123, 500,time,time);
 		String request = g.toJson(creatObject);
 		System.out.println(request);
@@ -149,7 +149,7 @@ public class TestRdsDubbo {
 //	@Test
 //	public void cancel(){
 //		CancelRDS cancelObject = new CancelRDS();
-//		cancelObject.instanceid = 106;
+//		cancelObject.instanceid = 105;
 //		String request = g.toJson(cancelObject);
 //		System.out.println(request);
 //		String result = incManager.cancel(request);
@@ -167,7 +167,7 @@ public class TestRdsDubbo {
 //	@Test
 //	public void stop(){
 //		StopRDS stopObject = new StopRDS();
-//		stopObject.instanceid = 90;
+//		stopObject.instanceid = 105;
 //		String request = g.toJson(stopObject);
 //		System.out.println(request);
 //		String result = incManager.stop(request);
@@ -182,7 +182,7 @@ public class TestRdsDubbo {
 //	@Test
 //	public void start(){
 //		StartRDS startObject = new StartRDS();
-//		startObject.instanceid = 90;
+//		startObject.instanceid = 105;
 //		String request = g.toJson(startObject);
 //		System.out.println(request);
 //		String result = incManager.start(request);

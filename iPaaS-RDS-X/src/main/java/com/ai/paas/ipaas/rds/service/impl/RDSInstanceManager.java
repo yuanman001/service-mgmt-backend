@@ -270,10 +270,15 @@ public class RDSInstanceManager implements IRDSInstanceManager {
 			createObject.instanceBase.setMysqlVolumnPath("");
 		}
 		if(createObject.instanceBase.getRootName() == null){
-			createObject.instanceBase.setRootName("root");
+			createResult.setStatus(ResponseResultMark.ERROR_ROOT_USER_NAME_CANNOT_NULL);
+			return g.getGson().toJson(createResult);
+		}else if(createObject.instanceBase.getRootName().equals("root") || createObject.instanceBase.getRootName().equals("sync")){
+			createResult.setStatus(ResponseResultMark.ERROR_ROOT_USER_NAME_CANNOT_USE_PARTICULAR_CHAR);
+			return g.getGson().toJson(createResult);
 		}
-		if(createObject.instanceBase.getRootPassword() == null){
-			createObject.instanceBase.setRootPassword("123456");
+		if(createObject.instanceBase.getRootPassword() == null || createObject.instanceBase.getRootPassword().isEmpty()){
+			createResult.setStatus(ResponseResultMark.ERROR_ROOT_USER_PASSWORD_CANNOT_NULL);
+			return g.getGson().toJson(createResult);
 		}
 		if(createObject.instanceBase.getBakId() == null){
 			createObject.instanceBase.setBakId("");
@@ -566,7 +571,7 @@ public class RDSInstanceManager implements IRDSInstanceManager {
 	public static final String CREATE_ANSIBLE_HOSTS = "rds/init_ansible_ssh_hosts.sh {0} {1} {2}";
 	
 	public static final String DOCKER_MASTER_PARAM = "rds/ansible_master_run_image.sh  {1} {2} "
-			+ "{3} {4} {5} {6} {7} {8} {9} {10} {11} {12} {13} {14}";
+			+ "{3} {4} {5} {6} {7} {8} {9} {10} {11} {12} {13} {14} {15} {16}";
 	public static final String DOCKER_SLAVER_PARAM = "rds/ansible_slaver_run_image.sh {1} {2} "
 			+ "{3} {4} {5} {6} {7} {8} {9} {10} {11} {12} {13} {14} {15} {16}";
 	public static final String DOCKER_BATMASTER_PARAM = "rds/ansible_run_image.sh {1} {2} "
@@ -682,14 +687,16 @@ public class RDSInstanceManager implements IRDSInstanceManager {
 							savedRdsIncBase.getIncIp(),
 							imgRes.getImageRepository() + "/" + imgRes.getImageName(),
 							savedRdsIncBase.getIncPort() + "",
-//							savedRdsIncBase.getMysqlDataHome(),//incRes.getVolumnPath()
 							incRes.getVolumnPath() + "/" + savedRdsIncBase.getIncPort(),
 							savedRdsIncBase.getMysqlHome(),
 							"/percona/data",
 							savedRdsIncBase.getUserId() + "-" + savedRdsIncBase.getServiceId() + "-" + savedRdsIncBase.getIncPort(),
 							savedRdsIncBase.getDbServerId(),
 							savedRdsIncBase.getDbStoreage() + "",
-							getIncTypeById(savedRdsIncBase.getIncType())});
+							getIncTypeById(savedRdsIncBase.getIncType()),
+							savedRdsIncBase.getRootName(),
+							savedRdsIncBase.getRootPassword()
+							});
 
 			LOG.debug("---------runImage {}----------", runImage);
 			AgentUtil.executeCommand(basePath + runImage, AidUtil.getAid());

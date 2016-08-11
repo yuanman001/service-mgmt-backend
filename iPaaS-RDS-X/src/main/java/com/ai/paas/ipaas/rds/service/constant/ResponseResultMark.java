@@ -23,6 +23,9 @@ public interface ResponseResultMark {
 	public int ERROR_BAD_CONFIG = 211;
 	public int ERROR_BAD_CONFIG_ZK = 212;
 	public int ERROR_NOT_EXIST_THIS_MASTER = 213;
+	public int ERROR_ROOT_USER_NAME_CANNOT_NULL = 214;
+	public int ERROR_ROOT_USER_PASSWORD_CANNOT_NULL = 215;
+	public int ERROR_ROOT_USER_NAME_CANNOT_USE_PARTICULAR_CHAR = 216;
 	
 }
 		
