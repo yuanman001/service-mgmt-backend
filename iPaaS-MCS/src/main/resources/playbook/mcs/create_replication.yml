@@ -1,0 +1,9 @@
+- hosts:  "{{host}}"
+  user: "{{user}}"
+  vars:
+     
+  tasks:
+     - name: docker pull
+       command: docker pull "{{image}}"
+     - name: docker run
+       command: docker run -d --net=host --name={{container_name}} -p {{REDIS_PORT}}:{{REDIS_PORT}} -e "REDIS_PORT={{REDIS_PORT}}" -e "START_MODE={{START_MODE}}" -e "MAX_MEM={{MAX_MEM}}" -e "PASSWORD={{PASSWORD}}" -e "MASTER_IP={{MASTER_IP}}" -e "MASTER_PORT={{MASTER_PORT}}" "{{image}}"

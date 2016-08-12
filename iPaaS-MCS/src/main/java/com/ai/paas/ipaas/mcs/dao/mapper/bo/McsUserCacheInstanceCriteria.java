@@ -834,6 +834,146 @@ public class McsUserCacheInstanceCriteria {
             addCriterion("service_name not between", value1, value2, "serviceName");
             return (Criteria) this;
         }
+
+        public Criteria andContainerNameIsNull() {
+            addCriterion("container_name is null");
+            return (Criteria) this;
+        }
+
+        public Criteria andContainerNameIsNotNull() {
+            addCriterion("container_name is not null");
+            return (Criteria) this;
+        }
+
+        public Criteria andContainerNameEqualTo(String value) {
+            addCriterion("container_name =", value, "containerName");
+            return (Criteria) this;
+        }
+
+        public Criteria andContainerNameNotEqualTo(String value) {
+            addCriterion("container_name <>", value, "containerName");
+            return (Criteria) this;
+        }
+
+        public Criteria andContainerNameGreaterThan(String value) {
+            addCriterion("container_name >", value, "containerName");
+            return (Criteria) this;
+        }
+
+        public Criteria andContainerNameGreaterThanOrEqualTo(String value) {
+            addCriterion("container_name >=", value, "containerName");
+            return (Criteria) this;
+        }
+
+        public Criteria andContainerNameLessThan(String value) {
+            addCriterion("container_name <", value, "containerName");
+            return (Criteria) this;
+        }
+
+        public Criteria andContainerNameLessThanOrEqualTo(String value) {
+            addCriterion("container_name <=", value, "containerName");
+            return (Criteria) this;
+        }
+
+        public Criteria andContainerNameLike(String value) {
+            addCriterion("container_name like", value, "containerName");
+            return (Criteria) this;
+        }
+
+        public Criteria andContainerNameNotLike(String value) {
+            addCriterion("container_name not like", value, "containerName");
+            return (Criteria) this;
+        }
+
+        public Criteria andContainerNameIn(List<String> values) {
+            addCriterion("container_name in", values, "containerName");
+            return (Criteria) this;
+        }
+
+        public Criteria andContainerNameNotIn(List<String> values) {
+            addCriterion("container_name not in", values, "containerName");
+            return (Criteria) this;
+        }
+
+        public Criteria andContainerNameBetween(String value1, String value2) {
+            addCriterion("container_name between", value1, value2, "containerName");
+            return (Criteria) this;
+        }
+
+        public Criteria andContainerNameNotBetween(String value1, String value2) {
+            addCriterion("container_name not between", value1, value2, "containerName");
+            return (Criteria) this;
+        }
+
+        public Criteria andRedisImageIsNull() {
+            addCriterion("redis_Image is null");
+            return (Criteria) this;
+        }
+
+        public Criteria andRedisImageIsNotNull() {
+            addCriterion("redis_Image is not null");
+            return (Criteria) this;
+        }
+
+        public Criteria andRedisImageEqualTo(String value) {
+            addCriterion("redis_Image =", value, "redisImage");
+            return (Criteria) this;
+        }
+
+        public Criteria andRedisImageNotEqualTo(String value) {
+            addCriterion("redis_Image <>", value, "redisImage");
+            return (Criteria) this;
+        }
+
+        public Criteria andRedisImageGreaterThan(String value) {
+            addCriterion("redis_Image >", value, "redisImage");
+            return (Criteria) this;
+        }
+
+        public Criteria andRedisImageGreaterThanOrEqualTo(String value) {
+            addCriterion("redis_Image >=", value, "redisImage");
+            return (Criteria) this;
+        }
+
+        public Criteria andRedisImageLessThan(String value) {
+            addCriterion("redis_Image <", value, "redisImage");
+            return (Criteria) this;
+        }
+
+        public Criteria andRedisImageLessThanOrEqualTo(String value) {
+            addCriterion("redis_Image <=", value, "redisImage");
+            return (Criteria) this;
+        }
+
+        public Criteria andRedisImageLike(String value) {
+            addCriterion("redis_Image like", value, "redisImage");
+            return (Criteria) this;
+        }
+
+        public Criteria andRedisImageNotLike(String value) {
+            addCriterion("redis_Image not like", value, "redisImage");
+            return (Criteria) this;
+        }
+
+        public Criteria andRedisImageIn(List<String> values) {
+            addCriterion("redis_Image in", values, "redisImage");
+            return (Criteria) this;
+        }
+
+        public Criteria andRedisImageNotIn(List<String> values) {
+            addCriterion("redis_Image not in", values, "redisImage");
+            return (Criteria) this;
+        }
+
+        public Criteria andRedisImageBetween(String value1, String value2) {
+            addCriterion("redis_Image between", value1, value2, "redisImage");
+            return (Criteria) this;
+        }
+
+        public Criteria andRedisImageNotBetween(String value1, String value2) {
+            addCriterion("redis_Image not between", value1, value2, "redisImage");
+            return (Criteria) this;
+        }
     }
 
     public static class Criteria extends GeneratedCriteria {

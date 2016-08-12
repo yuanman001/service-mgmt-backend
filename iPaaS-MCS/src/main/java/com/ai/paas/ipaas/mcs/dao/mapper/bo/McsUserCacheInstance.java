@@ -25,6 +25,10 @@ public class McsUserCacheInstance {
 
     private String serviceName;
 
+    private String containerName;
+
+    private String redisImage;
+
     public Integer getId() {
         return id;
     }
@@ -111,5 +115,21 @@ public class McsUserCacheInstance {
 
     public void setServiceName(String serviceName) {
         this.serviceName = serviceName == null ? null : serviceName.trim();
+    }
+
+    public String getContainerName() {
+        return containerName;
+    }
+
+    public void setContainerName(String containerName) {
+        this.containerName = containerName == null ? null : containerName.trim();
+    }
+
+    public String getRedisImage() {
+        return redisImage;
+    }
+
+    public void setRedisImage(String redisImage) {
+        this.redisImage = redisImage == null ? null : redisImage.trim();
     }
 }

@@ -1,1 +1,1 @@
-include 'iPaaS-Agent','iPaaS-CCS','iPaaS-DSS','iPaaS-DubboInterfaces','iPaaS-MCS','iPaaS-MDS','iPaaS-MDS','iPaaS-RCS','iPaaS-SES','iPaaS-IDPS'
+include 'iPaaS-Agent','iPaaS-CCS','iPaaS-DSS','iPaaS-DubboInterfaces','iPaaS-MCS','iPaaS-MDS','iPaaS-MDS','iPaaS-RCS','iPaaS-SES','iPaaS-IDPS','iPaaS-RDS'

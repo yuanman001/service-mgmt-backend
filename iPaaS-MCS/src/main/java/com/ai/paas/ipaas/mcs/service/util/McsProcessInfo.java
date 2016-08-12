@@ -3,8 +3,17 @@ package com.ai.paas.ipaas.mcs.service.util;
 public class McsProcessInfo {
 	String cacheHostIp;
 	String cachePath;
+	String containerName;
 	Integer cachePort;
 	Integer agentPort;
+
+	public String getContainerName() {
+		return containerName;
+	}
+
+	public void setContainerName(String containerName) {
+		this.containerName = containerName;
+	}
 
 	public String getCacheHostIp() {
 		return cacheHostIp;

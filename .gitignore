@@ -62,3 +62,10 @@
 /iPaaS-Agent/.settings
 /iPaaS-MDS/dubbo-registry.dat
 /iPaaS-MDS/dubbo-registry.dat.lock
+/build/
+/bin/
+/iPaaS-RDS-X/.classpath
+/iPaaS-RDS-X/.project
+/iPaaS-RDS-X/.setting
+/iPaaS-RDS-X/dubbo-registry.dat
+/iPaaS-RDS-X/dubbo-registry.dat.lock

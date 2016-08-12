@@ -2,12 +2,30 @@ package com.ai.paas.ipaas.mcs.service.constant;
 
 public class McsConstants {
 
+  public static final String SERVICE_CODE = "MCS";
+  public static final String REDIS_IMAGE_CODE = "redis";
+  public static final String REDIS_CLUSTER_IMAGE_CODE = "redis_cluster";
+  
+  public static final String SSH_USER_CODE = "mcs_ssh_user";
+  public static final String SSH_USER_PWD_CODE = "mcs_ssh_user_pwd";
+	
+  public static final String DOCKER_COMMAND_START = "start";
+  public static final String DOCKER_COMMAND_STOP = "stop";
+  public static final String DOCKER_COMMAND_REMOVE = "rm";
 
   public static final String MODE_SINGLE = "single";
   public static final String MODE_CLUSTER = "cluster";
   public static final String MODE_REPLICATION = "replication";
   public static final String MODE_SENTINEL = "sentinel";
 
+  public static final String PLAYBOOK_MCS_PATH = "/playbook/mcs/";
+  public static final String PLAYBOOK_CFG_PATH  = "/mcs/ansible_ssh/";
+  public static final String PLAYBOOK_HOST_CFG = "mcs_host.cfg";
+  public static final String PLAYBOOK_SINGLE_YML = "create_single.yml";
+  public static final String PLAYBOOK_CLUSTER_YML = "create_cluster.yml";
+  public static final String PLAYBOOK_REPLICATION_YML = "create_replication.yml";
+  public static final String PLAYBOOK_SENTINEL_YML = "create_sentinel.yml";
+  public static final String PLAYBOOK_OPERATE_YML = "operate_mcs.yml";
 
   public static final String FILE_PATH = "/commonconfig/";
   public static final String LOG_PATH = "/redis/log/";   //modified by yuanman in 2016-05-21
@@ -16,8 +34,6 @@ public class McsConstants {
   public static final String AGENT_URL_BASE = "http://";
 
   public static final String PWD_KEY = "BaryTukyTukyBary";
-
-
 
   public static final String USER_ID = "userId";
   public static final String SERVICE_ID = "serviceId";
@@ -36,7 +52,6 @@ public class McsConstants {
   public static final String SUCCESS_INFO = "Apply mcs successfully created!";
   public static final String FAIL_INFO = "Failed to apply the cache";
 
-
   public static final String APPLY_TYPE_C = "create";
   public static final String APPLY_TYPE_M = "modify";
   public static final String APPLY_TYPE_R = "remove";
@@ -51,11 +66,10 @@ public class McsConstants {
       "{'maxActive':'500','maxIdle':'100','maxWait':'10000',"
           + "'testOnBorrow':'false','testOnReturn':'true'}";
 
-  public static final int CACHE_NUM = 6;
+  public static final int CLUSTER_CACHE_NUM = 6;
   public static final int VALIDATE_STATUS = 1;
   public static final int INVALIDATE_STATUS = 2;
   public static final int SENTINEL_NUM = 6;
-
 
   public static final String DDL_KEY = "key";
   public static final String DDL_VALUE = "value";
@@ -71,5 +85,4 @@ public class McsConstants {
       "com.ai.paas.ipaas.mcs.modify_mcs_resource_error";
   public static final String ADD_MCS_USER_INS_ERROR =
       "com.ai.paas.ipaas.mcs.add_mcs_user_ins_error";
-
 }
