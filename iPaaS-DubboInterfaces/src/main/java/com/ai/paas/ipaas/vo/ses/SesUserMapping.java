@@ -2,8 +2,15 @@ package com.ai.paas.ipaas.vo.ses;
 
 import java.sql.Timestamp;
 
-public class SesUserMapping {
-    private Integer id;
+import com.ai.dubbo.ext.vo.BaseResponse;
+
+public class SesUserMapping extends BaseResponse{
+    /**
+	 * 
+	 */
+	private static final long serialVersionUID = -5393044294453244783L;
+
+	private Integer id;
 
     private String userId;
 

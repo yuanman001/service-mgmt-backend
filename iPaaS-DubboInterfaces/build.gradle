@@ -3,6 +3,14 @@ dependencies {
 
 publishing {
     publications {
+        mavenJar(MavenPublication) {
+        	groupId group
+        	artifactId "${moduleName}"
+            artifact sourcesJar
+            version moduleVersion
+            pom.withXml {
+            }
+        }
         publishing.publications.create("${appName}", MavenPublication) {
             groupId group
             artifactId appName
