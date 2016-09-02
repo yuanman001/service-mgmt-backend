@@ -17,6 +17,7 @@ import org.apache.http.client.ClientProtocolException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.ai.paas.ipaas.PaasException;
@@ -60,7 +61,6 @@ import com.ai.paas.ipaas.rds.service.transfer.vo.StopRDS;
 import com.ai.paas.ipaas.rds.service.transfer.vo.StopRDSResult;
 //import com.ai.paas.ipaas.rds.service.util.EntityToWhere;
 import com.ai.paas.ipaas.rds.service.util.GsonSingleton;
-import com.alibaba.dubbo.config.annotation.Service;
 import com.google.gson.reflect.TypeToken;
 
 /**
@@ -74,7 +74,7 @@ import com.google.gson.reflect.TypeToken;
  */
 @Service
 @Transactional(rollbackFor = Exception.class)
-public class RDSInstanceManager implements IRDSInstanceManager {
+public class RDSInstanceManager  {
 	
 	private static transient final Logger LOG = LoggerFactory.getLogger(RDSInstanceManager.class);
 
@@ -89,7 +89,6 @@ public class RDSInstanceManager implements IRDSInstanceManager {
 	 * 可以是单个，也可以是多个
 	 * @throws PaasException 
 	 */
-	@Override
 	public String cancel(String cancel) {
 		// 解析JSON对象
 		CancelRDS cancelObject = g.getGson().fromJson(cancel, CancelRDS.class);
@@ -240,7 +239,6 @@ public class RDSInstanceManager implements IRDSInstanceManager {
 	 * instancestatus/
 	 * instanceresourcebelonger/
 	 */
-	@Override
 	public String create(String create) {
 		LOG.info("$$$$$$$$$$$$$$$ create : "+create);
 		// 解析JSON对象
@@ -481,7 +479,6 @@ public class RDSInstanceManager implements IRDSInstanceManager {
 	}
 
 
-	@Override
 	public String createslobm(String create) {
 		CreateSRDS createObject = g.getGson().fromJson(create, CreateSRDS.class);
 		CreateSRDSResult createResult = new CreateSRDSResult(ResponseResultMark.WARN_INIT_STATUS);
@@ -1189,7 +1186,6 @@ public class RDSInstanceManager implements IRDSInstanceManager {
 	 * modify中只能扩充容量无法缩小容量
 	 * http://www.linuxidc.com/Linux/2015-01/112245.htm
 	 */
-	@Override
 	public String modify(String modify) {
 		ModifyRDS modifyRDSObject = g.getGson().fromJson(modify, ModifyRDS.class);
 		Stack<RdsIncBase> instanceStack ;
@@ -1282,7 +1278,6 @@ public class RDSInstanceManager implements IRDSInstanceManager {
 	/**
 	 * 获取全部公有方法
 	 */
-	@Override
 	public String getFuncList() {
 		List<MedthodDescribe> list = new LinkedList<MedthodDescribe>();
 		Method[] methodList = RDSInstanceManager.class.getMethods();
@@ -1295,7 +1290,6 @@ public class RDSInstanceManager implements IRDSInstanceManager {
 		return g.getGson().toJson(list);
 	}
 
-	@Override
 	public String start(String startApply) {
 		LOG.info("----------startApply: " + startApply);
 		
@@ -1339,7 +1333,6 @@ public class RDSInstanceManager implements IRDSInstanceManager {
 		return g.getGson().toJson(startRDSResult);
 	}
 
-	@Override
 	public String stop(String stopApply) {
 		LOG.info("----------stopApply: " + stopApply);
 		StopRDS stopRDSObject = g.getGson().fromJson(stopApply, StopRDS.class);
@@ -1388,7 +1381,6 @@ public class RDSInstanceManager implements IRDSInstanceManager {
 	/**
 	 * 
 	 */
-	@Override
 	public String restart(String restartApply) {
 		RestartRDS restartObject = g.getGson().fromJson(restartApply, RestartRDS.class);
 		Stack<RdsIncBase> instanceStack;
@@ -1431,7 +1423,6 @@ public class RDSInstanceManager implements IRDSInstanceManager {
 	 * 提供RDS信息查询
 	 * 用户需要获取主从服务器的相关信息来进行软负载均衡
 	 */
-	@Override
 	public String getinstanceinfo(String getinstanceinfo) {
 //		GetInstanceInfoRDS getStatusObject = g.getGson().fromJson(getinstanceinfo, GetInstanceInfoRDS.class);
 ////		List<RdsIncBase> instanceList = new ArrayList<RdsIncBase>();

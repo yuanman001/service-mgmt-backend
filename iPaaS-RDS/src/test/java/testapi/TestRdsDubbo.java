@@ -9,9 +9,11 @@ import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
 import com.ai.paas.ipaas.rds.dao.mapper.bo.RdsIncBase;
 import com.ai.paas.ipaas.rds.manage.rest.interfaces.IRDSInstanceManager;
+import com.ai.paas.ipaas.rds.manage.rest.interfaces.IRDSInstanceOperater;
 import com.ai.paas.ipaas.rds.manage.rest.interfaces.IRDSResourcePool;
 import com.ai.paas.ipaas.rds.service.transfer.vo.CreateRDS;
 import com.ai.paas.ipaas.rds.service.transfer.vo.CreateRDSResult;
+import com.ai.paas.ipaas.rds.service.transfer.vo.SwitchMaster;
 import com.alibaba.dubbo.config.annotation.Reference;
 import com.google.gson.Gson;
 
@@ -23,12 +25,16 @@ public class TestRdsDubbo {
 	private IRDSInstanceManager incManager;
 	@Reference
 	private IRDSResourcePool resMananger;
-//	@Reference
-//	private IRDSInstanceOperater incOperater;
+	@Reference
+	private IRDSInstanceOperater incOperater;
 	
 	Gson g = new Gson();
 	
-	
+	@Test
+	public void switchmaster(){
+		String result = incOperater.switchmaster(g.toJson(new SwitchMaster(114)));
+		System.out.println(result);
+	}
 	/**
 	 * passed
 	 */
@@ -89,25 +95,25 @@ public class TestRdsDubbo {
 	 * 解析方法:CreateRDSResult ct = g.fromGson(obj,CreateRDSResult.class)
 	 * 主要是status值有用
 	 */
-	@Test
-	public void create(){
-		Timestamp time = new Timestamp(System.currentTimeMillis()); 
-		CreateRDS creatObject = new CreateRDS();
-		creatObject.createSlaverNum = 1;
-		creatObject.createBatmasterNum = 0;
-		// user_id对应ccs_user_config中的用户
-		creatObject.instanceBase = new RdsIncBase("6C4F4DBA96294DDCBC5DBBF2CAD442B5", "testmysql", "BIU", 5, 100, "","",
-				"mysql6", "", 0, 1, "BIU,MYSQL,TEST","BEIJING", 1, "no describe", "/aifs01", 
-				"/aifs01/mysqldata","", "192.168.*.*", "rootusr", "123456", "containerName",
-				"1234", 10000, 2000, 123, 500,time,time);
-		String request = g.toJson(creatObject);
-		System.out.println(request);
-		String result = incManager.create(request);
-		System.out.println("$$$$$$$$$$$$$$$$$$$$result$$$$$$$$$$$$$$$$$$$");
-		System.out.println(result);
-		CreateRDSResult ssss = g.fromJson(result, CreateRDSResult.class);
-		System.out.println("$$$$$$$$$$$$$$$$$$$$result$$$$$$$$$$$$$$$$$$$");
-	}
+//	@Test
+//	public void create(){
+//		Timestamp time = new Timestamp(System.currentTimeMillis()); 
+//		CreateRDS creatObject = new CreateRDS();
+//		creatObject.createSlaverNum = 1;
+//		creatObject.createBatmasterNum = 0;
+//		// user_id对应ccs_user_config中的用户
+//		creatObject.instanceBase = new RdsIncBase("6C4F4DBA96294DDCBC5DBBF2CAD442B5", "testmysql", "BIU", 5, 100, "","",
+//				"mysql6", "", 0, 1, "BIU,MYSQL,TEST","BEIJING", 1, "no describe", "/aifs01", 
+//				"/aifs01/mysqldata","", "192.168.*.*", "rootusr", "123456", "containerName",
+//				"1234", 10000, 2000, 123, 500,time,time);
+//		String request = g.toJson(creatObject);
+//		System.out.println(request);
+//		String result = incManager.create(request);
+//		System.out.println("$$$$$$$$$$$$$$$$$$$$result$$$$$$$$$$$$$$$$$$$");
+//		System.out.println(result);
+//		CreateRDSResult ssss = g.fromJson(result, CreateRDSResult.class);
+//		System.out.println("$$$$$$$$$$$$$$$$$$$$result$$$$$$$$$$$$$$$$$$$");
+//	}
 	
 	
 	

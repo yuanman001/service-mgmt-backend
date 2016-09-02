@@ -38,54 +38,10 @@ public class RDSInstanceOperater implements IRDSInstanceOperater {
 	@Autowired
 	ICCSComponentManageSv iCCSComponentManageSv;
 	
-	private RdsIncBaseMapper incMapper = ServiceUtil.getMapper(RdsIncBaseMapper.class);
-	private RdsResourcePoolMapper resMapper = ServiceUtil.getMapper(RdsResourcePoolMapper.class);
-	
-	@Override
-	public String changesinstancebase(String changesinstancebase) {
-		// TODO Auto-generated method stub
-		return null;
-	}
-
-	@Override
-	public String changesinstanceipport(String changesinstanceipport) {
-		// TODO Auto-generated method stub
-		return null;
-	}
-
-	@Override
-	public String changesinstancebaseconfig(String changesinstancebaseconfig) {
-		// TODO Auto-generated method stub
-		return null;
-	}
-
-	@Override
-	public String createslaver(String createslaver) {
-		
-		return null;
-	}
-
-	@Override
-	public String cancelslaver(String cancelslaver) {
-		// TODO Auto-generated method stub
-		return null;
-	}
-
-	@Override
-	public String createbatmaster(String createbatmaster) {
-		// TODO Auto-generated method stub
-		return null;
-	}
-
-	@Override
-	public String cancelbatmaster(String cancelbatmaster) {
-		// TODO Auto-generated method stub
-		return null;
-	}
-
-
 	@Override
 	public String switchmaster(String switchmaster) {
+		RdsIncBaseMapper incMapper = ServiceUtil.getMapper(RdsIncBaseMapper.class);
+		RdsResourcePoolMapper resMapper = ServiceUtil.getMapper(RdsResourcePoolMapper.class);
 		SwitchMaster sm = g.getGson().fromJson(switchmaster, SwitchMaster.class);
 		SwitchMasterResult smr = new SwitchMasterResult();
 		Stack<RdsIncBase> rdsIncStack = getInstanceStack(sm.getMasterId());
@@ -148,15 +104,99 @@ public class RDSInstanceOperater implements IRDSInstanceOperater {
 		
 		return g.getGson().toJson(smr);
 	}
-
-
+	/**
+	 * 通过一个实例id查询到实例和实例的主备、主从实例
+	 * @param instanceid
+	 * @return
+	 */
+	public Stack<RdsIncBase> getInstanceStack(int instanceid) {
+		RdsIncBaseMapper incMapper = ServiceUtil.getMapper(RdsIncBaseMapper.class);
+		RdsResourcePoolMapper resMapper = ServiceUtil.getMapper(RdsResourcePoolMapper.class);
+		
+		Stack<RdsIncBase> instanceStack = new Stack<RdsIncBase>();
+		RdsIncBase instanceInfo = incMapper.selectByPrimaryKey(instanceid);
+		
+		if(null != instanceInfo){
+			instanceStack.push(instanceInfo);
+		}else {
+			return instanceStack;
+		}
+		if(InstanceType.MASTER == instanceInfo.getIncType()){
+//			System.out.println("$$$$$$$$$$$$$$$$$$$$"+instanceInfo.getBakId());
+			if(null != instanceInfo.getBakId() && !instanceInfo.getBakId().equals("")){
+				RdsIncBase rib = incMapper.selectByPrimaryKey(getIdArrayFromString(instanceInfo.getBakId()).get(0));
+				instanceStack.push(rib);
+			}
+			if(null != instanceInfo.getSlaverId() && !instanceInfo.getSlaverId().equals("")){
+				for(Integer is : getIdArrayFromString(instanceInfo.getSlaverId())){
+					RdsIncBase ribs = incMapper.selectByPrimaryKey(is);
+					instanceStack.push(ribs);
+				}
+			}
+		}
+		
+		return instanceStack;
+	}
+	private List<Integer> getIdArrayFromString(String bakId) {
+		// 如果使用split作为分隔符，则
+		String[] idArray = bakId.split("\\|");
+		ArrayList<Integer> idList = new ArrayList<Integer>();
+		for(int i = 0; i < idArray.length; i++){
+			if(idArray[i] != null && !idArray[i].isEmpty() && !idArray[i].equals(""))
+				idList.add(Integer.valueOf(idArray[i]));
+		}
+		return idList;
+	}
 	private void switchConfig(RdsIncBase masterInc, RdsIncBase bakInc, List<RdsIncBase> slaverIncList) {
 		// TODO Auto-generated method stub
 		
 	}
+	@Override
+	public String changesinstancebase(String changesinstancebase) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public String changesinstanceipport(String changesinstanceipport) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public String changesinstancebaseconfig(String changesinstancebaseconfig) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public String createslaver(String createslaver) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public String cancelslaver(String cancelslaver) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public String createbatmaster(String createbatmaster) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public String cancelbatmaster(String cancelbatmaster) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
 
 	@Override
 	public String getinstancebaseinfo(String getinstancebaseinfo) {
+		// TODO Auto-generated method stub
 		return null;
 	}
 
@@ -201,47 +241,6 @@ public class RDSInstanceOperater implements IRDSInstanceOperater {
 		// TODO Auto-generated method stub
 		return null;
 	}
-	
-	/**
-	 * 通过一个实例id查询到实例和实例的主备、主从实例
-	 * @param instanceid
-	 * @return
-	 */
-	public Stack<RdsIncBase> getInstanceStack(int instanceid) {
-		Stack<RdsIncBase> instanceStack = new Stack<RdsIncBase>();
-//		RdsIncBaseMapper ibm = ServiceUtil.getMapper(RdsIncBaseMapper.class);
-		RdsIncBase instanceInfo = incMapper.selectByPrimaryKey(instanceid);
-		
-		if(null != instanceInfo){
-			instanceStack.push(instanceInfo);
-		}else {
-			return instanceStack;
-		}
-		if(InstanceType.MASTER == instanceInfo.getIncType()){
-//			System.out.println("$$$$$$$$$$$$$$$$$$$$"+instanceInfo.getBakId());
-			if(null != instanceInfo.getBakId() && !instanceInfo.getBakId().equals("")){
-				RdsIncBase rib = incMapper.selectByPrimaryKey(getIdArrayFromString(instanceInfo.getBakId()).get(0));
-				instanceStack.push(rib);
-			}
-			if(null != instanceInfo.getSlaverId() && !instanceInfo.getSlaverId().equals("")){
-				for(Integer is : getIdArrayFromString(instanceInfo.getSlaverId())){
-					RdsIncBase ribs = incMapper.selectByPrimaryKey(is);
-					instanceStack.push(ribs);
-				}
-			}
-		}
-		
-		return instanceStack;
-	}
-	private List<Integer> getIdArrayFromString(String bakId) {
-		// 如果使用split作为分隔符，则
-		String[] idArray = bakId.split("\\|");
-		ArrayList<Integer> idList = new ArrayList<Integer>();
-		for(int i = 0; i < idArray.length; i++){
-			if(idArray[i] != null && !idArray[i].isEmpty() && !idArray[i].equals(""))
-				idList.add(Integer.valueOf(idArray[i]));
-		}
-		return idList;
-	}
+
 
 }
