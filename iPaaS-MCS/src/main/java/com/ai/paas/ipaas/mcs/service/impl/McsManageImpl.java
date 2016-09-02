@@ -396,7 +396,7 @@ public class McsManageImpl implements IMcsSv {
 		
 		/** 7.生成创建sentinel节点的命令,并执行. **/
 		String sentinelCommand = getRedisSentinelCommand(basePath, hostIp, slavePort, masterPwd,  
-				McsConstants.MODE_SENTINEL, sshUser, sshUserPwd, hostIp, masterPort, slaveContainerName, redisImage);
+				McsConstants.MODE_SENTINEL, sshUser, sshUserPwd, hostIp, masterPort, sentinelContainerName, redisImage);
 		runAnsileCommand(sentinelCommand);
 		logger.info("-----执行sentinelCommand 成功！");
 		
