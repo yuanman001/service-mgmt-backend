@@ -17,9 +17,9 @@
     <dubbo:consumer timeout="300000" retries="0"/>
 
     <dubbo:annotation package="testapi"/>
-    
+    <!-- 
     <dubbo:reference interface="com.ai.paas.ipaas.rds.manage.rest.interfaces.IRDSInstanceOperater" id="IRDSInstanceOperater"/>
     <dubbo:reference interface="com.ai.paas.ipaas.rds.manage.rest.interfaces.IRDSInstanceManager" id="IRDSInstanceManager"/>
     <dubbo:reference interface="com.ai.paas.ipaas.rds.manage.rest.interfaces.IRDSResourcePool" id="IRDSResourcePool"/>
-    
+     -->
 </beans>
