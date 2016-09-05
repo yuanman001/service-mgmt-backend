@@ -217,7 +217,7 @@ public class McsManageImpl implements IMcsSv {
 		try{
 			/** 执行redis集群创建命令
 			 *  不在重新写入 mcs_host.cfg 文件，直接在最后启动的redis-server主机上，run集群创建docker。 **/
-			String clusterInfo = getClusterInfo(cacheInfoList, " ");
+			String clusterInfo = getClusterInfo(cacheInfoList, "|");
 			String containerName = userId + "-" + serviceId + "-" + "-createRedisCluster";
 			String redisClusterRun = getCreateClusterCommand(basePath, hostIp, sshUser, sshUserPwd, clusterInfo, containerName, redisClusterImage);
 			runAnsileCommand(redisClusterRun);
