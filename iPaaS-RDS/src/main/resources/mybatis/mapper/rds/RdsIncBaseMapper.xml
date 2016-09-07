@@ -31,6 +31,8 @@
     <result column="int_storage" property="intStorage" jdbcType="INTEGER" />
     <result column="max_connect_num" property="maxConnectNum" jdbcType="INTEGER" />
     <result column="masterid" property="masterid" jdbcType="INTEGER" />
+    <result column="cpu_info" property="cpuInfo" jdbcType="VARCHAR" />
+    <result column="net_bandwidth" property="netBandwidth" jdbcType="INTEGER" />
     <result column="create_time" property="createTime" jdbcType="TIMESTAMP" />
     <result column="update_time" property="updateTime" jdbcType="TIMESTAMP" />
   </resultMap>
@@ -97,7 +99,7 @@
     inc_port, inc_type, inc_tag, inc_location, inc_status, inc_describe, mysql_home, 
     mysql_data_home, mysql_volumn_path, white_list, root_name, root_password, container_name, 
     db_server_id, db_storeage, db_used_storage, int_storage, max_connect_num, masterid, 
-    create_time, update_time
+    cpu_info, net_bandwidth, create_time, update_time
   </sql>
   <select id="selectByExample" resultMap="BaseResultMap" parameterType="com.ai.paas.ipaas.rds.dao.mapper.bo.RdsIncBaseCriteria" >
     select
@@ -142,8 +144,9 @@
       mysql_volumn_path, white_list, root_name, 
       root_password, container_name, db_server_id, 
       db_storeage, db_used_storage, int_storage, 
-      max_connect_num, masterid, create_time, 
-      update_time)
+      max_connect_num, masterid, cpu_info, 
+      net_bandwidth, create_time, update_time
+      )
     values (#{id,jdbcType=INTEGER}, #{userId,jdbcType=VARCHAR}, #{serviceId,jdbcType=VARCHAR}, 
       #{depId,jdbcType=VARCHAR}, #{imgId,jdbcType=INTEGER}, #{resId,jdbcType=INTEGER}, 
       #{bakId,jdbcType=VARCHAR}, #{slaverId,jdbcType=VARCHAR}, #{incName,jdbcType=VARCHAR}, 
@@ -153,8 +156,9 @@
       #{mysqlVolumnPath,jdbcType=VARCHAR}, #{whiteList,jdbcType=VARCHAR}, #{rootName,jdbcType=VARCHAR}, 
       #{rootPassword,jdbcType=VARCHAR}, #{containerName,jdbcType=VARCHAR}, #{dbServerId,jdbcType=VARCHAR}, 
       #{dbStoreage,jdbcType=INTEGER}, #{dbUsedStorage,jdbcType=INTEGER}, #{intStorage,jdbcType=INTEGER}, 
-      #{maxConnectNum,jdbcType=INTEGER}, #{masterid,jdbcType=INTEGER}, #{createTime,jdbcType=TIMESTAMP}, 
-      #{updateTime,jdbcType=TIMESTAMP})
+      #{maxConnectNum,jdbcType=INTEGER}, #{masterid,jdbcType=INTEGER}, #{cpuInfo,jdbcType=VARCHAR}, 
+      #{netBandwidth,jdbcType=INTEGER}, #{createTime,jdbcType=TIMESTAMP}, #{updateTime,jdbcType=TIMESTAMP}
+      )
   </insert>
   <insert id="insertSelective" parameterType="com.ai.paas.ipaas.rds.dao.mapper.bo.RdsIncBase" >
     insert into rds_inc_base
@@ -245,6 +249,12 @@
       </if>
       <if test="masterid != null" >
         masterid,
+      </if>
+      <if test="cpuInfo != null" >
+        cpu_info,
+      </if>
+      <if test="netBandwidth != null" >
+        net_bandwidth,
       </if>
       <if test="createTime != null" >
         create_time,
@@ -340,6 +350,12 @@
       </if>
       <if test="masterid != null" >
         #{masterid,jdbcType=INTEGER},
+      </if>
+      <if test="cpuInfo != null" >
+        #{cpuInfo,jdbcType=VARCHAR},
+      </if>
+      <if test="netBandwidth != null" >
+        #{netBandwidth,jdbcType=INTEGER},
       </if>
       <if test="createTime != null" >
         #{createTime,jdbcType=TIMESTAMP},
@@ -445,6 +461,12 @@
       <if test="record.masterid != null" >
         masterid = #{record.masterid,jdbcType=INTEGER},
       </if>
+      <if test="record.cpuInfo != null" >
+        cpu_info = #{record.cpuInfo,jdbcType=VARCHAR},
+      </if>
+      <if test="record.netBandwidth != null" >
+        net_bandwidth = #{record.netBandwidth,jdbcType=INTEGER},
+      </if>
       <if test="record.createTime != null" >
         create_time = #{record.createTime,jdbcType=TIMESTAMP},
       </if>
@@ -487,6 +509,8 @@
       int_storage = #{record.intStorage,jdbcType=INTEGER},
       max_connect_num = #{record.maxConnectNum,jdbcType=INTEGER},
       masterid = #{record.masterid,jdbcType=INTEGER},
+      cpu_info = #{record.cpuInfo,jdbcType=VARCHAR},
+      net_bandwidth = #{record.netBandwidth,jdbcType=INTEGER},
       create_time = #{record.createTime,jdbcType=TIMESTAMP},
       update_time = #{record.updateTime,jdbcType=TIMESTAMP}
     <if test="_parameter != null" >
@@ -580,6 +604,12 @@
       <if test="masterid != null" >
         masterid = #{masterid,jdbcType=INTEGER},
       </if>
+      <if test="cpuInfo != null" >
+        cpu_info = #{cpuInfo,jdbcType=VARCHAR},
+      </if>
+      <if test="netBandwidth != null" >
+        net_bandwidth = #{netBandwidth,jdbcType=INTEGER},
+      </if>
       <if test="createTime != null" >
         create_time = #{createTime,jdbcType=TIMESTAMP},
       </if>
@@ -619,6 +649,8 @@
       int_storage = #{intStorage,jdbcType=INTEGER},
       max_connect_num = #{maxConnectNum,jdbcType=INTEGER},
       masterid = #{masterid,jdbcType=INTEGER},
+      cpu_info = #{cpuInfo,jdbcType=VARCHAR},
+      net_bandwidth = #{netBandwidth,jdbcType=INTEGER},
       create_time = #{createTime,jdbcType=TIMESTAMP},
       update_time = #{updateTime,jdbcType=TIMESTAMP}
     where id = #{id,jdbcType=INTEGER}

@@ -1,8 +1,11 @@
 package com.ai.paas.ipaas.rds.dao.mapper.bo;
 
+
 import java.sql.Timestamp;
 
-public class RdsIncBase {
+import com.google.gson.Gson;
+
+public class RdsIncBase implements Cloneable {
     private Integer id;
 
     private String userId;
@@ -61,98 +64,27 @@ public class RdsIncBase {
 
     private Integer masterid;
 
+    private String cpuInfo;
+
+    private Integer netBandwidth;
+
     private Timestamp createTime;
 
     private Timestamp updateTime;
 
+    public RdsIncBase clone(){
+    	RdsIncBase inc = new RdsIncBase();
+    	Gson g = new Gson();
+    	inc = g.fromJson(g.toJson(this), RdsIncBase.class);
+    	return inc;
+    }
     
-    public RdsIncBase(String userId, String serviceId, String depId, Integer imgId, Integer resId, String bakId,
-			String slaverId, String incName, String incIp, Integer incPort, Integer incType, String incTag,
-			String incLocation, Integer incStatus, String incDescribe, String mysqlHome, String mysqlDataHome,
-			String mysqlVolumnPath, String whiteList, String rootName, String rootPassword, String containerName,
-			String dbServerId, Integer dbStoreage, Integer dbUsedStorage, Integer intStorage, Integer maxConnectNum,
-			Timestamp createTime, Timestamp updateTime) {
-		super();
-		this.userId = userId;
-		this.serviceId = serviceId;
-		this.depId = depId;
-		this.imgId = imgId;
-		this.resId = resId;
-		this.bakId = bakId;
-		this.slaverId = slaverId;
-		this.incName = incName;
-		this.incIp = incIp;
-		this.incPort = incPort;
-		this.incType = incType;
-		this.incTag = incTag;
-		this.incLocation = incLocation;
-		this.incStatus = incStatus;
-		this.incDescribe = incDescribe;
-		this.mysqlHome = mysqlHome;
-		this.mysqlDataHome = mysqlDataHome;
-		this.mysqlVolumnPath = mysqlVolumnPath;
-		this.whiteList = whiteList;
-		this.rootName = rootName;
-		this.rootPassword = rootPassword;
-		this.containerName = containerName;
-		this.dbServerId = dbServerId;
-		this.dbStoreage = dbStoreage;
-		this.dbUsedStorage = dbUsedStorage;
-		this.intStorage = intStorage;
-		this.maxConnectNum = maxConnectNum;
-		this.createTime = createTime;
-		this.updateTime = updateTime;
-	}
-
-	public RdsIncBase(String userId, String serviceId, String depId, Integer imgId, Integer resId, String bakId,
-			String slaverId, String incName, String incIp, Integer incPort, Integer incType, String incTag,
-			String incLocation, Integer incStatus, String incDescribe, String mysqlHome, String mysqlDataHome,
-			String mysqlVolumnPath, String whiteList, String rootName, String rootPassword, String containerName,
-			String dbServerId, Integer dbStoreage, Integer dbUsedStorage, Integer intStorage, Integer maxConnectNum,
-			Integer masterid, Timestamp createTime, Timestamp updateTime) {
-		super();
-		this.userId = userId;
-		this.serviceId = serviceId;
-		this.depId = depId;
-		this.imgId = imgId;
-		this.resId = resId;
-		this.bakId = bakId;
-		this.slaverId = slaverId;
-		this.incName = incName;
-		this.incIp = incIp;
-		this.incPort = incPort;
-		this.incType = incType;
-		this.incTag = incTag;
-		this.incLocation = incLocation;
-		this.incStatus = incStatus;
-		this.incDescribe = incDescribe;
-		this.mysqlHome = mysqlHome;
-		this.mysqlDataHome = mysqlDataHome;
-		this.mysqlVolumnPath = mysqlVolumnPath;
-		this.whiteList = whiteList;
-		this.rootName = rootName;
-		this.rootPassword = rootPassword;
-		this.containerName = containerName;
-		this.dbServerId = dbServerId;
-		this.dbStoreage = dbStoreage;
-		this.dbUsedStorage = dbUsedStorage;
-		this.intStorage = intStorage;
-		this.maxConnectNum = maxConnectNum;
-		this.masterid = masterid;
-		this.createTime = createTime;
-		this.updateTime = updateTime;
-	}
-
-	public RdsIncBase() {
-		super();
-	}
-
-	public RdsIncBase(Integer id, String userId, String serviceId, String depId, Integer imgId, Integer resId,
+    public RdsIncBase(Integer id, String userId, String serviceId, String depId, Integer imgId, Integer resId,
 			String bakId, String slaverId, String incName, String incIp, Integer incPort, Integer incType,
 			String incTag, String incLocation, Integer incStatus, String incDescribe, String mysqlHome,
 			String mysqlDataHome, String mysqlVolumnPath, String whiteList, String rootName, String rootPassword,
 			String containerName, String dbServerId, Integer dbStoreage, Integer dbUsedStorage, Integer intStorage,
-			Integer maxConnectNum, Integer masterid, Timestamp createTime, Timestamp updateTime) {
+			Integer maxConnectNum, Integer masterid, String cpuInfo, Integer netBandwidth) {
 		super();
 		this.id = id;
 		this.userId = userId;
@@ -183,47 +115,113 @@ public class RdsIncBase {
 		this.intStorage = intStorage;
 		this.maxConnectNum = maxConnectNum;
 		this.masterid = masterid;
+		this.cpuInfo = cpuInfo;
+		this.netBandwidth = netBandwidth;
+	}
+
+	public RdsIncBase(String userId, String serviceId, String depId, Integer imgId, Integer resId, String bakId,
+			String slaverId, String incName, String incIp, Integer incPort, Integer incType, String incTag,
+			String incLocation, Integer incStatus, String incDescribe, String mysqlHome, String mysqlDataHome,
+			String mysqlVolumnPath, String whiteList, String rootName, String rootPassword, String containerName,
+			String dbServerId, Integer dbStoreage, Integer dbUsedStorage, Integer intStorage, Integer maxConnectNum,
+			Integer masterid, String cpuInfo, Integer netBandwidth, Timestamp createTime, Timestamp updateTime) {
+		super();
+		this.userId = userId;
+		this.serviceId = serviceId;
+		this.depId = depId;
+		this.imgId = imgId;
+		this.resId = resId;
+		this.bakId = bakId;
+		this.slaverId = slaverId;
+		this.incName = incName;
+		this.incIp = incIp;
+		this.incPort = incPort;
+		this.incType = incType;
+		this.incTag = incTag;
+		this.incLocation = incLocation;
+		this.incStatus = incStatus;
+		this.incDescribe = incDescribe;
+		this.mysqlHome = mysqlHome;
+		this.mysqlDataHome = mysqlDataHome;
+		this.mysqlVolumnPath = mysqlVolumnPath;
+		this.whiteList = whiteList;
+		this.rootName = rootName;
+		this.rootPassword = rootPassword;
+		this.containerName = containerName;
+		this.dbServerId = dbServerId;
+		this.dbStoreage = dbStoreage;
+		this.dbUsedStorage = dbUsedStorage;
+		this.intStorage = intStorage;
+		this.maxConnectNum = maxConnectNum;
+		this.masterid = masterid;
+		this.cpuInfo = cpuInfo;
+		this.netBandwidth = netBandwidth;
 		this.createTime = createTime;
 		this.updateTime = updateTime;
 	}
 
-	public RdsIncBase clone(){
-		RdsIncBase incBaseClone = new RdsIncBase();
-		incBaseClone.id = this.id;
-		incBaseClone.userId = this.userId;
-		incBaseClone.serviceId = this.serviceId;
-		incBaseClone.depId = this.depId;
-		incBaseClone.imgId = this.imgId;
-		incBaseClone.resId = this.resId;
-		incBaseClone.bakId = this.bakId;
-		incBaseClone.slaverId = this.slaverId;
-		incBaseClone.incName = this.incName;
-		incBaseClone.incIp = this.incIp;
-		incBaseClone.incPort = this.incPort;
-		incBaseClone.incType = this.incType;
-		incBaseClone.incTag = this.incTag;
-		incBaseClone.incLocation = this.incLocation;
-		incBaseClone.incStatus = this.incStatus;
-		incBaseClone.incDescribe = this.incDescribe;
-		incBaseClone.mysqlHome = this.mysqlHome;
-		incBaseClone.mysqlDataHome = this.mysqlDataHome;
-		incBaseClone.mysqlVolumnPath = this.mysqlVolumnPath;
-		incBaseClone.whiteList = this.whiteList;
-		incBaseClone.rootName = this.rootName;
-		incBaseClone.rootPassword = this.rootPassword;
-		incBaseClone.containerName = this.containerName;
-		incBaseClone.dbServerId = this.dbServerId;
-		incBaseClone.dbStoreage = this.dbStoreage;
-		incBaseClone.dbUsedStorage = this.dbUsedStorage;
-		incBaseClone.intStorage = this.intStorage;
-		incBaseClone.maxConnectNum = this.maxConnectNum;
-		incBaseClone.masterid = this.masterid;
-		incBaseClone.createTime = this.createTime;
-		incBaseClone.updateTime = this.updateTime;
-		return incBaseClone;
-    }
-    
-    public Integer getId() {
+	public RdsIncBase() {
+		super();
+	}
+
+	public RdsIncBase(Integer id, String userId, String serviceId, String depId, Integer imgId, Integer resId,
+			String bakId, String slaverId, String incName, String incIp, Integer incPort, Integer incType,
+			String incTag, String incLocation, Integer incStatus, String incDescribe, String mysqlHome,
+			String mysqlDataHome, String mysqlVolumnPath, String whiteList, String rootName, String rootPassword,
+			String containerName, String dbServerId, Integer dbStoreage, Integer dbUsedStorage, Integer intStorage,
+			Integer maxConnectNum, Integer masterid, String cpuInfo, Integer netBandwidth, Timestamp createTime,
+			Timestamp updateTime) {
+		super();
+		this.id = id;
+		this.userId = userId;
+		this.serviceId = serviceId;
+		this.depId = depId;
+		this.imgId = imgId;
+		this.resId = resId;
+		this.bakId = bakId;
+		this.slaverId = slaverId;
+		this.incName = incName;
+		this.incIp = incIp;
+		this.incPort = incPort;
+		this.incType = incType;
+		this.incTag = incTag;
+		this.incLocation = incLocation;
+		this.incStatus = incStatus;
+		this.incDescribe = incDescribe;
+		this.mysqlHome = mysqlHome;
+		this.mysqlDataHome = mysqlDataHome;
+		this.mysqlVolumnPath = mysqlVolumnPath;
+		this.whiteList = whiteList;
+		this.rootName = rootName;
+		this.rootPassword = rootPassword;
+		this.containerName = containerName;
+		this.dbServerId = dbServerId;
+		this.dbStoreage = dbStoreage;
+		this.dbUsedStorage = dbUsedStorage;
+		this.intStorage = intStorage;
+		this.maxConnectNum = maxConnectNum;
+		this.masterid = masterid;
+		this.cpuInfo = cpuInfo;
+		this.netBandwidth = netBandwidth;
+		this.createTime = createTime;
+		this.updateTime = updateTime;
+	}
+
+	@Override
+	public String toString() {
+		return "RdsIncBase [id=" + id + ", userId=" + userId + ", serviceId=" + serviceId + ", depId=" + depId
+				+ ", imgId=" + imgId + ", resId=" + resId + ", bakId=" + bakId + ", slaverId=" + slaverId + ", incName="
+				+ incName + ", incIp=" + incIp + ", incPort=" + incPort + ", incType=" + incType + ", incTag=" + incTag
+				+ ", incLocation=" + incLocation + ", incStatus=" + incStatus + ", incDescribe=" + incDescribe
+				+ ", mysqlHome=" + mysqlHome + ", mysqlDataHome=" + mysqlDataHome + ", mysqlVolumnPath="
+				+ mysqlVolumnPath + ", whiteList=" + whiteList + ", rootName=" + rootName + ", rootPassword="
+				+ rootPassword + ", containerName=" + containerName + ", dbServerId=" + dbServerId + ", dbStoreage="
+				+ dbStoreage + ", dbUsedStorage=" + dbUsedStorage + ", intStorage=" + intStorage + ", maxConnectNum="
+				+ maxConnectNum + ", masterid=" + masterid + ", cpuInfo=" + cpuInfo + ", netBandwidth=" + netBandwidth
+				+ ", createTime=" + createTime + ", updateTime=" + updateTime + "]";
+	}
+
+	public Integer getId() {
         return id;
     }
 
@@ -453,6 +451,22 @@ public class RdsIncBase {
 
     public void setMasterid(Integer masterid) {
         this.masterid = masterid;
+    }
+
+    public String getCpuInfo() {
+        return cpuInfo;
+    }
+
+    public void setCpuInfo(String cpuInfo) {
+        this.cpuInfo = cpuInfo == null ? null : cpuInfo.trim();
+    }
+
+    public Integer getNetBandwidth() {
+        return netBandwidth;
+    }
+
+    public void setNetBandwidth(Integer netBandwidth) {
+        this.netBandwidth = netBandwidth;
     }
 
     public Timestamp getCreateTime() {

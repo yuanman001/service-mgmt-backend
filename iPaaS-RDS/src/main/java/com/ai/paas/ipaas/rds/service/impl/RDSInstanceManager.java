@@ -40,6 +40,7 @@ import com.ai.paas.ipaas.rds.manage.rest.interfaces.IRDSInstanceManager;
 import com.ai.paas.ipaas.rds.service.constant.InstanceType;
 import com.ai.paas.ipaas.rds.service.constant.RDSCommonConstant;
 import com.ai.paas.ipaas.rds.service.constant.ResponseResultMark;
+import com.ai.paas.ipaas.rds.service.transfer.vo.CPU;
 import com.ai.paas.ipaas.rds.service.transfer.vo.CancelRDS;
 import com.ai.paas.ipaas.rds.service.transfer.vo.CancelRDSResult;
 import com.ai.paas.ipaas.rds.service.transfer.vo.CreateRDS;
@@ -197,6 +198,19 @@ public class RDSInstanceManager  {
 		RdsResourcePoolMapper resPoolMapper = ServiceUtil.getMapper(RdsResourcePoolMapper.class);
 		RdsResourcePool rdsres = resPoolMapper.selectByPrimaryKey(instanceBase.getResId());
 		rdsres.setUsedmemory(rdsres.getUsedmemory().intValue() - instanceBase.getDbStoreage().intValue());
+		rdsres.setUsedIntStorage(rdsres.getUsedIntStorage() - instanceBase.getIntStorage());
+		rdsres.setUsedNetBandwidth(rdsres.getUsedNetBandwidth() - instanceBase.getNetBandwidth());
+//		List<CPU> cpusRelase = g.getGson().fromJson(instanceBase.getCpuInfo(), new TypeToken<List<CPU>>(){}.getType());
+		String[] cpuRName = instanceBase.getCpuInfo().split(",");
+		List<CPU> cpusRes = g.getGson().fromJson(rdsres.getCpu(), new TypeToken<List<CPU>>(){}.getType());
+		for(String cpuR : cpuRName){
+			for(CPU cpu : cpusRes){
+				if(cpu.name.equals(cpuR)){
+					cpu.usable = true;
+				}
+			}
+		}
+		rdsres.setCpu(g.getGson().toJson(cpusRes));
 		resPoolMapper.updateByPrimaryKey(rdsres);
 	}
 
@@ -257,8 +271,8 @@ public class RDSInstanceManager  {
 			return g.getGson().toJson(createResult);
 		}
 		
-		if(createObject.instanceBase.getImgId() == null){
-			createObject.instanceBase.setImgId(5);
+		if(createObject.instanceBase.getImgId() == null){ // 需要前台传入
+			createObject.instanceBase.setImgId(5); 
 		}
 		if(createObject.instanceBase.getMysqlHome() == null){
 			createObject.instanceBase.setMysqlHome("/aifs01");
@@ -307,20 +321,21 @@ public class RDSInstanceManager  {
 		// 为了深度拷贝数据
 		Type rdsResourcePoolListType = new TypeToken<List<RdsResourcePool>>(){}.getType();
 		List<RdsResourcePool> allResourceCp = g.getGson().fromJson(g.getGson().toJson(allResource), rdsResourcePoolListType);
-		if(!checkResourceEnough(allResourceCp, createObject.createBatmasterNum + createObject.createSlaverNum + 1, createObject.instanceBase.getDbStoreage())){
+		if(!checkResourceEnough(allResourceCp, createObject.createBatmasterNum + createObject.createSlaverNum + 1, createObject.instanceBase)){
 			createResult.setStatus(ResponseResultMark.ERROR_LESS_MEMORY_SPACE);
 			return g.getGson().toJson(createResult);
 		}
 		
 //		List<RdsResourcePool> allResource = rdsResPoolMapper.selectByExample(rdsResPoolCri);
-		RDSResourcePlan resourcePlan = getResourcePlan(createObject, allResource);
+		
+		RDSResourcePlan resourcePlan = getResourcePlan(createObject.instanceBase, allResource);
 		if(null == resourcePlan.instanceresourcebelonger){
 			createResult.setStatus(ResponseResultMark.ERROR_LESS_MEMORY_SPACE);
 			return g.getGson().toJson(createResult);
 		}
 		
 		// 对资源分配后的情况保存到数据库，修改资源池的情况，插入实例信息
-		RdsIncBase savedRdsIncBase = savePlan(resourcePlan, createObject.instanceBase, InstanceType.MASTER);
+		RdsIncBase savedRdsIncBase = savePlan(resourcePlan, createObject.instanceBase.clone(), InstanceType.MASTER);
 		createResult.incSimList.add(new InstanceBaseSimple(savedRdsIncBase));
 		
 		// 对实例进行配置,并启动 master/slaver/batmaster 通过AgentClient
@@ -358,7 +373,7 @@ public class RDSInstanceManager  {
 			if (1 == createObject.createBatmasterNum) {
 				// 包装一个创建主备实例的类，并保存到数据库
 				// 查询资源情况，根据请求情况与资源情况获取分配计划
-				RDSResourcePlan resourceBatMasterPlan = getExpectResourcePlan(createObject.instanceBase, allResource, exceptionResPoolList);
+				RDSResourcePlan resourceBatMasterPlan = getExpectResourcePlan(createObject.instanceBase.clone(), allResource, exceptionResPoolList);
 				if(null == resourceBatMasterPlan.instanceresourcebelonger){
 					createResult.setStatus(ResponseResultMark.ERROR_NOT_EXIST_USEFUL_RESOURCE);
 					return g.getGson().toJson(createResult);
@@ -397,7 +412,7 @@ public class RDSInstanceManager  {
 			if (0 < createObject.createSlaverNum) {
 				for (int i = 0; i < createObject.createSlaverNum; i++) {
 					// 包装多个创建从服务器实例的类，并保存到数据库
-					RDSResourcePlan resourceSlaverPlan = getExpectResourcePlan(createObject.instanceBase, allResource,exceptionResPoolList);
+					RDSResourcePlan resourceSlaverPlan = getExpectResourcePlan(createObject.instanceBase.clone(), allResource,exceptionResPoolList);
 					if(null == resourceSlaverPlan.instanceresourcebelonger){
 						createResult.setStatus(ResponseResultMark.ERROR_NOT_EXIST_USEFUL_RESOURCE);
 						return g.getGson().toJson(createResult);
@@ -454,13 +469,13 @@ public class RDSInstanceManager  {
 	
 	/**
 	 * 空间合法性检测
-	 *  检查可用资源是否充足资源
+	 * 检查可用资源是否充足资源
 	 * @param allResource
 	 * @param incNum
 	 * @param eachStorageNeeded
 	 * @return true if useable res is enough, false if useable res is not enough
 	 */
-	private boolean checkResourceEnough(List<RdsResourcePool> allResource, int incNum, int eachStorageNeeded) {
+	private boolean checkResourceEnough(List<RdsResourcePool> allResource, int incNum, RdsIncBase eachStorageNeeded) {
 		
 		for(int i = 0; i < incNum; i++){
 			List<RdsResourcePool> usableResourceList = getMasterUsableResource(eachStorageNeeded, allResource);
@@ -471,7 +486,7 @@ public class RDSInstanceManager  {
 				return false;
 			}
 			allResource.remove(decidedRes);
-			decidedRes.setUsedmemory(decidedRes.getUsedmemory() + eachStorageNeeded);
+			decidedRes.setUsedmemory(decidedRes.getUsedmemory() + eachStorageNeeded.getDbStoreage());
 			allResource.add(decidedRes);
 		}
 		
@@ -574,9 +589,9 @@ public class RDSInstanceManager  {
 	public static final String CREATE_ANSIBLE_HOSTS = "rds/init_ansible_ssh_hosts.sh {0} {1} {2}";
 	
 	public static final String DOCKER_MASTER_PARAM = "rds/ansible_master_run_image.sh  {1} {2} "
-			+ "{3} {4} {5} {6} {7} {8} {9} {10} {11} {12} {13} {14} {15} {16} {17}";
+			+ "{3} {4} {5} {6} {7} {8} {9} {10} {11} {12} {13} {14} {15} {16} {17} {18} {19} {20}";
 	public static final String DOCKER_SLAVER_PARAM = "rds/ansible_slaver_run_image.sh {1} {2} "
-			+ "{3} {4} {5} {6} {7} {8} {9} {10} {11} {12} {13} {14} {15} {16} {17} {18} {19}";
+			+ "{3} {4} {5} {6} {7} {8} {9} {10} {11} {12} {13} {14} {15} {16} {17} {18} {19} {20} {21} {22}";
 //	public static final String DOCKER_BATMASTER_PARAM = "rds/ansible_run_image.sh {1} {2} "
 //			+ "{3} {4} {5} {6} {7} {8} {9} {10} {11} {12} {13} {14} {15} {16} {17} {18} {19}";
 	public static final String DOCKER_COMMAND_PARAM = "rds/ansible_command_image.sh {1} {2} {3} "
@@ -682,6 +697,7 @@ public class RDSInstanceManager  {
 			in.close();
 			AgentUtil.uploadFile("rds/ansible_master_run_image.sh", cnt, AidUtil.getAid());
 			AgentUtil.executeCommand("chmod +x " + basePath + "rds/ansible_master_run_image.sh", AidUtil.getAid());
+			
 			// 开始执行
 			String runImage = fillStringByArgs(DOCKER_MASTER_PARAM,
 					new String[] { "",
@@ -701,7 +717,10 @@ public class RDSInstanceManager  {
 							getIncTypeById(savedRdsIncBase.getIncType()),
 							savedRdsIncBase.getRootName(),
 							savedRdsIncBase.getRootPassword(),
-							savedRdsIncBase.getWhiteList()
+							savedRdsIncBase.getWhiteList(),
+							savedRdsIncBase.getCpuInfo(),
+							savedRdsIncBase.getIntStorage() + "",
+							savedRdsIncBase.getNetBandwidth() + ""
 							});
 
 			LOG.debug("---------runImage {}----------", runImage);
@@ -760,6 +779,36 @@ public class RDSInstanceManager  {
 				in_s.close();
 				AgentUtil.uploadFile("rds/ansible_slaver_run_image.sh", cnt_s, AidUtil.getAid());
 				AgentUtil.executeCommand("chmod +x " + basePath_s + "rds/ansible_slaver_run_image.sh", AidUtil.getAid());
+				
+				String[]  s =  new String[] { "",
+						rdsPath_s, 
+						savedRdsIncBase.getIncIp().replace(".", ""),// .cfg 文件名称 
+						incRes.getSshuser(),
+						incRes.getSshpassword(),
+						savedRdsIncBase.getIncIp(),
+						imgRes.getImageRepository() + "/" + imgRes.getImageName(),
+						savedRdsIncBase.getIncPort() + "",
+						incRes.getVolumnPath() + "/" + savedRdsIncBase.getIncPort(),
+						savedRdsIncBase.getMysqlHome(),
+						"/percona/data",
+						savedRdsIncBase.getUserId() + "-" + savedRdsIncBase.getServiceId() + "-" + savedRdsIncBase.getIncPort(),
+						savedRdsIncBase.getDbServerId(),
+						savedRdsIncBase.getDbStoreage() + "",
+						getIncTypeById(savedRdsIncBase.getIncType()),
+						masterInc.getIncIp(),
+						masterInc.getIncPort() + "",
+						savedRdsIncBase.getRootName(),
+						savedRdsIncBase.getRootPassword(),
+						savedRdsIncBase.getWhiteList(),
+						savedRdsIncBase.getCpuInfo(),
+						savedRdsIncBase.getIntStorage() + "",
+						savedRdsIncBase.getNetBandwidth() + ""
+						};
+				for(String ss : s){
+					System.out.println("......"+ss);
+				}
+				
+				
 				// 开始执行
 				String runImage_s = fillStringByArgs(DOCKER_SLAVER_PARAM,
 						new String[] { "",
@@ -781,7 +830,10 @@ public class RDSInstanceManager  {
 								masterInc.getIncPort() + "",
 								savedRdsIncBase.getRootName(),
 								savedRdsIncBase.getRootPassword(),
-								savedRdsIncBase.getWhiteList()
+								savedRdsIncBase.getWhiteList(),
+								savedRdsIncBase.getCpuInfo(),
+								savedRdsIncBase.getIntStorage() + "",
+								savedRdsIncBase.getNetBandwidth() + ""
 								});
 
 				LOG.debug("---------runImage {}----------", runImage_s);
@@ -1004,11 +1056,11 @@ public class RDSInstanceManager  {
 //		return resourcePlan;
 //	}
 	
-	private RDSResourcePlan getResourcePlan(CreateRDS createObject, List<RdsResourcePool> resourceList) {
+	private RDSResourcePlan getResourcePlan(RdsIncBase inc, List<RdsResourcePool> resourceList) {
 		
 		// 根据需求找到可用资源列表
-		List<RdsResourcePool> usableResourceList = getMasterUsableResource(createObject.instanceBase.getDbStoreage(), resourceList);
-		switch (createObject.instanceBase.getIncType()) {
+		List<RdsResourcePool> usableResourceList = getMasterUsableResource(inc, resourceList);
+		switch (inc.getIncType()) {
 		case InstanceType.MASTER:
 			RDSResourcePlan resourcePlan = new RDSResourcePlan();
 			// 选择适当的主机进行分配资源
@@ -1017,14 +1069,37 @@ public class RDSInstanceManager  {
 			if (null == decidedRes) {
 				return null;
 			}
+			int count = 0;
+			int needCpuNum = Integer.valueOf(inc.getCpuInfo());
 			// 生成资源分配信息
 			decidedRes.setCurrentport(decidedRes.getCurrentport() + 1);
-			decidedRes.setUsedmemory(decidedRes.getUsedmemory().intValue() + createObject.instanceBase.getDbStoreage());
+			decidedRes.setUsedmemory(decidedRes.getUsedmemory().intValue() + inc.getDbStoreage());
+			Type cpuType = new TypeToken<List<CPU>>(){}.getType();
+			List<CPU> cpus = g.getGson().fromJson(decidedRes.getCpu(), cpuType);
+			List<CPU> cpusNew = new LinkedList<CPU>();
+			for(CPU cpu: cpus){
+				if(count < needCpuNum){
+					count ++;
+					if(cpu.usable = true){
+						if(resourcePlan.Cpu == null){
+							resourcePlan.Cpu = cpu.name;
+						} else {
+							resourcePlan.Cpu = resourcePlan.Cpu + "," + cpu.name;
+						}
+						cpu.usable = false;
+					}
+				}
+				cpusNew.add(cpu);
+			}
+			decidedRes.setCpu(g.getGson().toJson(cpusNew));
+			decidedRes.setUsedIntStorage(decidedRes.getUsedIntStorage() + inc.getIntStorage());
+			decidedRes.setUsedNetBandwidth(decidedRes.getUsedNetBandwidth() + inc.getNetBandwidth());
 			
 			resourcePlan.instanceresourcebelonger = decidedRes;
 			resourcePlan.ip = decidedRes.getHostip();
 			resourcePlan.port = decidedRes.getCurrentport();
 			resourcePlan.Status = RDSCommonConstant.INS_ACTIVATION;
+			
 			
 			return resourcePlan;
 		case InstanceType.BATMASTER:
@@ -1045,10 +1120,10 @@ public class RDSInstanceManager  {
 	 */
 	private RDSResourcePlan getExpectResourcePlan(RdsIncBase masterInstance, List<RdsResourcePool> resourceList,
 			List<RdsResourcePool> exceptInstanceList) {
-		
+//		...
 		RDSResourcePlan resourcePlan = new RDSResourcePlan();
 		// 根据需求找到可用资源列表
-		List<RdsResourcePool> usableResourceList = getMasterUsableResource(masterInstance.getDbStoreage(), resourceList);
+		List<RdsResourcePool> usableResourceList = getMasterUsableResource(masterInstance, resourceList);
 
 		ChoiceResStrategy crs = new ChoiceResStrategy(new MoreMemIdleChoice());
 //		RdsResourcePool decidedRes = crs.makeDecision(usableResourceList, exceptInstanceList);
@@ -1058,9 +1133,32 @@ public class RDSInstanceManager  {
 			return null;
 		}
 		// 生成资源分配信息
+		int count = 0;
+		int needCpuNum = Integer.valueOf(masterInstance.getCpuInfo());
+		// 生成资源分配信息
 		decidedRes.setCurrentport(decidedRes.getCurrentport() + 1);
-		decidedRes.setUsedmemory(decidedRes.getUsedmemory() + masterInstance.getDbStoreage());
-		resourcePlan.instanceresourcebelonger = decidedRes;
+		decidedRes.setUsedmemory(decidedRes.getUsedmemory().intValue() + masterInstance.getDbStoreage());
+		Type cpuType = new TypeToken<List<CPU>>(){}.getType();
+		List<CPU> cpus = g.getGson().fromJson(decidedRes.getCpu(), cpuType);
+		List<CPU> cpusNew = new LinkedList<CPU>();
+		for(CPU cpu: cpus){
+			if(count < needCpuNum){
+				if(cpu.usable = true){
+					if(resourcePlan.Cpu == null){
+						resourcePlan.Cpu = cpu.name;
+					} else {
+						resourcePlan.Cpu = resourcePlan.Cpu + "," + cpu.name;
+					}
+					cpu.usable = false;
+					count ++;
+				}
+			}
+			cpusNew.add(cpu);
+		}
+		decidedRes.setCpu(g.getGson().toJson(cpusNew));
+		decidedRes.setUsedIntStorage(decidedRes.getUsedIntStorage() + masterInstance.getIntStorage());
+		decidedRes.setUsedNetBandwidth(decidedRes.getUsedNetBandwidth() + masterInstance.getNetBandwidth());
+		
 
 		resourcePlan.instanceresourcebelonger = decidedRes;
 		resourcePlan.ip = decidedRes.getHostip();
@@ -1109,19 +1207,42 @@ public class RDSInstanceManager  {
 //		return canUseRes;
 //	}
 	/**
-	 * 获取可用资源 空间满足需求，状态满足需求，端口满足需求
+	 * 获取可用资源 
+	 * 硬盘（网盘）空间满足需求，
+	 * 内存空间满足需求，
+	 * CPU满足需求，
+	 * 状态满足需求，
+	 * 带宽满足需求，
+	 * 端口满足需求
 	 * debug... 数据遭到修改
 	 * @param createObject
 	 * @param resourceList
 	 * @return
 	 */
-	private List<RdsResourcePool> getMasterUsableResource(int externalStorage, List<RdsResourcePool> resourceList) {
+	private List<RdsResourcePool> getMasterUsableResource(RdsIncBase inc, List<RdsResourcePool> resourceList) {
 		List<RdsResourcePool> canUseRes = new LinkedList<RdsResourcePool>();
 		for (RdsResourcePool rp : resourceList) {
 			int canUseExtMemSize = rp.getTotalmemory() - rp.getUsedmemory();
-			if ((RDSCommonConstant.RES_STATUS_USABLE == rp.getStatus()) && (RDSCommonConstant.RES_CYCLE_USABLE == rp.getCycle())
-					&& (canUseExtMemSize > externalStorage)
-					&& ((rp.getCurrentport() + 1) < rp.getMaxport())) {
+			Type cputype = new TypeToken<List<CPU>>(){}.getType();
+			int canUseIntMemSize = rp.getTotIntStorage() - rp.getUsedIntStorage();
+			int canUseBandWidthSizee = rp.getNetBandwidth() - rp.getUsedNetBandwidth();
+//			boolean existIdleCpu = false;
+			int countUseableCpu = 0;
+			int cpuNeedNum = Integer.valueOf(inc.getCpuInfo());
+			List<CPU> cpus = g.getGson().fromJson(rp.getCpu(), cputype);
+			for(CPU cpu: cpus){
+				if(cpu.usable = true)
+					countUseableCpu++;
+			}
+			
+			if ((RDSCommonConstant.RES_STATUS_USABLE == rp.getStatus()) 
+					&& (RDSCommonConstant.RES_CYCLE_USABLE == rp.getCycle())
+					&& (canUseExtMemSize > inc.getDbStoreage())
+					&& ((rp.getCurrentport() + 1) < rp.getMaxport())
+					&& canUseIntMemSize > inc.getIntStorage()
+					&& canUseBandWidthSizee > inc.getNetBandwidth()
+					&& countUseableCpu >= cpuNeedNum
+					) {
 				canUseRes.add(rp);
 			}
 		}
@@ -1161,6 +1282,8 @@ public class RDSInstanceManager  {
 		instanceBase.setMysqlVolumnPath(resourcePlan.instanceresourcebelonger.getVolumnPath());
 		instanceBase.setCreateTime(new Timestamp(System.currentTimeMillis()));
 		instanceBase.setUpdateTime(new Timestamp(System.currentTimeMillis()));
+		instanceBase.setCpuInfo(resourcePlan.Cpu);
+		
 		
 		// 保存实例
 		RdsIncBaseMapper resMapper = ServiceUtil.getMapper(RdsIncBaseMapper.class);

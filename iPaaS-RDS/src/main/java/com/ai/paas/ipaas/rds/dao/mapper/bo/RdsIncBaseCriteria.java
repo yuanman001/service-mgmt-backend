@@ -1,5 +1,6 @@
 package com.ai.paas.ipaas.rds.dao.mapper.bo;
 
+
 import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.List;
@@ -2042,6 +2043,136 @@ public class RdsIncBaseCriteria {
 
         public Criteria andMasteridNotBetween(Integer value1, Integer value2) {
             addCriterion("masterid not between", value1, value2, "masterid");
+            return (Criteria) this;
+        }
+
+        public Criteria andCpuInfoIsNull() {
+            addCriterion("cpu_info is null");
+            return (Criteria) this;
+        }
+
+        public Criteria andCpuInfoIsNotNull() {
+            addCriterion("cpu_info is not null");
+            return (Criteria) this;
+        }
+
+        public Criteria andCpuInfoEqualTo(String value) {
+            addCriterion("cpu_info =", value, "cpuInfo");
+            return (Criteria) this;
+        }
+
+        public Criteria andCpuInfoNotEqualTo(String value) {
+            addCriterion("cpu_info <>", value, "cpuInfo");
+            return (Criteria) this;
+        }
+
+        public Criteria andCpuInfoGreaterThan(String value) {
+            addCriterion("cpu_info >", value, "cpuInfo");
+            return (Criteria) this;
+        }
+
+        public Criteria andCpuInfoGreaterThanOrEqualTo(String value) {
+            addCriterion("cpu_info >=", value, "cpuInfo");
+            return (Criteria) this;
+        }
+
+        public Criteria andCpuInfoLessThan(String value) {
+            addCriterion("cpu_info <", value, "cpuInfo");
+            return (Criteria) this;
+        }
+
+        public Criteria andCpuInfoLessThanOrEqualTo(String value) {
+            addCriterion("cpu_info <=", value, "cpuInfo");
+            return (Criteria) this;
+        }
+
+        public Criteria andCpuInfoLike(String value) {
+            addCriterion("cpu_info like", value, "cpuInfo");
+            return (Criteria) this;
+        }
+
+        public Criteria andCpuInfoNotLike(String value) {
+            addCriterion("cpu_info not like", value, "cpuInfo");
+            return (Criteria) this;
+        }
+
+        public Criteria andCpuInfoIn(List<String> values) {
+            addCriterion("cpu_info in", values, "cpuInfo");
+            return (Criteria) this;
+        }
+
+        public Criteria andCpuInfoNotIn(List<String> values) {
+            addCriterion("cpu_info not in", values, "cpuInfo");
+            return (Criteria) this;
+        }
+
+        public Criteria andCpuInfoBetween(String value1, String value2) {
+            addCriterion("cpu_info between", value1, value2, "cpuInfo");
+            return (Criteria) this;
+        }
+
+        public Criteria andCpuInfoNotBetween(String value1, String value2) {
+            addCriterion("cpu_info not between", value1, value2, "cpuInfo");
+            return (Criteria) this;
+        }
+
+        public Criteria andNetBandwidthIsNull() {
+            addCriterion("net_bandwidth is null");
+            return (Criteria) this;
+        }
+
+        public Criteria andNetBandwidthIsNotNull() {
+            addCriterion("net_bandwidth is not null");
+            return (Criteria) this;
+        }
+
+        public Criteria andNetBandwidthEqualTo(Integer value) {
+            addCriterion("net_bandwidth =", value, "netBandwidth");
+            return (Criteria) this;
+        }
+
+        public Criteria andNetBandwidthNotEqualTo(Integer value) {
+            addCriterion("net_bandwidth <>", value, "netBandwidth");
+            return (Criteria) this;
+        }
+
+        public Criteria andNetBandwidthGreaterThan(Integer value) {
+            addCriterion("net_bandwidth >", value, "netBandwidth");
+            return (Criteria) this;
+        }
+
+        public Criteria andNetBandwidthGreaterThanOrEqualTo(Integer value) {
+            addCriterion("net_bandwidth >=", value, "netBandwidth");
+            return (Criteria) this;
+        }
+
+        public Criteria andNetBandwidthLessThan(Integer value) {
+            addCriterion("net_bandwidth <", value, "netBandwidth");
+            return (Criteria) this;
+        }
+
+        public Criteria andNetBandwidthLessThanOrEqualTo(Integer value) {
+            addCriterion("net_bandwidth <=", value, "netBandwidth");
+            return (Criteria) this;
+        }
+
+        public Criteria andNetBandwidthIn(List<Integer> values) {
+            addCriterion("net_bandwidth in", values, "netBandwidth");
+            return (Criteria) this;
+        }
+
+        public Criteria andNetBandwidthNotIn(List<Integer> values) {
+            addCriterion("net_bandwidth not in", values, "netBandwidth");
+            return (Criteria) this;
+        }
+
+        public Criteria andNetBandwidthBetween(Integer value1, Integer value2) {
+            addCriterion("net_bandwidth between", value1, value2, "netBandwidth");
+            return (Criteria) this;
+        }
+
+        public Criteria andNetBandwidthNotBetween(Integer value1, Integer value2) {
+            addCriterion("net_bandwidth not between", value1, value2, "netBandwidth");
             return (Criteria) this;
         }
 

@@ -1,9 +1,11 @@
 package com.ai.paas.ipaas.rds.dao.interfaces;
 
+import java.util.List;
+
+import org.apache.ibatis.annotations.Param;
+
 import com.ai.paas.ipaas.rds.dao.mapper.bo.RdsResourcePool;
 import com.ai.paas.ipaas.rds.dao.mapper.bo.RdsResourcePoolCriteria;
-import java.util.List;
-import org.apache.ibatis.annotations.Param;
 
 public interface RdsResourcePoolMapper {
     int countByExample(RdsResourcePoolCriteria example);

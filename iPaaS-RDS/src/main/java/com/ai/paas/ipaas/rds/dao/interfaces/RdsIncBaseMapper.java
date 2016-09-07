@@ -1,9 +1,11 @@
 package com.ai.paas.ipaas.rds.dao.interfaces;
 
+import java.util.List;
+
+import org.apache.ibatis.annotations.Param;
+
 import com.ai.paas.ipaas.rds.dao.mapper.bo.RdsIncBase;
 import com.ai.paas.ipaas.rds.dao.mapper.bo.RdsIncBaseCriteria;
-import java.util.List;
-import org.apache.ibatis.annotations.Param;
 
 public interface RdsIncBaseMapper {
     int countByExample(RdsIncBaseCriteria example);

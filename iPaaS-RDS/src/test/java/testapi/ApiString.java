@@ -17,7 +17,7 @@ public class ApiString {
 		//add res
 		Timestamp time = new Timestamp(System.currentTimeMillis()); 
 	//	RdsResourcePool rdsRes = new  RdsResourcePool("192.168.1.125",50000,5000,5001,1,"hbhb123","hbhb123",1,2000000,20,"/home",time,time);
-		RdsResourcePool rdsRes = new  RdsResourcePool("10.1.245.226",50000,5000,5001,1,"root","123456",1,2000000,20,"percona_volumn/data");
+		RdsResourcePool rdsRes = new  RdsResourcePool("10.1.245.226",50000,5000,5001,1,"root","123456",1,2000000,20,"percona_volumn/data",64,2,"cpu0,cpu1,cpu2,cpu3",100,2);
 //		rdsRes.set
 		String request = g.toJson(rdsRes);
 		System.out.println(request);
@@ -41,7 +41,7 @@ public class ApiString {
 				"BEIJING", 1, "no describe", "/aifs01", 
 				"/aifs01/mysqldata","", "192.168.*.*", 
 				"root", "root", "containerName",
-				"1234", 50000, 2000, 123, 500,time,time);
+				"1234", 50000, 2000, 123, 500,0,"cpu0",5,time,time);
 		String request2 = g.toJson(creatObject);
 		System.out.println(request2);
 		
