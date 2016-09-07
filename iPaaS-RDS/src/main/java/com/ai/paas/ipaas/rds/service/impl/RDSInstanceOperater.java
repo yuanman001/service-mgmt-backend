@@ -104,6 +104,11 @@ public class RDSInstanceOperater implements IRDSInstanceOperater {
 		
 		return g.getGson().toJson(smr);
 	}
+	// ansible配置主备切换
+	private void switchConfig(RdsIncBase masterInc, RdsIncBase bakInc, List<RdsIncBase> slaverIncList) {
+		// TODO Auto-generated method stub
+		
+	}
 	/**
 	 * 通过一个实例id查询到实例和实例的主备、主从实例
 	 * @param instanceid
@@ -147,100 +152,14 @@ public class RDSInstanceOperater implements IRDSInstanceOperater {
 		}
 		return idList;
 	}
-	private void switchConfig(RdsIncBase masterInc, RdsIncBase bakInc, List<RdsIncBase> slaverIncList) {
-		// TODO Auto-generated method stub
-		
-	}
+	
 	@Override
-	public String changesinstancebase(String changesinstancebase) {
+	public String changecontainerconfig(String changecontainerconfig) {
 		// TODO Auto-generated method stub
 		return null;
 	}
+	
 
-	@Override
-	public String changesinstanceipport(String changesinstanceipport) {
-		// TODO Auto-generated method stub
-		return null;
-	}
-
-	@Override
-	public String changesinstancebaseconfig(String changesinstancebaseconfig) {
-		// TODO Auto-generated method stub
-		return null;
-	}
-
-	@Override
-	public String createslaver(String createslaver) {
-		// TODO Auto-generated method stub
-		return null;
-	}
-
-	@Override
-	public String cancelslaver(String cancelslaver) {
-		// TODO Auto-generated method stub
-		return null;
-	}
-
-	@Override
-	public String createbatmaster(String createbatmaster) {
-		// TODO Auto-generated method stub
-		return null;
-	}
-
-	@Override
-	public String cancelbatmaster(String cancelbatmaster) {
-		// TODO Auto-generated method stub
-		return null;
-	}
-
-
-	@Override
-	public String getinstancebaseinfo(String getinstancebaseinfo) {
-		// TODO Auto-generated method stub
-		return null;
-	}
-
-	@Override
-	public String getinstanceipport(String getinstanceipport) {
-		// TODO Auto-generated method stub
-		return null;
-	}
-
-	@Override
-	public String getinstancestatus(String getinstancestatus) {
-		// TODO Auto-generated method stub
-		return null;
-	}
-
-	@Override
-	public String getinstancebaseconfig(String getinstancebaseconfig) {
-		// TODO Auto-generated method stub
-		return null;
-	}
-
-	@Override
-	public String getinstancespaceinfo(String getinstancespaceinfo) {
-		// TODO Auto-generated method stub
-		return null;
-	}
-
-	@Override
-	public String getinstanceslaver(String getinstanceslaver) {
-		// TODO Auto-generated method stub
-		return null;
-	}
-
-	@Override
-	public String getinstancebatmaster(String getinstancebatmaster) {
-		// TODO Auto-generated method stub
-		return null;
-	}
-
-	@Override
-	public String getinstancewholeinfo(String getinstancewholeinfo) {
-		// TODO Auto-generated method stub
-		return null;
-	}
 
 
 }

@@ -107,4 +107,18 @@ public interface IRDSInstanceManager extends ISrvManager{
 	@Path("/modify")
 	@POST
 	public String modify(String modify);
+	
+	
+	/**
+	 * 切换主备服务器
+	 * @param switchmaster
+	 * @return
+	 */
+	@Path("/switchmaster")
+	@POST
+	public String switchmaster(String switchmaster);
+	
+	@Path("/changecontainerconfig")
+	@POST
+	public String changecontainerconfig(String changecontainerconfig);
 }

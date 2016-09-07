@@ -43,6 +43,8 @@ import com.ai.paas.ipaas.rds.service.constant.ResponseResultMark;
 import com.ai.paas.ipaas.rds.service.transfer.vo.CPU;
 import com.ai.paas.ipaas.rds.service.transfer.vo.CancelRDS;
 import com.ai.paas.ipaas.rds.service.transfer.vo.CancelRDSResult;
+import com.ai.paas.ipaas.rds.service.transfer.vo.ChangeContainerConfig;
+import com.ai.paas.ipaas.rds.service.transfer.vo.ChangeContainerConfigResult;
 import com.ai.paas.ipaas.rds.service.transfer.vo.CreateRDS;
 import com.ai.paas.ipaas.rds.service.transfer.vo.CreateRDSResult;
 import com.ai.paas.ipaas.rds.service.transfer.vo.CreateSRDS;
@@ -60,6 +62,8 @@ import com.ai.paas.ipaas.rds.service.transfer.vo.StartRDS;
 import com.ai.paas.ipaas.rds.service.transfer.vo.StartRDSResult;
 import com.ai.paas.ipaas.rds.service.transfer.vo.StopRDS;
 import com.ai.paas.ipaas.rds.service.transfer.vo.StopRDSResult;
+import com.ai.paas.ipaas.rds.service.transfer.vo.SwitchMaster;
+import com.ai.paas.ipaas.rds.service.transfer.vo.SwitchMasterResult;
 //import com.ai.paas.ipaas.rds.service.util.EntityToWhere;
 import com.ai.paas.ipaas.rds.service.util.GsonSingleton;
 import com.google.gson.reflect.TypeToken;
@@ -1591,10 +1595,126 @@ public class RDSInstanceManager  {
 	 * 通过监测将运行异常的服务器排除可用列表
 	 * @param instanceStack
 	 */
-//	private List<RdsIncBase> usableInstanceList(List<RdsIncBase> instanceStack) {
-//		// TODO Auto-generated method stub
-//		return instanceStack;
-//	}
+	public String switchmaster(String switchmaster) {
+		RdsIncBaseMapper incMapper = ServiceUtil.getMapper(RdsIncBaseMapper.class);
+		RdsResourcePoolMapper resMapper = ServiceUtil.getMapper(RdsResourcePoolMapper.class);
+		SwitchMaster sm = g.getGson().fromJson(switchmaster, SwitchMaster.class);
+		SwitchMasterResult smr = new SwitchMasterResult();
+		Stack<RdsIncBase> rdsIncStack = getInstanceStack(sm.getMasterId());
+		RdsIncBase masterInc = null;
+		RdsIncBase bakInc = null;
+		List<RdsIncBase> slaverIncList = new LinkedList<RdsIncBase>();
+		for(RdsIncBase inc : rdsIncStack){
+			if(inc.getIncType() == InstanceType.MASTER){
+				masterInc = inc;
+			}
+			if(inc.getIncType() == InstanceType.SLAVER){
+				bakInc = inc;
+			}
+			if(inc.getIncType() == InstanceType.BATMASTER){
+				slaverIncList.add(inc);
+			}
+		}
+		// 修改数据库
+		if(masterInc == null || bakInc == null){
+			RdsIncBase rdsInc = new RdsIncBase();
+			rdsInc.setBakId(masterInc.getBakId());
+			rdsInc.setSlaverId(masterInc.getSlaverId());
+			if(masterInc.getIncName().contains("-staybakmaster"))
+			{	masterInc.setIncName(masterInc.getIncName().substring(0, masterInc.getIncName().length()-14));}
+			else
+			{	masterInc.setIncName(masterInc.getIncName() + "-staybakmaster");}
+			masterInc.setIncType(InstanceType.BATMASTER);
+			masterInc.setMasterid(bakInc.getId());
+			masterInc.setBakId("");
+			masterInc.setSlaverId("");
+			
+			if(bakInc.getIncName().contains("-staybakmaster"))
+			{	bakInc.setIncName(bakInc.getIncName().substring(0, bakInc.getIncName().length()-14));}
+			else
+			{	bakInc.setIncName(bakInc.getIncName() + "-staybakmaster");}
+			bakInc.setIncType(InstanceType.MASTER);
+			bakInc.setMasterid(0);
+			bakInc.setBakId(rdsInc.getBakId());
+			bakInc.setSlaverId(rdsInc.getSlaverId());
+			
+			if(slaverIncList.size() > 0){
+				for(int i = 0; i < slaverIncList.size(); i++){
+					slaverIncList.get(i).setMasterid(bakInc.getId());
+				}
+			}
+			
+			incMapper.updateByPrimaryKey(bakInc);
+			incMapper.updateByPrimaryKey(masterInc);
+			if(slaverIncList.size() > 0){
+				for(int i = 0; i < slaverIncList.size(); i++){
+					incMapper.updateByPrimaryKey(slaverIncList.get(i));
+				}
+			}
+		} else {
+			smr.setStatus(ResponseResultMark.ERROR_INSTANCE_GROUP_CANNOT_GET_NULL);
+		}
+		
+		// 修改配置
+		switchConfig(masterInc,bakInc,slaverIncList);
+		
+		return g.getGson().toJson(smr);
+	}
+	// ansible配置主备切换
+	private void switchConfig(RdsIncBase masterInc, RdsIncBase bakInc, List<RdsIncBase> slaverIncList) {
+		// TODO Auto-generated method stub
+		
+	}
+	
+	public String changecontainerconfig(String changecontainerconfig) {
+		ChangeContainerConfig changeConfigObject = g.getGson().fromJson(changecontainerconfig, ChangeContainerConfig.class);
+		
+		// 获取资源
+		CreateRDS createObject = getCreateRDSObjectFromStack(getInstanceStack(changeConfigObject.groupMasterId));
+		// 注销资源
+		CancelRDS cancel = new CancelRDS();
+		cancel.instanceid = changeConfigObject.groupMasterId;
+		CancelRDSResult result = g.getGson().fromJson(cancel(g.getGson().toJson(cancel)), CancelRDSResult.class);
+		if(Integer.valueOf(result.resultCode) != 1){
+			ChangeContainerConfigResult changeContainerConfig = new ChangeContainerConfigResult(ResponseResultMark.ERROR_BAD_CONFIG);
+			return g.getGson().toJson(changeContainerConfig);
+		}
+		// 更新配置
+		createObject.instanceBase.setCpuInfo(changeConfigObject.cpu);
+		createObject.instanceBase.setDbStoreage(changeConfigObject.ExtStorage);
+		createObject.instanceBase.setIntStorage(changeConfigObject.IntStorage);
+		createObject.instanceBase.setNetBandwidth(changeConfigObject.NetBandwidth);
+		// 继承原有未修改配置与路径重新分配资源
+		CreateRDSResult createResult = g.getGson().fromJson(create(g.getGson().toJson(createObject)), CreateRDSResult.class);
+		if(Integer.valueOf(createResult.resultCode) == 1){
+			ChangeContainerConfigResult changeContainerConfig = new ChangeContainerConfigResult(ResponseResultMark.SUCCESS);
+			return g.getGson().toJson(changeContainerConfig); 
+		}else{
+			ChangeContainerConfigResult changeContainerConfig = new ChangeContainerConfigResult(ResponseResultMark.ERROR_BAD_CONFIG);
+			return g.getGson().toJson(changeContainerConfig);
+		}
+	}
+
+
+	private CreateRDS getCreateRDSObjectFromStack(Stack<RdsIncBase> instanceStack) {
+		CreateRDS createObject = new CreateRDS();
+		createObject.createBatmasterNum = 0;
+		createObject.createSlaverNum = 0;
+		for(RdsIncBase inc : instanceStack){
+			switch(inc.getIncType()){
+			case InstanceType.MASTER:
+				createObject.instanceBase = inc;
+				break;
+			case InstanceType.SLAVER:
+				createObject.createSlaverNum ++;
+				break;
+			case InstanceType.BATMASTER:
+				createObject.createBatmasterNum ++;
+				break;
+			}
+		}
+		return createObject;
+	}
 
 
 	/**

@@ -69,5 +69,17 @@ public class RDSInstanceManagerDubbo implements IRDSInstanceManager {
 		return rdsIncMG.modify(modify);
 	}
 
+	@Override
+	public String switchmaster(String switchmaster) {
+		// TODO Auto-generated method stub
+		return rdsIncMG.switchmaster(switchmaster);
+	}
+
+	@Override
+	public String changecontainerconfig(String changecontainerconfig) {
+		// TODO Auto-generated method stub
+		return rdsIncMG.changecontainerconfig(changecontainerconfig);
+	}
+
 
 }
