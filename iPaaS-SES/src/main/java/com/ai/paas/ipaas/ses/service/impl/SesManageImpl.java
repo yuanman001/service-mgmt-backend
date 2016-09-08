@@ -110,6 +110,15 @@ public class SesManageImpl implements ISesManage {
 		addZk(userId, serviceId, clusterString.toString());
 	}
 
+	public String getSesServiceAdress(SesSrvApply sesSrvApply) throws PaasException{
+		String userId = sesSrvApply.getUserId();
+		String serviceId = sesSrvApply.getServiceId();
+		// 获取可用的web端
+		SesWebPool webPool = userWebSV.getAvlWeb(userId, serviceId);
+		String sesAdress = webPool.getWebUrl();
+		return sesAdress;
+	}
+	
 	private void processSESServers(String userId, String serviceId,
 			List<SesHostInfo> sesHosts, String clusterAddr, SesWebPool webPool)
 			throws PaasException {
