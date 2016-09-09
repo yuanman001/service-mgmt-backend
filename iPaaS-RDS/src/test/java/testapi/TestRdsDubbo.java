@@ -155,17 +155,17 @@ public class TestRdsDubbo {
 	 * 解析方法:CancelRDSResult ct = g.fromGson(obj,CancelRDSResult.class)
 	 * 主要是status值有用
 	 */
-	@Test
-	public void cancel(){
-		CancelRDS cancelObject = new CancelRDS();
-		cancelObject.instanceid = 133;
-		String request = g.toJson(cancelObject);
-		System.out.println(request);
-		String result = incManager.cancel(request);
-		System.out.println("$$$$$$$$$$$$$$$$$$$$result$$$$$$$$$$$$$$$$$$$");
-		System.out.println(result);
-		System.out.println("$$$$$$$$$$$$$$$$$$$$result$$$$$$$$$$$$$$$$$$$");
-	}
+//	@Test
+//	public void cancel(){
+//		CancelRDS cancelObject = new CancelRDS();
+//		cancelObject.instanceid = 133;
+//		String request = g.toJson(cancelObject);
+//		System.out.println(request);
+//		String result = incManager.cancel(request);
+//		System.out.println("$$$$$$$$$$$$$$$$$$$$result$$$$$$$$$$$$$$$$$$$");
+//		System.out.println(result);
+//		System.out.println("$$$$$$$$$$$$$$$$$$$$result$$$$$$$$$$$$$$$$$$$");
+//	}
 	
 	/**
 	 * passed

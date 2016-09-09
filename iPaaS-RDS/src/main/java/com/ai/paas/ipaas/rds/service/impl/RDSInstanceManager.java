@@ -702,6 +702,33 @@ public class RDSInstanceManager  {
 			AgentUtil.uploadFile("rds/ansible_master_run_image.sh", cnt, AidUtil.getAid());
 			AgentUtil.executeCommand("chmod +x " + basePath + "rds/ansible_master_run_image.sh", AidUtil.getAid());
 			
+			String[] sss = new String[] { "",
+					rdsPath, 
+					savedRdsIncBase.getIncIp().replace(".", ""),// .cfg 文件名称 
+					incRes.getSshuser(),
+					incRes.getSshpassword(),
+					savedRdsIncBase.getIncIp(),
+					imgRes.getImageRepository() + "/" + imgRes.getImageName(),
+					savedRdsIncBase.getIncPort() + "",
+					incRes.getVolumnPath() + "/" + savedRdsIncBase.getIncPort(),
+					savedRdsIncBase.getMysqlHome(),
+					"/percona/data",
+					savedRdsIncBase.getUserId() + "-" + savedRdsIncBase.getServiceId() + "-" + savedRdsIncBase.getIncPort(),
+					savedRdsIncBase.getDbServerId(),
+					savedRdsIncBase.getDbStoreage() + "",
+					getIncTypeById(savedRdsIncBase.getIncType()),
+					savedRdsIncBase.getRootName(),
+					savedRdsIncBase.getRootPassword(),
+					savedRdsIncBase.getWhiteList(),
+					savedRdsIncBase.getCpuInfo(),
+					savedRdsIncBase.getIntStorage() + "",
+					savedRdsIncBase.getNetBandwidth() + "",
+					savedRdsIncBase.getSqlAudit(),
+					savedRdsIncBase.getSyncStrategy()
+					};
+			for(String ss : sss){
+				System.out.println("......"+ss);
+			}
 			// 开始执行
 			String runImage = fillStringByArgs(DOCKER_MASTER_PARAM,
 					new String[] { "",
