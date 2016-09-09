@@ -68,55 +68,29 @@ public class RdsIncBase implements Cloneable {
 
     private Integer netBandwidth;
 
+    private String sqlAudit;
+
+    private String syncStrategy;
+
     private Timestamp createTime;
 
     private Timestamp updateTime;
 
-    public RdsIncBase clone(){
-    	RdsIncBase inc = new RdsIncBase();
-    	Gson g = new Gson();
-    	inc = g.fromJson(g.toJson(this), RdsIncBase.class);
-    	return inc;
-    }
     
-    public RdsIncBase(Integer id, String userId, String serviceId, String depId, Integer imgId, Integer resId,
-			String bakId, String slaverId, String incName, String incIp, Integer incPort, Integer incType,
-			String incTag, String incLocation, Integer incStatus, String incDescribe, String mysqlHome,
-			String mysqlDataHome, String mysqlVolumnPath, String whiteList, String rootName, String rootPassword,
-			String containerName, String dbServerId, Integer dbStoreage, Integer dbUsedStorage, Integer intStorage,
-			Integer maxConnectNum, Integer masterid, String cpuInfo, Integer netBandwidth) {
-		super();
-		this.id = id;
-		this.userId = userId;
-		this.serviceId = serviceId;
-		this.depId = depId;
-		this.imgId = imgId;
-		this.resId = resId;
-		this.bakId = bakId;
-		this.slaverId = slaverId;
-		this.incName = incName;
-		this.incIp = incIp;
-		this.incPort = incPort;
-		this.incType = incType;
-		this.incTag = incTag;
-		this.incLocation = incLocation;
-		this.incStatus = incStatus;
-		this.incDescribe = incDescribe;
-		this.mysqlHome = mysqlHome;
-		this.mysqlDataHome = mysqlDataHome;
-		this.mysqlVolumnPath = mysqlVolumnPath;
-		this.whiteList = whiteList;
-		this.rootName = rootName;
-		this.rootPassword = rootPassword;
-		this.containerName = containerName;
-		this.dbServerId = dbServerId;
-		this.dbStoreage = dbStoreage;
-		this.dbUsedStorage = dbUsedStorage;
-		this.intStorage = intStorage;
-		this.maxConnectNum = maxConnectNum;
-		this.masterid = masterid;
-		this.cpuInfo = cpuInfo;
-		this.netBandwidth = netBandwidth;
+    
+    @Override
+	public String toString() {
+		return "RdsIncBase [id=" + id + ", userId=" + userId + ", serviceId=" + serviceId + ", depId=" + depId
+				+ ", imgId=" + imgId + ", resId=" + resId + ", bakId=" + bakId + ", slaverId=" + slaverId + ", incName="
+				+ incName + ", incIp=" + incIp + ", incPort=" + incPort + ", incType=" + incType + ", incTag=" + incTag
+				+ ", incLocation=" + incLocation + ", incStatus=" + incStatus + ", incDescribe=" + incDescribe
+				+ ", mysqlHome=" + mysqlHome + ", mysqlDataHome=" + mysqlDataHome + ", mysqlVolumnPath="
+				+ mysqlVolumnPath + ", whiteList=" + whiteList + ", rootName=" + rootName + ", rootPassword="
+				+ rootPassword + ", containerName=" + containerName + ", dbServerId=" + dbServerId + ", dbStoreage="
+				+ dbStoreage + ", dbUsedStorage=" + dbUsedStorage + ", intStorage=" + intStorage + ", maxConnectNum="
+				+ maxConnectNum + ", masterid=" + masterid + ", cpuInfo=" + cpuInfo + ", netBandwidth=" + netBandwidth
+				+ ", sqlAudit=" + sqlAudit + ", syncStrategy=" + syncStrategy + ", createTime=" + createTime
+				+ ", updateTime=" + updateTime + "]";
 	}
 
 	public RdsIncBase(String userId, String serviceId, String depId, Integer imgId, Integer resId, String bakId,
@@ -124,7 +98,8 @@ public class RdsIncBase implements Cloneable {
 			String incLocation, Integer incStatus, String incDescribe, String mysqlHome, String mysqlDataHome,
 			String mysqlVolumnPath, String whiteList, String rootName, String rootPassword, String containerName,
 			String dbServerId, Integer dbStoreage, Integer dbUsedStorage, Integer intStorage, Integer maxConnectNum,
-			Integer masterid, String cpuInfo, Integer netBandwidth, Timestamp createTime, Timestamp updateTime) {
+			Integer masterid, String cpuInfo, Integer netBandwidth, String sqlAudit, String syncStrategy,
+			Timestamp createTime, Timestamp updateTime) {
 		super();
 		this.userId = userId;
 		this.serviceId = serviceId;
@@ -156,8 +131,51 @@ public class RdsIncBase implements Cloneable {
 		this.masterid = masterid;
 		this.cpuInfo = cpuInfo;
 		this.netBandwidth = netBandwidth;
+		this.sqlAudit = sqlAudit;
+		this.syncStrategy = syncStrategy;
 		this.createTime = createTime;
 		this.updateTime = updateTime;
+	}
+
+	public RdsIncBase(String userId, String serviceId, String depId, Integer imgId, Integer resId, String bakId,
+			String slaverId, String incName, String incIp, Integer incPort, Integer incType, String incTag,
+			String incLocation, Integer incStatus, String incDescribe, String mysqlHome, String mysqlDataHome,
+			String mysqlVolumnPath, String whiteList, String rootName, String rootPassword, String containerName,
+			String dbServerId, Integer dbStoreage, Integer dbUsedStorage, Integer intStorage, Integer maxConnectNum,
+			Integer masterid, String cpuInfo, Integer netBandwidth, String sqlAudit, String syncStrategy) {
+		super();
+		this.userId = userId;
+		this.serviceId = serviceId;
+		this.depId = depId;
+		this.imgId = imgId;
+		this.resId = resId;
+		this.bakId = bakId;
+		this.slaverId = slaverId;
+		this.incName = incName;
+		this.incIp = incIp;
+		this.incPort = incPort;
+		this.incType = incType;
+		this.incTag = incTag;
+		this.incLocation = incLocation;
+		this.incStatus = incStatus;
+		this.incDescribe = incDescribe;
+		this.mysqlHome = mysqlHome;
+		this.mysqlDataHome = mysqlDataHome;
+		this.mysqlVolumnPath = mysqlVolumnPath;
+		this.whiteList = whiteList;
+		this.rootName = rootName;
+		this.rootPassword = rootPassword;
+		this.containerName = containerName;
+		this.dbServerId = dbServerId;
+		this.dbStoreage = dbStoreage;
+		this.dbUsedStorage = dbUsedStorage;
+		this.intStorage = intStorage;
+		this.maxConnectNum = maxConnectNum;
+		this.masterid = masterid;
+		this.cpuInfo = cpuInfo;
+		this.netBandwidth = netBandwidth;
+		this.sqlAudit = sqlAudit;
+		this.syncStrategy = syncStrategy;
 	}
 
 	public RdsIncBase() {
@@ -169,8 +187,8 @@ public class RdsIncBase implements Cloneable {
 			String incTag, String incLocation, Integer incStatus, String incDescribe, String mysqlHome,
 			String mysqlDataHome, String mysqlVolumnPath, String whiteList, String rootName, String rootPassword,
 			String containerName, String dbServerId, Integer dbStoreage, Integer dbUsedStorage, Integer intStorage,
-			Integer maxConnectNum, Integer masterid, String cpuInfo, Integer netBandwidth, Timestamp createTime,
-			Timestamp updateTime) {
+			Integer maxConnectNum, Integer masterid, String cpuInfo, Integer netBandwidth, String sqlAudit,
+			String syncStrategy, Timestamp createTime, Timestamp updateTime) {
 		super();
 		this.id = id;
 		this.userId = userId;
@@ -203,25 +221,20 @@ public class RdsIncBase implements Cloneable {
 		this.masterid = masterid;
 		this.cpuInfo = cpuInfo;
 		this.netBandwidth = netBandwidth;
+		this.sqlAudit = sqlAudit;
+		this.syncStrategy = syncStrategy;
 		this.createTime = createTime;
 		this.updateTime = updateTime;
 	}
 
-	@Override
-	public String toString() {
-		return "RdsIncBase [id=" + id + ", userId=" + userId + ", serviceId=" + serviceId + ", depId=" + depId
-				+ ", imgId=" + imgId + ", resId=" + resId + ", bakId=" + bakId + ", slaverId=" + slaverId + ", incName="
-				+ incName + ", incIp=" + incIp + ", incPort=" + incPort + ", incType=" + incType + ", incTag=" + incTag
-				+ ", incLocation=" + incLocation + ", incStatus=" + incStatus + ", incDescribe=" + incDescribe
-				+ ", mysqlHome=" + mysqlHome + ", mysqlDataHome=" + mysqlDataHome + ", mysqlVolumnPath="
-				+ mysqlVolumnPath + ", whiteList=" + whiteList + ", rootName=" + rootName + ", rootPassword="
-				+ rootPassword + ", containerName=" + containerName + ", dbServerId=" + dbServerId + ", dbStoreage="
-				+ dbStoreage + ", dbUsedStorage=" + dbUsedStorage + ", intStorage=" + intStorage + ", maxConnectNum="
-				+ maxConnectNum + ", masterid=" + masterid + ", cpuInfo=" + cpuInfo + ", netBandwidth=" + netBandwidth
-				+ ", createTime=" + createTime + ", updateTime=" + updateTime + "]";
-	}
-
-	public Integer getId() {
+	public RdsIncBase clone(){
+    	RdsIncBase inc = new RdsIncBase();
+    	Gson g = new Gson();
+    	inc = g.fromJson(g.toJson(this), RdsIncBase.class);
+    	return inc;
+    }
+    
+    public Integer getId() {
         return id;
     }
 
@@ -467,6 +480,22 @@ public class RdsIncBase implements Cloneable {
 
     public void setNetBandwidth(Integer netBandwidth) {
         this.netBandwidth = netBandwidth;
+    }
+
+    public String getSqlAudit() {
+        return sqlAudit;
+    }
+
+    public void setSqlAudit(String sqlAudit) {
+        this.sqlAudit = sqlAudit == null ? null : sqlAudit.trim();
+    }
+
+    public String getSyncStrategy() {
+        return syncStrategy;
+    }
+
+    public void setSyncStrategy(String syncStrategy) {
+        this.syncStrategy = syncStrategy == null ? null : syncStrategy.trim();
     }
 
     public Timestamp getCreateTime() {

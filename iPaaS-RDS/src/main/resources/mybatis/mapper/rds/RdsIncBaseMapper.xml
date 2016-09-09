@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
-<mapper namespace="com.ai.paas.ipaas.rds.dao.interfaces.RdsIncBaseMapper" >
-  <resultMap id="BaseResultMap" type="com.ai.paas.ipaas.rds.dao.mapper.bo.RdsIncBase" >
+<mapper namespace="com.ai.paas.ipaas.mds.dao.interfaces.RdsIncBaseMapper" >
+  <resultMap id="BaseResultMap" type="com.ai.paas.ipaas.mds.dao.mapper.bo.RdsIncBase" >
     <id column="id" property="id" jdbcType="INTEGER" />
     <result column="user_id" property="userId" jdbcType="VARCHAR" />
     <result column="service_id" property="serviceId" jdbcType="VARCHAR" />
@@ -33,6 +33,8 @@
     <result column="masterid" property="masterid" jdbcType="INTEGER" />
     <result column="cpu_info" property="cpuInfo" jdbcType="VARCHAR" />
     <result column="net_bandwidth" property="netBandwidth" jdbcType="INTEGER" />
+    <result column="sql_audit" property="sqlAudit" jdbcType="VARCHAR" />
+    <result column="sync_strategy" property="syncStrategy" jdbcType="VARCHAR" />
     <result column="create_time" property="createTime" jdbcType="TIMESTAMP" />
     <result column="update_time" property="updateTime" jdbcType="TIMESTAMP" />
   </resultMap>
@@ -99,9 +101,9 @@
     inc_port, inc_type, inc_tag, inc_location, inc_status, inc_describe, mysql_home, 
     mysql_data_home, mysql_volumn_path, white_list, root_name, root_password, container_name, 
     db_server_id, db_storeage, db_used_storage, int_storage, max_connect_num, masterid, 
-    cpu_info, net_bandwidth, create_time, update_time
+    cpu_info, net_bandwidth, sql_audit, sync_strategy, create_time, update_time
   </sql>
-  <select id="selectByExample" resultMap="BaseResultMap" parameterType="com.ai.paas.ipaas.rds.dao.mapper.bo.RdsIncBaseCriteria" >
+  <select id="selectByExample" resultMap="BaseResultMap" parameterType="com.ai.paas.ipaas.mds.dao.mapper.bo.RdsIncBaseCriteria" >
     select
     <if test="distinct" >
       distinct
@@ -128,13 +130,13 @@
     delete from rds_inc_base
     where id = #{id,jdbcType=INTEGER}
   </delete>
-  <delete id="deleteByExample" parameterType="com.ai.paas.ipaas.rds.dao.mapper.bo.RdsIncBaseCriteria" >
+  <delete id="deleteByExample" parameterType="com.ai.paas.ipaas.mds.dao.mapper.bo.RdsIncBaseCriteria" >
     delete from rds_inc_base
     <if test="_parameter != null" >
       <include refid="Example_Where_Clause" />
     </if>
   </delete>
-  <insert id="insert" parameterType="com.ai.paas.ipaas.rds.dao.mapper.bo.RdsIncBase" >
+  <insert id="insert" parameterType="com.ai.paas.ipaas.mds.dao.mapper.bo.RdsIncBase" >
     insert into rds_inc_base (id, user_id, service_id, 
       dep_id, img_id, res_id, 
       bak_id, slaver_id, inc_name, 
@@ -145,8 +147,8 @@
       root_password, container_name, db_server_id, 
       db_storeage, db_used_storage, int_storage, 
       max_connect_num, masterid, cpu_info, 
-      net_bandwidth, create_time, update_time
-      )
+      net_bandwidth, sql_audit, sync_strategy, 
+      create_time, update_time)
     values (#{id,jdbcType=INTEGER}, #{userId,jdbcType=VARCHAR}, #{serviceId,jdbcType=VARCHAR}, 
       #{depId,jdbcType=VARCHAR}, #{imgId,jdbcType=INTEGER}, #{resId,jdbcType=INTEGER}, 
       #{bakId,jdbcType=VARCHAR}, #{slaverId,jdbcType=VARCHAR}, #{incName,jdbcType=VARCHAR}, 
@@ -157,10 +159,10 @@
       #{rootPassword,jdbcType=VARCHAR}, #{containerName,jdbcType=VARCHAR}, #{dbServerId,jdbcType=VARCHAR}, 
       #{dbStoreage,jdbcType=INTEGER}, #{dbUsedStorage,jdbcType=INTEGER}, #{intStorage,jdbcType=INTEGER}, 
       #{maxConnectNum,jdbcType=INTEGER}, #{masterid,jdbcType=INTEGER}, #{cpuInfo,jdbcType=VARCHAR}, 
-      #{netBandwidth,jdbcType=INTEGER}, #{createTime,jdbcType=TIMESTAMP}, #{updateTime,jdbcType=TIMESTAMP}
-      )
+      #{netBandwidth,jdbcType=INTEGER}, #{sqlAudit,jdbcType=VARCHAR}, #{syncStrategy,jdbcType=VARCHAR}, 
+      #{createTime,jdbcType=TIMESTAMP}, #{updateTime,jdbcType=TIMESTAMP})
   </insert>
-  <insert id="insertSelective" parameterType="com.ai.paas.ipaas.rds.dao.mapper.bo.RdsIncBase" >
+  <insert id="insertSelective" parameterType="com.ai.paas.ipaas.mds.dao.mapper.bo.RdsIncBase" >
     insert into rds_inc_base
     <trim prefix="(" suffix=")" suffixOverrides="," >
       <if test="id != null" >
@@ -255,6 +257,12 @@
       </if>
       <if test="netBandwidth != null" >
         net_bandwidth,
+      </if>
+      <if test="sqlAudit != null" >
+        sql_audit,
+      </if>
+      <if test="syncStrategy != null" >
+        sync_strategy,
       </if>
       <if test="createTime != null" >
         create_time,
@@ -357,6 +365,12 @@
       <if test="netBandwidth != null" >
         #{netBandwidth,jdbcType=INTEGER},
       </if>
+      <if test="sqlAudit != null" >
+        #{sqlAudit,jdbcType=VARCHAR},
+      </if>
+      <if test="syncStrategy != null" >
+        #{syncStrategy,jdbcType=VARCHAR},
+      </if>
       <if test="createTime != null" >
         #{createTime,jdbcType=TIMESTAMP},
       </if>
@@ -365,7 +379,7 @@
       </if>
     </trim>
   </insert>
-  <select id="countByExample" parameterType="com.ai.paas.ipaas.rds.dao.mapper.bo.RdsIncBaseCriteria" resultType="java.lang.Integer" >
+  <select id="countByExample" parameterType="com.ai.paas.ipaas.mds.dao.mapper.bo.RdsIncBaseCriteria" resultType="java.lang.Integer" >
     select count(*) from rds_inc_base
     <if test="_parameter != null" >
       <include refid="Example_Where_Clause" />
@@ -467,6 +481,12 @@
       <if test="record.netBandwidth != null" >
         net_bandwidth = #{record.netBandwidth,jdbcType=INTEGER},
       </if>
+      <if test="record.sqlAudit != null" >
+        sql_audit = #{record.sqlAudit,jdbcType=VARCHAR},
+      </if>
+      <if test="record.syncStrategy != null" >
+        sync_strategy = #{record.syncStrategy,jdbcType=VARCHAR},
+      </if>
       <if test="record.createTime != null" >
         create_time = #{record.createTime,jdbcType=TIMESTAMP},
       </if>
@@ -511,13 +531,15 @@
       masterid = #{record.masterid,jdbcType=INTEGER},
       cpu_info = #{record.cpuInfo,jdbcType=VARCHAR},
       net_bandwidth = #{record.netBandwidth,jdbcType=INTEGER},
+      sql_audit = #{record.sqlAudit,jdbcType=VARCHAR},
+      sync_strategy = #{record.syncStrategy,jdbcType=VARCHAR},
       create_time = #{record.createTime,jdbcType=TIMESTAMP},
       update_time = #{record.updateTime,jdbcType=TIMESTAMP}
     <if test="_parameter != null" >
       <include refid="Update_By_Example_Where_Clause" />
     </if>
   </update>
-  <update id="updateByPrimaryKeySelective" parameterType="com.ai.paas.ipaas.rds.dao.mapper.bo.RdsIncBase" >
+  <update id="updateByPrimaryKeySelective" parameterType="com.ai.paas.ipaas.mds.dao.mapper.bo.RdsIncBase" >
     update rds_inc_base
     <set >
       <if test="userId != null" >
@@ -610,6 +632,12 @@
       <if test="netBandwidth != null" >
         net_bandwidth = #{netBandwidth,jdbcType=INTEGER},
       </if>
+      <if test="sqlAudit != null" >
+        sql_audit = #{sqlAudit,jdbcType=VARCHAR},
+      </if>
+      <if test="syncStrategy != null" >
+        sync_strategy = #{syncStrategy,jdbcType=VARCHAR},
+      </if>
       <if test="createTime != null" >
         create_time = #{createTime,jdbcType=TIMESTAMP},
       </if>
@@ -619,7 +647,7 @@
     </set>
     where id = #{id,jdbcType=INTEGER}
   </update>
-  <update id="updateByPrimaryKey" parameterType="com.ai.paas.ipaas.rds.dao.mapper.bo.RdsIncBase" >
+  <update id="updateByPrimaryKey" parameterType="com.ai.paas.ipaas.mds.dao.mapper.bo.RdsIncBase" >
     update rds_inc_base
     set user_id = #{userId,jdbcType=VARCHAR},
       service_id = #{serviceId,jdbcType=VARCHAR},
@@ -651,6 +679,8 @@
       masterid = #{masterid,jdbcType=INTEGER},
       cpu_info = #{cpuInfo,jdbcType=VARCHAR},
       net_bandwidth = #{netBandwidth,jdbcType=INTEGER},
+      sql_audit = #{sqlAudit,jdbcType=VARCHAR},
+      sync_strategy = #{syncStrategy,jdbcType=VARCHAR},
       create_time = #{createTime,jdbcType=TIMESTAMP},
       update_time = #{updateTime,jdbcType=TIMESTAMP}
     where id = #{id,jdbcType=INTEGER}

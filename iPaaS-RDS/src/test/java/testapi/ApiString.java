@@ -41,7 +41,7 @@ public class ApiString {
 				"BEIJING", 1, "no describe", "/aifs01", 
 				"/aifs01/mysqldata","", "192.168.*.*", 
 				"root", "root", "containerName",
-				"1234", 50000, 2000, 123, 500,0,"cpu0",5,time,time);
+				"1234", 50000, 2000, 123, 500,0,"cpu0",5,"on","semisynchronous",time,time);
 		String request2 = g.toJson(creatObject);
 		System.out.println(request2);
 		

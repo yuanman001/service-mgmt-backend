@@ -2176,6 +2176,146 @@ public class RdsIncBaseCriteria {
             return (Criteria) this;
         }
 
+        public Criteria andSqlAuditIsNull() {
+            addCriterion("sql_audit is null");
+            return (Criteria) this;
+        }
+
+        public Criteria andSqlAuditIsNotNull() {
+            addCriterion("sql_audit is not null");
+            return (Criteria) this;
+        }
+
+        public Criteria andSqlAuditEqualTo(String value) {
+            addCriterion("sql_audit =", value, "sqlAudit");
+            return (Criteria) this;
+        }
+
+        public Criteria andSqlAuditNotEqualTo(String value) {
+            addCriterion("sql_audit <>", value, "sqlAudit");
+            return (Criteria) this;
+        }
+
+        public Criteria andSqlAuditGreaterThan(String value) {
+            addCriterion("sql_audit >", value, "sqlAudit");
+            return (Criteria) this;
+        }
+
+        public Criteria andSqlAuditGreaterThanOrEqualTo(String value) {
+            addCriterion("sql_audit >=", value, "sqlAudit");
+            return (Criteria) this;
+        }
+
+        public Criteria andSqlAuditLessThan(String value) {
+            addCriterion("sql_audit <", value, "sqlAudit");
+            return (Criteria) this;
+        }
+
+        public Criteria andSqlAuditLessThanOrEqualTo(String value) {
+            addCriterion("sql_audit <=", value, "sqlAudit");
+            return (Criteria) this;
+        }
+
+        public Criteria andSqlAuditLike(String value) {
+            addCriterion("sql_audit like", value, "sqlAudit");
+            return (Criteria) this;
+        }
+
+        public Criteria andSqlAuditNotLike(String value) {
+            addCriterion("sql_audit not like", value, "sqlAudit");
+            return (Criteria) this;
+        }
+
+        public Criteria andSqlAuditIn(List<String> values) {
+            addCriterion("sql_audit in", values, "sqlAudit");
+            return (Criteria) this;
+        }
+
+        public Criteria andSqlAuditNotIn(List<String> values) {
+            addCriterion("sql_audit not in", values, "sqlAudit");
+            return (Criteria) this;
+        }
+
+        public Criteria andSqlAuditBetween(String value1, String value2) {
+            addCriterion("sql_audit between", value1, value2, "sqlAudit");
+            return (Criteria) this;
+        }
+
+        public Criteria andSqlAuditNotBetween(String value1, String value2) {
+            addCriterion("sql_audit not between", value1, value2, "sqlAudit");
+            return (Criteria) this;
+        }
+
+        public Criteria andSyncStrategyIsNull() {
+            addCriterion("sync_strategy is null");
+            return (Criteria) this;
+        }
+
+        public Criteria andSyncStrategyIsNotNull() {
+            addCriterion("sync_strategy is not null");
+            return (Criteria) this;
+        }
+
+        public Criteria andSyncStrategyEqualTo(String value) {
+            addCriterion("sync_strategy =", value, "syncStrategy");
+            return (Criteria) this;
+        }
+
+        public Criteria andSyncStrategyNotEqualTo(String value) {
+            addCriterion("sync_strategy <>", value, "syncStrategy");
+            return (Criteria) this;
+        }
+
+        public Criteria andSyncStrategyGreaterThan(String value) {
+            addCriterion("sync_strategy >", value, "syncStrategy");
+            return (Criteria) this;
+        }
+
+        public Criteria andSyncStrategyGreaterThanOrEqualTo(String value) {
+            addCriterion("sync_strategy >=", value, "syncStrategy");
+            return (Criteria) this;
+        }
+
+        public Criteria andSyncStrategyLessThan(String value) {
+            addCriterion("sync_strategy <", value, "syncStrategy");
+            return (Criteria) this;
+        }
+
+        public Criteria andSyncStrategyLessThanOrEqualTo(String value) {
+            addCriterion("sync_strategy <=", value, "syncStrategy");
+            return (Criteria) this;
+        }
+
+        public Criteria andSyncStrategyLike(String value) {
+            addCriterion("sync_strategy like", value, "syncStrategy");
+            return (Criteria) this;
+        }
+
+        public Criteria andSyncStrategyNotLike(String value) {
+            addCriterion("sync_strategy not like", value, "syncStrategy");
+            return (Criteria) this;
+        }
+
+        public Criteria andSyncStrategyIn(List<String> values) {
+            addCriterion("sync_strategy in", values, "syncStrategy");
+            return (Criteria) this;
+        }
+
+        public Criteria andSyncStrategyNotIn(List<String> values) {
+            addCriterion("sync_strategy not in", values, "syncStrategy");
+            return (Criteria) this;
+        }
+
+        public Criteria andSyncStrategyBetween(String value1, String value2) {
+            addCriterion("sync_strategy between", value1, value2, "syncStrategy");
+            return (Criteria) this;
+        }
+
+        public Criteria andSyncStrategyNotBetween(String value1, String value2) {
+            addCriterion("sync_strategy not between", value1, value2, "syncStrategy");
+            return (Criteria) this;
+        }
+
         public Criteria andCreateTimeIsNull() {
             addCriterion("create_time is null");
             return (Criteria) this;

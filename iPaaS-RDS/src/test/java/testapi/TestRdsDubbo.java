@@ -1,14 +1,20 @@
 package testapi;
 
+
+import java.sql.Timestamp;
+
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
+import com.ai.paas.ipaas.rds.dao.mapper.bo.RdsIncBase;
 import com.ai.paas.ipaas.rds.manage.rest.interfaces.IRDSInstanceManager;
 import com.ai.paas.ipaas.rds.manage.rest.interfaces.IRDSInstanceOperater;
 import com.ai.paas.ipaas.rds.manage.rest.interfaces.IRDSResourcePool;
 import com.ai.paas.ipaas.rds.service.transfer.vo.CancelRDS;
+import com.ai.paas.ipaas.rds.service.transfer.vo.CreateRDS;
+import com.ai.paas.ipaas.rds.service.transfer.vo.CreateRDSResult;
 import com.alibaba.dubbo.config.annotation.Reference;
 import com.google.gson.Gson;
 
@@ -91,26 +97,26 @@ public class TestRdsDubbo {
 	 * 解析方法:CreateRDSResult ct = g.fromGson(obj,CreateRDSResult.class)
 	 * 主要是status值有用
 	 */
-//	@Test
-//	public void create(){
-//		Timestamp time = new Timestamp(System.currentTimeMillis()); 
-//		CreateRDS creatObject = new CreateRDS();
-//		creatObject.createSlaverNum = 1;
-//		creatObject.createBatmasterNum = 0;
-//		creatObject.instanceBase = new RdsIncBase("6C4F4DBA96294DDCBC5DBBF2CAD442B5", "test_res_lim_mysql", "BIU", 5, 100, "","",
-//				"mysql6", "", 0, 1, "BIU,MYSQL,TEST","BEIJING", 1, "no describe", "/aifs01", 
-//				"/aifs01/mysqldata","", "192.168.*.*", "rootusr", "123456", "containerName",
-//				"1234", 10000, 2000, 2, 500, 0,
-//				"1"//cpu属于可分配资源
-//				,5,time,time);
-//		String request = g.toJson(creatObject);
-//		System.out.println(request);
-//		String result = incManager.create(request);
-//		System.out.println("$$$$$$$$$$$$$$$$$$$$result$$$$$$$$$$$$$$$$$$$");
-//		System.out.println(result);
-//		CreateRDSResult ssss = g.fromJson(result, CreateRDSResult.class);
-//		System.out.println("$$$$$$$$$$$$$$$$$$$$result$$$$$$$$$$$$$$$$$$$");
-//	}
+	@Test
+	public void create(){
+		Timestamp time = new Timestamp(System.currentTimeMillis()); 
+		CreateRDS creatObject = new CreateRDS();
+		creatObject.createSlaverNum = 1;
+		creatObject.createBatmasterNum = 0;
+		creatObject.instanceBase = new RdsIncBase("6C4F4DBA96294DDCBC5DBBF2CAD442B5", "test_res_lim_mysql", "BIU", 5, 100, "","",
+				"mysql6", "", 0, 1, "BIU,MYSQL,TEST","BEIJING", 1, "no describe", "/aifs01", 
+				"/aifs01/mysqldata","", "192.168.*.*", "rootusr", "123456", "containerName",
+				"1234", 10000, 2000, 2, 500, 0,
+				"1"//cpu属于可分配资源
+				,5,"on","semisynchronous",time,time);
+		String request = g.toJson(creatObject);
+		System.out.println(request);
+		String result = incManager.create(request);
+		System.out.println("$$$$$$$$$$$$$$$$$$$$result$$$$$$$$$$$$$$$$$$$");
+		System.out.println(result);
+		CreateRDSResult ssss = g.fromJson(result, CreateRDSResult.class);
+		System.out.println("$$$$$$$$$$$$$$$$$$$$result$$$$$$$$$$$$$$$$$$$");
+	}
 	
 	
 	
@@ -152,7 +158,7 @@ public class TestRdsDubbo {
 	@Test
 	public void cancel(){
 		CancelRDS cancelObject = new CancelRDS();
-		cancelObject.instanceid = 131;
+		cancelObject.instanceid = 133;
 		String request = g.toJson(cancelObject);
 		System.out.println(request);
 		String result = incManager.cancel(request);
