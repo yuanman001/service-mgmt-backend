@@ -377,7 +377,7 @@ public class RDSInstanceManager  {
 			if (1 == createObject.createBatmasterNum) {
 				// 包装一个创建主备实例的类，并保存到数据库
 				// 查询资源情况，根据请求情况与资源情况获取分配计划
-				RDSResourcePlan resourceBatMasterPlan = getExpectResourcePlan(createObject.instanceBase.clone(), allResource, exceptionResPoolList);
+				RDSResourcePlan resourceBatMasterPlan = getExpectResourcePlan(createObject.instanceBase.clone(), rdsResPoolMapper.selectByExample(rdsResPoolCri), exceptionResPoolList);
 				if(null == resourceBatMasterPlan.instanceresourcebelonger){
 					createResult.setStatus(ResponseResultMark.ERROR_NOT_EXIST_USEFUL_RESOURCE);
 					return g.getGson().toJson(createResult);
@@ -416,7 +416,7 @@ public class RDSInstanceManager  {
 			if (0 < createObject.createSlaverNum) {
 				for (int i = 0; i < createObject.createSlaverNum; i++) {
 					// 包装多个创建从服务器实例的类，并保存到数据库
-					RDSResourcePlan resourceSlaverPlan = getExpectResourcePlan(createObject.instanceBase.clone(), allResource,exceptionResPoolList);
+					RDSResourcePlan resourceSlaverPlan = getExpectResourcePlan(createObject.instanceBase.clone(), rdsResPoolMapper.selectByExample(rdsResPoolCri),exceptionResPoolList);
 					if(null == resourceSlaverPlan.instanceresourcebelonger){
 						createResult.setStatus(ResponseResultMark.ERROR_NOT_EXIST_USEFUL_RESOURCE);
 						return g.getGson().toJson(createResult);
@@ -1116,14 +1116,14 @@ public class RDSInstanceManager  {
 			List<CPU> cpusNew = new LinkedList<CPU>();
 			for(CPU cpu: cpus){
 				if(count < needCpuNum){
-					count ++;
-					if(cpu.usable = true){
+					if(true == cpu.usable){
 						if(resourcePlan.Cpu == null){
 							resourcePlan.Cpu = cpu.name;
 						} else {
 							resourcePlan.Cpu = resourcePlan.Cpu + "," + cpu.name;
 						}
 						cpu.usable = false;
+						count ++;
 					}
 				}
 				cpusNew.add(cpu);
@@ -1180,7 +1180,7 @@ public class RDSInstanceManager  {
 		List<CPU> cpusNew = new LinkedList<CPU>();
 		for(CPU cpu: cpus){
 			if(count < needCpuNum){
-				if(cpu.usable = true){
+				if(true == cpu.usable){
 					if(resourcePlan.Cpu == null){
 						resourcePlan.Cpu = cpu.name;
 					} else {
