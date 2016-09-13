@@ -217,8 +217,8 @@ public class McsManageImpl implements IMcsSv {
 		try{
 			/** 执行redis集群创建命令
 			 *  不在重新写入 mcs_host.cfg 文件，直接在最后启动的redis-server主机上，run集群创建docker。 **/
-			String clusterInfo = getClusterInfo(cacheInfoList, " ");
-			String containerName = userId + "-" + serviceId + "-" + hostIp.replace(".", "") + "-createRedisCluster";
+			String clusterInfo = getClusterInfo(cacheInfoList, "|");
+			String containerName = userId + "-" + serviceId + "-" + "-createRedisCluster";
 			String redisClusterRun = getCreateClusterCommand(basePath, hostIp, sshUser, sshUserPwd, clusterInfo, containerName, redisClusterImage);
 			runAnsileCommand(redisClusterRun);
 			logger.info("-------- 开通MCS集群模式，执行集群创建命令成功！");
@@ -232,7 +232,7 @@ public class McsManageImpl implements IMcsSv {
 			logger.info("-------- 开通MCS集群模式，记录用户的MCS开通实例信息成功！");
 			
 			/** 释放掉创建集群的docker容器 **/
-			releaseDocker(hostIp, containerName, McsConstants.DOCKER_COMMAND_REMOVE);
+			//releaseDocker(hostIp, containerName, McsConstants.DOCKER_COMMAND_REMOVE);
 		} catch(Exception ex) {
 			logger.error("==== open cluster error, msg:" + ex.getMessage());
 			/** 如果在启动docker成功后出现异常，需要stop并rm，所有已启动的docker容器。 **/
@@ -340,7 +340,84 @@ public class McsManageImpl implements IMcsSv {
 		return McsConstants.SUCCESS_FLAG;
 	}
 	
-	private void openSentinelMcs(Map<String, String> paraMap) throws PaasException {
+	private String openSentinelMcs(Map<String, String> paraMap) throws PaasException {
+		String userId = paraMap.get(McsConstants.USER_ID);
+		String serviceId = paraMap.get(McsConstants.SERVICE_ID);
+		String serviceName = paraMap.get(McsConstants.SERVICE_NAME);
+		String capacity = paraMap.get(McsConstants.CAPACITY);
+		Integer cacheSize = Integer.parseInt(capacity);
+		String basePath = AgentUtil.getAgentFilePath(AidUtil.getAid());
+		
+		/** 1.获取mcs资源. **/
+		McsResourcePool mcsResourcePool = selectMcsResSingle(cacheSize * 2, 3);
+		String hostIp = mcsResourcePool.getCacheHostIp();
+		Integer sentinelPort = mcsResourcePool.getCachePort();
+		Integer slavePort = sentinelPort -1;
+		Integer masterPort =sentinelPort -2;
+
+		String masterPwd = mcsSvHepler.getRandomKey();
+		logger.info("-----所选资源主机[" + hostIp + ":" + masterPort + "], masterPwd:" + masterPwd);
+
+		/** 2.获取执行ansible命令所需要的主机信息，以及docker镜像信息. **/
+		String sshUser = getMcsSSHInfo(McsConstants.SSH_USER_CODE);
+		String sshUserPwd = getMcsSSHInfo(McsConstants.SSH_USER_PWD_CODE);
+		IpaasImageResource redisImage = getMcsImage(McsConstants.SERVICE_CODE, McsConstants.REDIS_IMAGE_CODE);
+		String image = redisImage.getImageRepository() + "/" + redisImage.getImageName();
+		
+		/** 容器名称：userId_serviceId_port **/
+		String masterContainerName = userId + "-" + serviceId + "-" + hostIp.replace(".", "") + "-" + masterPort;
+		String slaveContainerName = userId + "-" + serviceId + "-" + hostIp.replace(".", "") + "-" + slavePort;
+		String sentinelContainerName = userId + "-" + serviceId + "-" + hostIp.replace(".", "") + "-" + sentinelPort;
+		
+		/** 3.创建 mcs_host.cfg 文件，并写入hostIp. **/
+		createHostCfg(basePath);
+		writeHostCfg(basePath, hostIp);
+		logger.info("-----创建 mcs_host.cfg 成功！");
+
+		/** 4.上传 ansible的 playbook 文件. **/
+		uploadMcsFile(McsConstants.PLAYBOOK_MCS_PATH, McsConstants.PLAYBOOK_SINGLE_YML);
+		logger.info("-----上传 mcs_single.yml 成功！");
+		uploadMcsFile(McsConstants.PLAYBOOK_MCS_PATH, McsConstants.PLAYBOOK_REPLICATION_YML);
+		logger.info("-----上传 mcs_replication.yml 成功！");
+		uploadMcsFile(McsConstants.PLAYBOOK_MCS_PATH, McsConstants.PLAYBOOK_SENTINEL_YML);
+		logger.info("-----上传 mcs_sentinel.yml 成功！");
+
+		/** 5.生成创建master节点的命令,并执行. **/
+		String ansibleCommand = getRedisServerCommand(capacity, basePath, hostIp, masterPort, 
+				masterPwd, McsConstants.MODE_SINGLE, sshUser, sshUserPwd, masterContainerName, image);
+		runAnsileCommand(ansibleCommand);
+		logger.info("-----执行ansible-playbook 成功！");
+		
+		/** 6.生成创建slave节点的命令,并执行. **/
+		String slaveCommand = getRedisSlaveCommand(capacity, basePath, hostIp, slavePort, masterPwd,  
+				McsConstants.MODE_REPLICATION, sshUser, sshUserPwd, hostIp, masterPort, slaveContainerName, redisImage);
+		runAnsileCommand(slaveCommand);
+		logger.info("-----执行slaveCommand 成功！");
+		
+		/** 7.生成创建sentinel节点的命令,并执行. **/
+		String sentinelCommand = getRedisSentinelCommand(basePath, hostIp, slavePort, masterPwd,  
+				McsConstants.MODE_SENTINEL, sshUser, sshUserPwd, hostIp, masterPort, sentinelContainerName, redisImage);
+		runAnsileCommand(sentinelCommand);
+		logger.info("-----执行sentinelCommand 成功！");
+		
+		/** 8.处理zk配置. **/
+		List<String> hostList = new ArrayList<String>();
+		hostList.add(hostIp + ":" + masterPort);
+		addCcsConfig(userId, serviceId, hostList, masterPwd);
+		logger.info("----------处理zk 配置成功！");
+
+		/** 9.添加mcs用户master实例信息. **/
+		addUserInstance(userId, serviceId, capacity, hostIp, masterPort, masterPwd, serviceName, masterContainerName, image);
+		
+		/** 10.添加mcs用户slave实例信息. **/
+		addUserInstance(userId, serviceId, capacity, hostIp, slavePort, masterPwd, serviceName, slaveContainerName, image);
+		logger.info("---------记录用户实例成功！");
+		
+		/** 11.添加mcs用户sentinel实例信息. **/
+		addUserInstance(userId, serviceId, "0", hostIp, sentinelPort, masterPwd, serviceName, sentinelContainerName, image);
+		logger.info("---------记录用户实例成功！");
+		
+		return McsConstants.SUCCESS_FLAG;
 	}
 	
 	/**
@@ -604,6 +681,28 @@ public class McsManageImpl implements IMcsSv {
 		return ansibleCommand.toString();
 	}
 	
+	private String getRedisSentinelCommand(String basePath, String hostIp, Integer cachePort,
+			String masterpass, String mode, String sshUser, String sshUserPwd, String masterIp, Integer masterPort,
+			String containerName, IpaasImageResource mcsImage) {
+		StringBuilder ansibleCommand = new StringBuilder("/usr/bin/ansible-playbook -i ")
+			.append(basePath).append(McsConstants.PLAYBOOK_CFG_PATH)
+			.append(McsConstants.PLAYBOOK_HOST_CFG).append(" ")
+			.append(basePath).append("/mcs/").append(McsConstants.PLAYBOOK_SENTINEL_YML)
+			.append(" --user=").append(sshUser)
+			.append(" --extra-vars \"ansible_ssh_pass=").append(sshUserPwd)
+			.append(" container_name=").append(containerName)
+			.append(" image=").append(mcsImage.getImageRepository()).append("/").append(mcsImage.getImageName())
+			.append(" REDIS_PORT=").append(cachePort)
+			.append(" START_MODE=").append(mode)
+			.append(" host=").append(hostIp)
+			.append(" user=").append(sshUser)
+			.append(" PASSWORD=").append(masterpass)
+			.append(" MASTER_IP=").append(masterIp)
+			.append(" MASTER_PORT=").append(masterPort).append("\"");
+		logger.info("-----ansibleCommand:" + ansibleCommand.toString());
+		return ansibleCommand.toString();
+	}
+	
 	private String getDockerOperateCommand(String basePath, String hostIp, String sshUser, 
 			String sshUserPwd, String operate, String containerName) {
 		StringBuilder commond = new StringBuilder("/usr/bin/ansible-playbook -i ")
@@ -720,7 +819,7 @@ public class McsManageImpl implements IMcsSv {
 		 * 创建redis集群在任意台资源主机上执行命令均可。
 		 * 执行redis集群创建命令 **/
 		writeHostCfg(basePath, hostIp);
-		String containerName = userId + "-" + serviceId + "-" + hostIp.replace(".", "") + "-createRedisCluster";
+		String containerName = userId + "-" + serviceId + "-createRedisCluster";
 		String redisClusterRun = getCreateClusterCommand(basePath, hostIp, sshUser, sshUserPwd, clusterInfo, containerName, redisClusterImage);
 		runAnsileCommand(redisClusterRun);
 		logger.info("-------- 创建MCS集群成功！");
@@ -882,7 +981,7 @@ public class McsManageImpl implements IMcsSv {
 			if (mcsResourcePool.getCachePort() == mcsResourcePool.getMaxPort()) {
 				mcsResourcePool.setCycle(1);
 			}
-			/** 从入参获取端口偏移量，开通单例模式端口+1, 主从复制模式端口+2。 **/
+			/** 从入参获取端口偏移量，开通单例模式端口+1, 主从复制模式端口+2, sentinel模式端口+3。 **/
 			mcsResourcePool.setCachePort(mcsResourcePool.getCachePort() + portOffset);
 			mcsResourcePool.setCacheMemoryUsed(mcsResourcePool.getCacheMemoryUsed() + cacheSize);
 			int changeRow = updateResource(mcsResourcePool,  portOffset);

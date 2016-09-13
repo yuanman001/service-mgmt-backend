@@ -8,6 +8,7 @@ import com.ai.paas.ipaas.rpc.api.vo.ApplyInfo;
 import com.ai.paas.ipaas.ses.manage.rest.interfaces.ISearchEngineServiceManager;
 import com.ai.paas.ipaas.ses.service.constant.SesConstants;
 import com.ai.paas.ipaas.ses.service.interfaces.ISesManage;
+import com.ai.paas.ipaas.ses.service.vo.SesAndWebPoolSrvApplyResult;
 import com.ai.paas.ipaas.ses.service.vo.SesMappingApply;
 import com.ai.paas.ipaas.ses.service.vo.SesSrvApply;
 import com.ai.paas.ipaas.ses.service.vo.SesSrvApplyResult;
@@ -38,17 +39,19 @@ public class SesManagerImpl implements ISearchEngineServiceManager {
 
 		SesSrvApply sesApplyParam = gson.fromJson(createApply,
 				SesSrvApply.class);
-		SesSrvApplyResult result = new SesSrvApplyResult();
+		SesAndWebPoolSrvApplyResult result = new SesAndWebPoolSrvApplyResult();
 
 		result.setUserId(sesApplyParam.getUserId());
 		result.setServiceId(sesApplyParam.getServiceId());
 		result.setApplyType(sesApplyParam.getApplyType());
-
+		
 		try {
 			LOGGER.info("create ses service begin..........");
 			sesSrv.createSesService(sesApplyParam);
+			String sesAdress = sesSrv.getSesServiceAdress(sesApplyParam);
 			result.setResultCode(SesConstants.SUCCESS_CODE);
 			result.setResultMsg("success");
+			result.setWebUrl(sesAdress);
 		} catch (PaasException e) {
 			LOGGER.error("create ses service error..........", e);
 			result.setResultCode(SesConstants.FAIL_CODE);

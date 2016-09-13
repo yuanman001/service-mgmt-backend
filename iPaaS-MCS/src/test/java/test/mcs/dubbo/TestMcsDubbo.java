@@ -24,20 +24,20 @@ public class TestMcsDubbo {
 //  public void createSingle() {
 //    long s = System.currentTimeMillis();
 //    String param =
-//        "{\"userId\":\"6C4F4DBA96294DDCBC5DBBF2CAD442B5\",\"applyType\":\"create\",\"serviceId\":\"MCS567\",\"capacity\":\"64\","
+//        "{\"userId\":\"6C4F4DBA96294DDCBC5DBBF2CAD442B5\",\"applyType\":\"create\",\"serviceId\":\"MCS666\",\"capacity\":\"64\","
 //            + "\"haMode\":\"single\",\"serviceName\":\"ym-test-2\"}";
 //    System.out.println("----------create-res:\n" + iMemoryCacheServiceManager.create(param));
 //    System.out.println("----------开通单例，耗时：" + (System.currentTimeMillis() - s)/1000 + "秒");
 //  }
 
-//  @Test
-//  public void createCluster() {
-//    long s = System.currentTimeMillis();
-//    String param =
-//        "{\"userId\":\"6C4F4DBA96294DDCBC5DBBF2CAD442B5\",\"applyType\":\"create\",\"serviceId\":\"MCS234\",\"capacity\":\"128\",\"haMode\":\"cluster\"}";
-//    System.out.println("----------create-res:\n" + iMemoryCacheServiceManager.create(param));
-//    System.out.println("----------开通集群，耗时：" + (System.currentTimeMillis() - s)/1000 + "秒");
-//  }
+  @Test
+  public void createCluster() {
+    long s = System.currentTimeMillis();
+    String param =
+        "{\"userId\":\"6C4F4DBA96294DDCBC5DBBF2CAD442B5\",\"applyType\":\"create\",\"serviceId\":\"MCS065\",\"capacity\":\"128\",\"haMode\":\"cluster\"}";
+    System.out.println("----------create-res:\n" + iMemoryCacheServiceManager.create(param));
+    System.out.println("----------开通集群，耗时：" + (System.currentTimeMillis() - s)/1000 + "秒");
+  }
 
 //@Test
 //public void cancel() {
@@ -52,7 +52,7 @@ public class TestMcsDubbo {
 //public void cancelCluster() {
 //  long s = System.currentTimeMillis();
 //  String param =
-//      "{\"userId\":\"6C4F4DBA96294DDCBC5DBBF2CAD442B5\",\"applyType\":\"cancel\",\"serviceId\":\"MCS234\",\"capacity\":\"128\",\"haMode\":\"cluster\"}";
+//      "{\"userId\":\"6C4F4DBA96294DDCBC5DBBF2CAD442B5\",\"applyType\":\"cancel\",\"serviceId\":\"MCS063\",\"capacity\":\"128\",\"haMode\":\"cluster\"}";
 //  System.out.println("----------create-res:\n" + iMemoryCacheServiceManager.cancel(param));
 //  System.out.println("----------开通集群，耗时：" + (System.currentTimeMillis() - s)/1000 + "秒");
 //}
@@ -98,20 +98,20 @@ public class TestMcsDubbo {
 //  public void stop() {
 //    long s = System.currentTimeMillis();
 //    String param =
-//        "{\"userId\":\"6C4F4DBA96294DDCBC5DBBF2CAD442B5\",\"applyType\":\"stop\",\"serviceId\":\"MCS789\",\"capacity\":\"64\","
+//        "{\"userId\":\"6C4F4DBA96294DDCBC5DBBF2CAD442B5\",\"applyType\":\"stop\",\"serviceId\":\"MCS666\",\"capacity\":\"64\","
 //            + "\"haMode\":\"single\",\"serviceName\":\"ym-test-1\"}";
 //    System.out.println("----------stop-res:\n" + iMemoryCacheServiceManager.stop(param));
 //    System.out.println("----------停止单例，耗时：" + (System.currentTimeMillis() - s)/1000 + "秒");
 //  }
 
-  @Test
-  public void stopCluster() {
-    long s = System.currentTimeMillis();
-    String param =
-        "{\"userId\":\"6C4F4DBA96294DDCBC5DBBF2CAD442B5\",\"applyType\":\"stop\",\"serviceId\":\"MCS234\",\"capacity\":\"128\",\"haMode\":\"cluster\"}";
-    System.out.println("----------stop-res:\n" + iMemoryCacheServiceManager.stop(param));
-    System.out.println("----------停止集群，耗时：" + (System.currentTimeMillis() - s));
-  }
+//  @Test
+//  public void stopCluster() {
+//    long s = System.currentTimeMillis();
+//    String param =
+//        "{\"userId\":\"6C4F4DBA96294DDCBC5DBBF2CAD442B5\",\"applyType\":\"stop\",\"serviceId\":\"MCS234\",\"capacity\":\"128\",\"haMode\":\"cluster\"}";
+//    System.out.println("----------stop-res:\n" + iMemoryCacheServiceManager.stop(param));
+//    System.out.println("----------停止集群，耗时：" + (System.currentTimeMillis() - s));
+//  }
 
 //  @Test
 //  public void start() {

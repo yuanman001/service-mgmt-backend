@@ -38,6 +38,13 @@ public interface ISesManage {
 	 */
 	public void createSesService(SesSrvApply sesSrvApply) throws PaasException;
 	/**
+	 * 获得开通搜索服务地址
+	 * 
+	 * @param msgSrvApply
+	 * @throws PaasException
+	 */
+	public String getSesServiceAdress(SesSrvApply sesSrvApply) throws PaasException;
+	/**
 	 * 创建mapping(数据模型)
 	 * 
 	 * @param index 	索引名称
