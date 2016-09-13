@@ -21,7 +21,11 @@ public class RPCIndexMappingImpl implements IRPCIndexMapping {
 			throws PaasException {
 		com.ai.paas.ipaas.ses.dao.mapper.bo.SesUserMapping mapping = mappingSRV
 				.loadMapping(userId, serviceId);
-		return CloneTool.clone(mapping, SesUserMapping.class);
+		SesUserMapping response = CloneTool
+				.clone(mapping, SesUserMapping.class);
+		response.setSuccess(true);
+		response.setResultCode(PaaSConstant.RPC_CALL_OK);
+		return response;
 	}
 
 	@Override
