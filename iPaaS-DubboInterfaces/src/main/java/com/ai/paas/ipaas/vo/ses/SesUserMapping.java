@@ -2,8 +2,13 @@ package com.ai.paas.ipaas.vo.ses;
 
 import java.sql.Timestamp;
 
-import com.ai.dubbo.ext.vo.BaseResponse;
+import javax.xml.bind.annotation.XmlAccessType;
+import javax.xml.bind.annotation.XmlAccessorType;
+import javax.xml.bind.annotation.XmlRootElement;
 
+import com.ai.dubbo.ext.vo.BaseResponse;
+@XmlRootElement
+@XmlAccessorType(XmlAccessType.FIELD)
 public class SesUserMapping extends BaseResponse{
     /**
 	 * 

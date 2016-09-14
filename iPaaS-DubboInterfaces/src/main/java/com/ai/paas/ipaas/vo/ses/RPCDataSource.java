@@ -3,8 +3,13 @@ package com.ai.paas.ipaas.vo.ses;
 import java.util.List;
 import java.util.Map;
 
-import com.ai.dubbo.ext.vo.BaseInfo;
+import javax.xml.bind.annotation.XmlAccessType;
+import javax.xml.bind.annotation.XmlAccessorType;
+import javax.xml.bind.annotation.XmlRootElement;
 
+import com.ai.dubbo.ext.vo.BaseInfo;
+@XmlRootElement
+@XmlAccessorType(XmlAccessType.FIELD)
 public class RPCDataSource extends BaseInfo {
 	/**
 	 * 

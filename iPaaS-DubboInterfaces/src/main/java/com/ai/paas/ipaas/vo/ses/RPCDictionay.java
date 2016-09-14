@@ -1,7 +1,12 @@
 package com.ai.paas.ipaas.vo.ses;
 
-import com.ai.dubbo.ext.vo.BaseInfo;
+import javax.xml.bind.annotation.XmlAccessType;
+import javax.xml.bind.annotation.XmlAccessorType;
+import javax.xml.bind.annotation.XmlRootElement;
 
+import com.ai.dubbo.ext.vo.BaseInfo;
+@XmlRootElement
+@XmlAccessorType(XmlAccessType.FIELD)
 public class RPCDictionay extends BaseInfo {
 	/**
 	 * 
