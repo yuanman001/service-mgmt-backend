@@ -3,16 +3,10 @@ package com.ai.paas.ipaas.vo.ses;
 import java.io.Serializable;
 import java.util.List;
 
-import javax.xml.bind.annotation.XmlAccessType;
-import javax.xml.bind.annotation.XmlAccessorType;
-import javax.xml.bind.annotation.XmlRootElement;
-
 /**
  * 配置sql
  *
  */
-@XmlRootElement
-@XmlAccessorType(XmlAccessType.FIELD)
 public class SesIndexSqlInfo implements Serializable {
 
 	/**

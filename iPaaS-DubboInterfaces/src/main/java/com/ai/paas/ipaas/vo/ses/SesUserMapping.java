@@ -6,86 +6,90 @@ import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlRootElement;
 
+import org.codehaus.jackson.annotate.JsonIgnoreProperties;
+
 import com.ai.dubbo.ext.vo.BaseResponse;
+
 @XmlRootElement
 @XmlAccessorType(XmlAccessType.FIELD)
-public class SesUserMapping extends BaseResponse{
-    /**
+@JsonIgnoreProperties(ignoreUnknown = true)
+public class SesUserMapping extends BaseResponse {
+	/**
 	 * 
 	 */
 	private static final long serialVersionUID = -5393044294453244783L;
 
 	private Integer id;
 
-    private String userId;
+	private String userId;
 
-    private String serviceId;
+	private String serviceId;
 
-    private String mapping;
+	private String mapping;
 
-    private String indexDisplay;
+	private String indexDisplay;
 
-    private String pk;
-    
-    private String copyTo;
+	private String pk;
 
-    private Timestamp updateTime;
+	private String copyTo;
 
-    public Integer getId() {
-        return id;
-    }
+	private Timestamp updateTime;
 
-    public void setId(Integer id) {
-        this.id = id;
-    }
+	public Integer getId() {
+		return id;
+	}
 
-    public String getUserId() {
-        return userId;
-    }
+	public void setId(Integer id) {
+		this.id = id;
+	}
 
-    public void setUserId(String userId) {
-        this.userId = userId == null ? null : userId.trim();
-    }
+	public String getUserId() {
+		return userId;
+	}
 
-    public String getServiceId() {
-        return serviceId;
-    }
+	public void setUserId(String userId) {
+		this.userId = userId == null ? null : userId.trim();
+	}
 
-    public void setServiceId(String serviceId) {
-        this.serviceId = serviceId == null ? null : serviceId.trim();
-    }
+	public String getServiceId() {
+		return serviceId;
+	}
 
-    public String getMapping() {
-        return mapping;
-    }
+	public void setServiceId(String serviceId) {
+		this.serviceId = serviceId == null ? null : serviceId.trim();
+	}
 
-    public void setMapping(String mapping) {
-        this.mapping = mapping == null ? null : mapping.trim();
-    }
+	public String getMapping() {
+		return mapping;
+	}
 
-    public String getIndexDisplay() {
-        return indexDisplay;
-    }
+	public void setMapping(String mapping) {
+		this.mapping = mapping == null ? null : mapping.trim();
+	}
 
-    public void setIndexDisplay(String indexDisplay) {
-        this.indexDisplay = indexDisplay == null ? null : indexDisplay.trim();
-    }
+	public String getIndexDisplay() {
+		return indexDisplay;
+	}
 
-    public String getPk() {
-        return pk;
-    }
+	public void setIndexDisplay(String indexDisplay) {
+		this.indexDisplay = indexDisplay == null ? null : indexDisplay.trim();
+	}
 
-    public void setPk(String pk) {
-        this.pk = pk == null ? null : pk.trim();
-    }
+	public String getPk() {
+		return pk;
+	}
 
-    public Timestamp getUpdateTime() {
-        return updateTime;
-    }
+	public void setPk(String pk) {
+		this.pk = pk == null ? null : pk.trim();
+	}
 
-    public void setUpdateTime(Timestamp updateTime) {
-        this.updateTime = updateTime;
-    }
+	public Timestamp getUpdateTime() {
+		return updateTime;
+	}
+
+	public void setUpdateTime(Timestamp updateTime) {
+		this.updateTime = updateTime;
+	}
 
 	public String getCopyTo() {
 		return copyTo;
@@ -94,5 +98,5 @@ public class SesUserMapping extends BaseResponse{
 	public void setCopyTo(String copyTo) {
 		this.copyTo = copyTo;
 	}
-    
+
 }
