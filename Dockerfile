@@ -20,6 +20,8 @@ RUN rm -rf /iPaaS-Service-Dubbo/3rd-libs/httpcore-4.2.5.jar /iPaaS-Service-Dubbo
 COPY ./ipaas_service_dubbo.sh /ipaas_service_dubbo.sh
 RUN chmod 755 /ipaas_service_dubbo.sh
 
+RUN cp /usr/share/zoneinfo/Asia/Shanghai /etc/localtime
+
 # set start parameter for dubbo service
 ENV COMMON_LIB_HOME /iPaaS-Service-Dubbo
 ENV PATH $CATALINA_HOME/bin:$PATH
