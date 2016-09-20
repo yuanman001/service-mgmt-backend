@@ -16,6 +16,8 @@ public interface RDSCommonConstant {
 	public int INS_STARTED = 4;
 	public int INS_STOPPING = 5;
 	public int INS_STOPPED = 6;
+	public int INS_SWITCHING = 7;
+	public int INS_SWITCHED = 8;
 
 	// ResourceStatus
 	public int RES_STATUS_USABLE = 1;

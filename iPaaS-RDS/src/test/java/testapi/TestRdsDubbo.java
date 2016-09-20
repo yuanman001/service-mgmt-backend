@@ -15,6 +15,7 @@ import com.ai.paas.ipaas.rds.manage.rest.interfaces.IRDSResourcePool;
 import com.ai.paas.ipaas.rds.service.transfer.vo.CancelRDS;
 import com.ai.paas.ipaas.rds.service.transfer.vo.CreateRDS;
 import com.ai.paas.ipaas.rds.service.transfer.vo.CreateRDSResult;
+import com.ai.paas.ipaas.rds.service.transfer.vo.SwitchMaster;
 import com.alibaba.dubbo.config.annotation.Reference;
 import com.google.gson.Gson;
 
@@ -91,6 +92,7 @@ public class TestRdsDubbo {
 //	}
 
 	/**
+	 * 博士说这里不用做备用服务器，0个备用
 	 * 
 	 * ["{\"instanceBase\":{\"incName\":\"实例名称5\",\"serviceId\":\"RDS005\",\"incDescribe\":\"实例描述\",\"userId\":\"8E7ECAC706994DB9AC2BBB037C18762B\",\"maxConnectNum\":\"300\",\"dbStoreage\":\"10000\",\"incType\":\"1\",\"incTag\":\"实例标签5\",\"incLocation\":\"实例位置55\",\"depId\":\"部门名称5\"},\"createBatmasterNum\":0,\"createSlaverNum\":1}"]
 	 * passed
@@ -103,12 +105,40 @@ public class TestRdsDubbo {
 		CreateRDS creatObject = new CreateRDS();
 		creatObject.createSlaverNum = 1;
 		creatObject.createBatmasterNum = 0;
-		creatObject.instanceBase = new RdsIncBase("6C4F4DBA96294DDCBC5DBBF2CAD442B5", "test_res_lim_mysql", "BIU", 5, 100, "","",
-				"mysql6", "", 0, 1, "BIU,MYSQL,TEST","BEIJING", 1, "no describe", "/aifs01", 
-				"/aifs01/mysqldata","", "192.168.*.*", "rootusr", "123456", "containerName",
-				"1234", 10000, 2000, 2, 500, 0,
-				"1"//cpu属于可分配资源
-				,5,"on","semisynchronous",time,time);
+		creatObject.instanceBase = new RdsIncBase(
+				"6C4F4DBA96294DDCBC5DBBF2CAD442B5", //UserID
+				"test_res_lim_mysql", //serviceId 
+				"BIU",// depId 部门
+				5, // imgId
+				0, // resId
+				"", // bakId 无用
+				"", // slaverId 无用
+				"mysql6", // incName
+				"", // incIp
+				0,  // incPort
+				1, // incType
+				"BIU,MYSQL,TEST", // incTag
+				"BEIJING", // incLocation
+				1, // incStatus
+				"no describe", // incDescribe
+				"/aifs01", // mysqlHome 无用，待测试
+				"/aifs01/mysqldata", // mysqlDataHome 无用，待测试
+				"", // mysqlVolumnPath 无用，待测试
+				"192.168.*.*,10.1.*.*,localhost", // whiteList
+				"rootusr", // rootName
+				"123456", // rootPassword
+				"containerName", // containerName
+				"1234", // dbServerId
+				10000, // dbStoreage
+				2000, // dbUsedStorage
+				2, // intStorage
+				500, // maxConnectNum
+				0, // masterid 无用
+				"1",// cpu属于可分配资源 不对应cpuInfo，这里代表需要cpu数量
+				5, // netBandwidth
+				"on", // sqlAudit （on，off）
+				"semisynchronous", // syncStrategy（分为半同步semisynchronous，异步asynchronous）
+				time,time);
 		String request = g.toJson(creatObject);
 		System.out.println(request);
 		String result = incManager.create(request);
@@ -118,7 +148,17 @@ public class TestRdsDubbo {
 		System.out.println("$$$$$$$$$$$$$$$$$$$$result$$$$$$$$$$$$$$$$$$$");
 	}
 	
-	
+//	@Test
+//	public void switchMaster(){
+//		SwitchMaster sm = new SwitchMaster(152);
+//		String request = g.toJson(sm);
+//		System.out.println(request);
+//		String result = incManager.switchmaster(request);
+//		System.out.println("$$$$$$$$$$$$$$$$$$$$result$$$$$$$$$$$$$$$$$$$");
+//		System.out.println(result);
+//		CreateRDSResult ssss = g.fromJson(result, CreateRDSResult.class);
+//		System.out.println("$$$$$$$$$$$$$$$$$$$$result$$$$$$$$$$$$$$$$$$$");
+//	}
 	
 	/**
 	 * passed
@@ -158,7 +198,7 @@ public class TestRdsDubbo {
 //	@Test
 //	public void cancel(){
 //		CancelRDS cancelObject = new CancelRDS();
-//		cancelObject.instanceid = 146;
+//		cancelObject.instanceid = 160;
 //		String request = g.toJson(cancelObject);
 //		System.out.println(request);
 //		String result = incManager.cancel(request);

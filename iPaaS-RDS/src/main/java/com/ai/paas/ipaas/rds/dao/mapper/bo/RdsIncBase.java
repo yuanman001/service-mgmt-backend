@@ -227,6 +227,9 @@ public class RdsIncBase implements Cloneable {
 		this.updateTime = updateTime;
 	}
 
+	/**
+	 * 深度clone
+	 */
 	public RdsIncBase clone(){
     	RdsIncBase inc = new RdsIncBase();
     	Gson g = new Gson();

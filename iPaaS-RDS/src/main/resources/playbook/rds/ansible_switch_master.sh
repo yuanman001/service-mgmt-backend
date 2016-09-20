@@ -1,0 +1,1 @@
+cd ${1} && /usr/bin/ansible-playbook -i ansible_ssh/${2}.cfg   rdsimage_switch.yml  --user=${3} --extra-vars "user=${3} ansible_ssh_pass=${4} host=${5} port=${6} container_name=${7} bak_ip=${8} bak_port=${9} instance_type=${10} instance_type_switch_sql=${11} "
