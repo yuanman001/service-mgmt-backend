@@ -6,6 +6,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 
 import com.ai.paas.ipaas.rds.manage.rest.interfaces.IRDSInstanceManager;
 import com.alibaba.dubbo.config.annotation.Service;
+import com.google.gson.JsonSyntaxException;
 
 /**
  * 传输对象命名规则就是对应方法名
@@ -26,17 +27,29 @@ public class RDSInstanceManagerDubbo implements IRDSInstanceManager {
 	
 	@Override
 	public String create(String createApply) {
-		return rdsIncMG.create(createApply);
+		try {
+			return rdsIncMG.create(createApply);
+		} catch (MyException e) {
+			return e.JSONErrorInfo;
+		}
 	}
 
 	@Override
 	public String createslobm(String create) {
-		return rdsIncMG.createslobm(create);
+		try {
+			return rdsIncMG.createslobm(create);
+		} catch (MyException e) {
+			return e.JSONErrorInfo;
+		}
 	}
 
 	@Override
 	public String cancel(String cancelApply) {
-		return rdsIncMG.cancel(cancelApply);
+		try {
+			return rdsIncMG.cancel(cancelApply);
+		} catch (MyException e) {
+			return e.JSONErrorInfo;
+		}
 	}
 
 	@Override
@@ -46,17 +59,29 @@ public class RDSInstanceManagerDubbo implements IRDSInstanceManager {
 
 	@Override
 	public String start(String startApply) {
-		return rdsIncMG.start(startApply);
+		try {
+			return rdsIncMG.start(startApply);
+		} catch (MyException e) {
+			return e.JSONErrorInfo;
+		}
 	}
 
 	@Override
 	public String stop(String stopApply) {
-		return rdsIncMG.stop(stopApply);
+		try {
+			return rdsIncMG.stop(stopApply);
+		} catch (MyException e) {
+			return e.JSONErrorInfo;
+		}
 	}
 
 	@Override
 	public String restart(String restartApply) {
-		return rdsIncMG.restart(restartApply);
+		try {
+			return rdsIncMG.restart(restartApply);
+		} catch (MyException e) {
+			return e.JSONErrorInfo;
+		}
 	}
 
 	@Override
@@ -64,21 +89,37 @@ public class RDSInstanceManagerDubbo implements IRDSInstanceManager {
 		return rdsIncMG.getinstanceinfo(getinstanceinfo);
 	}
 
+	/**
+	 * @deprecated
+	 */
 	@Override
 	public String modify(String modify) {
-		return rdsIncMG.modify(modify);
+		try {
+			return rdsIncMG.modify(modify);
+		} catch (MyException e) {
+			return e.JSONErrorInfo;
+		}
 	}
 
+	/**
+	 * @deprecated
+	 */
 	@Override
 	public String switchmaster(String switchmaster) {
-		// TODO Auto-generated method stub
-		return rdsIncMG.switchmaster(switchmaster);
+		try {
+			return rdsIncMG.switchmaster(switchmaster);
+		} catch (MyException e) {
+			return e.JSONErrorInfo;
+		}
 	}
 
 	@Override
 	public String changecontainerconfig(String changecontainerconfig) {
-		// TODO Auto-generated method stub
-		return rdsIncMG.changecontainerconfig(changecontainerconfig);
+		try {
+			return rdsIncMG.changecontainerconfig(changecontainerconfig);
+		} catch (MyException e) {
+			return e.JSONErrorInfo;
+		}
 	}
 
 

@@ -36,6 +36,7 @@ import com.ai.paas.ipaas.rds.dao.mapper.bo.RdsIncBase;
 import com.ai.paas.ipaas.rds.dao.mapper.bo.RdsIncBaseCriteria;
 import com.ai.paas.ipaas.rds.dao.mapper.bo.RdsResourcePool;
 import com.ai.paas.ipaas.rds.dao.mapper.bo.RdsResourcePoolCriteria;
+import com.ai.paas.ipaas.rds.dao.wo.InstanceGroup;
 import com.ai.paas.ipaas.rds.manage.rest.interfaces.IRDSInstanceManager;
 import com.ai.paas.ipaas.rds.service.constant.AnsibleConstant;
 import com.ai.paas.ipaas.rds.service.constant.InstanceType;
@@ -67,6 +68,7 @@ import com.ai.paas.ipaas.rds.service.transfer.vo.SwitchMaster;
 import com.ai.paas.ipaas.rds.service.transfer.vo.SwitchMasterResult;
 //import com.ai.paas.ipaas.rds.service.util.EntityToWhere;
 import com.ai.paas.ipaas.rds.service.util.GsonSingleton;
+import com.google.gson.JsonSyntaxException;
 import com.google.gson.reflect.TypeToken;
 
 /**
@@ -83,7 +85,7 @@ import com.google.gson.reflect.TypeToken;
  * @since
  */
 @Service
-@Transactional(rollbackFor = Exception.class)
+@Transactional(rollbackFor = Exception.class) // 事务可以正常使用
 public class RDSInstanceManager  {
 	
 	private static transient final Logger LOG = LoggerFactory.getLogger(RDSInstanceManager.class);
@@ -97,9 +99,11 @@ public class RDSInstanceManager  {
 	/**
 	 * 注销实例
 	 * 可以是单个，也可以是多个
+	 * @throws MyException 
+	 * @throws Exception 
 	 * @throws PaasException 
 	 */
-	public String cancel(String cancel) {
+	public String cancel(String cancel) throws MyException {
 		// 解析JSON对象
 		CancelRDS cancelObject = g.getGson().fromJson(cancel, CancelRDS.class);
 		CancelRDSResult cancelResult = new CancelRDSResult();
@@ -134,7 +138,7 @@ public class RDSInstanceManager  {
 			} catch (IOException | PaasException e) {
 				e.printStackTrace();
 				cancelResult.setStatus(ResponseResultMark.ERROR_BAD_CONFIG);
-				return g.getGson().toJson(cancelResult);
+				throw new MyException(g.getGson().toJson(cancelResult));
 			}
 		};
 
@@ -261,8 +265,9 @@ public class RDSInstanceManager  {
 	 * instanceipport/
 	 * instancestatus/
 	 * instanceresourcebelonger/
+	 * @throws MyException 
 	 */
-	public String create(String create) {
+	public String create(String create) throws MyException {
 		LOG.info("$$$$$$$$$$$$$$$ create : "+create);
 		// 解析JSON对象
 		CreateRDS createObject = g.getGson().fromJson(create, CreateRDS.class);
@@ -279,8 +284,9 @@ public class RDSInstanceManager  {
 			createResult.setStatus(ResponseResultMark.ERROR_LESS_IMP_PARAM);
 			return g.getGson().toJson(createResult);
 		}
-		
-		if(createObject.instanceBase.getImgId() == null){ // 需要前台传入
+		createObject.instanceBase.setBakId("");
+		createObject.instanceBase.setSlaverId("");
+		if(createObject.instanceBase.getImgId() <= 0){ // 需要前台传入
 			createObject.instanceBase.setImgId(5); 
 		}
 		if(createObject.instanceBase.getMysqlHome() == null || createObject.instanceBase.getMysqlHome().equals("")){
@@ -303,12 +309,12 @@ public class RDSInstanceManager  {
 			createResult.setStatus(ResponseResultMark.ERROR_ROOT_USER_PASSWORD_CANNOT_NULL);
 			return g.getGson().toJson(createResult);
 		}
-		if(createObject.instanceBase.getBakId() == null){
-			createObject.instanceBase.setBakId("");
-		}
-		if(createObject.instanceBase.getSlaverId() == null){
-			createObject.instanceBase.setSlaverId("");;
-		}
+//		if(createObject.instanceBase.getBakId() == null){
+//			createObject.instanceBase.setBakId("");
+//		}
+//		if(createObject.instanceBase.getSlaverId() == null){
+//			createObject.instanceBase.setSlaverId("");;
+//		}
 		if(createObject.instanceBase.getContainerName() == null){
 			createObject.instanceBase.setContainerName("");
 		}
@@ -318,18 +324,13 @@ public class RDSInstanceManager  {
 		if(createObject.instanceBase.getDbServerId() == null){
 			createObject.instanceBase.setDbServerId("1");
 		}
-//		if(createObject.instanceBase.getMysqlHome() == null ){
-//			createObject.instanceBase.setMysqlHome("/");
-//		}
-//		if(createObject.instanceBase.getMysqlDataHome() == null || createObject.instanceBase.getMysqlHome().equals("")){
-//			createObject.instanceBase.setMysqlHome("/");
-//		}
 		
 		
 		// 查询资源情况，根据请求情况与资源情况获取分配计划
 		RdsResourcePoolMapper rdsResPoolMapper =  ServiceUtil.getMapper(RdsResourcePoolMapper.class);
 		RdsResourcePoolCriteria rdsResPoolCri = new RdsResourcePoolCriteria();
 		rdsResPoolCri.createCriteria().andCurrentportLessThan(66000);
+		// 每修改后资源需要重新查询
 		List<RdsResourcePool> allResource = rdsResPoolMapper.selectByExample(rdsResPoolCri);
 		
 		// 为了深度拷贝数据
@@ -368,7 +369,7 @@ public class RDSInstanceManager  {
 			// 处理。。。
 			e.printStackTrace();
 			createResult.setStatus(ResponseResultMark.ERROR_BAD_CONFIG);
-			return g.getGson().toJson(createResult);
+			throw new MyException(g.getGson().toJson(createResult));
 		}
 		// 修改数据库中服务器状态
 		savedRdsIncBase.setIncStatus(RDSCommonConstant.INS_STARTED);
@@ -419,7 +420,7 @@ public class RDSInstanceManager  {
 				} catch (IOException | PaasException e) {
 					e.printStackTrace();
 					createResult.setStatus(ResponseResultMark.ERROR_BAD_CONFIG);
-					return g.getGson().toJson(createResult);
+					throw new MyException( g.getGson().toJson(createResult));
 				}
 			}
 
@@ -461,7 +462,7 @@ public class RDSInstanceManager  {
 					} catch (IOException | PaasException e) {
 						e.printStackTrace();
 						createResult.setStatus(ResponseResultMark.ERROR_BAD_CONFIG);
-						return g.getGson().toJson(createResult);
+						throw new MyException( g.getGson().toJson(createResult));
 					}
 				}
 			}
@@ -508,7 +509,7 @@ public class RDSInstanceManager  {
 	}
 
 
-	public String createslobm(String create) {
+	public String createslobm(String create) throws MyException {
 		CreateSRDS createObject = g.getGson().fromJson(create, CreateSRDS.class);
 		CreateSRDSResult createResult = new CreateSRDSResult(ResponseResultMark.WARN_INIT_STATUS);
 		
@@ -588,7 +589,7 @@ public class RDSInstanceManager  {
 		} catch (IOException | PaasException e) {
 			e.printStackTrace();
 			createResult.setStatus(ResponseResultMark.ERROR_BAD_CONFIG);
-			return g.getGson().toJson(createResult);
+			throw new MyException( g.getGson().toJson(createResult));
 		}
 		if (true == isRightBatMasterConfig) {
 			
@@ -992,8 +993,12 @@ public class RDSInstanceManager  {
 	private void restartInstance(RdsIncBase savedRdsIncBase) throws ClientProtocolException, IOException, PaasException {
 			commandInstance(savedRdsIncBase,"restart");
 	}
+	/**
+	 * @deprecated
+	 * @param ib
+	 * @param argmentedExternalStorage
+	 */
 	private void configModify(RdsIncBase ib, int argmentedExternalStorage) {
-		//TODO doing some thing
 	}
 	
 	private void commandInstance(RdsIncBase savedRdsIncBase, String command) throws ClientProtocolException, IOException, PaasException {
@@ -1307,12 +1312,14 @@ public class RDSInstanceManager  {
 //	}
 
 	/**
+	 * @deprecated
 	 * master修改后关联slaver和batmaster也要修改 但是无法直接修改slaver和batmaster
 	 * 这里主要是指修改instancespaceinfo即空间信息
 	 * modify中只能扩充容量无法缩小容量
 	 * http://www.linuxidc.com/Linux/2015-01/112245.htm
+	 * @throws MyException 
 	 */
-	public String modify(String modify) {
+	public String modify(String modify) throws MyException {
 		ModifyRDS modifyRDSObject = g.getGson().fromJson(modify, ModifyRDS.class);
 		Stack<RdsIncBase> instanceStack ;
 		Stack<RdsIncBase> instanceStackBack = new Stack<RdsIncBase>();
@@ -1336,7 +1343,7 @@ public class RDSInstanceManager  {
 					} catch (IOException | PaasException e) {
 						e.printStackTrace();
 						ModifyRDSResult stopRDSResult = new ModifyRDSResult(ResponseResultMark.ERROR_BAD_CONFIG);
-						return g.getGson().toJson(stopRDSResult);
+						throw new MyException( g.getGson().toJson(stopRDSResult));
 					}
 					// 修改数据库中服务器状态
 					instance.setIncStatus(RDSCommonConstant.INS_STOPPED);
@@ -1415,8 +1422,14 @@ public class RDSInstanceManager  {
 		}
 		return g.getGson().toJson(list);
 	}
-
-	public String start(String startApply) {
+	
+	/**
+	 * 应该先启动master
+	 * @param startApply
+	 * @return
+	 * @throws MyException
+	 */
+	public String start(String startApply) throws MyException {
 		LOG.info("----------startApply: " + startApply);
 		
 		StartRDS startRDSObject = g.getGson().fromJson(startApply, StartRDS.class);
@@ -1433,8 +1446,9 @@ public class RDSInstanceManager  {
 		// 判断服务器状态
 		instanceStack = getInstanceStack(startRDSObject.instanceid);
 		if(!instanceStack.isEmpty()){
-			while(!instanceStack.isEmpty()){
-				RdsIncBase instance = instanceStack.pop();
+			for(int i = 0; i < instanceStack.size(); i++){
+//				RdsIncBase instance = instanceStack.pop();
+				RdsIncBase instance = instanceStack.get(i);
 				instance.setIncStatus(RDSCommonConstant.INS_STARTING);
 				incBaseMapper.updateByPrimaryKey(instance);
 				// 启动mysql服务
@@ -1443,7 +1457,7 @@ public class RDSInstanceManager  {
 				} catch (IOException | PaasException e) {
 					e.printStackTrace();
 					StartRDSResult stopRDSResult = new StartRDSResult(ResponseResultMark.ERROR_BAD_CONFIG);
-					return g.getGson().toJson(stopRDSResult);
+					throw new MyException( g.getGson().toJson(stopRDSResult));
 				}
 				// 修改数据库中服务器状态
 				instance.setIncStatus(RDSCommonConstant.INS_STARTED);
@@ -1459,7 +1473,7 @@ public class RDSInstanceManager  {
 		return g.getGson().toJson(startRDSResult);
 	}
 
-	public String stop(String stopApply) {
+	public String stop(String stopApply) throws MyException {
 		LOG.info("----------stopApply: " + stopApply);
 		StopRDS stopRDSObject = g.getGson().fromJson(stopApply, StopRDS.class);
 		Stack<RdsIncBase> instanceStack;
@@ -1484,7 +1498,7 @@ public class RDSInstanceManager  {
 				} catch (IOException | PaasException e) {
 					e.printStackTrace();
 					StopRDSResult stopRDSResult = new StopRDSResult(ResponseResultMark.ERROR_BAD_CONFIG);
-					return g.getGson().toJson(stopRDSResult);
+					throw new MyException( g.getGson().toJson(stopRDSResult));
 				}
 				
 				// 修改数据库中服务器状态
@@ -1505,9 +1519,11 @@ public class RDSInstanceManager  {
 
 
 	/**
+	 * 应该先重启master
+	 * @throws MyException 
 	 * 
 	 */
-	public String restart(String restartApply) {
+	public String restart(String restartApply) throws MyException {
 		RestartRDS restartObject = g.getGson().fromJson(restartApply, RestartRDS.class);
 		Stack<RdsIncBase> instanceStack;
 //		Stack<RdsIncBase> instanceStackBack = new Stack<RdsIncBase>();
@@ -1520,8 +1536,9 @@ public class RDSInstanceManager  {
 //		}
 		instanceStack = getInstanceStack(restartObject.instanceid);
 		if(!instanceStack.isEmpty()){
-			while(!instanceStack.isEmpty()){
-				RdsIncBase instance = instanceStack.pop();
+			for(int i = 0; i < instanceStack.size(); i++){
+//				RdsIncBase instance = instanceStack.pop();
+				RdsIncBase instance = instanceStack.get(i);
 				instance.setIncStatus(RDSCommonConstant.INS_STARTING);
 				incBaseMapper.updateByPrimaryKey(instance);
 				// 启动mysql服务
@@ -1530,7 +1547,7 @@ public class RDSInstanceManager  {
 				} catch (IOException | PaasException e) {
 					e.printStackTrace();
 					RestartResult restartRDSResult = new RestartResult(ResponseResultMark.ERROR_BAD_CONFIG);
-					return g.getGson().toJson(restartRDSResult);
+					throw new MyException( g.getGson().toJson(restartRDSResult));
 				}
 				// 修改数据库中服务器状态
 				instance.setIncStatus(RDSCommonConstant.INS_STARTED);
@@ -1550,28 +1567,6 @@ public class RDSInstanceManager  {
 	 * 用户需要获取主从服务器的相关信息来进行软负载均衡
 	 */
 	public String getinstanceinfo(String getinstanceinfo) {
-//		GetInstanceInfoRDS getStatusObject = g.getGson().fromJson(getinstanceinfo, GetInstanceInfoRDS.class);
-////		List<RdsIncBase> instanceList = new ArrayList<RdsIncBase>();
-////		EntityToWhere<RdsIncBase> e2Where = new EntityToWhere<RdsIncBase>();
-//		// 获取mysql服务状态
-//		RdsIncBaseMapper incBaseMapper = ServiceUtil.getMapper(RdsIncBaseMapper.class);
-//		List<RdsIncBase> rdsIncBaseList = incBaseMapper.selectByExample(getStatusObject.rdsIncBaseCriteria);
-////		if(null != getStatusObject.sort){
-////			try {
-////				instanceList = SpecialQueryRepo.findByInstanceParam(e2Where.entity2WhereSort(getStatusObject.instancebase,getStatusObject.sort));
-////			} catch (IllegalArgumentException | IllegalAccessException e) {
-////				e.printStackTrace();
-////			}
-////		} else {
-////			try {
-////				instanceList = SpecialQueryRepo.findByInstanceParam(e2Where.entity2Where(getStatusObject.instancebase));
-////			} catch (IllegalArgumentException | IllegalAccessException e) {
-////				e.printStackTrace();
-////			}
-////		}
-//		return g.getGson().toJson(rdsIncBaseList);
-		
-		
 		GetIncInfo getIncInfo = g.getGson().fromJson(getinstanceinfo, GetIncInfo.class);
 		RdsIncBaseMapper incMapper = ServiceUtil.getMapper(RdsIncBaseMapper.class);
 		if(getIncInfo.getAll == 1){
@@ -1595,8 +1590,9 @@ public class RDSInstanceManager  {
 	 * 正常运行的mysql服务器
 	 * 通过监测将运行异常的服务器排除可用列表
 	 * @param instanceStack
+	 * @throws MyException 
 	 */
-	public String switchmaster(String switchmaster) {
+	public String switchmaster(String switchmaster) throws MyException {
 		RdsIncBaseMapper incMapper = ServiceUtil.getMapper(RdsIncBaseMapper.class);
 		RdsResourcePoolMapper resMapper = ServiceUtil.getMapper(RdsResourcePoolMapper.class);
 		SwitchMaster sm = g.getGson().fromJson(switchmaster, SwitchMaster.class);
@@ -1676,10 +1672,9 @@ public class RDSInstanceManager  {
 		try {
 			switchConfig(masterInc,bakInc,slaverIncList);
 		} catch (IOException | PaasException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 			smr.setStatus(ResponseResultMark.ERROR_BAD_CONFIG);
-			return g.getGson().toJson(smr);
+			throw new MyException( g.getGson().toJson(smr));
 		}
 		
 		smr.setStatus(ResponseResultMark.SUCCESS);
@@ -1857,12 +1852,19 @@ public class RDSInstanceManager  {
 		
 	}
 
-
-	public String changecontainerconfig(String changecontainerconfig) {
+	/**
+	 * 需要网盘挂载才能够进行开发
+	 * 
+	 * @param changecontainerconfig
+	 * @return
+	 * @throws MyException
+	 */
+	public String changecontainerconfig(String changecontainerconfig) throws MyException {
 		ChangeContainerConfig changeConfigObject = g.getGson().fromJson(changecontainerconfig, ChangeContainerConfig.class);
-		
+		Stack<RdsIncBase> instanceStack = getInstanceStack(changeConfigObject.groupMasterId);
+		InstanceGroup incGroup = InstanceGroup.getGroupFromInstanceStack(instanceStack);
 		// 获取资源
-		CreateRDS createObject = getCreateRDSObjectFromStack(getInstanceStack(changeConfigObject.groupMasterId));
+		CreateRDS createObject = getCreateRDSObjectFromStack(instanceStack);
 		// 注销资源
 		CancelRDS cancel = new CancelRDS();
 		cancel.instanceid = changeConfigObject.groupMasterId;
@@ -1876,15 +1878,24 @@ public class RDSInstanceManager  {
 		createObject.instanceBase.setDbStoreage(changeConfigObject.ExtStorage);
 		createObject.instanceBase.setIntStorage(changeConfigObject.IntStorage);
 		createObject.instanceBase.setNetBandwidth(changeConfigObject.NetBandwidth);
-		// 继承原有未修改配置与路径重新分配资源
+		// 继承原有未修改配置重新分配资源
 		CreateRDSResult createResult = g.getGson().fromJson(create(g.getGson().toJson(createObject)), CreateRDSResult.class);
 		if(Integer.valueOf(createResult.resultCode) == 1){
+			// 将原有数据迁移至新位置
+			transferConfig(incGroup ,createResult.incSimList);
+			
 			ChangeContainerConfigResult changeContainerConfig = new ChangeContainerConfigResult(ResponseResultMark.SUCCESS);
 			return g.getGson().toJson(changeContainerConfig); 
 		}else{
 			ChangeContainerConfigResult changeContainerConfig = new ChangeContainerConfigResult(ResponseResultMark.ERROR_BAD_CONFIG);
 			return g.getGson().toJson(changeContainerConfig);
 		}
+	}
+
+
+	private void transferConfig(InstanceGroup incGroup, List<InstanceBaseSimple> incSimList) {
+		// TODO Auto-generated method stub
+		
 	}
 
 

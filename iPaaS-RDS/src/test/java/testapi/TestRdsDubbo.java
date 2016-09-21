@@ -13,8 +13,11 @@ import com.ai.paas.ipaas.rds.manage.rest.interfaces.IRDSInstanceManager;
 import com.ai.paas.ipaas.rds.manage.rest.interfaces.IRDSInstanceOperater;
 import com.ai.paas.ipaas.rds.manage.rest.interfaces.IRDSResourcePool;
 import com.ai.paas.ipaas.rds.service.transfer.vo.CancelRDS;
+import com.ai.paas.ipaas.rds.service.transfer.vo.ChangeContainerConfig;
 import com.ai.paas.ipaas.rds.service.transfer.vo.CreateRDS;
 import com.ai.paas.ipaas.rds.service.transfer.vo.CreateRDSResult;
+import com.ai.paas.ipaas.rds.service.transfer.vo.StartRDS;
+import com.ai.paas.ipaas.rds.service.transfer.vo.StopRDS;
 import com.ai.paas.ipaas.rds.service.transfer.vo.SwitchMaster;
 import com.alibaba.dubbo.config.annotation.Reference;
 import com.google.gson.Gson;
@@ -121,9 +124,9 @@ public class TestRdsDubbo {
 				"BEIJING", // incLocation
 				1, // incStatus
 				"no describe", // incDescribe
-				"/aifs01", // mysqlHome 无用，待测试
-				"/aifs01/mysqldata", // mysqlDataHome 无用，待测试
-				"", // mysqlVolumnPath 无用，待测试
+				"/aifs01", // mysqlHome 无用，服务器提供固定值
+				"/aifs01/mysqldata", // mysqlDataHome 无用，服务器会生成固定值
+				"", // mysqlVolumnPath 无用，服务器提供固定值
 				"192.168.*.*,10.1.*.*,localhost", // whiteList
 				"rootusr", // rootName
 				"123456", // rootPassword
@@ -198,7 +201,7 @@ public class TestRdsDubbo {
 //	@Test
 //	public void cancel(){
 //		CancelRDS cancelObject = new CancelRDS();
-//		cancelObject.instanceid = 160;
+//		cancelObject.instanceid = 162;
 //		String request = g.toJson(cancelObject);
 //		System.out.println(request);
 //		String result = incManager.cancel(request);
@@ -215,7 +218,7 @@ public class TestRdsDubbo {
 //	@Test
 //	public void stop(){
 //		StopRDS stopObject = new StopRDS();
-//		stopObject.instanceid = 117;
+//		stopObject.instanceid = 165;
 //		String request = g.toJson(stopObject);
 //		System.out.println(request);
 //		String result = incManager.stop(request);
@@ -230,11 +233,24 @@ public class TestRdsDubbo {
 //	@Test
 //	public void start(){
 //		StartRDS startObject = new StartRDS();
-//		startObject.instanceid = 117;
+//		startObject.instanceid = 165;
 //		String request = g.toJson(startObject);
 //		System.out.println(request);
 //		String result = incManager.start(request);
 //		System.out.println(result);
 //	}
 	
+//	@Test 
+//	public void changecontainerconfig(){
+//		ChangeContainerConfig ccc = new ChangeContainerConfig();
+//		ccc.cpu = "1";
+//		ccc.ExtStorage = 20000;
+//		ccc.groupMasterId =165;
+//		ccc.IntStorage = 1;
+////		ccc.instanceid = 165;
+//		String request = g.toJson(ccc);
+//		System.out.println(request);
+//		String result = incManager.start(request);
+//		System.out.println(result);
+//	}
 }
