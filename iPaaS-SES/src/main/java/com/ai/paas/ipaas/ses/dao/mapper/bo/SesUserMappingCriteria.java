@@ -465,6 +465,76 @@ public class SesUserMappingCriteria {
             return (Criteria) this;
         }
 
+        public Criteria andIndexNameIsNull() {
+            addCriterion("index_name is null");
+            return (Criteria) this;
+        }
+
+        public Criteria andIndexNameIsNotNull() {
+            addCriterion("index_name is not null");
+            return (Criteria) this;
+        }
+
+        public Criteria andIndexNameEqualTo(String value) {
+            addCriterion("index_name =", value, "indexName");
+            return (Criteria) this;
+        }
+
+        public Criteria andIndexNameNotEqualTo(String value) {
+            addCriterion("index_name <>", value, "indexName");
+            return (Criteria) this;
+        }
+
+        public Criteria andIndexNameGreaterThan(String value) {
+            addCriterion("index_name >", value, "indexName");
+            return (Criteria) this;
+        }
+
+        public Criteria andIndexNameGreaterThanOrEqualTo(String value) {
+            addCriterion("index_name >=", value, "indexName");
+            return (Criteria) this;
+        }
+
+        public Criteria andIndexNameLessThan(String value) {
+            addCriterion("index_name <", value, "indexName");
+            return (Criteria) this;
+        }
+
+        public Criteria andIndexNameLessThanOrEqualTo(String value) {
+            addCriterion("index_name <=", value, "indexName");
+            return (Criteria) this;
+        }
+
+        public Criteria andIndexNameLike(String value) {
+            addCriterion("index_name like", value, "indexName");
+            return (Criteria) this;
+        }
+
+        public Criteria andIndexNameNotLike(String value) {
+            addCriterion("index_name not like", value, "indexName");
+            return (Criteria) this;
+        }
+
+        public Criteria andIndexNameIn(List<String> values) {
+            addCriterion("index_name in", values, "indexName");
+            return (Criteria) this;
+        }
+
+        public Criteria andIndexNameNotIn(List<String> values) {
+            addCriterion("index_name not in", values, "indexName");
+            return (Criteria) this;
+        }
+
+        public Criteria andIndexNameBetween(String value1, String value2) {
+            addCriterion("index_name between", value1, value2, "indexName");
+            return (Criteria) this;
+        }
+
+        public Criteria andIndexNameNotBetween(String value1, String value2) {
+            addCriterion("index_name not between", value1, value2, "indexName");
+            return (Criteria) this;
+        }
+
         public Criteria andPkIsNull() {
             addCriterion("pk is null");
             return (Criteria) this;
@@ -532,6 +602,76 @@ public class SesUserMappingCriteria {
 
         public Criteria andPkNotBetween(String value1, String value2) {
             addCriterion("pk not between", value1, value2, "pk");
+            return (Criteria) this;
+        }
+
+        public Criteria andCopyToIsNull() {
+            addCriterion("copy_to is null");
+            return (Criteria) this;
+        }
+
+        public Criteria andCopyToIsNotNull() {
+            addCriterion("copy_to is not null");
+            return (Criteria) this;
+        }
+
+        public Criteria andCopyToEqualTo(String value) {
+            addCriterion("copy_to =", value, "copyTo");
+            return (Criteria) this;
+        }
+
+        public Criteria andCopyToNotEqualTo(String value) {
+            addCriterion("copy_to <>", value, "copyTo");
+            return (Criteria) this;
+        }
+
+        public Criteria andCopyToGreaterThan(String value) {
+            addCriterion("copy_to >", value, "copyTo");
+            return (Criteria) this;
+        }
+
+        public Criteria andCopyToGreaterThanOrEqualTo(String value) {
+            addCriterion("copy_to >=", value, "copyTo");
+            return (Criteria) this;
+        }
+
+        public Criteria andCopyToLessThan(String value) {
+            addCriterion("copy_to <", value, "copyTo");
+            return (Criteria) this;
+        }
+
+        public Criteria andCopyToLessThanOrEqualTo(String value) {
+            addCriterion("copy_to <=", value, "copyTo");
+            return (Criteria) this;
+        }
+
+        public Criteria andCopyToLike(String value) {
+            addCriterion("copy_to like", value, "copyTo");
+            return (Criteria) this;
+        }
+
+        public Criteria andCopyToNotLike(String value) {
+            addCriterion("copy_to not like", value, "copyTo");
+            return (Criteria) this;
+        }
+
+        public Criteria andCopyToIn(List<String> values) {
+            addCriterion("copy_to in", values, "copyTo");
+            return (Criteria) this;
+        }
+
+        public Criteria andCopyToNotIn(List<String> values) {
+            addCriterion("copy_to not in", values, "copyTo");
+            return (Criteria) this;
+        }
+
+        public Criteria andCopyToBetween(String value1, String value2) {
+            addCriterion("copy_to between", value1, value2, "copyTo");
+            return (Criteria) this;
+        }
+
+        public Criteria andCopyToNotBetween(String value1, String value2) {
+            addCriterion("copy_to not between", value1, value2, "copyTo");
             return (Criteria) this;
         }
 

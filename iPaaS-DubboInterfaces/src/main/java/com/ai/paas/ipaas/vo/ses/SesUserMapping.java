@@ -29,6 +29,8 @@ public class SesUserMapping extends BaseResponse {
 
 	private String indexDisplay;
 
+	private String indexName;
+	
 	private String pk;
 
 	private String copyTo;
@@ -74,6 +76,14 @@ public class SesUserMapping extends BaseResponse {
 	public void setIndexDisplay(String indexDisplay) {
 		this.indexDisplay = indexDisplay == null ? null : indexDisplay.trim();
 	}
+	
+	public String getIndexName() {
+        return indexName;
+    }
+
+    public void setIndexName(String indexName) {
+        this.indexName = indexName == null ? null : indexName.trim();
+    }
 
 	public String getPk() {
 		return pk;
