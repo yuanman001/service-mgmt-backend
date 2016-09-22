@@ -1,7 +1,6 @@
 package com.ai.paas.ipaas.vo.ses;
 
 import java.sql.Timestamp;
-
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlRootElement;
@@ -10,6 +9,7 @@ import com.ai.dubbo.ext.vo.BaseResponse;
 @XmlRootElement
 @XmlAccessorType(XmlAccessType.FIELD)
 public class SesUserMapping extends BaseResponse{
+	
     /**
 	 * 
 	 */
@@ -25,8 +25,10 @@ public class SesUserMapping extends BaseResponse{
 
     private String indexDisplay;
 
+    private String indexName;
+
     private String pk;
-    
+
     private String copyTo;
 
     private Timestamp updateTime;
@@ -71,12 +73,28 @@ public class SesUserMapping extends BaseResponse{
         this.indexDisplay = indexDisplay == null ? null : indexDisplay.trim();
     }
 
+    public String getIndexName() {
+        return indexName;
+    }
+
+    public void setIndexName(String indexName) {
+        this.indexName = indexName == null ? null : indexName.trim();
+    }
+
     public String getPk() {
         return pk;
     }
 
     public void setPk(String pk) {
         this.pk = pk == null ? null : pk.trim();
+    }
+
+    public String getCopyTo() {
+        return copyTo;
+    }
+
+    public void setCopyTo(String copyTo) {
+        this.copyTo = copyTo == null ? null : copyTo.trim();
     }
 
     public Timestamp getUpdateTime() {
@@ -86,13 +104,4 @@ public class SesUserMapping extends BaseResponse{
     public void setUpdateTime(Timestamp updateTime) {
         this.updateTime = updateTime;
     }
-
-	public String getCopyTo() {
-		return copyTo;
-	}
-
-	public void setCopyTo(String copyTo) {
-		this.copyTo = copyTo;
-	}
-    
 }

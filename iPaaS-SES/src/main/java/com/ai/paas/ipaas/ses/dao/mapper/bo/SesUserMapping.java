@@ -13,8 +13,10 @@ public class SesUserMapping {
 
     private String indexDisplay;
 
+    private String indexName;
+
     private String pk;
-    
+
     private String copyTo;
 
     private Timestamp updateTime;
@@ -59,12 +61,28 @@ public class SesUserMapping {
         this.indexDisplay = indexDisplay == null ? null : indexDisplay.trim();
     }
 
+    public String getIndexName() {
+        return indexName;
+    }
+
+    public void setIndexName(String indexName) {
+        this.indexName = indexName == null ? null : indexName.trim();
+    }
+
     public String getPk() {
         return pk;
     }
 
     public void setPk(String pk) {
         this.pk = pk == null ? null : pk.trim();
+    }
+
+    public String getCopyTo() {
+        return copyTo;
+    }
+
+    public void setCopyTo(String copyTo) {
+        this.copyTo = copyTo == null ? null : copyTo.trim();
     }
 
     public Timestamp getUpdateTime() {
@@ -74,13 +92,4 @@ public class SesUserMapping {
     public void setUpdateTime(Timestamp updateTime) {
         this.updateTime = updateTime;
     }
-
-	public String getCopyTo() {
-		return copyTo;
-	}
-
-	public void setCopyTo(String copyTo) {
-		this.copyTo = copyTo;
-	}
-    
 }
