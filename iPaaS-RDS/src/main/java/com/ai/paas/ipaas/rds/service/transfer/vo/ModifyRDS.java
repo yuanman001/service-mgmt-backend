@@ -9,8 +9,12 @@ package com.ai.paas.ipaas.rds.service.transfer.vo;
 public class ModifyRDS {
 
 	// only master instance id can be useful
-	public int instanceid;
+//	public int instanceid;
 	// only augmented external storage can be useful
-	public int argmentedExternalStorage;
-	
+//	public int argmentedExternalStorage;
+	public int groupMasterId;
+	public String cpu;
+	public int IntStorage;
+	public int ExtStorage;
+	public int NetBandwidth;
 }

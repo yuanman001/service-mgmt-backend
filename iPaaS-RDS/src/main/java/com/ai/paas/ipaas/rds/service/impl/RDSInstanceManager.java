@@ -9,6 +9,7 @@ import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Random;
 import java.util.Stack;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -216,14 +217,16 @@ public class RDSInstanceManager  {
 //		List<CPU> cpusRelase = g.getGson().fromJson(instanceBase.getCpuInfo(), new TypeToken<List<CPU>>(){}.getType());
 		String[] cpuRName = instanceBase.getCpuInfo().split(",");
 		List<CPU> cpusRes = g.getGson().fromJson(rdsres.getCpu(), new TypeToken<List<CPU>>(){}.getType());
+		List<CPU> cpuNews = new LinkedList<CPU>();
 		for(String cpuR : cpuRName){
 			for(CPU cpu : cpusRes){
 				if(cpu.name.equals(cpuR)){
 					cpu.usable = true;
 				}
+				cpuNews.add(cpu);
 			}
 		}
-		rdsres.setCpu(g.getGson().toJson(cpusRes));
+		rdsres.setCpu(g.getGson().toJson(cpuNews));
 		resPoolMapper.updateByPrimaryKey(rdsres);
 	}
 
@@ -268,7 +271,6 @@ public class RDSInstanceManager  {
 	 * @throws MyException 
 	 */
 	public String create(String create) throws MyException {
-		LOG.info("$$$$$$$$$$$$$$$ create : "+create);
 		// 解析JSON对象
 		CreateRDS createObject = g.getGson().fromJson(create, CreateRDS.class);
 		CreateRDSResult createResult = new CreateRDSResult(ResponseResultMark.WARN_INIT_STATUS);
@@ -495,7 +497,7 @@ public class RDSInstanceManager  {
 		for(int i = 0; i < incNum; i++){
 			List<RdsResourcePool> usableResourceList = getMasterUsableResource(eachStorageNeeded, allResource);
 			// 选择适当的主机进行分配资源
-			ChoiceResStrategy crs = new ChoiceResStrategy(new MoreMemIdleChoice());
+			ChoiceResStrategy crs = new ChoiceResStrategy(new MoreIntStorageIdleChoice());
 			RdsResourcePool decidedRes = crs.makeDecision(usableResourceList);
 			if(null == decidedRes){
 				return false;
@@ -1053,6 +1055,54 @@ public class RDSInstanceManager  {
 		
 	}
 	
+private RDSResourcePlan getResourcePlan(RdsIncBase inc, RdsResourcePool decidedRes) {
+		
+		// 根据需求找到可用资源列表
+		RDSResourcePlan resourcePlan = new RDSResourcePlan();
+		// 选择适当的主机进行分配资源
+		if (null == decidedRes) {
+			return null;
+		}
+		int count = 0;
+		int needCpuNum = Integer.valueOf(inc.getCpuInfo());
+		// 生成资源分配信息
+		Type cpuType = new TypeToken<List<CPU>>() {}.getType();
+		List<CPU> cpus = g.getGson().fromJson(decidedRes.getCpu(), cpuType);
+		List<CPU> cpusNew = new LinkedList<CPU>();
+		for (CPU cpu : cpus) {
+			if (count < needCpuNum) {
+				if (true == cpu.usable) {
+					if (resourcePlan.Cpu == null) {
+						resourcePlan.Cpu = cpu.name;
+					} else {
+						resourcePlan.Cpu = resourcePlan.Cpu + "," + cpu.name;
+					}
+					cpu.usable = false;
+					count++;
+				}
+			}
+			cpusNew.add(cpu);
+		}
+		decidedRes.setCurrentport(inc.getIncPort());
+		decidedRes.setUsedmemory(decidedRes.getUsedmemory().intValue() + inc.getDbStoreage());
+		decidedRes.setCpu(g.getGson().toJson(cpusNew));
+		decidedRes.setUsedIntStorage(decidedRes.getUsedIntStorage() + inc.getIntStorage());
+		decidedRes.setUsedNetBandwidth(decidedRes.getUsedNetBandwidth() + inc.getNetBandwidth());
+
+		resourcePlan.instanceresourcebelonger = decidedRes;
+		resourcePlan.ip = decidedRes.getHostip();
+		resourcePlan.port = decidedRes.getCurrentport();
+		resourcePlan.Status = RDSCommonConstant.INS_ACTIVATION;
+
+		if (null == resourcePlan.Cpu) {
+			Random rand = new Random();
+			resourcePlan.Cpu += cpus.get(rand.nextInt()%cpus.size()).name;
+			System.out.println("XXXXXXXXXXXXX-----CPU is not enough ,dispatch random cpu : " + resourcePlan.Cpu + " for it ...");
+		}
+		
+		return resourcePlan;
+	}
+	
 	private RDSResourcePlan getResourcePlan(RdsIncBase inc, List<RdsResourcePool> resourceList) {
 		
 		// 根据需求找到可用资源列表
@@ -1061,7 +1111,7 @@ public class RDSInstanceManager  {
 		case InstanceType.MASTER:
 			RDSResourcePlan resourcePlan = new RDSResourcePlan();
 			// 选择适当的主机进行分配资源
-			ChoiceResStrategy crs = new ChoiceResStrategy(new MoreMemIdleChoice());
+			ChoiceResStrategy crs = new ChoiceResStrategy(new MoreIntStorageIdleChoice());
 			RdsResourcePool decidedRes = crs.makeDecision(usableResourceList);
 			if (null == decidedRes) {
 				return null;
@@ -1099,8 +1149,9 @@ public class RDSInstanceManager  {
 			
 			
 			if(null == resourcePlan.Cpu){
-				resourcePlan.Cpu = "0";
-				System.out.println("XXXXXXXXXXXXX-----CPU is not enough ,dispatch 0 cpu for it ...");
+				Random rand = new Random();
+				resourcePlan.Cpu += cpus.get(rand.nextInt()%cpus.size()).name;
+				System.out.println("XXXXXXXXXXXXX-----CPU is not enough ,dispatch random cpu : " + resourcePlan.Cpu + " for it ...");
 			}
 			
 			return resourcePlan;
@@ -1127,7 +1178,7 @@ public class RDSInstanceManager  {
 		// 根据需求找到可用资源列表
 		List<RdsResourcePool> usableResourceList = getMasterUsableResource(masterInstance, resourceList);
 
-		ChoiceResStrategy crs = new ChoiceResStrategy(new MoreMemIdleChoice());
+		ChoiceResStrategy crs = new ChoiceResStrategy(new MoreIntStorageIdleChoice());
 //		RdsResourcePool decidedRes = crs.makeDecision(usableResourceList, exceptInstanceList);
 		RdsResourcePool decidedRes = crs.makeDecision(usableResourceList);
 
@@ -1168,8 +1219,9 @@ public class RDSInstanceManager  {
 		resourcePlan.Status = RDSCommonConstant.INS_ACTIVATION;
 		
 		if(null == resourcePlan.Cpu){
-			resourcePlan.Cpu = "0";
-			System.out.println("XXXXXXXXXXXXX-----CPU is not enough ,dispatch 0 cpu for it ...");
+			Random rand = new Random();
+			resourcePlan.Cpu += cpus.get(rand.nextInt()%cpus.size()).name;
+			System.out.println("XXXXXXXXXXXXX-----CPU is not enough ,dispatch random cpu : " + resourcePlan.Cpu + " for it ...");
 		}
 		
 		return resourcePlan;
@@ -1306,71 +1358,121 @@ public class RDSInstanceManager  {
 
 		return instanceBase;
 	}
+	/**
+	 * primary key have value
+	 * @param resourcePlan
+	 * @param instanceBase
+	 * @param RdsIncBaseNetworkType
+	 * @param primaryKeyNotNULL
+	 * @return
+	 */
+	private RdsIncBase savePlan(RDSResourcePlan resourcePlan, RdsIncBase instanceBase,int RdsIncBaseNetworkType, boolean primaryKeyNotNULL) {
+//		RdsIncBase instanceBase = createObject.instanceBase;
+		instanceBase.setIncType(RdsIncBaseNetworkType);
+		if(RdsIncBaseNetworkType == InstanceType.BATMASTER){
+//			instanceBase.setMasterid(instanceBase.getId());
+			instanceBase.setIncName(instanceBase.getIncName() + "-BATMASTER-" + Math.random());
+		}
+		if(RdsIncBaseNetworkType == InstanceType.SLAVER){
+//			instanceBase.setMasterid(instanceBase.getId());
+			instanceBase.setIncName(instanceBase.getIncName() + "-SLAVER-" + Math.random());
+		}
+		
+		// RdsIncBase作为子表时的指针指向ImageResource和RdsResourcePool，但因为ImageResource已经存在，不需要关联
+		instanceBase.setResId(resourcePlan.instanceresourcebelonger.getResourceid());
+		// 将生成信息保存到RdsIncBase
+		instanceBase.setIncIp(resourcePlan.ip);
+		instanceBase.setIncPort(resourcePlan.port);
+		instanceBase.setIncStatus(resourcePlan.Status);
+		instanceBase.setMysqlVolumnPath(resourcePlan.instanceresourcebelonger.getVolumnPath());
+		instanceBase.setCreateTime(new Timestamp(System.currentTimeMillis()));
+		instanceBase.setUpdateTime(new Timestamp(System.currentTimeMillis()));
+		instanceBase.setCpuInfo(resourcePlan.Cpu);
+		
+		
+		// 保存实例
+		RdsIncBaseMapper resMapper = ServiceUtil.getMapper(RdsIncBaseMapper.class);
+		resMapper.insert(instanceBase);
+		RdsIncBaseCriteria cri = new RdsIncBaseCriteria();
+		cri.createCriteria().andIncNameEqualTo(instanceBase.getIncName()).andIncTypeEqualTo(instanceBase.getIncType()).andIncIpEqualTo(instanceBase.getIncIp()).andIncPortEqualTo(instanceBase.getIncPort());
+		// 刚出炉的数据
+		instanceBase = resMapper.selectByExample(cri).get(0);
+		// 更新资源
+		RdsResourcePoolMapper rdsResMapper = ServiceUtil.getMapper(RdsResourcePoolMapper.class);
+		rdsResMapper.updateByPrimaryKey(resourcePlan.instanceresourcebelonger);
 
+		return instanceBase;
+	}
 //	private boolean CheckLegal(String user_id, String serial_id, String token) {
 //		return true;
 //	}
 
 	/**
-	 * @deprecated
+	 * master应该首先启动
 	 * master修改后关联slaver和batmaster也要修改 但是无法直接修改slaver和batmaster
 	 * 这里主要是指修改instancespaceinfo即空间信息
-	 * modify中只能扩充容量无法缩小容量
+	 * modify
 	 * http://www.linuxidc.com/Linux/2015-01/112245.htm
 	 * @throws MyException 
 	 */
 	public String modify(String modify) throws MyException {
 		ModifyRDS modifyRDSObject = g.getGson().fromJson(modify, ModifyRDS.class);
-		Stack<RdsIncBase> instanceStack ;
-		Stack<RdsIncBase> instanceStackBack = new Stack<RdsIncBase>();
+		Stack<RdsIncBase> instanceStack = getInstanceStack(modifyRDSObject.groupMasterId);
 		RdsIncBaseMapper incBaseMapper = ServiceUtil.getMapper(RdsIncBaseMapper.class);
 		// 只接受修改主mysql
-		RdsIncBase instanceCheck = incBaseMapper.selectByPrimaryKey(modifyRDSObject.instanceid);
+		RdsIncBase instanceCheck = incBaseMapper.selectByPrimaryKey(modifyRDSObject.groupMasterId);
 		
 		RdsResourcePoolMapper resMapper = ServiceUtil.getMapper(RdsResourcePoolMapper.class);
 		
+		CancelRDS cancel = new CancelRDS();
+		cancel.instanceid = modifyRDSObject.groupMasterId;
+		CancelRDSResult result = g.getGson().fromJson(cancel(g.getGson().toJson(cancel)), CancelRDSResult.class);
+		if(Integer.valueOf(result.resultCode) != 1){
+			System.out.println("result.resultCode : " + result.resultCode + " ; result.resultMsg : " + result.resultMsg);
+			System.out.println(result);
+			ChangeContainerConfigResult changeContainerConfig = new ChangeContainerConfigResult(ResponseResultMark.ERROR_BAD_CONFIG);
+			throw new MyException(g.getGson().toJson(changeContainerConfig));
+		}
+		
 		if(instanceCheck.getIncType() == InstanceType.MASTER){
-			// 暂停所有服务
-			instanceStack = getInstanceStack(modifyRDSObject.instanceid);
 			if(!instanceStack.isEmpty()){
-				while(!instanceStack.isEmpty()){
-					RdsIncBase instance = instanceStack.pop();
-					instance.setIncStatus(RDSCommonConstant.INS_STOPPING);
-					incBaseMapper.updateByPrimaryKey(instance);
-					// 启动mysql服务
-					try {
-						stopInstance(instance);
-					} catch (IOException | PaasException e) {
-						e.printStackTrace();
+				for(int i = 0; i < instanceStack.size(); i++){
+//					RdsIncBase instance = instanceStack.pop();
+					RdsIncBase instance = instanceStack.get(i);
+					// 注销资源
+					try { // 对master、batmaster、slaver选择进行扩充，数据库修改空间配置
+						/**
+						 * WARING!
+						 * 这里的cpu设置必须在getResourcePlan之前
+						 * 因为这里的cpu值是cpu数量而不是最后对应cpu的值
+						 */
+						if(!modifyRDSObject.cpu.isEmpty())
+							instance.setCpuInfo(modifyRDSObject.cpu);
+						if(modifyRDSObject.ExtStorage > 0)
+							instance.setDbStoreage(modifyRDSObject.ExtStorage);
+						if(modifyRDSObject.IntStorage > 0)
+							instance.setIntStorage(modifyRDSObject.IntStorage);
+						if(modifyRDSObject.NetBandwidth > 0)
+							instance.setNetBandwidth(modifyRDSObject.NetBandwidth);
+						
+						RdsResourcePool decidedRes = resMapper.selectByPrimaryKey(instance.getResId());
+						RDSResourcePlan plan = getResourcePlan(instance.clone(), decidedRes);
+						RdsIncBase savedRdsIncBase = savePlan(plan, instance.clone(), instance.getIncType(),true);
+						InstanceConfig(savedRdsIncBase);
+						// 修改数据库中服务器状态
+						savedRdsIncBase.setIncStatus(RDSCommonConstant.INS_STARTED);
+						incBaseMapper.updateByPrimaryKey(savedRdsIncBase);
+						save2ZK(savedRdsIncBase);
+					} catch (IOException | PaasException e){
 						ModifyRDSResult stopRDSResult = new ModifyRDSResult(ResponseResultMark.ERROR_BAD_CONFIG);
 						throw new MyException( g.getGson().toJson(stopRDSResult));
 					}
-					// 修改数据库中服务器状态
-					instance.setIncStatus(RDSCommonConstant.INS_STOPPED);
-					instanceStackBack.add(instance);
 				};
 			}else{
 				ModifyRDSResult stopRDSResult = new ModifyRDSResult(ResponseResultMark.WARNING_INSTANCE_STACK_EMPTY);
 				return g.getGson().toJson(stopRDSResult);
 			}
-			// 对master、batmaster、slaver选择进行扩充，数据库修改空间配置
-			ResIncPlan resIncPlan = ResIncPlanSchemer(instanceStackBack,modifyRDSObject.argmentedExternalStorage);
-			if(resIncPlan.increaseList.size() > 0 && resIncPlan.unincreaseList.size() == 0 ){
-				for(RdsIncBase ib : resIncPlan.increaseList){
-					
-					RdsResourcePool resPool = resMapper.selectByPrimaryKey(ib.getResId());
-					resPool.setUsedmemory(resPool.getUsedmemory() 
-							- ib.getDbStoreage() + modifyRDSObject.argmentedExternalStorage);
-					ib.setDbStoreage(modifyRDSObject.argmentedExternalStorage);
-					resMapper.updateByPrimaryKey(resPool);
-					incBaseMapper.updateByPrimaryKey(ib);
-					
-					configModify(ib,modifyRDSObject.argmentedExternalStorage);
-				}
-			} else {
-				ModifyRDSResult modifyRDSResult = new ModifyRDSResult(ResponseResultMark.ERROR_NOT_EXIST_USEFUL_RESOURCE);
-				return g.getGson().toJson(modifyRDSResult);
-			}
+			
 			// 如果修改成功则启动所用相关服务
 			ModifyRDSResult modifyRDSResult = new ModifyRDSResult(ResponseResultMark.SUCCESS);
 			return g.getGson().toJson(modifyRDSResult);
@@ -1382,6 +1484,7 @@ public class RDSInstanceManager  {
 
 
 	/**
+	 * @deprecated 据老大说不用管硬件层，就当作是硬件层可以任意扩容
 	 * 传入的栈顶必须是master
 	 * @param instanceStackBack
 	 * @param argmentedExternalStorage 扩充到的容量大小
@@ -1853,6 +1956,8 @@ public class RDSInstanceManager  {
 	}
 
 	/**
+	 * @deprecated
+	 * 物理资源不够的情况下进行平滑迁移使用这个方法
 	 * 需要网盘挂载才能够进行开发
 	 * 
 	 * @param changecontainerconfig
@@ -1878,12 +1983,13 @@ public class RDSInstanceManager  {
 		createObject.instanceBase.setDbStoreage(changeConfigObject.ExtStorage);
 		createObject.instanceBase.setIntStorage(changeConfigObject.IntStorage);
 		createObject.instanceBase.setNetBandwidth(changeConfigObject.NetBandwidth);
+		
+		
 		// 继承原有未修改配置重新分配资源
 		CreateRDSResult createResult = g.getGson().fromJson(create(g.getGson().toJson(createObject)), CreateRDSResult.class);
 		if(Integer.valueOf(createResult.resultCode) == 1){
 			// 将原有数据迁移至新位置
 			transferConfig(incGroup ,createResult.incSimList);
-			
 			ChangeContainerConfigResult changeContainerConfig = new ChangeContainerConfigResult(ResponseResultMark.SUCCESS);
 			return g.getGson().toJson(changeContainerConfig); 
 		}else{
@@ -1952,6 +2058,19 @@ public class RDSInstanceManager  {
 		System.out.println(op);
 		try {
 			iCCSComponentManageSv.add(op, g.getGson().toJson(instanceRDS));
+		} catch (PaasException e) {
+			e.printStackTrace();
+		}
+	}
+	private void modifyZZK(RdsIncBase instanceRDS){
+		CCSComponentOperationParam op = new CCSComponentOperationParam();
+		System.out.println("save2ZK");
+		op.setUserId(instanceRDS.getUserId());
+		op.setPath(RDSCommonConstant.RDS_ZK_PATH + instanceRDS.getServiceId());
+		op.setPathType(PathType.READONLY);
+		System.out.println(op);
+		try {
+			iCCSComponentManageSv.modify(op, g.getGson().toJson(instanceRDS));
 		} catch (PaasException e) {
 			e.printStackTrace();
 		}

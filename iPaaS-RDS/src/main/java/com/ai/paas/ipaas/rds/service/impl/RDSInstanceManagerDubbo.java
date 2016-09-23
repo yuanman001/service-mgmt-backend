@@ -89,9 +89,7 @@ public class RDSInstanceManagerDubbo implements IRDSInstanceManager {
 		return rdsIncMG.getinstanceinfo(getinstanceinfo);
 	}
 
-	/**
-	 * @deprecated
-	 */
+
 	@Override
 	public String modify(String modify) {
 		try {
@@ -113,6 +111,9 @@ public class RDSInstanceManagerDubbo implements IRDSInstanceManager {
 		}
 	}
 
+	/**
+	 * @deprecated
+	 */
 	@Override
 	public String changecontainerconfig(String changecontainerconfig) {
 		try {

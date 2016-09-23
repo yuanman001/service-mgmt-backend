@@ -18,6 +18,7 @@ public interface RDSCommonConstant {
 	public int INS_STOPPED = 6;
 	public int INS_SWITCHING = 7;
 	public int INS_SWITCHED = 8;
+	public int INS_UPDATING = 9;
 
 	// ResourceStatus
 	public int RES_STATUS_USABLE = 1;
@@ -30,4 +31,5 @@ public interface RDSCommonConstant {
 	public String RDS_IMAGE_URL="IMAGEURL";
 	
 	public int LIMIT_IDLE_USEABLE_EXTERNAL_STORAGE = 5;
+	
 }
