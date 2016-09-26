@@ -271,6 +271,7 @@ public class RDSInstanceManager  {
 	 * @throws MyException 
 	 */
 	public String create(String create) throws MyException {
+		int currentServerID = 1;
 		// 解析JSON对象
 		CreateRDS createObject = g.getGson().fromJson(create, CreateRDS.class);
 		CreateRDSResult createResult = new CreateRDSResult(ResponseResultMark.WARN_INIT_STATUS);
@@ -311,12 +312,6 @@ public class RDSInstanceManager  {
 			createResult.setStatus(ResponseResultMark.ERROR_ROOT_USER_PASSWORD_CANNOT_NULL);
 			return g.getGson().toJson(createResult);
 		}
-//		if(createObject.instanceBase.getBakId() == null){
-//			createObject.instanceBase.setBakId("");
-//		}
-//		if(createObject.instanceBase.getSlaverId() == null){
-//			createObject.instanceBase.setSlaverId("");;
-//		}
 		if(createObject.instanceBase.getContainerName() == null){
 			createObject.instanceBase.setContainerName("");
 		}
@@ -326,7 +321,9 @@ public class RDSInstanceManager  {
 		if(createObject.instanceBase.getDbServerId() == null){
 			createObject.instanceBase.setDbServerId("1");
 		}
-		
+		if(createObject.instanceBase.getDbUsedStorage() == 0){
+			createObject.instanceBase.setDbUsedStorage(2000);
+		}
 		
 		// 查询资源情况，根据请求情况与资源情况获取分配计划
 		RdsResourcePoolMapper rdsResPoolMapper =  ServiceUtil.getMapper(RdsResourcePoolMapper.class);
@@ -343,9 +340,9 @@ public class RDSInstanceManager  {
 			return g.getGson().toJson(createResult);
 		}
 		
-//		List<RdsResourcePool> allResource = rdsResPoolMapper.selectByExample(rdsResPoolCri);
-		
 		RDSResourcePlan resourcePlan = getResourcePlan(createObject.instanceBase, allResource);
+		createObject.instanceBase.setDbServerId(currentServerID + "");
+		currentServerID ++;
 		if(null == resourcePlan.instanceresourcebelonger){
 			createResult.setStatus(ResponseResultMark.ERROR_LESS_MEMORY_SPACE);
 			return g.getGson().toJson(createResult);
@@ -391,12 +388,15 @@ public class RDSInstanceManager  {
 				// 包装一个创建主备实例的类，并保存到数据库
 				// 查询资源情况，根据请求情况与资源情况获取分配计划
 				RDSResourcePlan resourceBatMasterPlan = getExpectResourcePlan(createObject.instanceBase.clone(), rdsResPoolMapper.selectByExample(rdsResPoolCri), exceptionResPoolList);
+				
 				if(null == resourceBatMasterPlan.instanceresourcebelonger){
 					createResult.setStatus(ResponseResultMark.ERROR_NOT_EXIST_USEFUL_RESOURCE);
 					return g.getGson().toJson(createResult);
 				}
 				RdsIncBase batInCopy = savedRdsIncBase.clone();
 				batInCopy.setMasterid(savedRdsIncBase.getId());
+				batInCopy.setDbServerId(currentServerID + "");
+				currentServerID ++;
 				// 对资源分配后的情况保存到数据库，修改资源池的情况，插入实例信息
 				RdsIncBase batMasterInstance = savePlan(resourceBatMasterPlan, batInCopy, InstanceType.BATMASTER);
 				createResult.incSimList.add(new InstanceBaseSimple(batMasterInstance));
@@ -430,11 +430,14 @@ public class RDSInstanceManager  {
 				for (int i = 0; i < createObject.createSlaverNum; i++) {
 					// 包装多个创建从服务器实例的类，并保存到数据库
 					RDSResourcePlan resourceSlaverPlan = getExpectResourcePlan(createObject.instanceBase.clone(), rdsResPoolMapper.selectByExample(rdsResPoolCri),exceptionResPoolList);
+					
 					if(null == resourceSlaverPlan.instanceresourcebelonger){
 						createResult.setStatus(ResponseResultMark.ERROR_NOT_EXIST_USEFUL_RESOURCE);
 						return g.getGson().toJson(createResult);
 					}
 					RdsIncBase slaInCopy = savedRdsIncBase.clone();
+					slaInCopy.setDbServerId(currentServerID + "");
+					currentServerID ++;
 					slaInCopy.setMasterid(savedRdsIncBase.getId());
 					// 对资源分配后的情况保存到数据库，修改资源池的情况，插入实例信息
 					RdsIncBase ib = savePlan(resourceSlaverPlan, slaInCopy, InstanceType.SLAVER);
@@ -527,11 +530,15 @@ public class RDSInstanceManager  {
 			return g.getGson().toJson(createResult);
 		}
 		List<RdsResourcePool> exceptResourceResourceList = new ArrayList<RdsResourcePool>();
-		
+		int maxServerId = 0;
 		for(int i = 0; i < instanceStack.size(); i++){
-//			resPoolMapper.selectByPrimaryKey(instanceStack.get(i).getResId());
+			if(Integer.valueOf(instanceStack.get(i).getDbServerId()) > 0){
+				maxServerId = Integer.valueOf(instanceStack.get(i).getDbServerId());
+			}
+			
 			exceptResourceResourceList.add(resPoolMapper.selectByPrimaryKey(instanceStack.get(i).getResId()));
 		}
+		
 		RdsResourcePoolCriteria cri = new RdsResourcePoolCriteria();
 		cri.createCriteria().andCurrentportBetween(0, 100000);
 		List<RdsResourcePool> allRes = resPoolMapper.selectByExample(cri);
@@ -545,6 +552,8 @@ public class RDSInstanceManager  {
 		
 		RdsIncBase masterCopy = masterInstance.clone();
 		masterCopy.setMasterid(createObject.masterinstanceid);
+		maxServerId ++;
+		masterCopy.setDbServerId(maxServerId + "");
 		// 对资源分配后的情况保存到数据库，修改资源池的情况，插入实例信息
 		RdsIncBase saveRdsIncBase = savePlan(resourceBatMasterPlan, masterCopy, createObject.thisInstanceType);
 
@@ -631,11 +640,17 @@ public class RDSInstanceManager  {
 		IpaasImageResourceMapper imgResMapper = ServiceUtil.getMapper(IpaasImageResourceMapper.class);
 //		IpaasImageResource imgRes = imgResMapper.selectByPrimaryKey(savedRdsIncBase.getImgId());
 		IpaasImageResourceCriteria imgCri = new IpaasImageResourceCriteria();
-		
+		IpaasImageResource imgRes = null;
 		// 以后镜像作为可选项
-		imgCri.createCriteria().andImageCodeEqualTo("mysql").andServiceCodeEqualTo("RDS").andStatusEqualTo(1);
-		List<IpaasImageResource> imgResConstant = imgResMapper.selectByExample(imgCri);
-		IpaasImageResource imgRes = imgResConstant.get(0);
+		if(savedRdsIncBase.getImgId() <= 0)
+		{
+			imgCri.createCriteria().andImageCodeEqualTo("mysql").andServiceCodeEqualTo("RDS").andStatusEqualTo(1);
+			List<IpaasImageResource> imgResConstant = imgResMapper.selectByExample(imgCri);
+			imgRes = imgResConstant.get(0);
+		} else{
+			imgRes = imgResMapper.selectByPrimaryKey(savedRdsIncBase.getImgId());
+		}
+		
 		
 		if(savedRdsIncBase.getIncType().intValue() > 1 ){
 			if(savedRdsIncBase.getMasterid() > 0){
@@ -1096,7 +1111,7 @@ private RDSResourcePlan getResourcePlan(RdsIncBase inc, RdsResourcePool decidedR
 
 		if (null == resourcePlan.Cpu) {
 			Random rand = new Random();
-			resourcePlan.Cpu += cpus.get(rand.nextInt()%cpus.size()).name;
+			resourcePlan.Cpu = cpus.get(Math.abs(rand.nextInt())%cpus.size()).name;
 			System.out.println("XXXXXXXXXXXXX-----CPU is not enough ,dispatch random cpu : " + resourcePlan.Cpu + " for it ...");
 		}
 		
@@ -1147,10 +1162,9 @@ private RDSResourcePlan getResourcePlan(RdsIncBase inc, RdsResourcePool decidedR
 			resourcePlan.port = decidedRes.getCurrentport();
 			resourcePlan.Status = RDSCommonConstant.INS_ACTIVATION;
 			
-			
-			if(null == resourcePlan.Cpu){
+			if(null == resourcePlan.Cpu ){
 				Random rand = new Random();
-				resourcePlan.Cpu += cpus.get(rand.nextInt()%cpus.size()).name;
+				resourcePlan.Cpu = cpus.get(Math.abs(rand.nextInt())%cpus.size()).name;
 				System.out.println("XXXXXXXXXXXXX-----CPU is not enough ,dispatch random cpu : " + resourcePlan.Cpu + " for it ...");
 			}
 			
@@ -1220,7 +1234,7 @@ private RDSResourcePlan getResourcePlan(RdsIncBase inc, RdsResourcePool decidedR
 		
 		if(null == resourcePlan.Cpu){
 			Random rand = new Random();
-			resourcePlan.Cpu += cpus.get(rand.nextInt()%cpus.size()).name;
+			resourcePlan.Cpu = cpus.get(Math.abs(rand.nextInt())%cpus.size()).name;
 			System.out.println("XXXXXXXXXXXXX-----CPU is not enough ,dispatch random cpu : " + resourcePlan.Cpu + " for it ...");
 		}
 		
@@ -1359,6 +1373,7 @@ private RDSResourcePlan getResourcePlan(RdsIncBase inc, RdsResourcePool decidedR
 		return instanceBase;
 	}
 	/**
+	 * modify专属saveplan
 	 * primary key have value
 	 * @param resourcePlan
 	 * @param instanceBase
@@ -1369,14 +1384,6 @@ private RDSResourcePlan getResourcePlan(RdsIncBase inc, RdsResourcePool decidedR
 	private RdsIncBase savePlan(RDSResourcePlan resourcePlan, RdsIncBase instanceBase,int RdsIncBaseNetworkType, boolean primaryKeyNotNULL) {
 //		RdsIncBase instanceBase = createObject.instanceBase;
 		instanceBase.setIncType(RdsIncBaseNetworkType);
-		if(RdsIncBaseNetworkType == InstanceType.BATMASTER){
-//			instanceBase.setMasterid(instanceBase.getId());
-			instanceBase.setIncName(instanceBase.getIncName() + "-BATMASTER-" + Math.random());
-		}
-		if(RdsIncBaseNetworkType == InstanceType.SLAVER){
-//			instanceBase.setMasterid(instanceBase.getId());
-			instanceBase.setIncName(instanceBase.getIncName() + "-SLAVER-" + Math.random());
-		}
 		
 		// RdsIncBase作为子表时的指针指向ImageResource和RdsResourcePool，但因为ImageResource已经存在，不需要关联
 		instanceBase.setResId(resourcePlan.instanceresourcebelonger.getResourceid());
@@ -1430,7 +1437,7 @@ private RDSResourcePlan getResourcePlan(RdsIncBase inc, RdsResourcePool decidedR
 		if(Integer.valueOf(result.resultCode) != 1){
 			System.out.println("result.resultCode : " + result.resultCode + " ; result.resultMsg : " + result.resultMsg);
 			System.out.println(result);
-			ChangeContainerConfigResult changeContainerConfig = new ChangeContainerConfigResult(ResponseResultMark.ERROR_BAD_CONFIG);
+			ModifyRDSResult changeContainerConfig = new ModifyRDSResult(ResponseResultMark.ERROR_BAD_CONFIG);
 			throw new MyException(g.getGson().toJson(changeContainerConfig));
 		}
 		

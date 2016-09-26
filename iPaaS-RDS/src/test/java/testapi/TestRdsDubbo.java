@@ -202,7 +202,7 @@ public class TestRdsDubbo {
 //	@Test
 //	public void cancel(){
 //		CancelRDS cancelObject = new CancelRDS();
-//		cancelObject.instanceid = 187;
+//		cancelObject.instanceid = 198;
 //		String request = g.toJson(cancelObject);
 //		System.out.println(request);
 //		String result = incManager.cancel(request);
@@ -255,17 +255,24 @@ public class TestRdsDubbo {
 //		System.out.println(result);
 //	}
 	
-	@Test
-	public void modify(){
-		ModifyRDS modifyObject = new ModifyRDS();
-		modifyObject.groupMasterId = 189;
-		modifyObject.IntStorage = 3;
-		modifyObject.cpu = "1"; //cpu数量
-		modifyObject.ExtStorage = 9000;
-		modifyObject.NetBandwidth = 4;
-		String request = g.toJson(modifyObject);
-		System.out.println(request);
-		String result = incManager.modify(request);
-		System.out.println(result);
-	}
+	/**
+	 * passed
+	 */
+//	@Test
+//	public void modify(){
+//		ModifyRDS modifyObject = new ModifyRDS();
+//		modifyObject.groupMasterId = 191;
+//		modifyObject.IntStorage = 13;
+//		modifyObject.cpu = "1"; //cpu数量
+//		modifyObject.ExtStorage = 19000;
+//		modifyObject.NetBandwidth = 14;
+//		String request = g.toJson(modifyObject);
+//		System.out.println("$$$$$$$$$$$$$$$$$$$$request$$$$$$$$$$$$$$$$$$$");
+//		System.out.println(request);
+//		System.out.println("$$$$$$$$$$$$$$$$$$$$request$$$$$$$$$$$$$$$$$$$");
+//		String result = incManager.modify(request);
+//		System.out.println("$$$$$$$$$$$$$$$$$$$$result$$$$$$$$$$$$$$$$$$$");
+//		System.out.println(result);
+//		System.out.println("$$$$$$$$$$$$$$$$$$$$result$$$$$$$$$$$$$$$$$$$");
+//	}
 }
