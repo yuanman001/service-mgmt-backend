@@ -160,7 +160,7 @@ public class IdpsSvImpl implements IIdpsSv {
 
 		// 处理服务端 docker 命令 拉gm、图片服务器war,nginx镜像，启动docker化的实例
 		handleServer4Many(irps, balances, userId, serviceId, dssPId,
-				dssServiceId, dssServicePwd);
+				dssServiceId, dssServicePwd,isUpgrade);
 		
 		if("no".equals(isUpgrade)){
 			// updateBalanceResource
@@ -261,13 +261,41 @@ public class IdpsSvImpl implements IIdpsSv {
 	private void handleServer4Many(List<IdpsResourcePool> irps,
 			List<IdpsBalanceResourcePool> balances, String userId,
 			String serviceId, String dssPId, String dssServiceId,
-			String dssServicePwd) throws Exception {
+			String dssServicePwd,String isUpgrade) throws Exception {
+		
+		//-----------------------------如果是重新部署处理-------------------------------------start
+		//如果是重新部署，需要通过userid，serviceid 查询 idps_user_instance 中记录 获得 ip 和端口
+		IdpsUserInstance idpsUserInstanceBlance = new IdpsUserInstance();	//获得 负载均衡的ip 和 port
+		List<IdpsUserInstance>idpsUserInstanceNotBlanceList = new ArrayList<IdpsUserInstance>(); 
+		if("yes".equals(isUpgrade)){
+				//获得值 如果typ=2 是负载均衡的ip 好port；type !=2 就是平常的
+				List<IdpsUserInstance> idpsUserInstanceList =new ArrayList<IdpsUserInstance>();
+				idpsUserInstanceList = getIdpsUserInstanceList(userId,serviceId); // 调用方法获得 曾经开通的idps服务
+				for(int i=0;i<idpsUserInstanceList.size();i++){
+					IdpsUserInstance  idpsUserInstance = new IdpsUserInstance();
+					idpsUserInstance = idpsUserInstanceList.get(i);
+					if(idpsUserInstance.getType()==2){
+							idpsUserInstanceBlance = idpsUserInstance;
+					}else{
+						idpsUserInstanceNotBlanceList.add(idpsUserInstance);
+					}
+				}
+		}
+		//-----------------------------如果是重新部署处理-------------------------------------end
 		String basePath = AgentUtil.getAgentFilePath(AidUtil.getAid());
 		StringBuffer servers = new StringBuffer("\"");
 		//用户处理idps容器名字做唯一
 		int ipdsNum = 1; 
 		// 启动每一个 图片服务器
-		for (IdpsResourcePool irp : irps) {
+		for (int i=0;i<irps.size();i++) {
+			IdpsResourcePool irp =irps.get(i);
+			//---------------如果是重新部署-------------start
+			if("yes".equals(isUpgrade)){
+					IdpsUserInstance  idpsUserInstance = idpsUserInstanceNotBlanceList.get(i);
+					irp.setIdpsHostIp(idpsUserInstance.getIdpsHostIp());
+					irp.setIdpsPort(idpsUserInstance.getIdpsHostPort());
+			}
+			//---------------如果是重新部署-------------end
 			handleServer(irp, dssPId, dssServiceId, dssServicePwd,userId,serviceId+"_"+ipdsNum);
 			// 便于负载均衡
 			servers.append("_server_").append(irp.getIdpsHostIp()).append(":")
@@ -313,7 +341,12 @@ public class IdpsSvImpl implements IIdpsSv {
 							balance.getIdpsBalanceHostIp() });
 			LOG.debug("---------mkSshHosts {}----------", mkSshHosts);
 			AgentUtil.executeCommand(basePath + mkSshHosts, AidUtil.getAid());
-
+			//-----------------如果是重新部署---------------start
+			if("yes".equals(isUpgrade)){
+				balance.setIdpsBalanceHostIp(idpsUserInstanceBlance.getIdpsHostIp());
+				balance.setIdpsBalancePort(idpsUserInstanceBlance.getIdpsHostPort());
+			}
+			//-----------------如果是重新部署---------------end
 			String runImage = ParamUtil.replace(
 					IdpsConstants.DOCKER_4_BALANCE,
 					new String[] {
@@ -647,6 +680,15 @@ public class IdpsSvImpl implements IIdpsSv {
 			}
 
 		}
+		//---------------如果是重新部署-------------start
+		//如果是重新部署，需要通过userid，serviceid 查询 idps_user_instance 中记录 获得 ip 和端口
+		if("yes".equals(isUpgrade)){
+			List<IdpsUserInstance> idpsUserInstanceList =new ArrayList<IdpsUserInstance>();
+			idpsUserInstanceList = getIdpsUserInstanceList(userId,serviceId); // 调用方法获得 曾经开通的idps服务
+			idpsResourcePool.setIdpsHostIp(idpsUserInstanceList.get(0).getIdpsHostIp());
+			idpsResourcePool.setIdpsPort(idpsUserInstanceList.get(0).getIdpsHostPort());
+		}
+		//---------------如果是重新部署-------------end
 		LOG.debug(
 				"----------------seelct IdpsResource host :{}，port ：{}---------",
 				idpsResourcePool.getIdpsHostIp(),
@@ -1162,6 +1204,17 @@ public class IdpsSvImpl implements IIdpsSv {
 		if (list != null && list.size() > 0)
 			return list.get(0);
 		return null;
+	}
+	
+	private List<IdpsUserInstance> getIdpsUserInstanceList(String userId,String serviceId){
+		IdpsUserInstanceMapper im = ServiceUtil
+				.getMapper(IdpsUserInstanceMapper.class);
+		IdpsUserInstanceCriteria imc = new IdpsUserInstanceCriteria();
+		imc.createCriteria().andUserIdEqualTo(userId).andServiceIdEqualTo(serviceId);
+		imc.setLimitStart(0);
+		imc.setLimitEnd(3);
+		List<IdpsUserInstance> list = im.selectByExample(imc);
+		return list;
 	}
 
 	private List<IdpsResourcePool> selectIdpsResources(int num)
