@@ -199,17 +199,17 @@ public class TestRdsDubbo {
 	 * 解析方法:CancelRDSResult ct = g.fromGson(obj,CancelRDSResult.class)
 	 * 主要是status值有用
 	 */
-//	@Test
-//	public void cancel(){
-//		CancelRDS cancelObject = new CancelRDS();
-//		cancelObject.instanceid = 198;
-//		String request = g.toJson(cancelObject);
-//		System.out.println(request);
-//		String result = incManager.cancel(request);
-//		System.out.println("$$$$$$$$$$$$$$$$$$$$result$$$$$$$$$$$$$$$$$$$");
-//		System.out.println(result);
-//		System.out.println("$$$$$$$$$$$$$$$$$$$$result$$$$$$$$$$$$$$$$$$$");
-//	}
+	@Test
+	public void cancel(){
+		CancelRDS cancelObject = new CancelRDS();
+		cancelObject.instanceid = 218;
+		String request = g.toJson(cancelObject);
+		System.out.println(request);
+		String result = incManager.cancel(request);
+		System.out.println("$$$$$$$$$$$$$$$$$$$$result$$$$$$$$$$$$$$$$$$$");
+		System.out.println(result);
+		System.out.println("$$$$$$$$$$$$$$$$$$$$result$$$$$$$$$$$$$$$$$$$");
+	}
 	
 	/**
 	 * passed
@@ -219,11 +219,27 @@ public class TestRdsDubbo {
 //	@Test
 //	public void stop(){
 //		StopRDS stopObject = new StopRDS();
-//		stopObject.instanceid = 165;
+//		stopObject.instanceid = 218;
 //		String request = g.toJson(stopObject);
 //		System.out.println(request);
 //		String result = incManager.stop(request);
 //		System.out.println(result);
+//	}
+	
+//	@Test
+//	public void restart(){
+//		StopRDS stopObject = new StopRDS();
+//		stopObject.instanceid = 218;
+//		String request = g.toJson(stopObject);
+//		System.out.println(request);
+//		String result = incManager.stop(request);
+//		System.out.println(result);
+//		StartRDS startObject = new StartRDS();
+//		startObject.instanceid = 218;
+//		String request1 = g.toJson(startObject);
+//		System.out.println(request1);
+//		String result1 = incManager.start(request1);
+//		System.out.println(result1);
 //	}
 	
 	/**
@@ -261,11 +277,11 @@ public class TestRdsDubbo {
 //	@Test
 //	public void modify(){
 //		ModifyRDS modifyObject = new ModifyRDS();
-//		modifyObject.groupMasterId = 191;
-//		modifyObject.IntStorage = 13;
+//		modifyObject.groupMasterId = 218;
+//		modifyObject.IntStorage = 10;
 //		modifyObject.cpu = "1"; //cpu数量
-//		modifyObject.ExtStorage = 19000;
-//		modifyObject.NetBandwidth = 14;
+//		modifyObject.ExtStorage = 10000;
+//		modifyObject.NetBandwidth = 10;
 //		String request = g.toJson(modifyObject);
 //		System.out.println("$$$$$$$$$$$$$$$$$$$$request$$$$$$$$$$$$$$$$$$$");
 //		System.out.println(request);

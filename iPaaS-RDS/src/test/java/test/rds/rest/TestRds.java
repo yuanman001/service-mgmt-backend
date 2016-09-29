@@ -2,6 +2,11 @@ package test.rds.rest;
 
 import java.sql.Timestamp;
 
+import com.ai.paas.ipaas.rds.dao.mapper.bo.RdsIncBase;
+import com.ai.paas.ipaas.rds.service.transfer.vo.CancelRDS;
+import com.ai.paas.ipaas.rds.service.transfer.vo.CreateRDS;
+import com.ai.paas.ipaas.rds.service.transfer.vo.ModifyRDS;
+import com.ai.paas.ipaas.rds.service.transfer.vo.StartRDS;
 import com.ai.paas.ipaas.rds.service.transfer.vo.StopRDS;
 import com.google.gson.Gson;
 
@@ -15,15 +20,45 @@ public class TestRds {
 	
 	private static void test(){
 		Gson g = new Gson();
-		Timestamp time = new Timestamp(System.currentTimeMillis()); 
+		
+//		Timestamp time = new Timestamp(System.currentTimeMillis()); 
 //		CreateRDS creatObject = new CreateRDS();
 //		creatObject.createSlaverNum = 1;
 //		creatObject.createBatmasterNum = 0;
-//		// user_id对应ccs_user_config中的用户
-//		creatObject.instanceBase = new RdsIncBase("6C4F4DBA96294DDCBC5DBBF2CAD442B5", "testmysql", "BIU", 5, 100, "","",
-//				"mysql6", "", 0, 1, "BIU,MYSQL,TEST","BEIJING", 1, "no describe", "/aifs01", 
-//				"/aifs01/mysqldata","", "192.168.*.*", "root", "root", "containerName",
-//				"1234", 10000, 2000, 123, 500,time,time);
+//		creatObject.instanceBase = new RdsIncBase(
+//				"6C4F4DBA96294DDCBC5DBBF2CAD442B5", //UserID
+//				"test_res_lim_mysql", //serviceId 
+//				"BIU",// depId 部门
+//				5, // imgId
+//				0, // resId
+//				"", // bakId 无用
+//				"", // slaverId 无用
+//				"mysql6", // incName
+//				"", // incIp
+//				0,  // incPort
+//				1, // incType
+//				"BIU,MYSQL,TEST", // incTag
+//				"BEIJING", // incLocation
+//				1, // incStatus
+//				"no describe", // incDescribe
+//				"/aifs01", // mysqlHome 无用，服务器提供固定值
+//				"/aifs01/mysqldata", // mysqlDataHome 无用，服务器会生成固定值
+//				"", // mysqlVolumnPath 无用，服务器提供固定值
+//				"192.168.*.*,10.1.*.*,localhost,%.%.%.%", // whiteList
+//				"rootusr", // rootName
+//				"123456", // rootPassword
+//				"containerName", // containerName
+//				"1234", // dbServerId
+//				10000, // dbStoreage
+//				2000, // dbUsedStorage
+//				2, // intStorage
+//				500, // maxConnectNum
+//				0, // masterid 无用
+//				"1",// cpu属于可分配资源 不对应cpuInfo，这里代表需要cpu数量
+//				5, // netBandwidth
+//				"on", // sqlAudit （on，off）
+//				"semisynchronous" // syncStrategy（分为半同步semisynchronous，异步asynchronous）
+//				);
 //		String request = g.toJson(creatObject);
 //		System.out.println(request);
 //		String result = RdsHttpClientUtil.send(url+"/rds/mysql/manager/create/master",request);
@@ -33,7 +68,7 @@ public class TestRds {
 		
 		
 //		CancelRDS cancelObject = new CancelRDS();
-//		cancelObject.instanceid = 83;
+//		cancelObject.instanceid = 218;
 //		String request = g.toJson(cancelObject);
 //		System.out.println(request);
 //		String result = RdsHttpClientUtil.send(url+"/rds/mysql/manager/cancel",request);
@@ -57,6 +92,22 @@ public class TestRds {
 //		System.out.println(request);
 //		String result = RdsHttpClientUtil.send(url+"/rds/mysql/manager/start",request);
 //		System.out.println(result);
+		
+		
+//		ModifyRDS modifyObject = new ModifyRDS();
+//		modifyObject.groupMasterId = 218;
+//		modifyObject.IntStorage = 1;
+//		modifyObject.cpu = "1"; //cpu数量
+//		modifyObject.ExtStorage = 10000;
+//		modifyObject.NetBandwidth = 2;
+//		String request = g.toJson(modifyObject);
+//		System.out.println("$$$$$$$$$$$$$$$$$$$$request$$$$$$$$$$$$$$$$$$$");
+//		System.out.println(request);
+//		System.out.println("$$$$$$$$$$$$$$$$$$$$request$$$$$$$$$$$$$$$$$$$");
+//		String result = RdsHttpClientUtil.send(url+"/rds/mysql/manager/modify",request);
+//		System.out.println("$$$$$$$$$$$$$$$$$$$$result$$$$$$$$$$$$$$$$$$$");
+//		System.out.println(result);
+//		System.out.println("$$$$$$$$$$$$$$$$$$$$result$$$$$$$$$$$$$$$$$$$");
 	}
 	
 
