@@ -17,6 +17,7 @@ public class RDSResourcePlan {
 	public String ip;
 	public int port;
 	public int Status;
+	public String Cpu;
 //	public RdsInstanceipport instanceIpPort;
 //	public RdsInstanceStatus instanceStatus;
 }

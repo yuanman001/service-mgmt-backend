@@ -6,6 +6,7 @@ import java.sql.Timestamp;
 import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.ai.paas.ipaas.ServiceUtil;
@@ -13,7 +14,6 @@ import com.ai.paas.ipaas.rds.dao.interfaces.RdsResourcePoolMapper;
 import com.ai.paas.ipaas.rds.dao.mapper.bo.RdsResourcePool;
 import com.ai.paas.ipaas.rds.manage.rest.interfaces.IRDSResourcePool;
 import com.ai.paas.ipaas.rds.service.util.GsonSingleton;
-import com.alibaba.dubbo.config.annotation.Service;
 
 /** 
  * @author  作者 “WTF” E-mail: 1031248990@qq.com
@@ -21,7 +21,6 @@ import com.alibaba.dubbo.config.annotation.Service;
  * @version 
  * @since  
  */
-//@Service("RDSResourcePool")
 @Service
 @Transactional(rollbackFor = Exception.class)
 public class RDSResourcePool implements IRDSResourcePool {

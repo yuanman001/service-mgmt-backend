@@ -1,5 +1,6 @@
 package com.ai.paas.ipaas.rds.dao.mapper.bo;
 
+
 import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.List;
@@ -2042,6 +2043,276 @@ public class RdsIncBaseCriteria {
 
         public Criteria andMasteridNotBetween(Integer value1, Integer value2) {
             addCriterion("masterid not between", value1, value2, "masterid");
+            return (Criteria) this;
+        }
+
+        public Criteria andCpuInfoIsNull() {
+            addCriterion("cpu_info is null");
+            return (Criteria) this;
+        }
+
+        public Criteria andCpuInfoIsNotNull() {
+            addCriterion("cpu_info is not null");
+            return (Criteria) this;
+        }
+
+        public Criteria andCpuInfoEqualTo(String value) {
+            addCriterion("cpu_info =", value, "cpuInfo");
+            return (Criteria) this;
+        }
+
+        public Criteria andCpuInfoNotEqualTo(String value) {
+            addCriterion("cpu_info <>", value, "cpuInfo");
+            return (Criteria) this;
+        }
+
+        public Criteria andCpuInfoGreaterThan(String value) {
+            addCriterion("cpu_info >", value, "cpuInfo");
+            return (Criteria) this;
+        }
+
+        public Criteria andCpuInfoGreaterThanOrEqualTo(String value) {
+            addCriterion("cpu_info >=", value, "cpuInfo");
+            return (Criteria) this;
+        }
+
+        public Criteria andCpuInfoLessThan(String value) {
+            addCriterion("cpu_info <", value, "cpuInfo");
+            return (Criteria) this;
+        }
+
+        public Criteria andCpuInfoLessThanOrEqualTo(String value) {
+            addCriterion("cpu_info <=", value, "cpuInfo");
+            return (Criteria) this;
+        }
+
+        public Criteria andCpuInfoLike(String value) {
+            addCriterion("cpu_info like", value, "cpuInfo");
+            return (Criteria) this;
+        }
+
+        public Criteria andCpuInfoNotLike(String value) {
+            addCriterion("cpu_info not like", value, "cpuInfo");
+            return (Criteria) this;
+        }
+
+        public Criteria andCpuInfoIn(List<String> values) {
+            addCriterion("cpu_info in", values, "cpuInfo");
+            return (Criteria) this;
+        }
+
+        public Criteria andCpuInfoNotIn(List<String> values) {
+            addCriterion("cpu_info not in", values, "cpuInfo");
+            return (Criteria) this;
+        }
+
+        public Criteria andCpuInfoBetween(String value1, String value2) {
+            addCriterion("cpu_info between", value1, value2, "cpuInfo");
+            return (Criteria) this;
+        }
+
+        public Criteria andCpuInfoNotBetween(String value1, String value2) {
+            addCriterion("cpu_info not between", value1, value2, "cpuInfo");
+            return (Criteria) this;
+        }
+
+        public Criteria andNetBandwidthIsNull() {
+            addCriterion("net_bandwidth is null");
+            return (Criteria) this;
+        }
+
+        public Criteria andNetBandwidthIsNotNull() {
+            addCriterion("net_bandwidth is not null");
+            return (Criteria) this;
+        }
+
+        public Criteria andNetBandwidthEqualTo(Integer value) {
+            addCriterion("net_bandwidth =", value, "netBandwidth");
+            return (Criteria) this;
+        }
+
+        public Criteria andNetBandwidthNotEqualTo(Integer value) {
+            addCriterion("net_bandwidth <>", value, "netBandwidth");
+            return (Criteria) this;
+        }
+
+        public Criteria andNetBandwidthGreaterThan(Integer value) {
+            addCriterion("net_bandwidth >", value, "netBandwidth");
+            return (Criteria) this;
+        }
+
+        public Criteria andNetBandwidthGreaterThanOrEqualTo(Integer value) {
+            addCriterion("net_bandwidth >=", value, "netBandwidth");
+            return (Criteria) this;
+        }
+
+        public Criteria andNetBandwidthLessThan(Integer value) {
+            addCriterion("net_bandwidth <", value, "netBandwidth");
+            return (Criteria) this;
+        }
+
+        public Criteria andNetBandwidthLessThanOrEqualTo(Integer value) {
+            addCriterion("net_bandwidth <=", value, "netBandwidth");
+            return (Criteria) this;
+        }
+
+        public Criteria andNetBandwidthIn(List<Integer> values) {
+            addCriterion("net_bandwidth in", values, "netBandwidth");
+            return (Criteria) this;
+        }
+
+        public Criteria andNetBandwidthNotIn(List<Integer> values) {
+            addCriterion("net_bandwidth not in", values, "netBandwidth");
+            return (Criteria) this;
+        }
+
+        public Criteria andNetBandwidthBetween(Integer value1, Integer value2) {
+            addCriterion("net_bandwidth between", value1, value2, "netBandwidth");
+            return (Criteria) this;
+        }
+
+        public Criteria andNetBandwidthNotBetween(Integer value1, Integer value2) {
+            addCriterion("net_bandwidth not between", value1, value2, "netBandwidth");
+            return (Criteria) this;
+        }
+
+        public Criteria andSqlAuditIsNull() {
+            addCriterion("sql_audit is null");
+            return (Criteria) this;
+        }
+
+        public Criteria andSqlAuditIsNotNull() {
+            addCriterion("sql_audit is not null");
+            return (Criteria) this;
+        }
+
+        public Criteria andSqlAuditEqualTo(String value) {
+            addCriterion("sql_audit =", value, "sqlAudit");
+            return (Criteria) this;
+        }
+
+        public Criteria andSqlAuditNotEqualTo(String value) {
+            addCriterion("sql_audit <>", value, "sqlAudit");
+            return (Criteria) this;
+        }
+
+        public Criteria andSqlAuditGreaterThan(String value) {
+            addCriterion("sql_audit >", value, "sqlAudit");
+            return (Criteria) this;
+        }
+
+        public Criteria andSqlAuditGreaterThanOrEqualTo(String value) {
+            addCriterion("sql_audit >=", value, "sqlAudit");
+            return (Criteria) this;
+        }
+
+        public Criteria andSqlAuditLessThan(String value) {
+            addCriterion("sql_audit <", value, "sqlAudit");
+            return (Criteria) this;
+        }
+
+        public Criteria andSqlAuditLessThanOrEqualTo(String value) {
+            addCriterion("sql_audit <=", value, "sqlAudit");
+            return (Criteria) this;
+        }
+
+        public Criteria andSqlAuditLike(String value) {
+            addCriterion("sql_audit like", value, "sqlAudit");
+            return (Criteria) this;
+        }
+
+        public Criteria andSqlAuditNotLike(String value) {
+            addCriterion("sql_audit not like", value, "sqlAudit");
+            return (Criteria) this;
+        }
+
+        public Criteria andSqlAuditIn(List<String> values) {
+            addCriterion("sql_audit in", values, "sqlAudit");
+            return (Criteria) this;
+        }
+
+        public Criteria andSqlAuditNotIn(List<String> values) {
+            addCriterion("sql_audit not in", values, "sqlAudit");
+            return (Criteria) this;
+        }
+
+        public Criteria andSqlAuditBetween(String value1, String value2) {
+            addCriterion("sql_audit between", value1, value2, "sqlAudit");
+            return (Criteria) this;
+        }
+
+        public Criteria andSqlAuditNotBetween(String value1, String value2) {
+            addCriterion("sql_audit not between", value1, value2, "sqlAudit");
+            return (Criteria) this;
+        }
+
+        public Criteria andSyncStrategyIsNull() {
+            addCriterion("sync_strategy is null");
+            return (Criteria) this;
+        }
+
+        public Criteria andSyncStrategyIsNotNull() {
+            addCriterion("sync_strategy is not null");
+            return (Criteria) this;
+        }
+
+        public Criteria andSyncStrategyEqualTo(String value) {
+            addCriterion("sync_strategy =", value, "syncStrategy");
+            return (Criteria) this;
+        }
+
+        public Criteria andSyncStrategyNotEqualTo(String value) {
+            addCriterion("sync_strategy <>", value, "syncStrategy");
+            return (Criteria) this;
+        }
+
+        public Criteria andSyncStrategyGreaterThan(String value) {
+            addCriterion("sync_strategy >", value, "syncStrategy");
+            return (Criteria) this;
+        }
+
+        public Criteria andSyncStrategyGreaterThanOrEqualTo(String value) {
+            addCriterion("sync_strategy >=", value, "syncStrategy");
+            return (Criteria) this;
+        }
+
+        public Criteria andSyncStrategyLessThan(String value) {
+            addCriterion("sync_strategy <", value, "syncStrategy");
+            return (Criteria) this;
+        }
+
+        public Criteria andSyncStrategyLessThanOrEqualTo(String value) {
+            addCriterion("sync_strategy <=", value, "syncStrategy");
+            return (Criteria) this;
+        }
+
+        public Criteria andSyncStrategyLike(String value) {
+            addCriterion("sync_strategy like", value, "syncStrategy");
+            return (Criteria) this;
+        }
+
+        public Criteria andSyncStrategyNotLike(String value) {
+            addCriterion("sync_strategy not like", value, "syncStrategy");
+            return (Criteria) this;
+        }
+
+        public Criteria andSyncStrategyIn(List<String> values) {
+            addCriterion("sync_strategy in", values, "syncStrategy");
+            return (Criteria) this;
+        }
+
+        public Criteria andSyncStrategyNotIn(List<String> values) {
+            addCriterion("sync_strategy not in", values, "syncStrategy");
+            return (Criteria) this;
+        }
+
+        public Criteria andSyncStrategyBetween(String value1, String value2) {
+            addCriterion("sync_strategy between", value1, value2, "syncStrategy");
+            return (Criteria) this;
+        }
+
+        public Criteria andSyncStrategyNotBetween(String value1, String value2) {
+            addCriterion("sync_strategy not between", value1, value2, "syncStrategy");
             return (Criteria) this;
         }
 

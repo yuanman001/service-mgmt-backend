@@ -1,5 +1,6 @@
 package com.ai.paas.ipaas.rds.dao.mapper.bo;
 
+
 import java.sql.Timestamp;
 
 public class RdsResourcePool {
@@ -27,18 +28,84 @@ public class RdsResourcePool {
 
     private String volumnPath;
 
+    private Integer totIntStorage;
+
+    private Integer usedIntStorage;
+
+    private String cpu;
+
+    private Integer netBandwidth;
+
+    private Integer usedNetBandwidth;
+
     private Timestamp instancecreatetime;
 
     private Timestamp instancelastupdatetime;
 
     
-    public RdsResourcePool() {
+    @Override
+	public String toString() {
+		return "RdsResourcePool [resourceid=" + resourceid + ", hostip=" + hostip + ", maxport=" + maxport
+				+ ", minport=" + minport + ", currentport=" + currentport + ", cycle=" + cycle + ", sshpassword="
+				+ sshpassword + ", sshuser=" + sshuser + ", status=" + status + ", totalmemory=" + totalmemory
+				+ ", usedmemory=" + usedmemory + ", volumnPath=" + volumnPath + ", totIntStorage=" + totIntStorage
+				+ ", usedIntStorage=" + usedIntStorage + ", cpu=" + cpu + ", netBandwidth=" + netBandwidth
+				+ ", usedNetBandwidth=" + usedNetBandwidth + ", instancecreatetime=" + instancecreatetime
+				+ ", instancelastupdatetime=" + instancelastupdatetime + "]";
+	}
+
+	public RdsResourcePool(String hostip, Integer maxport, Integer minport, Integer currentport, Integer cycle,
+			String sshpassword, String sshuser, Integer status, Integer totalmemory, Integer usedmemory,
+			String volumnPath, Integer totIntStorage, Integer usedIntStorage, String cpu, Integer netBandwidth,
+			Integer usedNetBandwidth) {
 		super();
+		this.hostip = hostip;
+		this.maxport = maxport;
+		this.minport = minport;
+		this.currentport = currentport;
+		this.cycle = cycle;
+		this.sshpassword = sshpassword;
+		this.sshuser = sshuser;
+		this.status = status;
+		this.totalmemory = totalmemory;
+		this.usedmemory = usedmemory;
+		this.volumnPath = volumnPath;
+		this.totIntStorage = totIntStorage;
+		this.usedIntStorage = usedIntStorage;
+		this.cpu = cpu;
+		this.netBandwidth = netBandwidth;
+		this.usedNetBandwidth = usedNetBandwidth;
+	}
+
+	public RdsResourcePool(String hostip, Integer maxport, Integer minport, Integer currentport, Integer cycle,
+			String sshpassword, String sshuser, Integer status, Integer totalmemory, Integer usedmemory,
+			String volumnPath, Integer totIntStorage, Integer usedIntStorage, String cpu, Integer netBandwidth,
+			Integer usedNetBandwidth, Timestamp instancecreatetime, Timestamp instancelastupdatetime) {
+		super();
+		this.hostip = hostip;
+		this.maxport = maxport;
+		this.minport = minport;
+		this.currentport = currentport;
+		this.cycle = cycle;
+		this.sshpassword = sshpassword;
+		this.sshuser = sshuser;
+		this.status = status;
+		this.totalmemory = totalmemory;
+		this.usedmemory = usedmemory;
+		this.volumnPath = volumnPath;
+		this.totIntStorage = totIntStorage;
+		this.usedIntStorage = usedIntStorage;
+		this.cpu = cpu;
+		this.netBandwidth = netBandwidth;
+		this.usedNetBandwidth = usedNetBandwidth;
+		this.instancecreatetime = instancecreatetime;
+		this.instancelastupdatetime = instancelastupdatetime;
 	}
 
 	public RdsResourcePool(Integer resourceid, String hostip, Integer maxport, Integer minport, Integer currentport,
 			Integer cycle, String sshpassword, String sshuser, Integer status, Integer totalmemory, Integer usedmemory,
-			String volumnPath, Timestamp instancecreatetime, Timestamp instancelastupdatetime) {
+			String volumnPath, Integer totIntStorage, Integer usedIntStorage, String cpu, Integer netBandwidth,
+			Integer usedNetBandwidth) {
 		super();
 		this.resourceid = resourceid;
 		this.hostip = hostip;
@@ -52,14 +119,23 @@ public class RdsResourcePool {
 		this.totalmemory = totalmemory;
 		this.usedmemory = usedmemory;
 		this.volumnPath = volumnPath;
-		this.instancecreatetime = instancecreatetime;
-		this.instancelastupdatetime = instancelastupdatetime;
+		this.totIntStorage = totIntStorage;
+		this.usedIntStorage = usedIntStorage;
+		this.cpu = cpu;
+		this.netBandwidth = netBandwidth;
+		this.usedNetBandwidth = usedNetBandwidth;
 	}
 
-	public RdsResourcePool(String hostip, Integer maxport, Integer minport, Integer currentport, Integer cycle,
-			String sshpassword, String sshuser, Integer status, Integer totalmemory, Integer usedmemory,
-			String volumnPath, Timestamp instancecreatetime, Timestamp instancelastupdatetime) {
+	public RdsResourcePool() {
 		super();
+	}
+
+	public RdsResourcePool(Integer resourceid, String hostip, Integer maxport, Integer minport, Integer currentport,
+			Integer cycle, String sshpassword, String sshuser, Integer status, Integer totalmemory, Integer usedmemory,
+			String volumnPath, Integer totIntStorage, Integer usedIntStorage, String cpu, Integer netBandwidth,
+			Integer usedNetBandwidth, Timestamp instancecreatetime, Timestamp instancelastupdatetime) {
+		super();
+		this.resourceid = resourceid;
 		this.hostip = hostip;
 		this.maxport = maxport;
 		this.minport = minport;
@@ -71,25 +147,13 @@ public class RdsResourcePool {
 		this.totalmemory = totalmemory;
 		this.usedmemory = usedmemory;
 		this.volumnPath = volumnPath;
+		this.totIntStorage = totIntStorage;
+		this.usedIntStorage = usedIntStorage;
+		this.cpu = cpu;
+		this.netBandwidth = netBandwidth;
+		this.usedNetBandwidth = usedNetBandwidth;
 		this.instancecreatetime = instancecreatetime;
 		this.instancelastupdatetime = instancelastupdatetime;
-	}
-
-	public RdsResourcePool(String hostip, Integer maxport, Integer minport, Integer currentport, Integer cycle,
-			String sshpassword, String sshuser, Integer status, Integer totalmemory, Integer usedmemory,
-			String volumnPath) {
-		super();
-		this.hostip = hostip;
-		this.maxport = maxport;
-		this.minport = minport;
-		this.currentport = currentport;
-		this.cycle = cycle;
-		this.sshpassword = sshpassword;
-		this.sshuser = sshuser;
-		this.status = status;
-		this.totalmemory = totalmemory;
-		this.usedmemory = usedmemory;
-		this.volumnPath = volumnPath;
 	}
 
 	public Integer getResourceid() {
@@ -186,6 +250,46 @@ public class RdsResourcePool {
 
     public void setVolumnPath(String volumnPath) {
         this.volumnPath = volumnPath == null ? null : volumnPath.trim();
+    }
+
+    public Integer getTotIntStorage() {
+        return totIntStorage;
+    }
+
+    public void setTotIntStorage(Integer totIntStorage) {
+        this.totIntStorage = totIntStorage;
+    }
+
+    public Integer getUsedIntStorage() {
+        return usedIntStorage;
+    }
+
+    public void setUsedIntStorage(Integer usedIntStorage) {
+        this.usedIntStorage = usedIntStorage;
+    }
+
+    public String getCpu() {
+        return cpu;
+    }
+
+    public void setCpu(String cpu) {
+        this.cpu = cpu == null ? null : cpu.trim();
+    }
+
+    public Integer getNetBandwidth() {
+        return netBandwidth;
+    }
+
+    public void setNetBandwidth(Integer netBandwidth) {
+        this.netBandwidth = netBandwidth;
+    }
+
+    public Integer getUsedNetBandwidth() {
+        return usedNetBandwidth;
+    }
+
+    public void setUsedNetBandwidth(Integer usedNetBandwidth) {
+        this.usedNetBandwidth = usedNetBandwidth;
     }
 
     public Timestamp getInstancecreatetime() {

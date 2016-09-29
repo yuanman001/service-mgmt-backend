@@ -6,6 +6,4 @@
      - name: docker pull
        command: docker pull "{{image}}"
      - name: docker run 
-       command: docker run --name {{container_name}} -d --net=host -p {{port}}:{{port}} -v {{mysql_data_path}}:{{mysql_volumn_path}} -e "PORT={{port}}" -e "START_MODE={{mysql_type}}"  -e "MASTER_HOST={{master_ip}}" -e "MASTER_PORT={{master_port}}" {{image}}
-#      command: docker run --name {{container_name}} -d --net=host -p {{port}}:{{port}} -v {{mysql_data_path}}:{{mysql_volumn_path}} -e "PORT={{port}}" -e "START_MODE={{mysql_type}}"  {{image}}
-
+       command: docker run --name {{container_name}} -d --net=host -p {{port}}:{{port}} -v {{mysql_data_path}}:{{mysql_volumn_path}} --cpuset-cpus={{cpu}} --memory-reservation {{int_storage}}G -e "PORT={{port}}" -e "START_MODE={{mysql_type}}"  -e "MASTER_HOST={{master_ip}}" -e "MASTER_PORT={{master_port}}" -e "DB_ROOT_NAME={{db_root_name}}" -e "DB_ROOT_PASSWORD={{db_root_password}}"  -e "DB_WHITE_LIST={{white_ip_list}}" -e "BANDWIDTH={{bandwidth}}" -e "SQL_AUDIT={{sql_audit}}" -e "SYNC_STRATEGY={{sync_strategy}}" -e "SERVER_ID={{server_id}}" {{image}}

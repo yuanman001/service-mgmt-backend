@@ -1,17 +1,12 @@
 package com.ai.paas.ipaas.rds.service.transfer.vo;
-
 /** 
  * @author  作者 “WTF” E-mail: 1031248990@qq.com
- * @date 创建时间：2016年7月15日 下午7:28:17 
+ * @date 创建时间：2016年9月7日 下午2:23:39 
  * @version 
  * @since  
  */
-public class ModifyRDS {
+public class ChangeContainerConfig {
 
-	// only master instance id can be useful
-//	public int instanceid;
-	// only augmented external storage can be useful
-//	public int argmentedExternalStorage;
 	public int groupMasterId;
 	public String cpu;
 	public int IntStorage;

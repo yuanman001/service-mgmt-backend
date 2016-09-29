@@ -1,5 +1,6 @@
 package testapi;
 
+
 import java.sql.Timestamp;
 
 import org.junit.Test;
@@ -9,9 +10,16 @@ import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
 import com.ai.paas.ipaas.rds.dao.mapper.bo.RdsIncBase;
 import com.ai.paas.ipaas.rds.manage.rest.interfaces.IRDSInstanceManager;
+import com.ai.paas.ipaas.rds.manage.rest.interfaces.IRDSInstanceOperater;
 import com.ai.paas.ipaas.rds.manage.rest.interfaces.IRDSResourcePool;
+import com.ai.paas.ipaas.rds.service.transfer.vo.CancelRDS;
+import com.ai.paas.ipaas.rds.service.transfer.vo.ChangeContainerConfig;
 import com.ai.paas.ipaas.rds.service.transfer.vo.CreateRDS;
 import com.ai.paas.ipaas.rds.service.transfer.vo.CreateRDSResult;
+import com.ai.paas.ipaas.rds.service.transfer.vo.ModifyRDS;
+import com.ai.paas.ipaas.rds.service.transfer.vo.StartRDS;
+import com.ai.paas.ipaas.rds.service.transfer.vo.StopRDS;
+import com.ai.paas.ipaas.rds.service.transfer.vo.SwitchMaster;
 import com.alibaba.dubbo.config.annotation.Reference;
 import com.google.gson.Gson;
 
@@ -23,11 +31,16 @@ public class TestRdsDubbo {
 	private IRDSInstanceManager incManager;
 	@Reference
 	private IRDSResourcePool resMananger;
-//	@Reference
-//	private IRDSInstanceOperater incOperater;
+	@Reference
+	private IRDSInstanceOperater incOperater;
 	
 	Gson g = new Gson();
 	
+//	@Test
+//	public void switchmaster(){
+//		String result = incOperater.switchmaster(g.toJson(new SwitchMaster(114)));
+//		System.out.println(result);
+//	}
 	
 	/**
 	 * passed
@@ -83,33 +96,73 @@ public class TestRdsDubbo {
 //	}
 
 	/**
+	 * 博士说这里不用做备用服务器，0个备用
 	 * 
 	 * ["{\"instanceBase\":{\"incName\":\"实例名称5\",\"serviceId\":\"RDS005\",\"incDescribe\":\"实例描述\",\"userId\":\"8E7ECAC706994DB9AC2BBB037C18762B\",\"maxConnectNum\":\"300\",\"dbStoreage\":\"10000\",\"incType\":\"1\",\"incTag\":\"实例标签5\",\"incLocation\":\"实例位置55\",\"depId\":\"部门名称5\"},\"createBatmasterNum\":0,\"createSlaverNum\":1}"]
 	 * passed
 	 * 解析方法:CreateRDSResult ct = g.fromGson(obj,CreateRDSResult.class)
 	 * 主要是status值有用
 	 */
-	@Test
-	public void create(){
-		Timestamp time = new Timestamp(System.currentTimeMillis()); 
-		CreateRDS creatObject = new CreateRDS();
-		creatObject.createSlaverNum = 1;
-		creatObject.createBatmasterNum = 0;
-		// user_id对应ccs_user_config中的用户
-		creatObject.instanceBase = new RdsIncBase("6C4F4DBA96294DDCBC5DBBF2CAD442B5", "testmysql", "BIU", 5, 100, "","",
-				"mysql6", "", 0, 1, "BIU,MYSQL,TEST","BEIJING", 1, "no describe", "/aifs01", 
-				"/aifs01/mysqldata","", "192.168.*.*", "rootusr", "123456", "containerName",
-				"1234", 10000, 2000, 123, 500,time,time);
-		String request = g.toJson(creatObject);
-		System.out.println(request);
-		String result = incManager.create(request);
-		System.out.println("$$$$$$$$$$$$$$$$$$$$result$$$$$$$$$$$$$$$$$$$");
-		System.out.println(result);
-		CreateRDSResult ssss = g.fromJson(result, CreateRDSResult.class);
-		System.out.println("$$$$$$$$$$$$$$$$$$$$result$$$$$$$$$$$$$$$$$$$");
-	}
+//	@Test
+//	public void create(){
+//		Timestamp time = new Timestamp(System.currentTimeMillis()); 
+//		CreateRDS creatObject = new CreateRDS();
+//		creatObject.createSlaverNum = 1;
+//		creatObject.createBatmasterNum = 0;
+//		creatObject.instanceBase = new RdsIncBase(
+//				"6C4F4DBA96294DDCBC5DBBF2CAD442B5", //UserID
+//				"test_res_lim_mysql", //serviceId 
+//				"BIU",// depId 部门
+//				5, // imgId
+//				0, // resId
+//				"", // bakId 无用
+//				"", // slaverId 无用
+//				"mysql6", // incName
+//				"", // incIp
+//				0,  // incPort
+//				1, // incType
+//				"BIU,MYSQL,TEST", // incTag
+//				"BEIJING", // incLocation
+//				1, // incStatus
+//				"no describe", // incDescribe
+//				"/aifs01", // mysqlHome 无用，服务器提供固定值
+//				"/aifs01/mysqldata", // mysqlDataHome 无用，服务器会生成固定值
+//				"", // mysqlVolumnPath 无用，服务器提供固定值
+//				"192.168.*.*,10.1.*.*,localhost,%.%.%.%", // whiteList
+//				"rootusr", // rootName
+//				"123456", // rootPassword
+//				"containerName", // containerName
+//				"1234", // dbServerId
+//				10000, // dbStoreage
+//				2000, // dbUsedStorage
+//				2, // intStorage
+//				500, // maxConnectNum
+//				0, // masterid 无用
+//				"1",// cpu属于可分配资源 不对应cpuInfo，这里代表需要cpu数量
+//				5, // netBandwidth
+//				"on", // sqlAudit （on，off）
+//				"semisynchronous", // syncStrategy（分为半同步semisynchronous，异步asynchronous）
+//				time,time);
+//		String request = g.toJson(creatObject);
+//		System.out.println(request);
+//		String result = incManager.create(request);
+//		System.out.println("$$$$$$$$$$$$$$$$$$$$result$$$$$$$$$$$$$$$$$$$");
+//		System.out.println(result);
+//		CreateRDSResult ssss = g.fromJson(result, CreateRDSResult.class);
+//		System.out.println("$$$$$$$$$$$$$$$$$$$$result$$$$$$$$$$$$$$$$$$$");
+//	}
 	
-	
+//	@Test
+//	public void switchMaster(){
+//		SwitchMaster sm = new SwitchMaster(152);
+//		String request = g.toJson(sm);
+//		System.out.println(request);
+//		String result = incManager.switchmaster(request);
+//		System.out.println("$$$$$$$$$$$$$$$$$$$$result$$$$$$$$$$$$$$$$$$$");
+//		System.out.println(result);
+//		CreateRDSResult ssss = g.fromJson(result, CreateRDSResult.class);
+//		System.out.println("$$$$$$$$$$$$$$$$$$$$result$$$$$$$$$$$$$$$$$$$");
+//	}
 	
 	/**
 	 * passed
@@ -146,17 +199,17 @@ public class TestRdsDubbo {
 	 * 解析方法:CancelRDSResult ct = g.fromGson(obj,CancelRDSResult.class)
 	 * 主要是status值有用
 	 */
-//	@Test
-//	public void cancel(){
-//		CancelRDS cancelObject = new CancelRDS();
-//		cancelObject.instanceid = 119;
-//		String request = g.toJson(cancelObject);
-//		System.out.println(request);
-//		String result = incManager.cancel(request);
-//		System.out.println("$$$$$$$$$$$$$$$$$$$$result$$$$$$$$$$$$$$$$$$$");
-//		System.out.println(result);
-//		System.out.println("$$$$$$$$$$$$$$$$$$$$result$$$$$$$$$$$$$$$$$$$");
-//	}
+	@Test
+	public void cancel(){
+		CancelRDS cancelObject = new CancelRDS();
+		cancelObject.instanceid = 218;
+		String request = g.toJson(cancelObject);
+		System.out.println(request);
+		String result = incManager.cancel(request);
+		System.out.println("$$$$$$$$$$$$$$$$$$$$result$$$$$$$$$$$$$$$$$$$");
+		System.out.println(result);
+		System.out.println("$$$$$$$$$$$$$$$$$$$$result$$$$$$$$$$$$$$$$$$$");
+	}
 	
 	/**
 	 * passed
@@ -166,11 +219,27 @@ public class TestRdsDubbo {
 //	@Test
 //	public void stop(){
 //		StopRDS stopObject = new StopRDS();
-//		stopObject.instanceid = 117;
+//		stopObject.instanceid = 218;
 //		String request = g.toJson(stopObject);
 //		System.out.println(request);
 //		String result = incManager.stop(request);
 //		System.out.println(result);
+//	}
+	
+//	@Test
+//	public void restart(){
+//		StopRDS stopObject = new StopRDS();
+//		stopObject.instanceid = 218;
+//		String request = g.toJson(stopObject);
+//		System.out.println(request);
+//		String result = incManager.stop(request);
+//		System.out.println(result);
+//		StartRDS startObject = new StartRDS();
+//		startObject.instanceid = 218;
+//		String request1 = g.toJson(startObject);
+//		System.out.println(request1);
+//		String result1 = incManager.start(request1);
+//		System.out.println(result1);
 //	}
 	
 	/**
@@ -181,11 +250,45 @@ public class TestRdsDubbo {
 //	@Test
 //	public void start(){
 //		StartRDS startObject = new StartRDS();
-//		startObject.instanceid = 117;
+//		startObject.instanceid = 165;
 //		String request = g.toJson(startObject);
 //		System.out.println(request);
 //		String result = incManager.start(request);
 //		System.out.println(result);
 //	}
 	
+//	@Test 
+//	public void changecontainerconfig(){
+//		ChangeContainerConfig ccc = new ChangeContainerConfig();
+//		ccc.cpu = "1";
+//		ccc.ExtStorage = 20000;
+//		ccc.groupMasterId =165;
+//		ccc.IntStorage = 1;
+////		ccc.instanceid = 165;
+//		String request = g.toJson(ccc);
+//		System.out.println(request);
+//		String result = incManager.start(request);
+//		System.out.println(result);
+//	}
+	
+	/**
+	 * passed
+	 */
+//	@Test
+//	public void modify(){
+//		ModifyRDS modifyObject = new ModifyRDS();
+//		modifyObject.groupMasterId = 218;
+//		modifyObject.IntStorage = 10;
+//		modifyObject.cpu = "1"; //cpu数量
+//		modifyObject.ExtStorage = 10000;
+//		modifyObject.NetBandwidth = 10;
+//		String request = g.toJson(modifyObject);
+//		System.out.println("$$$$$$$$$$$$$$$$$$$$request$$$$$$$$$$$$$$$$$$$");
+//		System.out.println(request);
+//		System.out.println("$$$$$$$$$$$$$$$$$$$$request$$$$$$$$$$$$$$$$$$$");
+//		String result = incManager.modify(request);
+//		System.out.println("$$$$$$$$$$$$$$$$$$$$result$$$$$$$$$$$$$$$$$$$");
+//		System.out.println(result);
+//		System.out.println("$$$$$$$$$$$$$$$$$$$$result$$$$$$$$$$$$$$$$$$$");
+//	}
 }

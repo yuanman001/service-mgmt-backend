@@ -1,0 +1,7 @@
+- hosts:  "{{host}}"
+  user: "{{user}}"
+  vars:
+     
+  tasks:
+     - name: docker exec switch.sh
+       command: docker exec -id {{container_name}} /switch.sh {{bak_ip}} {{bak_port}} {{instance_type}} {{instance_type_switch_sql}}

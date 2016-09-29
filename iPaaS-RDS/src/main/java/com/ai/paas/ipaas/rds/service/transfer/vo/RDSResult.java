@@ -16,6 +16,7 @@ public class RDSResult implements RDSResultInterface{
 	public String ExceptionTrace;
 	public RDSResult(int status) {
 		super();
+		
 		this.resultCode = String.valueOf(status);
 		switch(status){
 		case ResponseResultMark.SUCCESS:
@@ -59,6 +60,9 @@ public class RDSResult implements RDSResultInterface{
 			break;
 		case ResponseResultMark.ERROR_BAD_CONFIG_ZK:
 			resultMsg = "ERROR_BAD_CONFIG_ZK";
+			break;
+		case ResponseResultMark.ERROR_INSTANCE_GROUP_CANNOT_GET_NULL:
+			resultMsg = "ERROR_INSTANCE_GROUP_CANNOT_GET_NULL";
 			break;
 		default:
 			resultMsg = "STATUS_UNKNOW";
@@ -114,6 +118,9 @@ public class RDSResult implements RDSResultInterface{
 		case ResponseResultMark.ERROR_BAD_CONFIG_ZK:
 			resultMsg = "ERROR_BAD_CONFIG_ZK";
 			break;
+		case ResponseResultMark.ERROR_INSTANCE_GROUP_CANNOT_GET_NULL:
+			resultMsg = "ERROR_INSTANCE_GROUP_CANNOT_GET_NULL";
+			break;
 		default:
 			resultMsg = "STATUS_UNKNOW";
 		}
@@ -162,6 +169,9 @@ public class RDSResult implements RDSResultInterface{
 			break;
 		case ResponseResultMark.ERROR_BAD_CONFIG_ZK:
 			resultMsg = "ERROR_BAD_CONFIG_ZK";
+			break;
+		case ResponseResultMark.ERROR_INSTANCE_GROUP_CANNOT_GET_NULL:
+			resultMsg = "ERROR_INSTANCE_GROUP_CANNOT_GET_NULL";
 			break;
 		default:
 			resultMsg = "STATUS_UNKNOW";

@@ -1,0 +1,14 @@
+- hosts:  "{{host}}"
+  user: "{{user}}"
+  vars:
+     
+  tasks:
+     - name: docker change master
+       command: docker exec -it {{container_name}} /bin/bash
+       command: /bin/mysql -uroot -p123456 --socket=/percona/mysqld-{{port}}.sock
+       command: STOP SLAVE;
+       command: RESET MASTER;
+       command: RESET SLAVE;
+       command: CHANGE MASTER TO MASTER_HOST='{{bak_ip}}', MASTER_PORT={{bak_port}}, MASTER_USER='sync', MASTER_PASSWORD='123456', MASTER_CONNECT_RETRY=5; 
+       command: START SLAVE; 
+       command: FLUSH PRIVILEGES;
