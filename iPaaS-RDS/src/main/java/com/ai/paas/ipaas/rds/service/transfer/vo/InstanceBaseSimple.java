@@ -12,6 +12,10 @@ public class InstanceBaseSimple {
     private String incPort;
     private String rootName;
     private String rootPassword;
+    private String cpu;
+    private String IntStorage;
+    private String ExtStorage;
+    private String NetBandwidth;
     
     public InstanceBaseSimple(RdsIncBase incBase) {
     	this.id = incBase.getId() + "";
@@ -23,6 +27,10 @@ public class InstanceBaseSimple {
     	this.incPort = incBase.getIncPort() + "";
     	this.rootName = incBase.getRootName();
     	this.rootPassword = incBase.getRootPassword();
+    	this.cpu = incBase.getCpuInfo();
+    	this.IntStorage = incBase.getIntStorage() + "";
+    	this.ExtStorage = incBase.getDbStoreage() + "";
+    	this.NetBandwidth = incBase.getNetBandwidth() + "";
 	}
 
 	public InstanceBaseSimple() {
@@ -39,5 +47,9 @@ public class InstanceBaseSimple {
     	this.incPort = incBase.getIncPort() + "";
     	this.rootName = incBase.getRootName();
     	this.rootPassword = incBase.getRootPassword();
+    	this.cpu = incBase.getCpuInfo();
+    	this.IntStorage = incBase.getIntStorage() + "";
+    	this.ExtStorage = incBase.getDbStoreage() + "";
+    	this.NetBandwidth = incBase.getNetBandwidth() + "";
     }
 }
