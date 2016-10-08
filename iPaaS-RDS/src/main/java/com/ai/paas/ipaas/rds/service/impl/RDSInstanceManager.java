@@ -321,9 +321,9 @@ public class RDSInstanceManager  {
 		if(createObject.instanceBase.getDbServerId() == null){
 			createObject.instanceBase.setDbServerId("1");
 		}
-		if(createObject.instanceBase.getDbUsedStorage() == 0){
-			createObject.instanceBase.setDbUsedStorage(2000);
-		}
+//		if(createObject.instanceBase.getDbUsedStorage() == 0){
+		createObject.instanceBase.setDbUsedStorage(2);
+//		}
 		
 		// 查询资源情况，根据请求情况与资源情况获取分配计划
 		RdsResourcePoolMapper rdsResPoolMapper =  ServiceUtil.getMapper(RdsResourcePoolMapper.class);
