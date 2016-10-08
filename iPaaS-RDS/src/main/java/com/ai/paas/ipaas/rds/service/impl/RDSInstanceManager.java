@@ -289,9 +289,9 @@ public class RDSInstanceManager  {
 		}
 		createObject.instanceBase.setBakId("");
 		createObject.instanceBase.setSlaverId("");
-		if(createObject.instanceBase.getImgId() <= 0){ // 需要前台传入
-			createObject.instanceBase.setImgId(5); 
-		}
+//		if(createObject.instanceBase.getImgId() <= 0){ // 需要前台传入
+		createObject.instanceBase.setImgId(5); 
+//		}
 		if(createObject.instanceBase.getMysqlHome() == null || createObject.instanceBase.getMysqlHome().equals("")){
 			createObject.instanceBase.setMysqlHome("/aifs01");
 		}
