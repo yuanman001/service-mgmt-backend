@@ -1319,7 +1319,7 @@ private RDSResourcePlan getResourcePlan(RdsIncBase inc, RdsResourcePool decidedR
 					&& ((rp.getCurrentport() + 1) < rp.getMaxport())
 					&& canUseIntMemSize > inc.getIntStorage()
 					&& canUseBandWidthSizee > inc.getNetBandwidth()
-					&& countUseableCpu >= cpuNeedNum
+//					&& countUseableCpu >= cpuNeedNum
 					) {
 				canUseRes.add(rp);
 			}
