@@ -1133,7 +1133,7 @@ private RDSResourcePlan getResourcePlan(RdsIncBase inc, RdsResourcePool decidedR
 			ChoiceResStrategy crs = new ChoiceResStrategy(new MoreIntStorageIdleChoice());
 			RdsResourcePool decidedRes = crs.makeDecision(usableResourceList);
 			if (null == decidedRes) {
-				return null;
+				return resourcePlan;
 			}
 			int count = 0;
 			int needCpuNum = Integer.valueOf(inc.getCpuInfo());
@@ -1201,7 +1201,7 @@ private RDSResourcePlan getResourcePlan(RdsIncBase inc, RdsResourcePool decidedR
 		RdsResourcePool decidedRes = crs.makeDecision(usableResourceList);
 
 		if (null == decidedRes) {
-			return null;
+			return resourcePlan;
 		}
 		// 生成资源分配信息
 		int count = 0;
