@@ -396,6 +396,8 @@ public class RDSInstanceManager  {
 				RdsIncBase batInCopy = savedRdsIncBase.clone();
 				batInCopy.setMasterid(savedRdsIncBase.getId());
 				batInCopy.setDbServerId(currentServerID + "");
+				batInCopy.setBakId("");
+				batInCopy.setSlaverId("");
 				currentServerID ++;
 				// 对资源分配后的情况保存到数据库，修改资源池的情况，插入实例信息
 				RdsIncBase batMasterInstance = savePlan(resourceBatMasterPlan, batInCopy, InstanceType.BATMASTER);
@@ -439,6 +441,8 @@ public class RDSInstanceManager  {
 					slaInCopy.setDbServerId(currentServerID + "");
 					currentServerID ++;
 					slaInCopy.setMasterid(savedRdsIncBase.getId());
+					slaInCopy.setBakId("");
+					slaInCopy.setSlaverId("");
 					// 对资源分配后的情况保存到数据库，修改资源池的情况，插入实例信息
 					RdsIncBase ib = savePlan(resourceSlaverPlan, slaInCopy, InstanceType.SLAVER);
 					createResult.incSimList.add(new InstanceBaseSimple(ib));
@@ -719,7 +723,7 @@ public class RDSInstanceManager  {
 					savedRdsIncBase.getIncIp(),
 					imgRes.getImageRepository() + "/" + imgRes.getImageName(),
 					savedRdsIncBase.getIncPort() + "",
-					incRes.getVolumnPath() + "/" + savedRdsIncBase.getIncPort(),
+					incRes.getVolumnPath() + "/" + savedRdsIncBase.getUserId() + "/" + savedRdsIncBase.getIncPort(),
 					savedRdsIncBase.getMysqlHome(),
 					"/percona/data",
 					savedRdsIncBase.getUserId() + "-" + savedRdsIncBase.getServiceId() + "-" + savedRdsIncBase.getIncPort(),
@@ -748,7 +752,7 @@ public class RDSInstanceManager  {
 							savedRdsIncBase.getIncIp(),
 							imgRes.getImageRepository() + "/" + imgRes.getImageName(),
 							savedRdsIncBase.getIncPort() + "",
-							incRes.getVolumnPath() + "/" + savedRdsIncBase.getIncPort(),
+							incRes.getVolumnPath() + "/" + savedRdsIncBase.getUserId() + "/" + savedRdsIncBase.getIncPort(),
 							savedRdsIncBase.getMysqlHome(),
 							"/percona/data",
 							savedRdsIncBase.getUserId() + "-" + savedRdsIncBase.getServiceId() + "-" + savedRdsIncBase.getIncPort(),
@@ -831,7 +835,7 @@ public class RDSInstanceManager  {
 						savedRdsIncBase.getIncIp(),
 						imgRes.getImageRepository() + "/" + imgRes.getImageName(),
 						savedRdsIncBase.getIncPort() + "",
-						incRes.getVolumnPath() + "/" + savedRdsIncBase.getIncPort(),
+						incRes.getVolumnPath() + "/" + savedRdsIncBase.getUserId() + "/" + savedRdsIncBase.getIncPort(),
 						savedRdsIncBase.getMysqlHome(),
 						"/percona/data",
 						savedRdsIncBase.getUserId() + "-" + savedRdsIncBase.getServiceId() + "-" + savedRdsIncBase.getIncPort(),
@@ -864,7 +868,7 @@ public class RDSInstanceManager  {
 								savedRdsIncBase.getIncIp(),
 								imgRes.getImageRepository() + "/" + imgRes.getImageName(),
 								savedRdsIncBase.getIncPort() + "",
-								incRes.getVolumnPath() + "/" + savedRdsIncBase.getIncPort(),
+								incRes.getVolumnPath() + "/" + savedRdsIncBase.getUserId() + "/" + savedRdsIncBase.getIncPort(),
 								savedRdsIncBase.getMysqlHome(),
 								"/percona/data",
 								savedRdsIncBase.getUserId() + "-" + savedRdsIncBase.getServiceId() + "-" + savedRdsIncBase.getIncPort(),
