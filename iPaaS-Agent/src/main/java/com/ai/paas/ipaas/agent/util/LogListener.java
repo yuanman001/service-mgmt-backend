@@ -6,6 +6,8 @@ import java.util.Date;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.springframework.scheduling.annotation.EnableScheduling;
+import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 
 /** 
@@ -13,13 +15,14 @@ import org.springframework.stereotype.Component;
  * @author sunhz 
  */  
 @Component  
+@EnableScheduling
 public class LogListener {
 	private static final Logger logger = LogManager.getLogger(LogListener.class.getName());
 
 	/**  
      * 定时计算。每天凌晨 01:00 执行一次  
      */    
-    //@Scheduled(cron = "0 0 1 * * *")   
+    @Scheduled(cron = "0 0 1 * * *")   
     public void run() {
 		logger.info("---【监听器监听到开始删除日志文件】---");
 		
