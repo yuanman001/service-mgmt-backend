@@ -1,33 +1,34 @@
-<?xml version="1.0" encoding="UTF-8" ?>
-<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
-<mapper namespace="com.ai.paas.ipaas.ccs.dao.interfaces.CcsResourcePoolMapper" >
-  <resultMap id="BaseResultMap" type="com.ai.paas.ipaas.ccs.dao.mapper.bo.CcsResourcePool" >
-    <id column="id" property="id" jdbcType="INTEGER" />
-    <result column="zk_address" property="zkAddress" jdbcType="VARCHAR" />
-    <result column="zk_type_code" property="zkTypeCode" jdbcType="INTEGER" />
-    <result column="zk_description" property="zkDescription" jdbcType="VARCHAR" />
-    <result column="super_auth_name" property="superAuthName" jdbcType="VARCHAR" />
-    <result column="super_auth_password" property="superAuthPassword" jdbcType="VARCHAR" />
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ai.paas.ipaas.ccs.dao.interfaces.CcsResourcePoolMapper">
+  <resultMap id="BaseResultMap" type="com.ai.paas.ipaas.ccs.dao.mapper.bo.CcsResourcePool">
+    <id column="id" jdbcType="INTEGER" property="id" />
+    <result column="zk_address" jdbcType="VARCHAR" property="zkAddress" />
+    <result column="zk_type_code" jdbcType="INTEGER" property="zkTypeCode" />
+    <result column="zk_description" jdbcType="VARCHAR" property="zkDescription" />
+    <result column="super_auth_name" jdbcType="VARCHAR" property="superAuthName" />
+    <result column="super_auth_password" jdbcType="VARCHAR" property="superAuthPassword" />
+    <result column="org_id" jdbcType="INTEGER" property="orgId" />
   </resultMap>
-  <sql id="Example_Where_Clause" >
-    <where >
-      <foreach collection="oredCriteria" item="criteria" separator="or" >
-        <if test="criteria.valid" >
-          <trim prefix="(" suffix=")" prefixOverrides="and" >
-            <foreach collection="criteria.criteria" item="criterion" >
-              <choose >
-                <when test="criterion.noValue" >
+  <sql id="Example_Where_Clause">
+    <where>
+      <foreach collection="oredCriteria" item="criteria" separator="or">
+        <if test="criteria.valid">
+          <trim prefix="(" prefixOverrides="and" suffix=")">
+            <foreach collection="criteria.criteria" item="criterion">
+              <choose>
+                <when test="criterion.noValue">
                   and ${criterion.condition}
                 </when>
-                <when test="criterion.singleValue" >
+                <when test="criterion.singleValue">
                   and ${criterion.condition} #{criterion.value}
                 </when>
-                <when test="criterion.betweenValue" >
+                <when test="criterion.betweenValue">
                   and ${criterion.condition} #{criterion.value} and #{criterion.secondValue}
                 </when>
-                <when test="criterion.listValue" >
+                <when test="criterion.listValue">
                   and ${criterion.condition}
-                  <foreach collection="criterion.value" item="listItem" open="(" close=")" separator="," >
+                  <foreach close=")" collection="criterion.value" item="listItem" open="(" separator=",">
                     #{listItem}
                   </foreach>
                 </when>
@@ -38,25 +39,25 @@
       </foreach>
     </where>
   </sql>
-  <sql id="Update_By_Example_Where_Clause" >
-    <where >
-      <foreach collection="example.oredCriteria" item="criteria" separator="or" >
-        <if test="criteria.valid" >
-          <trim prefix="(" suffix=")" prefixOverrides="and" >
-            <foreach collection="criteria.criteria" item="criterion" >
-              <choose >
-                <when test="criterion.noValue" >
+  <sql id="Update_By_Example_Where_Clause">
+    <where>
+      <foreach collection="example.oredCriteria" item="criteria" separator="or">
+        <if test="criteria.valid">
+          <trim prefix="(" prefixOverrides="and" suffix=")">
+            <foreach collection="criteria.criteria" item="criterion">
+              <choose>
+                <when test="criterion.noValue">
                   and ${criterion.condition}
                 </when>
-                <when test="criterion.singleValue" >
+                <when test="criterion.singleValue">
                   and ${criterion.condition} #{criterion.value}
                 </when>
-                <when test="criterion.betweenValue" >
+                <when test="criterion.betweenValue">
                   and ${criterion.condition} #{criterion.value} and #{criterion.secondValue}
                 </when>
-                <when test="criterion.listValue" >
+                <when test="criterion.listValue">
                   and ${criterion.condition}
-                  <foreach collection="criterion.value" item="listItem" open="(" close=")" separator="," >
+                  <foreach close=")" collection="criterion.value" item="listItem" open="(" separator=",">
                     #{listItem}
                   </foreach>
                 </when>
@@ -67,157 +68,180 @@
       </foreach>
     </where>
   </sql>
-  <sql id="Base_Column_List" >
-    id, zk_address, zk_type_code, zk_description, super_auth_name, super_auth_password
+  <sql id="Base_Column_List">
+    id, zk_address, zk_type_code, zk_description, super_auth_name, super_auth_password, 
+    org_id
   </sql>
-  <select id="selectByExample" resultMap="BaseResultMap" parameterType="com.ai.paas.ipaas.ccs.dao.mapper.bo.CcsResourcePoolCriteria" >
+  <select id="selectByExample" parameterType="com.ai.paas.ipaas.ccs.dao.mapper.bo.CcsResourcePoolCriteria" resultMap="BaseResultMap">
     select
-    <if test="distinct" >
+    <if test="distinct">
       distinct
     </if>
     <include refid="Base_Column_List" />
     from ccs_resource_pool
-    <if test="_parameter != null" >
+    <if test="_parameter != null">
       <include refid="Example_Where_Clause" />
     </if>
-    <if test="orderByClause != null" >
+    <if test="orderByClause != null">
       order by ${orderByClause}
     </if>
-    <if test="limitStart != null and limitStart>=0" >
+    <if test="limitStart != null and limitStart&gt;=0">
       limit #{limitStart} , #{limitEnd}
     </if>
   </select>
-  <select id="selectByPrimaryKey" resultMap="BaseResultMap" parameterType="int" >
+  <select id="selectByPrimaryKey" parameterType="Integer" resultMap="BaseResultMap">
     select 
     <include refid="Base_Column_List" />
     from ccs_resource_pool
     where id = #{id,jdbcType=INTEGER}
   </select>
-  <delete id="deleteByPrimaryKey" parameterType="int" >
+  <delete id="deleteByPrimaryKey" parameterType="Integer">
     delete from ccs_resource_pool
     where id = #{id,jdbcType=INTEGER}
   </delete>
-  <delete id="deleteByExample" parameterType="com.ai.paas.ipaas.ccs.dao.mapper.bo.CcsResourcePoolCriteria" >
+  <delete id="deleteByExample" parameterType="com.ai.paas.ipaas.ccs.dao.mapper.bo.CcsResourcePoolCriteria">
     delete from ccs_resource_pool
-    <if test="_parameter != null" >
+    <if test="_parameter != null">
       <include refid="Example_Where_Clause" />
     </if>
   </delete>
-  <insert id="insert" parameterType="com.ai.paas.ipaas.ccs.dao.mapper.bo.CcsResourcePool" >
+  <insert id="insert" parameterType="com.ai.paas.ipaas.ccs.dao.mapper.bo.CcsResourcePool">
     insert into ccs_resource_pool (id, zk_address, zk_type_code, 
-      zk_description, super_auth_name, super_auth_password
-      )
+      zk_description, super_auth_name, super_auth_password, 
+      org_id)
     values (#{id,jdbcType=INTEGER}, #{zkAddress,jdbcType=VARCHAR}, #{zkTypeCode,jdbcType=INTEGER}, 
-      #{zkDescription,jdbcType=VARCHAR}, #{superAuthName,jdbcType=VARCHAR}, #{superAuthPassword,jdbcType=VARCHAR}
-      )
+      #{zkDescription,jdbcType=VARCHAR}, #{superAuthName,jdbcType=VARCHAR}, #{superAuthPassword,jdbcType=VARCHAR}, 
+      #{orgId,jdbcType=INTEGER})
   </insert>
-  <insert id="insertSelective" parameterType="com.ai.paas.ipaas.ccs.dao.mapper.bo.CcsResourcePool" >
+  <insert id="insertSelective" parameterType="com.ai.paas.ipaas.ccs.dao.mapper.bo.CcsResourcePool">
     insert into ccs_resource_pool
-    <trim prefix="(" suffix=")" suffixOverrides="," >
-      id,
-      <if test="zkAddress != null" >
+    <trim prefix="(" suffix=")" suffixOverrides=",">
+      <if test="id != null">
+        id,
+      </if>
+      <if test="zkAddress != null">
         zk_address,
       </if>
-      zk_type_code,
-      <if test="zkDescription != null" >
+      <if test="zkTypeCode != null">
+        zk_type_code,
+      </if>
+      <if test="zkDescription != null">
         zk_description,
       </if>
-      <if test="superAuthName != null" >
+      <if test="superAuthName != null">
         super_auth_name,
       </if>
-      <if test="superAuthPassword != null" >
+      <if test="superAuthPassword != null">
         super_auth_password,
       </if>
+      <if test="orgId != null">
+        org_id,
+      </if>
     </trim>
-    <trim prefix="values (" suffix=")" suffixOverrides="," >
-      #{id,jdbcType=INTEGER},
-      <if test="zkAddress != null" >
+    <trim prefix="values (" suffix=")" suffixOverrides=",">
+      <if test="id != null">
+        #{id,jdbcType=INTEGER},
+      </if>
+      <if test="zkAddress != null">
         #{zkAddress,jdbcType=VARCHAR},
       </if>
-      #{zkTypeCode,jdbcType=INTEGER},
-      <if test="zkDescription != null" >
+      <if test="zkTypeCode != null">
+        #{zkTypeCode,jdbcType=INTEGER},
+      </if>
+      <if test="zkDescription != null">
         #{zkDescription,jdbcType=VARCHAR},
       </if>
-      <if test="superAuthName != null" >
+      <if test="superAuthName != null">
         #{superAuthName,jdbcType=VARCHAR},
       </if>
-      <if test="superAuthPassword != null" >
+      <if test="superAuthPassword != null">
         #{superAuthPassword,jdbcType=VARCHAR},
+      </if>
+      <if test="orgId != null">
+        #{orgId,jdbcType=INTEGER},
       </if>
     </trim>
   </insert>
-  <select id="countByExample" parameterType="com.ai.paas.ipaas.ccs.dao.mapper.bo.CcsResourcePoolCriteria" resultType="java.lang.Integer" >
+  <select id="countByExample" parameterType="com.ai.paas.ipaas.ccs.dao.mapper.bo.CcsResourcePoolCriteria" resultType="java.lang.Integer">
     select count(*) from ccs_resource_pool
-    <if test="_parameter != null" >
+    <if test="_parameter != null">
       <include refid="Example_Where_Clause" />
     </if>
   </select>
-  <update id="updateByExampleSelective" parameterType="map" >
+  <update id="updateByExampleSelective" parameterType="map">
     update ccs_resource_pool
-    <set >
-      <if test="record.id != null" >
+    <set>
+      <if test="record.id != null">
         id = #{record.id,jdbcType=INTEGER},
       </if>
-      <if test="record.zkAddress != null" >
+      <if test="record.zkAddress != null">
         zk_address = #{record.zkAddress,jdbcType=VARCHAR},
       </if>
-      <if test="record.zkTypeCode != null" >
+      <if test="record.zkTypeCode != null">
         zk_type_code = #{record.zkTypeCode,jdbcType=INTEGER},
       </if>
-      <if test="record.zkDescription != null" >
+      <if test="record.zkDescription != null">
         zk_description = #{record.zkDescription,jdbcType=VARCHAR},
       </if>
-      <if test="record.superAuthName != null" >
+      <if test="record.superAuthName != null">
         super_auth_name = #{record.superAuthName,jdbcType=VARCHAR},
       </if>
-      <if test="record.superAuthPassword != null" >
+      <if test="record.superAuthPassword != null">
         super_auth_password = #{record.superAuthPassword,jdbcType=VARCHAR},
       </if>
+      <if test="record.orgId != null">
+        org_id = #{record.orgId,jdbcType=INTEGER},
+      </if>
     </set>
-    <if test="_parameter != null" >
+    <if test="_parameter != null">
       <include refid="Update_By_Example_Where_Clause" />
     </if>
   </update>
-  <update id="updateByExample" parameterType="map" >
+  <update id="updateByExample" parameterType="map">
     update ccs_resource_pool
     set id = #{record.id,jdbcType=INTEGER},
       zk_address = #{record.zkAddress,jdbcType=VARCHAR},
       zk_type_code = #{record.zkTypeCode,jdbcType=INTEGER},
       zk_description = #{record.zkDescription,jdbcType=VARCHAR},
       super_auth_name = #{record.superAuthName,jdbcType=VARCHAR},
-      super_auth_password = #{record.superAuthPassword,jdbcType=VARCHAR}
-    <if test="_parameter != null" >
+      super_auth_password = #{record.superAuthPassword,jdbcType=VARCHAR},
+      org_id = #{record.orgId,jdbcType=INTEGER}
+    <if test="_parameter != null">
       <include refid="Update_By_Example_Where_Clause" />
     </if>
   </update>
-  <update id="updateByPrimaryKeySelective" parameterType="com.ai.paas.ipaas.ccs.dao.mapper.bo.CcsResourcePool" >
+  <update id="updateByPrimaryKeySelective" parameterType="com.ai.paas.ipaas.ccs.dao.mapper.bo.CcsResourcePool">
     update ccs_resource_pool
-    <set >
-      <if test="zkAddress != null" >
+    <set>
+      <if test="zkAddress != null">
         zk_address = #{zkAddress,jdbcType=VARCHAR},
       </if>
-      <if test="zkTypeCode != null" >
+      <if test="zkTypeCode != null">
         zk_type_code = #{zkTypeCode,jdbcType=INTEGER},
       </if>
-      <if test="zkDescription != null" >
+      <if test="zkDescription != null">
         zk_description = #{zkDescription,jdbcType=VARCHAR},
       </if>
-      <if test="superAuthName != null" >
+      <if test="superAuthName != null">
         super_auth_name = #{superAuthName,jdbcType=VARCHAR},
       </if>
-      <if test="superAuthPassword != null" >
+      <if test="superAuthPassword != null">
         super_auth_password = #{superAuthPassword,jdbcType=VARCHAR},
+      </if>
+      <if test="orgId != null">
+        org_id = #{orgId,jdbcType=INTEGER},
       </if>
     </set>
     where id = #{id,jdbcType=INTEGER}
   </update>
-  <update id="updateByPrimaryKey" parameterType="com.ai.paas.ipaas.ccs.dao.mapper.bo.CcsResourcePool" >
+  <update id="updateByPrimaryKey" parameterType="com.ai.paas.ipaas.ccs.dao.mapper.bo.CcsResourcePool">
     update ccs_resource_pool
     set zk_address = #{zkAddress,jdbcType=VARCHAR},
       zk_type_code = #{zkTypeCode,jdbcType=INTEGER},
       zk_description = #{zkDescription,jdbcType=VARCHAR},
       super_auth_name = #{superAuthName,jdbcType=VARCHAR},
-      super_auth_password = #{superAuthPassword,jdbcType=VARCHAR}
+      super_auth_password = #{superAuthPassword,jdbcType=VARCHAR},
+      org_id = #{orgId,jdbcType=INTEGER}
     where id = #{id,jdbcType=INTEGER}
   </update>
 </mapper>

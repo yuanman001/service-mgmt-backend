@@ -134,32 +134,32 @@ public class CcsResourcePoolCriteria {
             return (Criteria) this;
         }
 
-        public Criteria andIdEqualTo(int value) {
+        public Criteria andIdEqualTo(Integer value) {
             addCriterion("id =", value, "id");
             return (Criteria) this;
         }
 
-        public Criteria andIdNotEqualTo(int value) {
+        public Criteria andIdNotEqualTo(Integer value) {
             addCriterion("id <>", value, "id");
             return (Criteria) this;
         }
 
-        public Criteria andIdGreaterThan(int value) {
+        public Criteria andIdGreaterThan(Integer value) {
             addCriterion("id >", value, "id");
             return (Criteria) this;
         }
 
-        public Criteria andIdGreaterThanOrEqualTo(int value) {
+        public Criteria andIdGreaterThanOrEqualTo(Integer value) {
             addCriterion("id >=", value, "id");
             return (Criteria) this;
         }
 
-        public Criteria andIdLessThan(int value) {
+        public Criteria andIdLessThan(Integer value) {
             addCriterion("id <", value, "id");
             return (Criteria) this;
         }
 
-        public Criteria andIdLessThanOrEqualTo(int value) {
+        public Criteria andIdLessThanOrEqualTo(Integer value) {
             addCriterion("id <=", value, "id");
             return (Criteria) this;
         }
@@ -174,12 +174,12 @@ public class CcsResourcePoolCriteria {
             return (Criteria) this;
         }
 
-        public Criteria andIdBetween(int value1, int value2) {
+        public Criteria andIdBetween(Integer value1, Integer value2) {
             addCriterion("id between", value1, value2, "id");
             return (Criteria) this;
         }
 
-        public Criteria andIdNotBetween(int value1, int value2) {
+        public Criteria andIdNotBetween(Integer value1, Integer value2) {
             addCriterion("id not between", value1, value2, "id");
             return (Criteria) this;
         }
@@ -264,32 +264,32 @@ public class CcsResourcePoolCriteria {
             return (Criteria) this;
         }
 
-        public Criteria andZkTypeCodeEqualTo(int value) {
+        public Criteria andZkTypeCodeEqualTo(Integer value) {
             addCriterion("zk_type_code =", value, "zkTypeCode");
             return (Criteria) this;
         }
 
-        public Criteria andZkTypeCodeNotEqualTo(int value) {
+        public Criteria andZkTypeCodeNotEqualTo(Integer value) {
             addCriterion("zk_type_code <>", value, "zkTypeCode");
             return (Criteria) this;
         }
 
-        public Criteria andZkTypeCodeGreaterThan(int value) {
+        public Criteria andZkTypeCodeGreaterThan(Integer value) {
             addCriterion("zk_type_code >", value, "zkTypeCode");
             return (Criteria) this;
         }
 
-        public Criteria andZkTypeCodeGreaterThanOrEqualTo(int value) {
+        public Criteria andZkTypeCodeGreaterThanOrEqualTo(Integer value) {
             addCriterion("zk_type_code >=", value, "zkTypeCode");
             return (Criteria) this;
         }
 
-        public Criteria andZkTypeCodeLessThan(int value) {
+        public Criteria andZkTypeCodeLessThan(Integer value) {
             addCriterion("zk_type_code <", value, "zkTypeCode");
             return (Criteria) this;
         }
 
-        public Criteria andZkTypeCodeLessThanOrEqualTo(int value) {
+        public Criteria andZkTypeCodeLessThanOrEqualTo(Integer value) {
             addCriterion("zk_type_code <=", value, "zkTypeCode");
             return (Criteria) this;
         }
@@ -304,12 +304,12 @@ public class CcsResourcePoolCriteria {
             return (Criteria) this;
         }
 
-        public Criteria andZkTypeCodeBetween(int value1, int value2) {
+        public Criteria andZkTypeCodeBetween(Integer value1, Integer value2) {
             addCriterion("zk_type_code between", value1, value2, "zkTypeCode");
             return (Criteria) this;
         }
 
-        public Criteria andZkTypeCodeNotBetween(int value1, int value2) {
+        public Criteria andZkTypeCodeNotBetween(Integer value1, Integer value2) {
             addCriterion("zk_type_code not between", value1, value2, "zkTypeCode");
             return (Criteria) this;
         }
@@ -521,6 +521,66 @@ public class CcsResourcePoolCriteria {
 
         public Criteria andSuperAuthPasswordNotBetween(String value1, String value2) {
             addCriterion("super_auth_password not between", value1, value2, "superAuthPassword");
+            return (Criteria) this;
+        }
+
+        public Criteria andOrgIdIsNull() {
+            addCriterion("org_id is null");
+            return (Criteria) this;
+        }
+
+        public Criteria andOrgIdIsNotNull() {
+            addCriterion("org_id is not null");
+            return (Criteria) this;
+        }
+
+        public Criteria andOrgIdEqualTo(Integer value) {
+            addCriterion("org_id =", value, "orgId");
+            return (Criteria) this;
+        }
+
+        public Criteria andOrgIdNotEqualTo(Integer value) {
+            addCriterion("org_id <>", value, "orgId");
+            return (Criteria) this;
+        }
+
+        public Criteria andOrgIdGreaterThan(Integer value) {
+            addCriterion("org_id >", value, "orgId");
+            return (Criteria) this;
+        }
+
+        public Criteria andOrgIdGreaterThanOrEqualTo(Integer value) {
+            addCriterion("org_id >=", value, "orgId");
+            return (Criteria) this;
+        }
+
+        public Criteria andOrgIdLessThan(Integer value) {
+            addCriterion("org_id <", value, "orgId");
+            return (Criteria) this;
+        }
+
+        public Criteria andOrgIdLessThanOrEqualTo(Integer value) {
+            addCriterion("org_id <=", value, "orgId");
+            return (Criteria) this;
+        }
+
+        public Criteria andOrgIdIn(List<Integer> values) {
+            addCriterion("org_id in", values, "orgId");
+            return (Criteria) this;
+        }
+
+        public Criteria andOrgIdNotIn(List<Integer> values) {
+            addCriterion("org_id not in", values, "orgId");
+            return (Criteria) this;
+        }
+
+        public Criteria andOrgIdBetween(Integer value1, Integer value2) {
+            addCriterion("org_id between", value1, value2, "orgId");
+            return (Criteria) this;
+        }
+
+        public Criteria andOrgIdNotBetween(Integer value1, Integer value2) {
+            addCriterion("org_id not between", value1, value2, "orgId");
             return (Criteria) this;
         }
     }

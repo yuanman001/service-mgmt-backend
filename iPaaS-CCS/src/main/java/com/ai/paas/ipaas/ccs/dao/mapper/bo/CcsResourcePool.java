@@ -1,11 +1,11 @@
 package com.ai.paas.ipaas.ccs.dao.mapper.bo;
 
 public class CcsResourcePool {
-    private int id;
+    private Integer id;
 
     private String zkAddress;
 
-    private int zkTypeCode;
+    private Integer zkTypeCode;
 
     private String zkDescription;
 
@@ -13,11 +13,13 @@ public class CcsResourcePool {
 
     private String superAuthPassword;
 
-    public int getId() {
+    private Integer orgId;
+
+    public Integer getId() {
         return id;
     }
 
-    public void setId(int id) {
+    public void setId(Integer id) {
         this.id = id;
     }
 
@@ -29,11 +31,11 @@ public class CcsResourcePool {
         this.zkAddress = zkAddress == null ? null : zkAddress.trim();
     }
 
-    public int getZkTypeCode() {
+    public Integer getZkTypeCode() {
         return zkTypeCode;
     }
 
-    public void setZkTypeCode(int zkTypeCode) {
+    public void setZkTypeCode(Integer zkTypeCode) {
         this.zkTypeCode = zkTypeCode;
     }
 
@@ -59,5 +61,13 @@ public class CcsResourcePool {
 
     public void setSuperAuthPassword(String superAuthPassword) {
         this.superAuthPassword = superAuthPassword == null ? null : superAuthPassword.trim();
+    }
+
+    public Integer getOrgId() {
+        return orgId;
+    }
+
+    public void setOrgId(Integer orgId) {
+        this.orgId = orgId;
     }
 }

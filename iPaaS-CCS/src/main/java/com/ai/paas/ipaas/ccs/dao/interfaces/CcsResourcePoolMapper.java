@@ -10,7 +10,7 @@ public interface CcsResourcePoolMapper {
 
     int deleteByExample(CcsResourcePoolCriteria example);
 
-    int deleteByPrimaryKey(int id);
+    int deleteByPrimaryKey(Integer id);
 
     int insert(CcsResourcePool record);
 
@@ -18,7 +18,7 @@ public interface CcsResourcePoolMapper {
 
     List<CcsResourcePool> selectByExample(CcsResourcePoolCriteria example);
 
-    CcsResourcePool selectByPrimaryKey(int id);
+    CcsResourcePool selectByPrimaryKey(Integer id);
 
     int updateByExampleSelective(@Param("record") CcsResourcePool record, @Param("example") CcsResourcePoolCriteria example);
 
