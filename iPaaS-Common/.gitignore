@@ -1,0 +1,7 @@
+/build/
+/bin/
+/.settings/
+/dubbo-registry.dat.lock
+/dubbo-registry.dat
+/.project
+/.classpath

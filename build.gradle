@@ -210,6 +210,24 @@ project("iPaaS-IDPS") {
 		}
 	}
 }
+
+project("iPaaS-Common") {
+	project.ext {
+		appName = "ipaas-common"
+	}
+
+	jar {
+		baseName appName
+		version moduleVersion
+		exclude "*.properties"
+		exclude "*.xml"
+		exclude "mybatis"
+		manifest {
+			attributes 'packageName': appName, 'Built-By': builtBy, 'create-date': new Date().format('yyyy-MM-dd HH:mm:ss')
+		}
+	}
+}
+
 project("iPaaS-DubboInterfaces") {
     project.ext {
         appName = "ipaas-service-dubbo-interfaces"
