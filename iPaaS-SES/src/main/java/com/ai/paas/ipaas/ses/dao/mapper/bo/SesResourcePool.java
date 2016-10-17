@@ -17,6 +17,8 @@ public class SesResourcePool {
 
     private String dataPath;
 
+    private Integer orgId;
+
     public Integer getId() {
         return id;
     }
@@ -79,5 +81,13 @@ public class SesResourcePool {
 
     public void setDataPath(String dataPath) {
         this.dataPath = dataPath == null ? null : dataPath.trim();
+    }
+
+    public Integer getOrgId() {
+        return orgId;
+    }
+
+    public void setOrgId(Integer orgId) {
+        this.orgId = orgId;
     }
 }

@@ -9,6 +9,8 @@ public class SesWebPool {
 
     private String tenantId;
 
+    private Integer orgId;
+
     public Integer getId() {
         return id;
     }
@@ -39,5 +41,13 @@ public class SesWebPool {
 
     public void setTenantId(String tenantId) {
         this.tenantId = tenantId == null ? null : tenantId.trim();
+    }
+
+    public Integer getOrgId() {
+        return orgId;
+    }
+
+    public void setOrgId(Integer orgId) {
+        this.orgId = orgId;
     }
 }

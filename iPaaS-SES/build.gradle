@@ -2,5 +2,6 @@ dependencies {
     compile project(":iPaaS-DubboInterfaces")
     compile project(":iPaaS-Agent")
 	compile project(":iPaaS-CCS")
+	compile project(":iPaaS-Common")
 	compile 'org.elasticsearch:elasticsearch:2.3.3'
 }

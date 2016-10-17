@@ -1,31 +1,32 @@
-<?xml version="1.0" encoding="UTF-8" ?>
-<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
-<mapper namespace="com.ai.paas.ipaas.ses.dao.interfaces.SesWebPoolMapper" >
-  <resultMap id="BaseResultMap" type="com.ai.paas.ipaas.ses.dao.mapper.bo.SesWebPool" >
-    <id column="id" property="id" jdbcType="INTEGER" />
-    <result column="web_url" property="webUrl" jdbcType="VARCHAR" />
-    <result column="status" property="status" jdbcType="INTEGER" />
-    <result column="tenant_id" property="tenantId" jdbcType="VARCHAR" />
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ai.paas.ipaas.ses.dao.interfaces.SesWebPoolMapper">
+  <resultMap id="BaseResultMap" type="com.ai.paas.ipaas.ses.dao.mapper.bo.SesWebPool">
+    <id column="id" jdbcType="INTEGER" property="id" />
+    <result column="web_url" jdbcType="VARCHAR" property="webUrl" />
+    <result column="status" jdbcType="INTEGER" property="status" />
+    <result column="tenant_id" jdbcType="VARCHAR" property="tenantId" />
+    <result column="org_id" jdbcType="INTEGER" property="orgId" />
   </resultMap>
-  <sql id="Example_Where_Clause" >
-    <where >
-      <foreach collection="oredCriteria" item="criteria" separator="or" >
-        <if test="criteria.valid" >
-          <trim prefix="(" suffix=")" prefixOverrides="and" >
-            <foreach collection="criteria.criteria" item="criterion" >
-              <choose >
-                <when test="criterion.noValue" >
+  <sql id="Example_Where_Clause">
+    <where>
+      <foreach collection="oredCriteria" item="criteria" separator="or">
+        <if test="criteria.valid">
+          <trim prefix="(" prefixOverrides="and" suffix=")">
+            <foreach collection="criteria.criteria" item="criterion">
+              <choose>
+                <when test="criterion.noValue">
                   and ${criterion.condition}
                 </when>
-                <when test="criterion.singleValue" >
+                <when test="criterion.singleValue">
                   and ${criterion.condition} #{criterion.value}
                 </when>
-                <when test="criterion.betweenValue" >
+                <when test="criterion.betweenValue">
                   and ${criterion.condition} #{criterion.value} and #{criterion.secondValue}
                 </when>
-                <when test="criterion.listValue" >
+                <when test="criterion.listValue">
                   and ${criterion.condition}
-                  <foreach collection="criterion.value" item="listItem" open="(" close=")" separator="," >
+                  <foreach close=")" collection="criterion.value" item="listItem" open="(" separator=",">
                     #{listItem}
                   </foreach>
                 </when>
@@ -36,25 +37,25 @@
       </foreach>
     </where>
   </sql>
-  <sql id="Update_By_Example_Where_Clause" >
-    <where >
-      <foreach collection="example.oredCriteria" item="criteria" separator="or" >
-        <if test="criteria.valid" >
-          <trim prefix="(" suffix=")" prefixOverrides="and" >
-            <foreach collection="criteria.criteria" item="criterion" >
-              <choose >
-                <when test="criterion.noValue" >
+  <sql id="Update_By_Example_Where_Clause">
+    <where>
+      <foreach collection="example.oredCriteria" item="criteria" separator="or">
+        <if test="criteria.valid">
+          <trim prefix="(" prefixOverrides="and" suffix=")">
+            <foreach collection="criteria.criteria" item="criterion">
+              <choose>
+                <when test="criterion.noValue">
                   and ${criterion.condition}
                 </when>
-                <when test="criterion.singleValue" >
+                <when test="criterion.singleValue">
                   and ${criterion.condition} #{criterion.value}
                 </when>
-                <when test="criterion.betweenValue" >
+                <when test="criterion.betweenValue">
                   and ${criterion.condition} #{criterion.value} and #{criterion.secondValue}
                 </when>
-                <when test="criterion.listValue" >
+                <when test="criterion.listValue">
                   and ${criterion.condition}
-                  <foreach collection="criterion.value" item="listItem" open="(" close=")" separator="," >
+                  <foreach close=")" collection="criterion.value" item="listItem" open="(" separator=",">
                     #{listItem}
                   </foreach>
                 </when>
@@ -65,135 +66,149 @@
       </foreach>
     </where>
   </sql>
-  <sql id="Base_Column_List" >
-    id, web_url, status, tenant_id
+  <sql id="Base_Column_List">
+    id, web_url, status, tenant_id, org_id
   </sql>
-  <select id="selectByExample" resultMap="BaseResultMap" parameterType="com.ai.paas.ipaas.ses.dao.mapper.bo.SesWebPoolCriteria" >
+  <select id="selectByExample" parameterType="com.ai.paas.ipaas.ses.dao.mapper.bo.SesWebPoolCriteria" resultMap="BaseResultMap">
     select
-    <if test="distinct" >
+    <if test="distinct">
       distinct
     </if>
     <include refid="Base_Column_List" />
     from ses_web_pool
-    <if test="_parameter != null" >
+    <if test="_parameter != null">
       <include refid="Example_Where_Clause" />
     </if>
-    <if test="orderByClause != null" >
+    <if test="orderByClause != null">
       order by ${orderByClause}
     </if>
-    <if test="limitStart != null and limitStart>=0" >
+    <if test="limitStart != null and limitStart&gt;=0">
       limit #{limitStart} , #{limitEnd}
     </if>
   </select>
-  <select id="selectByPrimaryKey" resultMap="BaseResultMap" parameterType="Integer" >
+  <select id="selectByPrimaryKey" parameterType="Integer" resultMap="BaseResultMap">
     select 
     <include refid="Base_Column_List" />
     from ses_web_pool
     where id = #{id,jdbcType=INTEGER}
   </select>
-  <delete id="deleteByPrimaryKey" parameterType="Integer" >
+  <delete id="deleteByPrimaryKey" parameterType="Integer">
     delete from ses_web_pool
     where id = #{id,jdbcType=INTEGER}
   </delete>
-  <delete id="deleteByExample" parameterType="com.ai.paas.ipaas.ses.dao.mapper.bo.SesWebPoolCriteria" >
+  <delete id="deleteByExample" parameterType="com.ai.paas.ipaas.ses.dao.mapper.bo.SesWebPoolCriteria">
     delete from ses_web_pool
-    <if test="_parameter != null" >
+    <if test="_parameter != null">
       <include refid="Example_Where_Clause" />
     </if>
   </delete>
-  <insert id="insert" parameterType="com.ai.paas.ipaas.ses.dao.mapper.bo.SesWebPool" >
+  <insert id="insert" parameterType="com.ai.paas.ipaas.ses.dao.mapper.bo.SesWebPool">
     insert into ses_web_pool (id, web_url, status, 
-      tenant_id)
+      tenant_id, org_id)
     values (#{id,jdbcType=INTEGER}, #{webUrl,jdbcType=VARCHAR}, #{status,jdbcType=INTEGER}, 
-      #{tenantId,jdbcType=VARCHAR})
+      #{tenantId,jdbcType=VARCHAR}, #{orgId,jdbcType=INTEGER})
   </insert>
-  <insert id="insertSelective" parameterType="com.ai.paas.ipaas.ses.dao.mapper.bo.SesWebPool" >
+  <insert id="insertSelective" parameterType="com.ai.paas.ipaas.ses.dao.mapper.bo.SesWebPool">
     insert into ses_web_pool
-    <trim prefix="(" suffix=")" suffixOverrides="," >
-      <if test="id != null" >
+    <trim prefix="(" suffix=")" suffixOverrides=",">
+      <if test="id != null">
         id,
       </if>
-      <if test="webUrl != null" >
+      <if test="webUrl != null">
         web_url,
       </if>
-      <if test="status != null" >
+      <if test="status != null">
         status,
       </if>
-      <if test="tenantId != null" >
+      <if test="tenantId != null">
         tenant_id,
       </if>
+      <if test="orgId != null">
+        org_id,
+      </if>
     </trim>
-    <trim prefix="values (" suffix=")" suffixOverrides="," >
-      <if test="id != null" >
+    <trim prefix="values (" suffix=")" suffixOverrides=",">
+      <if test="id != null">
         #{id,jdbcType=INTEGER},
       </if>
-      <if test="webUrl != null" >
+      <if test="webUrl != null">
         #{webUrl,jdbcType=VARCHAR},
       </if>
-      <if test="status != null" >
+      <if test="status != null">
         #{status,jdbcType=INTEGER},
       </if>
-      <if test="tenantId != null" >
+      <if test="tenantId != null">
         #{tenantId,jdbcType=VARCHAR},
+      </if>
+      <if test="orgId != null">
+        #{orgId,jdbcType=INTEGER},
       </if>
     </trim>
   </insert>
-  <select id="countByExample" parameterType="com.ai.paas.ipaas.ses.dao.mapper.bo.SesWebPoolCriteria" resultType="java.lang.Integer" >
+  <select id="countByExample" parameterType="com.ai.paas.ipaas.ses.dao.mapper.bo.SesWebPoolCriteria" resultType="java.lang.Integer">
     select count(*) from ses_web_pool
-    <if test="_parameter != null" >
+    <if test="_parameter != null">
       <include refid="Example_Where_Clause" />
     </if>
   </select>
-  <update id="updateByExampleSelective" parameterType="map" >
+  <update id="updateByExampleSelective" parameterType="map">
     update ses_web_pool
-    <set >
-      <if test="record.id != null" >
+    <set>
+      <if test="record.id != null">
         id = #{record.id,jdbcType=INTEGER},
       </if>
-      <if test="record.webUrl != null" >
+      <if test="record.webUrl != null">
         web_url = #{record.webUrl,jdbcType=VARCHAR},
       </if>
-      <if test="record.status != null" >
+      <if test="record.status != null">
         status = #{record.status,jdbcType=INTEGER},
       </if>
-      <if test="record.tenantId != null" >
+      <if test="record.tenantId != null">
         tenant_id = #{record.tenantId,jdbcType=VARCHAR},
       </if>
+      <if test="record.orgId != null">
+        org_id = #{record.orgId,jdbcType=INTEGER},
+      </if>
     </set>
-    <if test="_parameter != null" >
+    <if test="_parameter != null">
       <include refid="Update_By_Example_Where_Clause" />
     </if>
   </update>
-  <update id="updateByExample" parameterType="map" >
+  <update id="updateByExample" parameterType="map">
     update ses_web_pool
     set id = #{record.id,jdbcType=INTEGER},
       web_url = #{record.webUrl,jdbcType=VARCHAR},
       status = #{record.status,jdbcType=INTEGER},
-      tenant_id = #{record.tenantId,jdbcType=VARCHAR}
-    <if test="_parameter != null" >
+      tenant_id = #{record.tenantId,jdbcType=VARCHAR},
+      org_id = #{record.orgId,jdbcType=INTEGER}
+    <if test="_parameter != null">
       <include refid="Update_By_Example_Where_Clause" />
     </if>
   </update>
-  <update id="updateByPrimaryKeySelective" parameterType="com.ai.paas.ipaas.ses.dao.mapper.bo.SesWebPool" >
+  <update id="updateByPrimaryKeySelective" parameterType="com.ai.paas.ipaas.ses.dao.mapper.bo.SesWebPool">
     update ses_web_pool
-    <set >
-      <if test="webUrl != null" >
+    <set>
+      <if test="webUrl != null">
         web_url = #{webUrl,jdbcType=VARCHAR},
       </if>
-      <if test="status != null" >
+      <if test="status != null">
         status = #{status,jdbcType=INTEGER},
       </if>
-      <if test="tenantId != null" >
+      <if test="tenantId != null">
         tenant_id = #{tenantId,jdbcType=VARCHAR},
+      </if>
+      <if test="orgId != null">
+        org_id = #{orgId,jdbcType=INTEGER},
       </if>
     </set>
     where id = #{id,jdbcType=INTEGER}
   </update>
-  <update id="updateByPrimaryKey" parameterType="com.ai.paas.ipaas.ses.dao.mapper.bo.SesWebPool" >
+  <update id="updateByPrimaryKey" parameterType="com.ai.paas.ipaas.ses.dao.mapper.bo.SesWebPool">
     update ses_web_pool
     set web_url = #{webUrl,jdbcType=VARCHAR},
       status = #{status,jdbcType=INTEGER},
-      tenant_id = #{tenantId,jdbcType=VARCHAR}
+      tenant_id = #{tenantId,jdbcType=VARCHAR},
+      org_id = #{orgId,jdbcType=INTEGER}
     where id = #{id,jdbcType=INTEGER}
   </update>
 </mapper>
