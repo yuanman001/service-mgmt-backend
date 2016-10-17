@@ -1,5 +1,6 @@
 package com.ai.paas.ipaas.mds.manage.service;
 
+import com.ai.paas.ipaas.PaasException;
 import com.ai.paas.ipaas.mds.dao.mapper.bo.MdsUserService;
 import com.ai.paas.ipaas.mds.dao.mapper.bo.MdsUserTopic;
 import com.ai.paas.ipaas.mds.manage.vo.MsgSrvApply;
@@ -46,7 +47,7 @@ public interface IMsgSrvManagerHelper {
 	 * @return
 	 */
 	public MdsUserTopic prepareUserTopicData(MsgSrvApply msgSrvApply,
-			MdsUserService userService);
+			MdsUserService userService) throws PaasException;
 
 	
 }

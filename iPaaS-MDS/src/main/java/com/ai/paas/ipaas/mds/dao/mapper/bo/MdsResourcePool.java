@@ -17,6 +17,8 @@ public class MdsResourcePool {
 
     private String zkAuthPasswd;
 
+    private Integer orgId;
+
     public Integer getClusterId() {
         return clusterId;
     }
@@ -79,5 +81,13 @@ public class MdsResourcePool {
 
     public void setZkAuthPasswd(String zkAuthPasswd) {
         this.zkAuthPasswd = zkAuthPasswd == null ? null : zkAuthPasswd.trim();
+    }
+
+    public Integer getOrgId() {
+        return orgId;
+    }
+
+    public void setOrgId(Integer orgId) {
+        this.orgId = orgId;
     }
 }

@@ -6,9 +6,12 @@ import java.util.List;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
+import com.ai.paas.common.service.IOrgnizeUserHelper;
 import com.ai.paas.ipaas.PaaSConstant;
+import com.ai.paas.ipaas.PaasException;
 import com.ai.paas.ipaas.PaasRuntimeException;
 import com.ai.paas.ipaas.ServiceUtil;
 import com.ai.paas.ipaas.mds.MDSConstant;
@@ -33,6 +36,9 @@ public class MsgSrvManagerHelper implements IMsgSrvManagerHelper {
 	private static transient final Logger logger = LoggerFactory
 			.getLogger(MsgSrvManagerHelper.class);
 
+	@Autowired
+	protected IOrgnizeUserHelper orgnizeUserHelper;
+	
 	@Override
 	public MdsUserService prepareUserServiceData(MsgSrvApply msgSrvApply) {
 		MdsUserService userService = new MdsUserService();
@@ -51,7 +57,7 @@ public class MsgSrvManagerHelper implements IMsgSrvManagerHelper {
 
 	@Override
 	public MdsUserTopic prepareUserTopicData(MsgSrvApply msgSrvApply,
-			MdsUserService userService) {
+			MdsUserService userService) throws PaasException{
 		MdsUserTopic userTopic = new MdsUserTopic();
 		// 分几步
 		MdsResourcePool kafkaCluster = null;
@@ -71,11 +77,13 @@ public class MsgSrvManagerHelper implements IMsgSrvManagerHelper {
 			// 此时含了没有查到，或者根本没有情况
 			// 如果没有使用过cluster，则找一个用户最少的cluster出来,如果有多个cluster，则选择第一个
 			// 准备发送和消费的配置信息
+			/** added orgId column in 2016-10 **/
+			int orgId = orgnizeUserHelper.getOrgnizeInfo(msgSrvApply.getUserId()).getOrgId();
 			List<MdsKafkaLoad> clusterLoads = ServiceUtil.getMapper(
 					IMdsUserTopicCustomMapper.class).getClusterLoad();
 			MdsResourcePoolCriteria clusterExample = new MdsResourcePoolCriteria();
 			clusterExample.createCriteria().andClusterStateEqualTo(
-					MDSConstant.KAFKA_CLUSTER_STATE_ENABLE);
+					MDSConstant.KAFKA_CLUSTER_STATE_ENABLE).andOrgIdEqualTo(orgId);
 			List<MdsResourcePool> clusters = ServiceUtil.getMapper(
 					MdsResourcePoolMapper.class)
 					.selectByExample(clusterExample);
