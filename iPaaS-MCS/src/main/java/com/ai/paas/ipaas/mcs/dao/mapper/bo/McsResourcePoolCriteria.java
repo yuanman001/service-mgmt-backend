@@ -883,6 +883,136 @@ public class McsResourcePoolCriteria {
             addCriterion("cache_path not between", value1, value2, "cachePath");
             return (Criteria) this;
         }
+
+        public Criteria andHostUserNameIsNull() {
+            addCriterion("host_user_name is null");
+            return (Criteria) this;
+        }
+
+        public Criteria andHostUserNameIsNotNull() {
+            addCriterion("host_user_name is not null");
+            return (Criteria) this;
+        }
+
+        public Criteria andHostUserNameEqualTo(String value) {
+            addCriterion("host_user_name =", value, "hostUserName");
+            return (Criteria) this;
+        }
+
+        public Criteria andHostUserNameNotEqualTo(String value) {
+            addCriterion("host_user_name <>", value, "hostUserName");
+            return (Criteria) this;
+        }
+
+        public Criteria andHostUserNameGreaterThan(String value) {
+            addCriterion("host_user_name >", value, "hostUserName");
+            return (Criteria) this;
+        }
+
+        public Criteria andHostUserNameGreaterThanOrEqualTo(String value) {
+            addCriterion("host_user_name >=", value, "hostUserName");
+            return (Criteria) this;
+        }
+
+        public Criteria andHostUserNameLessThan(String value) {
+            addCriterion("host_user_name <", value, "hostUserName");
+            return (Criteria) this;
+        }
+
+        public Criteria andHostUserNameLessThanOrEqualTo(String value) {
+            addCriterion("host_user_name <=", value, "hostUserName");
+            return (Criteria) this;
+        }
+
+        public Criteria andHostUserNameLike(String value) {
+            addCriterion("host_user_name like", value, "hostUserName");
+            return (Criteria) this;
+        }
+
+        public Criteria andHostUserNameNotLike(String value) {
+            addCriterion("host_user_name not like", value, "hostUserName");
+            return (Criteria) this;
+        }
+
+        public Criteria andHostUserNameIn(List<String> values) {
+            addCriterion("host_user_name in", values, "hostUserName");
+            return (Criteria) this;
+        }
+
+        public Criteria andHostUserNameNotIn(List<String> values) {
+            addCriterion("host_user_name not in", values, "hostUserName");
+            return (Criteria) this;
+        }
+
+        public Criteria andHostUserNameBetween(String value1, String value2) {
+            addCriterion("host_user_name between", value1, value2, "hostUserName");
+            return (Criteria) this;
+        }
+
+        public Criteria andHostUserNameNotBetween(String value1, String value2) {
+            addCriterion("host_user_name not between", value1, value2, "hostUserName");
+            return (Criteria) this;
+        }
+
+        public Criteria andOrgIdIsNull() {
+            addCriterion("org_id is null");
+            return (Criteria) this;
+        }
+
+        public Criteria andOrgIdIsNotNull() {
+            addCriterion("org_id is not null");
+            return (Criteria) this;
+        }
+
+        public Criteria andOrgIdEqualTo(Integer value) {
+            addCriterion("org_id =", value, "orgId");
+            return (Criteria) this;
+        }
+
+        public Criteria andOrgIdNotEqualTo(Integer value) {
+            addCriterion("org_id <>", value, "orgId");
+            return (Criteria) this;
+        }
+
+        public Criteria andOrgIdGreaterThan(Integer value) {
+            addCriterion("org_id >", value, "orgId");
+            return (Criteria) this;
+        }
+
+        public Criteria andOrgIdGreaterThanOrEqualTo(Integer value) {
+            addCriterion("org_id >=", value, "orgId");
+            return (Criteria) this;
+        }
+
+        public Criteria andOrgIdLessThan(Integer value) {
+            addCriterion("org_id <", value, "orgId");
+            return (Criteria) this;
+        }
+
+        public Criteria andOrgIdLessThanOrEqualTo(Integer value) {
+            addCriterion("org_id <=", value, "orgId");
+            return (Criteria) this;
+        }
+
+        public Criteria andOrgIdIn(List<Integer> values) {
+            addCriterion("org_id in", values, "orgId");
+            return (Criteria) this;
+        }
+
+        public Criteria andOrgIdNotIn(List<Integer> values) {
+            addCriterion("org_id not in", values, "orgId");
+            return (Criteria) this;
+        }
+
+        public Criteria andOrgIdBetween(Integer value1, Integer value2) {
+            addCriterion("org_id between", value1, value2, "orgId");
+            return (Criteria) this;
+        }
+
+        public Criteria andOrgIdNotBetween(Integer value1, Integer value2) {
+            addCriterion("org_id not between", value1, value2, "orgId");
+            return (Criteria) this;
+        }
     }
 
     public static class Criteria extends GeneratedCriteria {

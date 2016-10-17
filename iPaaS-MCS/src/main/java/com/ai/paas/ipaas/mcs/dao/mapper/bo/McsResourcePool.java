@@ -25,6 +25,10 @@ public class McsResourcePool {
 
     private String cachePath;
 
+    private String hostUserName;
+
+    private Integer orgId;
+
     public Integer getId() {
         return id;
     }
@@ -119,5 +123,21 @@ public class McsResourcePool {
 
     public void setCachePath(String cachePath) {
         this.cachePath = cachePath == null ? null : cachePath.trim();
+    }
+
+    public String getHostUserName() {
+        return hostUserName;
+    }
+
+    public void setHostUserName(String hostUserName) {
+        this.hostUserName = hostUserName == null ? null : hostUserName.trim();
+    }
+
+    public Integer getOrgId() {
+        return orgId;
+    }
+
+    public void setOrgId(Integer orgId) {
+        this.orgId = orgId;
     }
 }
