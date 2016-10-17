@@ -21,10 +21,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import redis.clients.jedis.HostAndPort;
-import redis.clients.jedis.JedisCluster;
-
 import com.ai.dubbo.ext.vo.BaseInfo;
+import com.ai.paas.common.service.IOrgnizeUserHelper;
 import com.ai.paas.ipaas.PaasException;
 import com.ai.paas.ipaas.ServiceUtil;
 import com.ai.paas.ipaas.ccs.constants.ConfigCenterDubboConstants.PathType;
@@ -68,15 +66,20 @@ import com.mongodb.gridfs.GridFS;
 import com.mongodb.gridfs.GridFSDBFile;
 import com.mongodb.gridfs.GridFSInputFile;
 
+import redis.clients.jedis.HostAndPort;
+import redis.clients.jedis.JedisCluster;
+
 @Service
 @Transactional(rollbackFor = Exception.class)
 public class DSSSvImplHelper {
+	private static final Logger log = LogManager
+			.getLogger(DSSSvImplHelper.class.getName());
 
 	@Autowired
 	protected ICCSComponentManageSv iCCSComponentManageSv;
 
-	private static final Logger log = LogManager
-			.getLogger(DSSSvImplHelper.class.getName());
+	@Autowired
+	protected IOrgnizeUserHelper orgnizeUserHelper;
 
 	protected static final String DSS_COMMON_ZK_CONF = "/DSS/COMMON";
 	protected static final String DSS_BASE_ZK_CONF = "/DSS/";
@@ -100,7 +103,6 @@ public class DSSSvImplHelper {
 	/**
 	 * 
 	 * <创建COMMON and COLLECTION ZK中不存在COMMON信息>
-	 * 
 	 * @param applyObj
 	 * @return
 	 * @throws Exception
@@ -108,12 +110,10 @@ public class DSSSvImplHelper {
 	 */
 	protected Object[] createDBUserCollection(ApplyDSSParam applyObj)
 			throws Exception {
-		List<DssResourcePool> dssResPoolList = getBestDssResource();
-		// int dssNum = dssResPoolList.size();
-		// int perCapacity = Integer.parseInt(applyObj.getCapacity()) / dssNum
-		// + Integer.parseInt(applyObj.getCapacity()) % dssNum;
-		int leftSize = dssResPoolList.get(0).getLeftSize()
-				- Integer.parseInt(applyObj.getCapacity());
+		/** added orgId column in 2016-10 **/
+		int orgId = orgnizeUserHelper.getOrgnizeInfo(applyObj.getUserId()).getOrgId();
+		List<DssResourcePool> dssResPoolList = getBestDssResource(orgId);
+		int leftSize = dssResPoolList.get(0).getLeftSize() - Integer.parseInt(applyObj.getCapacity());
 		int groupId = dssResPoolList.get(0).getGroupId();
 		if (leftSize < 0) {
 			log.error(LEFT_SIZE_NOT_ENOUGH);
@@ -122,25 +122,20 @@ public class DSSSvImplHelper {
 		String hostStr = getHostStr(dssResPoolList);
 		String pwd = getPwd() + "";
 		// 初始化MongoDB 并创建COLLECTION
-		if (initMongoDB(hostStr, applyObj.getUserId(), applyObj.getServiceId(),
-				pwd)) {
+		if (initMongoDB(hostStr, applyObj.getUserId(), applyObj.getServiceId(), pwd)) {
 			DSSCommonConf dssCommConf = new DSSCommonConf();
 			dssCommConf.setHosts(hostStr);
 			dssCommConf.setPassword(CiperUtil.encrypt(PWD_KEY, pwd));
-			DssMcsInfo dssMcsInfo = getMcsResource();
-			if (!dssUserInstanceExist(applyObj.getUserId(),
-					applyObj.getServiceId())) {
+			DssMcsInfo dssMcsInfo = getMcsResource(orgId);
+			if (!dssUserInstanceExist(applyObj.getUserId(), applyObj.getServiceId())) {
 				DssUserInstance dssInstance = new DssUserInstance();
 				dssInstance.setCollectionName(applyObj.getServiceId());
 				dssInstance.setDbName(applyObj.getUserId());
-				dssInstance.setFileLimitSize(Double.parseDouble(applyObj
-						.getSingleFileSize()));
+				dssInstance.setFileLimitSize(Double.parseDouble(applyObj.getSingleFileSize()));
 				dssInstance.setGroupId(groupId);
-				dssInstance.setOssSize(Double.parseDouble(applyObj
-						.getCapacity()));
+				dssInstance.setOssSize(Double.parseDouble(applyObj.getCapacity()));
 				dssInstance.setRedisId(dssMcsInfo.getId());
-				dssInstance.setStartDate(new Timestamp(System
-						.currentTimeMillis()));
+				dssInstance.setStartDate(new Timestamp(System.currentTimeMillis()));
 				dssInstance.setUserId(applyObj.getUserId());
 				dssInstance.setServiceName(applyObj.getServiceName());
 				// 存入数据库
@@ -163,7 +158,6 @@ public class DSSSvImplHelper {
 
 	/**
 	 * 创建COLLECTION ZK中存在COMMON信息
-	 * 
 	 * @param applyObj
 	 * @return
 	 * @throws PaasException
@@ -189,8 +183,7 @@ public class DSSSvImplHelper {
 			DssUserInstance dssInstance = new DssUserInstance();
 			dssInstance.setCollectionName(applyObj.getServiceId());
 			dssInstance.setDbName(applyObj.getUserId());
-			dssInstance.setFileLimitSize(Double.parseDouble(applyObj
-					.getSingleFileSize()));
+			dssInstance.setFileLimitSize(Double.parseDouble(applyObj.getSingleFileSize()));
 			dssInstance.setGroupId(groupId);
 			dssInstance.setOssSize(Double.parseDouble(applyObj.getCapacity()));
 			dssInstance.setRedisId(getMcsId(commConf.getRedisHosts()));
@@ -224,8 +217,7 @@ public class DSSSvImplHelper {
 			DSSCommonConf commConf = null;
 			// 获取配置信息
 			if (getConfObj(cancelObj.getUserId(), DSS_COMMON_ZK_CONF) instanceof DSSCommonConf) {
-				commConf = (DSSCommonConf) getConfObj(cancelObj.getUserId(),
-						DSS_COMMON_ZK_CONF);
+				commConf = (DSSCommonConf) getConfObj(cancelObj.getUserId(), DSS_COMMON_ZK_CONF);
 			}
 			DSSConf dssConf = null;
 			if (getConfObj(cancelObj.getUserId(),
@@ -244,6 +236,7 @@ public class DSSSvImplHelper {
 			} else {
 				log.info("commConf为NULL");
 			}
+			
 			// 判断该用户存在存储个数
 			if (getInstanceNum(cancelObj.getUserId()) == 1) {
 				deleteDBandUser(commConf, cancelObj.getUserId());
@@ -257,12 +250,14 @@ public class DSSSvImplHelper {
 				log.error("数据异常");
 				throw new Exception("数据异常");
 			}
+			
 			// 更新数据库end date
 			if (dssUserInstanceExist(cancelObj.getUserId(),
 					cancelObj.getServiceId())) {
 				addEndDateInstance(cancelObj.getUserId(),
 						cancelObj.getServiceId());
 			}
+			
 			// 归还容量
 			int groupId = getGroupid(commConf.getHosts().split(";")[0]
 					.split(":")[0]);
@@ -678,31 +673,27 @@ public class DSSSvImplHelper {
 
 	/**
 	 * 获得最空闲的资源
-	 * 
 	 * @return List<DssResourcePool>
 	 */
-	private List<DssResourcePool> getBestDssResource() {
-		DssResourcePoolMapper dpm = ServiceUtil
-				.getMapper(DssResourcePoolMapper.class);
+	private List<DssResourcePool> getBestDssResource(int orgId) {
+		DssResourcePoolMapper dpm = ServiceUtil.getMapper(DssResourcePoolMapper.class);
 		DssResourcePoolCriteria dpmc = new DssResourcePoolCriteria();
 		DssResourcePoolCriteria dpmcs = new DssResourcePoolCriteria();
-		dpmcs.createCriteria().andStatusEqualTo(1);
+		dpmcs.createCriteria().andStatusEqualTo(1).andOrgIdEqualTo(orgId);
 		dpmcs.setOrderByClause("ifnull(left_size,0) desc");
 		dpmcs.setLimitStart(0);
 		dpmcs.setLimitEnd(1);
 		int gid = dpm.selectByExample(dpmcs).get(0).getGroupId();
-		dpmc.createCriteria().andGroupIdEqualTo(gid);
+		dpmc.createCriteria().andGroupIdEqualTo(gid).andOrgIdEqualTo(orgId);
 		return dpm.selectByExample(dpmc);
 	}
 
 	/**
 	 * 获得资源
-	 * 
 	 * @return List<DssResourcePool>
 	 */
 	private List<DssResourcePool> getDssResource(int groupId) {
-		DssResourcePoolMapper dpm = ServiceUtil
-				.getMapper(DssResourcePoolMapper.class);
+		DssResourcePoolMapper dpm = ServiceUtil.getMapper(DssResourcePoolMapper.class);
 		DssResourcePoolCriteria dpmc = new DssResourcePoolCriteria();
 		dpmc.createCriteria().andGroupIdEqualTo(groupId).andStatusEqualTo(1);
 		return dpm.selectByExample(dpmc);
@@ -710,12 +701,10 @@ public class DSSSvImplHelper {
 
 	/**
 	 * 根据ip查询group_id
-	 * 
 	 * @return
 	 */
 	private int getGroupid(String ip) {
-		DssResourcePoolMapper dpm = ServiceUtil
-				.getMapper(DssResourcePoolMapper.class);
+		DssResourcePoolMapper dpm = ServiceUtil.getMapper(DssResourcePoolMapper.class);
 		DssResourcePoolCriteria dpmc = new DssResourcePoolCriteria();
 		dpmc.createCriteria().andIpEqualTo(ip);
 		List<DssResourcePool> drpList = dpm.selectByExample(dpmc);
@@ -724,13 +713,12 @@ public class DSSSvImplHelper {
 
 	/**
 	 * 获得最空闲的资源
-	 * 
 	 * @return DssMcsInfo
 	 */
-	private DssMcsInfo getMcsResource() {
+	private DssMcsInfo getMcsResource(int orgId) {
 		DssMcsInfoMapper dmm = ServiceUtil.getMapper(DssMcsInfoMapper.class);
 		DssMcsInfoCriteria dmmc = new DssMcsInfoCriteria();
-		dmmc.createCriteria().andStatusEqualTo(1);
+		dmmc.createCriteria().andStatusEqualTo(1).andOrgIdEqualTo(orgId);
 		dmmc.setOrderByClause("rand()");
 		dmmc.setLimitStart(0);
 		dmmc.setLimitEnd(1);
@@ -739,7 +727,6 @@ public class DSSSvImplHelper {
 
 	/**
 	 * 根据address查询mcs_id
-	 * 
 	 * @return
 	 */
 	private int getMcsId(String address) {
@@ -751,23 +738,19 @@ public class DSSSvImplHelper {
 
 	/**
 	 * 记录信息
-	 * 
 	 * @return
 	 */
 	private int insertInstance(DssUserInstance dssInstance) {
-		DssUserInstanceMapper im = ServiceUtil
-				.getMapper(DssUserInstanceMapper.class);
+		DssUserInstanceMapper im = ServiceUtil.getMapper(DssUserInstanceMapper.class);
 		return im.insert(dssInstance);
 	}
 
 	/**
 	 * 记录信息
-	 * 
 	 * @return
 	 */
 	protected int dssInstanceExist(String userId, String serviceId) {
-		DssUserInstanceMapper duim = ServiceUtil
-				.getMapper(DssUserInstanceMapper.class);
+		DssUserInstanceMapper duim = ServiceUtil.getMapper(DssUserInstanceMapper.class);
 		DssUserInstanceCriteria duic = new DssUserInstanceCriteria();
 		duic.createCriteria().andUserIdEqualTo(userId)
 				.andCollectionNameEqualTo(serviceId);
@@ -776,28 +759,16 @@ public class DSSSvImplHelper {
 
 	/**
 	 * 更新资源表
-	 * 
 	 * @return DssMcsInfo
 	 */
 	private int updateResourceLeftSize(int groupId, int leftSize) {
-		DssResourcePoolMapper dmm = ServiceUtil
-				.getMapper(DssResourcePoolMapper.class);
+		DssResourcePoolMapper dmm = ServiceUtil.getMapper(DssResourcePoolMapper.class);
 		DssResourcePoolCriteria drpc = new DssResourcePoolCriteria();
 		drpc.createCriteria().andGroupIdEqualTo(groupId);
 		DssResourcePool drp = new DssResourcePool();
 		drp.setLeftSize(leftSize);
 		return dmm.updateByExampleSelective(drp, drpc);
 	}
-
-	// protected void updateMcsResourceLeftSize(int groupId, int leftSize) {
-	// DssResourcePoolMapper dmm =
-	// ServiceUtil.getMapper(DssResourcePoolMapper.class);
-	// DssResourcePoolCriteria drpc = new DssResourcePoolCriteria();
-	// drpc.createCriteria().andGroupIdEqualTo(groupId);
-	// DssResourcePool drp = new DssResourcePool();
-	// drp.setLeftSize(leftSize);
-	// dmm.updateByExampleSelective(drp, drpc);
-	// }
 
 	private boolean initMongoDB(String hostStr, String userId,
 			String collectionName, String pwd) throws Exception {
@@ -810,8 +781,7 @@ public class DSSSvImplHelper {
 		}
 		try {
 			createCollection(hostStr,
-					createCredentialList(userId, userId, pwd), userId,
-					collectionName);
+					createCredentialList(userId, userId, pwd), userId, collectionName);
 		} catch (Exception e) {
 			log.error("创建collection异常/n" + e.getMessage());
 			e.printStackTrace();
