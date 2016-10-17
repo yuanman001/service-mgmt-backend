@@ -14,6 +14,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import com.ai.paas.common.service.IOrgnizeUserHelper;
 import com.ai.paas.ipaas.PaasException;
 import com.ai.paas.ipaas.ServiceUtil;
 import com.ai.paas.ipaas.agent.util.AgentUtil;
@@ -28,13 +29,13 @@ import com.ai.paas.ipaas.base.dao.mapper.bo.IpaasSysConfigCriteria;
 import com.ai.paas.ipaas.ccs.constants.ConfigCenterDubboConstants.PathType;
 import com.ai.paas.ipaas.ccs.service.ICCSComponentManageSv;
 import com.ai.paas.ipaas.ccs.service.dto.CCSComponentOperationParam;
-import com.ai.paas.ipaas.idps.dao.interfaces.IdpsInstanceBandDssMapper;
 import com.ai.paas.ipaas.idps.dao.interfaces.IdpsBalanceResourcePoolMapper;
+import com.ai.paas.ipaas.idps.dao.interfaces.IdpsInstanceBandDssMapper;
 import com.ai.paas.ipaas.idps.dao.interfaces.IdpsResourcePoolMapper;
 import com.ai.paas.ipaas.idps.dao.interfaces.IdpsUserInstanceMapper;
-import com.ai.paas.ipaas.idps.dao.mapper.bo.IdpsInstanceBandDss;
 import com.ai.paas.ipaas.idps.dao.mapper.bo.IdpsBalanceResourcePool;
 import com.ai.paas.ipaas.idps.dao.mapper.bo.IdpsBalanceResourcePoolCriteria;
+import com.ai.paas.ipaas.idps.dao.mapper.bo.IdpsInstanceBandDss;
 import com.ai.paas.ipaas.idps.dao.mapper.bo.IdpsResourcePool;
 import com.ai.paas.ipaas.idps.dao.mapper.bo.IdpsResourcePoolCriteria;
 import com.ai.paas.ipaas.idps.dao.mapper.bo.IdpsUserInstance;
@@ -50,16 +51,17 @@ import com.google.gson.JsonObject;
 @Service
 @Transactional(rollbackFor = Exception.class)
 public class IdpsSvImpl implements IIdpsSv {
-	private static transient final Logger LOG = LoggerFactory
-			.getLogger(IdpsSvImpl.class);
+	private static transient final Logger LOG = LoggerFactory.getLogger(IdpsSvImpl.class);
+	protected static final String IDPS_BASE_ZK_CONF = "/IDPS/";
+	
 	@Autowired
 	private ICCSComponentManageSv iCCSComponentManageSv;
-
-	protected static final String IDPS_BASE_ZK_CONF = "/IDPS/";
+	
+	@Autowired
+	private IOrgnizeUserHelper orgnizeUserHelper;
 	
 	@Override
 	public String open(String param,String isUpgrade) throws Exception {
-		
 		Map<String, String> map = new HashMap<String, String>();
 		LOG.debug("----open idps ---param {}-----", param);
 		if("yes".equals(isUpgrade)){
@@ -153,10 +155,13 @@ public class IdpsSvImpl implements IIdpsSv {
 	private void openMany(String userId, String serviceId, int nodeNum,
 			String serviceName, String dssPId, String dssServiceId,
 			String dssServicePwd,String isUpgrade) throws Exception {
+		/** added orgId column in 2016-10 **/
+		int orgId = orgnizeUserHelper.getOrgnizeInfo(userId).getOrgId();
+		
 		// 选择nodeNum个 图片服务器selectIdpsResources
-		List<IdpsResourcePool> irps = selectIdpsResources4Many(nodeNum);
+		List<IdpsResourcePool> irps = selectIdpsResources4Many(orgId, nodeNum);
 		// 选择2个 负载均衡
-		List<IdpsBalanceResourcePool> balances = selectIdpsBalance(IdpsConstants.IDPS_BALANCE_NUM);
+		List<IdpsBalanceResourcePool> balances = selectIdpsBalance(orgId, IdpsConstants.IDPS_BALANCE_NUM);
 
 		// 处理服务端 docker 命令 拉gm、图片服务器war,nginx镜像，启动docker化的实例
 		handleServer4Many(irps, balances, userId, serviceId, dssPId,
@@ -199,10 +204,13 @@ public class IdpsSvImpl implements IIdpsSv {
 	private void stopMany(String userId, String serviceId, int nodeNum,
 			String serviceName, String dssPId, String dssServiceId,
 			String dssServicePwd) throws Exception {
+		/** added orgId column in 2016-10 **/
+		int orgId = orgnizeUserHelper.getOrgnizeInfo(userId).getOrgId();
+		
 		// 选择nodeNum个 图片服务器selectIdpsResources
-		List<IdpsResourcePool> irps = selectIdpsResources4Many(nodeNum);
+		List<IdpsResourcePool> irps = selectIdpsResources4Many(orgId, nodeNum);
 		// 选择2个 负载均衡
-		List<IdpsBalanceResourcePool> balances = selectIdpsBalance(IdpsConstants.IDPS_BALANCE_NUM);
+		List<IdpsBalanceResourcePool> balances = selectIdpsBalance(orgId, IdpsConstants.IDPS_BALANCE_NUM);
 		// 处理服务端 docker 命令 拉gm、图片服务器war,nginx镜像，启动docker化的实例
 		stopServer4Many(irps, balances, userId, serviceId, dssPId,
 				dssServiceId, dssServicePwd);
@@ -219,10 +227,13 @@ public class IdpsSvImpl implements IIdpsSv {
 	private void deleteMany(String userId, String serviceId, int nodeNum,
 			String serviceName, String dssPId, String dssServiceId,
 			String dssServicePwd) throws Exception {
+		/** added orgId column in 2016-10 **/
+		int orgId = orgnizeUserHelper.getOrgnizeInfo(userId).getOrgId();
+		
 		// 选择nodeNum个 图片服务器selectIdpsResources
-		List<IdpsResourcePool> irps = selectIdpsResources4Many(nodeNum);
+		List<IdpsResourcePool> irps = selectIdpsResources4Many(orgId, nodeNum);
 		// 选择2个 负载均衡
-		List<IdpsBalanceResourcePool> balances = selectIdpsBalance(IdpsConstants.IDPS_BALANCE_NUM);
+		List<IdpsBalanceResourcePool> balances = selectIdpsBalance(orgId, IdpsConstants.IDPS_BALANCE_NUM);
 		// 处理服务端 docker 命令 拉gm、图片服务器war,nginx镜像，启动docker化的实例
 		deleteServer4Many(irps, balances, userId, serviceId, dssPId,
 				dssServiceId, dssServicePwd);
@@ -239,10 +250,12 @@ public class IdpsSvImpl implements IIdpsSv {
 	private void startMany(String userId, String serviceId, int nodeNum,
 			String serviceName, String dssPId, String dssServiceId,
 			String dssServicePwd) throws Exception {
+		/** added orgId column in 2016-10 **/
+		int orgId = orgnizeUserHelper.getOrgnizeInfo(userId).getOrgId();
 		// 选择nodeNum个 图片服务器selectIdpsResources
-		List<IdpsResourcePool> irps = selectIdpsResources4Many(nodeNum);
+		List<IdpsResourcePool> irps = selectIdpsResources4Many(orgId, nodeNum);
 		// 选择2个 负载均衡
-		List<IdpsBalanceResourcePool> balances = selectIdpsBalance(IdpsConstants.IDPS_BALANCE_NUM);
+		List<IdpsBalanceResourcePool> balances = selectIdpsBalance(orgId, IdpsConstants.IDPS_BALANCE_NUM);
 		// 处理服务端 docker 命令 拉gm、图片服务器war,nginx镜像，启动docker化的实例
 		startServer4Many(irps, balances, userId, serviceId, dssPId,
 				dssServiceId, dssServicePwd);
@@ -574,13 +587,11 @@ public class IdpsSvImpl implements IIdpsSv {
 
 		}
 		
-
-	private List<IdpsBalanceResourcePool> selectIdpsBalance(int num)
-			throws Exception {
-		IdpsBalanceResourcePoolMapper rpm = ServiceUtil
-				.getMapper(IdpsBalanceResourcePoolMapper.class);
+	/** added orgId in 2016-10 **/
+	private List<IdpsBalanceResourcePool> selectIdpsBalance(int orgId, int num) throws Exception {
+		IdpsBalanceResourcePoolMapper rpm = ServiceUtil.getMapper(IdpsBalanceResourcePoolMapper.class);
 		IdpsBalanceResourcePoolCriteria rpmc = new IdpsBalanceResourcePoolCriteria();
-		rpmc.createCriteria().andStatusEqualTo(IdpsConstants.VALIDATE_STATUS);
+		rpmc.createCriteria().andStatusEqualTo(IdpsConstants.VALIDATE_STATUS).andOrgIdEqualTo(orgId);
 		rpmc.setLimitStart(0);
 		rpmc.setLimitEnd(num);
 		List<IdpsBalanceResourcePool> firstRes = rpm.selectByExample(rpmc);
@@ -589,9 +600,9 @@ public class IdpsSvImpl implements IIdpsSv {
 		return firstRes;
 	}
 
-	private List<IdpsResourcePool> selectIdpsResources4Many(int nodeNum)
+	private List<IdpsResourcePool> selectIdpsResources4Many(int orgId, int nodeNum)
 			throws Exception {
-		List<IdpsResourcePool> irp = selectIdpsResources(nodeNum);
+		List<IdpsResourcePool> irp = selectIdpsResources(orgId, nodeNum);
 		int hostNum = irp.size();
 		int i = 0;
 		int k = hostNum;
@@ -636,17 +647,18 @@ public class IdpsSvImpl implements IIdpsSv {
 		}
 		if (count > nodeNum)
 			throw new PaasException("idps resource not enough.");
+		
 		// update IdpsResourcePool
-		IdpsResourcePoolMapper rpm = ServiceUtil
-				.getMapper(IdpsResourcePoolMapper.class);
+		IdpsResourcePoolMapper rpm = ServiceUtil.getMapper(IdpsResourcePoolMapper.class);
 		IdpsResourcePoolCriteria rpmc = new IdpsResourcePoolCriteria();
 		for (Map.Entry<String, Integer> ent : hostPorts.entrySet()) {
 			rpmc.createCriteria().andIdpsHostIpEqualTo(ent.getKey())
-					.andStatusEqualTo(IdpsConstants.VALIDATE_STATUS);
+				.andStatusEqualTo(IdpsConstants.VALIDATE_STATUS);
 			IdpsResourcePool target = new IdpsResourcePool();
 			target.setIdpsPort(ent.getValue());
 			rpm.updateByExampleSelective(target, rpmc);
 		}
+		
 		return resultList;
 	}
 
@@ -661,8 +673,10 @@ public class IdpsSvImpl implements IIdpsSv {
 	private void openOne(String userId, String serviceId, String serviceName,
 			String dssPId, String dssServiceId, String dssServicePwd,String isUpgrade)
 			throws Exception {
+		/** added orgId column in 2016-10 **/
+		int orgId = orgnizeUserHelper.getOrgnizeInfo(userId).getOrgId();
 		// 选择资源
-		List<IdpsResourcePool> idpsResources = selectIdpsResources(1);
+		List<IdpsResourcePool> idpsResources = selectIdpsResources(orgId, 1);
 		IdpsResourcePool idpsResourcePool = idpsResources.get(0);
 		// 如果该主机端口已经用完，从idps_user_instance选择该主机最小的已经失效的端口号
 		if (idpsResourcePool != null && idpsResourcePool.getCycle() == 1) {
@@ -721,8 +735,10 @@ public class IdpsSvImpl implements IIdpsSv {
 	private void startOne(String userId, String serviceId, String serviceName,
 			String dssPId, String dssServiceId, String dssServicePwd)
 			throws Exception {
+		/** added orgId column in 2016-10 **/
+		int orgId = orgnizeUserHelper.getOrgnizeInfo(userId).getOrgId();
 		// 选择资源
-		List<IdpsResourcePool> idpsResources = selectIdpsResources(1);
+		List<IdpsResourcePool> idpsResources = selectIdpsResources(orgId, 1);
 		IdpsResourcePool idpsResourcePool = idpsResources.get(0);
 		// 如果该主机端口已经用完，从idps_user_instance选择该主机最小的已经失效的端口号
 		if (idpsResourcePool != null && idpsResourcePool.getCycle() == 1) {
@@ -753,8 +769,10 @@ public class IdpsSvImpl implements IIdpsSv {
 	private void stopOne(String userId, String serviceId, String serviceName,
 			String dssPId, String dssServiceId, String dssServicePwd)
 			throws Exception {
+		/** added orgId column in 2016-10 **/
+		int orgId = orgnizeUserHelper.getOrgnizeInfo(userId).getOrgId();
 		// 选择资源
-		List<IdpsResourcePool> idpsResources = selectIdpsResources(1);
+		List<IdpsResourcePool> idpsResources = selectIdpsResources(orgId, 1);
 		IdpsResourcePool idpsResourcePool = idpsResources.get(0);
 		// 如果该主机端口已经用完，从idps_user_instance选择该主机最小的已经失效的端口号
 		if (idpsResourcePool != null && idpsResourcePool.getCycle() == 1) {
@@ -785,8 +803,10 @@ public class IdpsSvImpl implements IIdpsSv {
 	private void deleteOne(String userId, String serviceId, String serviceName,
 			String dssPId, String dssServiceId, String dssServicePwd)
 			throws Exception {
+		/** added orgId column in 2016-10 **/
+		int orgId = orgnizeUserHelper.getOrgnizeInfo(userId).getOrgId();
 		// 选择资源
-		List<IdpsResourcePool> idpsResources = selectIdpsResources(1);
+		List<IdpsResourcePool> idpsResources = selectIdpsResources(orgId, 1);
 		IdpsResourcePool idpsResourcePool = idpsResources.get(0);
 		// 如果该主机端口已经用完，从idps_user_instance选择该主机最小的已经失效的端口号
 		if (idpsResourcePool != null && idpsResourcePool.getCycle() == 1) {
@@ -798,10 +818,9 @@ public class IdpsSvImpl implements IIdpsSv {
 			}
 			idpsResourcePool.setIdpsPort(idpsResourcePool.getIdpsPort() + 1);
 		}
-		LOG.debug(
-				"----------------seelct IdpsResource host :{}，port ：{}---------",
-				idpsResourcePool.getIdpsHostIp(),
-				idpsResourcePool.getIdpsPort());
+		LOG.debug("----------------seelct IdpsResource host :{}，port ：{}---------",
+				idpsResourcePool.getIdpsHostIp(), idpsResourcePool.getIdpsPort());
+		
 		// 删除单个容器
 		deleteServer(idpsResourcePool, dssPId, dssServiceId, dssServicePwd,userId,serviceId);
 	}
@@ -1099,8 +1118,7 @@ public class IdpsSvImpl implements IIdpsSv {
 	}
 	
 	private IpaasImageResource getGmImage() throws PaasException {
-		IpaasImageResourceMapper rpm = ServiceUtil
-				.getMapper(IpaasImageResourceMapper.class);
+		IpaasImageResourceMapper rpm = ServiceUtil.getMapper(IpaasImageResourceMapper.class);
 		IpaasImageResourceCriteria rpmc = new IpaasImageResourceCriteria();
 		rpmc.createCriteria().andStatusEqualTo(IdpsConstants.VALIDATE_STATUS)
 				.andServiceCodeEqualTo(IdpsConstants.SERVICE_CODE)
@@ -1217,20 +1235,17 @@ public class IdpsSvImpl implements IIdpsSv {
 		return list;
 	}
 
-	private List<IdpsResourcePool> selectIdpsResources(int num)
-			throws PaasException {
-		// best
-		IdpsResourcePoolMapper rpm = ServiceUtil
-				.getMapper(IdpsResourcePoolMapper.class);
+	/** added orgId in 2016-10 **/
+	private List<IdpsResourcePool> selectIdpsResources(int orgId, int num) throws PaasException {
+		IdpsResourcePoolMapper rpm = ServiceUtil.getMapper(IdpsResourcePoolMapper.class);
 		IdpsResourcePoolCriteria rpmc = new IdpsResourcePoolCriteria();
-		rpmc.createCriteria().andStatusEqualTo(IdpsConstants.VALIDATE_STATUS);
+		rpmc.createCriteria().andStatusEqualTo(IdpsConstants.VALIDATE_STATUS).andOrgIdEqualTo(orgId);
 		rpmc.setLimitStart(0);
 		rpmc.setLimitEnd(num);
 		List<IdpsResourcePool> firstRes = rpm.selectByExample(rpmc);
 		if (firstRes == null || firstRes.isEmpty())
 			throw new PaasException("IDPS Resource not config.");
 		return firstRes;
-
 	}
 
 	private boolean existsService(String userId, String serviceId) {
