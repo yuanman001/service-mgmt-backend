@@ -1,34 +1,30 @@
 package com.ai.paas.ipaas.dss.dao.interfaces;
 
-import java.util.List;
-
-import org.apache.ibatis.annotations.Param;
-
 import com.ai.paas.ipaas.dss.dao.mapper.bo.DssResourcePool;
 import com.ai.paas.ipaas.dss.dao.mapper.bo.DssResourcePoolCriteria;
+import java.util.List;
+import org.apache.ibatis.annotations.Param;
 
 public interface DssResourcePoolMapper {
-	int countByExample(DssResourcePoolCriteria example);
+    int countByExample(DssResourcePoolCriteria example);
 
-	int deleteByExample(DssResourcePoolCriteria example);
+    int deleteByExample(DssResourcePoolCriteria example);
 
-	int deleteByPrimaryKey(Integer hostId);
+    int deleteByPrimaryKey(Integer hostId);
 
-	int insert(DssResourcePool record);
+    int insert(DssResourcePool record);
 
-	int insertSelective(DssResourcePool record);
+    int insertSelective(DssResourcePool record);
 
-	List<DssResourcePool> selectByExample(DssResourcePoolCriteria example);
+    List<DssResourcePool> selectByExample(DssResourcePoolCriteria example);
 
-	DssResourcePool selectByPrimaryKey(Integer hostId);
+    DssResourcePool selectByPrimaryKey(Integer hostId);
 
-	int updateByExampleSelective(@Param("record") DssResourcePool record,
-			@Param("example") DssResourcePoolCriteria example);
+    int updateByExampleSelective(@Param("record") DssResourcePool record, @Param("example") DssResourcePoolCriteria example);
 
-	int updateByExample(@Param("record") DssResourcePool record,
-			@Param("example") DssResourcePoolCriteria example);
+    int updateByExample(@Param("record") DssResourcePool record, @Param("example") DssResourcePoolCriteria example);
 
-	int updateByPrimaryKeySelective(DssResourcePool record);
+    int updateByPrimaryKeySelective(DssResourcePool record);
 
-	int updateByPrimaryKey(DssResourcePool record);
+    int updateByPrimaryKey(DssResourcePool record);
 }

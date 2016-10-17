@@ -1,63 +1,73 @@
 package com.ai.paas.ipaas.dss.dao.mapper.bo;
 
 public class DssResourcePool {
-	private Integer hostId;
+    private Integer hostId;
 
-	private String ip;
+    private String ip;
 
-	private Integer port;
+    private Integer port;
 
-	private Integer groupId;
+    private Integer groupId;
 
-	private Integer status;
+    private Integer status;
 
-	private Integer leftSize;
+    private Integer leftSize;
 
-	public Integer getHostId() {
-		return hostId;
-	}
+    private Integer orgId;
 
-	public void setHostId(Integer hostId) {
-		this.hostId = hostId;
-	}
+    public Integer getHostId() {
+        return hostId;
+    }
 
-	public String getIp() {
-		return ip;
-	}
+    public void setHostId(Integer hostId) {
+        this.hostId = hostId;
+    }
 
-	public void setIp(String ip) {
-		this.ip = ip == null ? null : ip.trim();
-	}
+    public String getIp() {
+        return ip;
+    }
 
-	public Integer getPort() {
-		return port;
-	}
+    public void setIp(String ip) {
+        this.ip = ip == null ? null : ip.trim();
+    }
 
-	public void setPort(Integer port) {
-		this.port = port;
-	}
+    public Integer getPort() {
+        return port;
+    }
 
-	public Integer getGroupId() {
-		return groupId;
-	}
+    public void setPort(Integer port) {
+        this.port = port;
+    }
 
-	public void setGroupId(Integer groupId) {
-		this.groupId = groupId;
-	}
+    public Integer getGroupId() {
+        return groupId;
+    }
 
-	public Integer getStatus() {
-		return status;
-	}
+    public void setGroupId(Integer groupId) {
+        this.groupId = groupId;
+    }
 
-	public void setStatus(Integer status) {
-		this.status = status;
-	}
+    public Integer getStatus() {
+        return status;
+    }
 
-	public Integer getLeftSize() {
-		return leftSize;
-	}
+    public void setStatus(Integer status) {
+        this.status = status;
+    }
 
-	public void setLeftSize(Integer leftSize) {
-		this.leftSize = leftSize;
-	}
+    public Integer getLeftSize() {
+        return leftSize;
+    }
+
+    public void setLeftSize(Integer leftSize) {
+        this.leftSize = leftSize;
+    }
+
+    public Integer getOrgId() {
+        return orgId;
+    }
+
+    public void setOrgId(Integer orgId) {
+        this.orgId = orgId;
+    }
 }

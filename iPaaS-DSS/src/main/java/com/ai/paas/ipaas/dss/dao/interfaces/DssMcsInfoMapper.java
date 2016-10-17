@@ -1,34 +1,30 @@
 package com.ai.paas.ipaas.dss.dao.interfaces;
 
-import java.util.List;
-
-import org.apache.ibatis.annotations.Param;
-
 import com.ai.paas.ipaas.dss.dao.mapper.bo.DssMcsInfo;
 import com.ai.paas.ipaas.dss.dao.mapper.bo.DssMcsInfoCriteria;
+import java.util.List;
+import org.apache.ibatis.annotations.Param;
 
 public interface DssMcsInfoMapper {
-	int countByExample(DssMcsInfoCriteria example);
+    int countByExample(DssMcsInfoCriteria example);
 
-	int deleteByExample(DssMcsInfoCriteria example);
+    int deleteByExample(DssMcsInfoCriteria example);
 
-	int deleteByPrimaryKey(Integer id);
+    int deleteByPrimaryKey(Integer id);
 
-	int insert(DssMcsInfo record);
+    int insert(DssMcsInfo record);
 
-	int insertSelective(DssMcsInfo record);
+    int insertSelective(DssMcsInfo record);
 
-	List<DssMcsInfo> selectByExample(DssMcsInfoCriteria example);
+    List<DssMcsInfo> selectByExample(DssMcsInfoCriteria example);
 
-	DssMcsInfo selectByPrimaryKey(Integer id);
+    DssMcsInfo selectByPrimaryKey(Integer id);
 
-	int updateByExampleSelective(@Param("record") DssMcsInfo record,
-			@Param("example") DssMcsInfoCriteria example);
+    int updateByExampleSelective(@Param("record") DssMcsInfo record, @Param("example") DssMcsInfoCriteria example);
 
-	int updateByExample(@Param("record") DssMcsInfo record,
-			@Param("example") DssMcsInfoCriteria example);
+    int updateByExample(@Param("record") DssMcsInfo record, @Param("example") DssMcsInfoCriteria example);
 
-	int updateByPrimaryKeySelective(DssMcsInfo record);
+    int updateByPrimaryKeySelective(DssMcsInfo record);
 
-	int updateByPrimaryKey(DssMcsInfo record);
+    int updateByPrimaryKey(DssMcsInfo record);
 }
