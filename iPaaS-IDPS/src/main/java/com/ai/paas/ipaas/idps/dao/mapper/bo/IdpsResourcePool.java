@@ -19,6 +19,8 @@ public class IdpsResourcePool {
 
     private String sshPassword;
 
+    private Integer orgId;
+
     public Integer getId() {
         return id;
     }
@@ -89,5 +91,13 @@ public class IdpsResourcePool {
 
     public void setSshPassword(String sshPassword) {
         this.sshPassword = sshPassword == null ? null : sshPassword.trim();
+    }
+
+    public Integer getOrgId() {
+        return orgId;
+    }
+
+    public void setOrgId(Integer orgId) {
+        this.orgId = orgId;
     }
 }
