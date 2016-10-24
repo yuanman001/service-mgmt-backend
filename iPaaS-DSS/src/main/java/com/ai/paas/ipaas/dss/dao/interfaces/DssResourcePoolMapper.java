@@ -1,9 +1,11 @@
 package com.ai.paas.ipaas.dss.dao.interfaces;
 
+import java.util.List;
+
+import org.apache.ibatis.annotations.Param;
+
 import com.ai.paas.ipaas.dss.dao.mapper.bo.DssResourcePool;
 import com.ai.paas.ipaas.dss.dao.mapper.bo.DssResourcePoolCriteria;
-import java.util.List;
-import org.apache.ibatis.annotations.Param;
 
 public interface DssResourcePoolMapper {
     int countByExample(DssResourcePoolCriteria example);

@@ -1,9 +1,11 @@
 package com.ai.paas.ipaas.dss.dao.interfaces;
 
+import java.util.List;
+
+import org.apache.ibatis.annotations.Param;
+
 import com.ai.paas.ipaas.dss.dao.mapper.bo.DssMcsInfo;
 import com.ai.paas.ipaas.dss.dao.mapper.bo.DssMcsInfoCriteria;
-import java.util.List;
-import org.apache.ibatis.annotations.Param;
 
 public interface DssMcsInfoMapper {
     int countByExample(DssMcsInfoCriteria example);

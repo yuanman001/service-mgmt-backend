@@ -1,7 +1,5 @@
 package ccs.test.service.impl;
 
-import java.util.List;
-
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -9,12 +7,9 @@ import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
 import com.ai.paas.ipaas.PaasException;
-import com.ai.paas.ipaas.ccs.constants.ConfigCenterConstants;
 import com.ai.paas.ipaas.ccs.service.ICCSManageSv;
 import com.ai.paas.ipaas.ccs.service.IConfigCenterServiceManageSv;
-import com.ai.paas.ipaas.ccs.service.dto.CCSOperationParam;
 import com.ai.paas.ipaas.ccs.service.dto.CreateServiceInfo;
-import com.ai.paas.ipaas.util.CiperUtil;
 
 /**
  * Created by astraea on 2015/5/8.

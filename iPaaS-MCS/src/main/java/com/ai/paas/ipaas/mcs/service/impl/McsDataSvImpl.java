@@ -11,11 +11,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import redis.clients.jedis.HostAndPort;
-import redis.clients.jedis.Jedis;
-import redis.clients.jedis.JedisCluster;
-import redis.clients.jedis.exceptions.JedisMovedDataException;
-
 import com.ai.paas.ipaas.PaasException;
 import com.ai.paas.ipaas.mcs.dao.mapper.bo.McsUserCacheInstance;
 import com.ai.paas.ipaas.mcs.service.constant.McsConstants;
@@ -23,6 +18,11 @@ import com.ai.paas.ipaas.mcs.service.interfaces.IMcsDataSv;
 import com.ai.paas.ipaas.mcs.service.util.McsParamUtil;
 import com.ai.paas.ipaas.util.Assert;
 import com.google.gson.Gson;
+
+import redis.clients.jedis.HostAndPort;
+import redis.clients.jedis.Jedis;
+import redis.clients.jedis.JedisCluster;
+import redis.clients.jedis.exceptions.JedisMovedDataException;
 
 @Service
 @Transactional(rollbackFor = Exception.class)
