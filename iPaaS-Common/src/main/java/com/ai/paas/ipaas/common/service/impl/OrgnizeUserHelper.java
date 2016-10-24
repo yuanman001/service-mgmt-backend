@@ -2,6 +2,7 @@ package com.ai.paas.ipaas.common.service.impl;
 
 import java.util.List;
 
+import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.ai.paas.ipaas.PaasException;
@@ -10,7 +11,6 @@ import com.ai.paas.ipaas.common.dao.interfaces.OrgnizeUserInfoMapper;
 import com.ai.paas.ipaas.common.dao.mapper.bo.OrgnizeUserInfo;
 import com.ai.paas.ipaas.common.dao.mapper.bo.OrgnizeUserInfoCriteria;
 import com.ai.paas.ipaas.common.service.IOrgnizeUserHelper;
-import com.alibaba.dubbo.config.annotation.Service;
 
 @Service
 @Transactional
