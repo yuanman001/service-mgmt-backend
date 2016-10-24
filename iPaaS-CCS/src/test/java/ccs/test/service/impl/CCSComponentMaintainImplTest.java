@@ -1,4 +1,4 @@
-package com.ai.paas.ipaas.ccs.manage.impl;
+package ccs.test.service.impl;
 
 import com.ai.paas.ipaas.ServiceUtil;
 import com.ai.paas.ipaas.ccs.constants.ConfigCenterConstants;

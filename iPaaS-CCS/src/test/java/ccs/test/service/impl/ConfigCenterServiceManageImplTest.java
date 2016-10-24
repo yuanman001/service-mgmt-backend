@@ -1,4 +1,4 @@
-package com.ai.paas.ipaas.ccs.manage.impl;
+package ccs.test.service.impl;
 
 import org.junit.After;
 import org.junit.Before;

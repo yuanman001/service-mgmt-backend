@@ -7,7 +7,6 @@ import java.util.List;
 import org.apache.log4j.Logger;
 import org.apache.zookeeper.CreateMode;
 import org.apache.zookeeper.data.ACL;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -39,13 +38,14 @@ import com.ai.paas.ipaas.util.Assert;
 import com.ai.paas.ipaas.util.CiperUtil;
 import com.ai.paas.ipaas.util.ResourceUtil;
 import com.ai.paas.ipaas.util.UUIDTool;
+import com.alibaba.dubbo.config.annotation.Reference;
 
 @Service
 @Transactional(rollbackFor = Exception.class)
 public class ConfigCenterServiceManageSvImpl implements IConfigCenterServiceManageSv {
 	private Logger logger = Logger.getLogger(ConfigCenterServiceManageSvImpl.class);
 	
-	@Autowired
+	@Reference
 	IOrgnizeUserHelper orgnizeUserHelper;
 	
 	@Override

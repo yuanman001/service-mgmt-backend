@@ -18,11 +18,12 @@
         <property name="ignoreUnresolvablePlaceholders" value="true"/>
         <property name="locations" value="classpath:dubbo/consumer/dubbo.properties"/>
     </bean>
+    
     <!-- 消费方应用名，用于计算依赖关系，不是匹配条件，不要与提供方一样 -->
     <dubbo:application name="${default.dubbo.appname}"/>
     <dubbo:registry protocol="${default.dubbo.registry.protocol}"
                     address="${default.dubbo.registry.address}"/>
     <dubbo:consumer retries="2"/>
 
-    <dubbo:annotation package="ccs.test.manage.impl"/>
+    <dubbo:annotation package="ccs.test.service.impl"/>
 </beans>
