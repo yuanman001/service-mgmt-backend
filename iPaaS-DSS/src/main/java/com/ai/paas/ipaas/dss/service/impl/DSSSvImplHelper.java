@@ -170,8 +170,6 @@ public class DSSSvImplHelper {
 				applyObj.getUserId(), DSS_COMMON_ZK_CONF);
 		// 初始化MongoDB 并创建COLLECTION
 		int dssNum = commConf.getHosts().split(";").length;
-		// int perCapacity = Integer.parseInt(applyObj.getCapacity()) / dssNum
-		// + Integer.parseInt(applyObj.getCapacity()) % dssNum;
 		int groupId = getGroupid(commConf.getHosts().split(";")[0].split(":")[0]);
 		int leftSize = getDssResource(groupId).get(0).getLeftSize()
 				- Integer.parseInt(applyObj.getCapacity());
