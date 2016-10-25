@@ -70,11 +70,11 @@ public class MsgSrvManagerImpl implements IMsgSrvManager {
 
 		// 3.写消息到ZK中
 		msgConfigHelper.createConfigInfo(userTopic);
+		
 		// 4.创建队列，如果这里出错可以不建下面节点
 		if (!msgKafkaHelper.isTopicExist(kafkaCluster,
 				userTopic.getTopicEnName()))
 			msgKafkaHelper.createTopic(userTopic, kafkaCluster);
-
 	}
 
 	@Override

@@ -19,6 +19,7 @@ public class MessageServiceManagerTest {
 
 	@Autowired
 	private IMessageServiceManager msgSrvManager;
+	
 	private Gson gson = new Gson();
 
 	@Test(expected = IllegalArgumentException.class)
@@ -32,36 +33,43 @@ public class MessageServiceManagerTest {
 	@Test
 	public void testCreateMessageSrvIllegalParam() throws Exception {
 		String apply = null;
+		
 		apply = "";
 		String result = msgSrvManager.create(apply);
 		assertEquals(gson.fromJson(result, JsonObject.class).get("resultCode")
 				.getAsString(), "999999");
+		
 		apply = "{userId:'',applyType:'create',serviceId:'MDS001',topicEnName:'FFF49D0D518948D0AB28D7A8EEE25D03_MDS001_"
 				+ UUIDTool.genShortId()
 				+ "',topicName:'测试队列',topicPartitions:5,msgReplica:2,maxSender:5}";
 		result = msgSrvManager.create(apply);
 		assertEquals(gson.fromJson(result, JsonObject.class).get("resultCode")
 				.getAsString(), "999999");
+		
 		apply = "{userId:'FFF49D0D518948D0AB28D7A8EEE25D03',applyType:'',serviceId:'MDS001',topicEnName:'FFF49D0D518948D0AB28D7A8EEE25D03_MDS001_"
 				+ UUIDTool.genShortId()
 				+ "',topicName:'测试队列',topicPartitions:5,msgReplica:2,maxSender:5}";
 		result = msgSrvManager.create(apply);
 		assertEquals(gson.fromJson(result, JsonObject.class).get("resultCode")
 				.getAsString(), "999999");
+		
 		apply = "{userId:'FFF49D0D518948D0AB28D7A8EEE25D03',applyType:'create',serviceId:'',topicEnName:'FFF49D0D518948D0AB28D7A8EEE25D03_MDS001_"
 				+ UUIDTool.genShortId()
 				+ "',topicName:'测试队列',topicPartitions:5,msgReplica:2,maxSender:5}";
 		result = msgSrvManager.create(apply);
 		assertEquals(gson.fromJson(result, JsonObject.class).get("resultCode")
 				.getAsString(), "999999");
+		
 		apply = "{userId:'FFF49D0D518948D0AB28D7A8EEE25D03',applyType:'create',serviceId:'MDS001',topicEnName:'',topicName:'测试队列',topicPartitions:5,msgReplica:2,maxSender:5}";
 		result = msgSrvManager.create(apply);
 		assertEquals(gson.fromJson(result, JsonObject.class).get("resultCode")
 				.getAsString(), "999999");
+		
 		apply = "{userId:'FFF49D0D518948D0AB28D7A8EEE25D03',applyType:'create',serviceId:'MDS001',topicEnName:'1111',topicName:'',topicPartitions:5,msgReplica:2,maxSender:5}";
 		result = msgSrvManager.create(apply);
 		assertEquals(gson.fromJson(result, JsonObject.class).get("resultCode")
 				.getAsString(), "999999");
+		
 		apply = "{userId:'FFF49D0D518948D0AB28D7A8EEE25D03',applyType:'create',serviceId:'MDS001',topicEnName:'1111',topicName:'ssss',topicPartitions:-5,msgReplica:-2,maxSender:-5}";
 		result = msgSrvManager.create(apply);
 		assertEquals(gson.fromJson(result, JsonObject.class).get("resultCode")
@@ -70,7 +78,7 @@ public class MessageServiceManagerTest {
 
 	@Test
 	public void testCreateMessageSrv() throws Exception {
-		String apply = "{userId:'D9DB09D70BFC43CCB5D38A365CB763F1',applyType:'create',serviceId:'MDS102',topicEnName:'TEST_MDS101_1"
+		String apply = "{userId:'6C4F4DBA96294DDCBC5DBBF2CAD442B5',applyType:'create',serviceId:'MDS123',topicEnName:'TEST_MDS123_1"
 				+ "',topicName:'测试队列',topicPartitions:5,msgReplica:2,maxSender:5}";
 		String result = msgSrvManager.create(apply);
 		assertEquals(gson.fromJson(result, JsonObject.class).get("resultCode")
@@ -99,15 +107,12 @@ public class MessageServiceManagerTest {
 	//测试查询订阅
 	@Test
 	public void testGetListSubPath() throws Exception {
-//		String apply = "{subscribeName:'test123---',topicEnName:'8E7ECAC706994DB9AC2BBB037C18762B_MDS002_218700542'}";
 		String apply = "{userId:'8E7ECAC706994DB9AC2BBB037C18762B',applyType:'topicUsage',serviceId:'MDS003',topicEnName:'8E7ECAC706994DB9AC2BBB037C18762B_MDS003_416603763'}";
 		String result = msgSrvManager.getListSubPath(apply);
 		System.out.println(result);
 		assertEquals(gson.fromJson(result, JsonObject.class).get("resultCode")
 				.getAsString(), "000000");
 	}
-	
-	
 	
 	@Test
 	public void testCancelMessageSrv() throws Exception {
