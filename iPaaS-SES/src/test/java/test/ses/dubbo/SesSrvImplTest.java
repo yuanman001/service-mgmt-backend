@@ -1,4 +1,4 @@
-package ses.dubbo;
+package test.ses.dubbo;
 
 import org.junit.Test;
 import org.junit.runner.RunWith;

@@ -82,14 +82,15 @@ public class SesManageImpl implements ISesManage {
 				orgId, sesSrvApply.getClusterNum(), sesSrvApply.getSesMem());
 		String userId = sesSrvApply.getUserId();
 		String serviceId = sesSrvApply.getServiceId();
-		StringBuilder clusterString = new StringBuilder();
 		String clusterAddr = getClusterAddress(sesHosts);
 		
 		// 获取可用的web端
 		SesWebPool webPool = userWebSV.getAvlWeb(orgId, userId, serviceId);
 		processSESServers(userId, serviceId, sesHosts, clusterAddr, webPool);
+		
+		// 更新ses_user_instance
+		StringBuilder clusterString = new StringBuilder();
 		for (SesHostInfo sesHostInfo : sesHosts) {
-			// 更新ses_user_instance
 			SesUserInstance sesUser = new SesUserInstance();
 			sesUser.setHostIp(sesHostInfo.getIp());
 			sesUser.setServiceId(serviceId);
@@ -138,21 +139,23 @@ public class SesManageImpl implements ISesManage {
 			throws PaasException {
 
 		String basePath = AgentUtil.getAgentFilePath(AidUtil.getAid());
+		
 		// 1.先将需要执行镜像命令的机器配置文件上传上去。
 		InputStream in = null;
 		try {
 			in = SesManageImpl.class
 					.getResourceAsStream("/playbook/ses/init_ansible_ssh_hosts.sh");
 			String[] cnt = AgentUtil.readFileLines(in);
-
 			in.close();
 			AgentUtil.uploadFile("ses/init_ansible_ssh_hosts.sh", cnt,
 					AidUtil.getAid());
+			
 			in = SesManageImpl.class
 					.getResourceAsStream("/playbook/ses/ses_run.yml");
 			cnt = AgentUtil.readFileLines(in);
 			in.close();
 			AgentUtil.uploadFile("ses/ses_run.yml", cnt, AidUtil.getAid());
+			
 			// 还得上传文件
 			in = SesManageImpl.class
 					.getResourceAsStream("/playbook/ses/ansible_run_ses.sh");
@@ -160,11 +163,13 @@ public class SesManageImpl implements ISesManage {
 			in.close();
 			AgentUtil.uploadFile("ses/ansible_run_ses.sh", cnt,
 					AidUtil.getAid());
+			
 			in = SesManageImpl.class
 					.getResourceAsStream("/playbook/ses/ses_exist.yml");
 			cnt = AgentUtil.readFileLines(in);
 			in.close();
 			AgentUtil.uploadFile("ses/ses_exist.yml", cnt, AidUtil.getAid());
+			
 			// 还得上传文件
 			in = SesManageImpl.class
 					.getResourceAsStream("/playbook/ses/ansible_exist_ses.sh");
@@ -172,6 +177,7 @@ public class SesManageImpl implements ISesManage {
 			in.close();
 			AgentUtil.uploadFile("ses/ansible_exist_ses.sh", cnt,
 					AidUtil.getAid());
+			
 			AgentUtil.executeCommand("chmod +x " + basePath
 					+ "ses/init_ansible_ssh_hosts.sh && chmod +x " + basePath
 					+ "ses/ansible_run_ses.sh &&" + " chmod +x " + basePath
