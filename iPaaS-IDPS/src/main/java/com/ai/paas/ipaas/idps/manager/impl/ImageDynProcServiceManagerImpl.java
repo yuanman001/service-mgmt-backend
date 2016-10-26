@@ -9,16 +9,18 @@ import com.ai.paas.ipaas.idps.service.constant.IdpsConstants;
 import com.ai.paas.ipaas.idps.service.interfaces.IIdpsSv;
 import com.ai.paas.ipaas.idps.service.util.IdpsParamUtil;
 import com.alibaba.dubbo.config.annotation.Service;
+
 /**
  *  Image dynamic Proccessing Service
- *
  */
 @Service
 public class ImageDynProcServiceManagerImpl implements ImageDynProcServiceManager {
 	private static final Logger LOG = LogManager
 			.getLogger(ImageDynProcServiceManagerImpl.class.getName());
+	
 	@Autowired
 	private IIdpsSv iIdpsSv;
+	
 	@Override
 	public String create(String createApply) {
 		String res = null;
@@ -145,10 +147,6 @@ public class ImageDynProcServiceManagerImpl implements ImageDynProcServiceManage
 		}
 		return IdpsParamUtil.getReturn(stopApply, res,"stop successfully!");
 	}
-	
-	
-	
-
 	
 }
 	

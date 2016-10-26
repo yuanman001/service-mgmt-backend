@@ -42,6 +42,7 @@ public class TestIdpsDubbo {
 		System.out.println("----------create-res:\n"+imageDynProcServiceManager.create(param));
 		System.out.println("----------开通多台，耗时："+(System.currentTimeMillis()-s));
 	}
+	
 	@Test
 	public void modify() {
 		long s = System.currentTimeMillis();
