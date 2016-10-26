@@ -17,16 +17,16 @@ public class IDPSComponentTest {
 	
 	@Test
 	public void create() throws Exception {
-		String param ="{\"userId\":\"BF512D2696004534BE9EB66161E52EF7\",\"applyType\":\"create\","
-				+ "\"serviceId\":\"IDPS034\",\"nodeNum\":\"1\",\"dssPId\":\"0A8111DB280044528DF309D501DFFF6A\","
+		String param ="{\"userId\":\"6C4F4DBA96294DDCBC5DBBF2CAD442B5\",\"applyType\":\"create\","
+				+ "\"serviceId\":\"IDPS123\",\"nodeNum\":\"1\",\"dssPId\":\"0A8111DB280044528DF309D501DFFF6A\","
 				+ "\"dssServiceId\":\"DSS001\",\"dssServicePwd\":\"123456\",\"serviceName\":\"first\"}";
 		idpsSrv.open(param, "no");
 	}
 	
 	@Test
 	public void createMany() throws Exception {
-		String param ="{\"userId\":\"BF512D2696004534BE9EB66161E52EF7\",\"applyType\":\"create\","
-				+ "\"serviceId\":\"IDPS033\",\"nodeNum\":\"2\",\"dssPId\":\"0A8111DB280044528DF309D501DFFF6A\","
+		String param ="{\"userId\":\"6C4F4DBA96294DDCBC5DBBF2CAD442B5\",\"applyType\":\"create\","
+				+ "\"serviceId\":\"IDPS234\",\"nodeNum\":\"2\",\"dssPId\":\"0A8111DB280044528DF309D501DFFF6A\","
 				+ "\"dssServiceId\":\"DSS001\",\"dssServicePwd\":\"123456\",\"serviceName\":\"many\"}";
 		idpsSrv.open(param, "no");
 	}
