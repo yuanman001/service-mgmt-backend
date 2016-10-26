@@ -11,13 +11,13 @@ import com.ai.paas.ipaas.mcs.service.interfaces.IMcsSv;
 import com.ai.paas.ipaas.mcs.service.util.McsParamUtil;
 import com.alibaba.dubbo.config.annotation.Service;
 
-
 @Service
 public class McsManagerImpl implements IMemoryCacheServiceManager {
-	private static final Logger logger = LogManager.getLogger(McsManagerImpl.class
-			.getName());
+	private static final Logger logger = LogManager.getLogger(McsManagerImpl.class.getName());
+	
 	@Autowired
 	private IMcsSv iMcsSv;
+	
 	@Autowired
 	private IMcsDataSv iMcsDataSv;
 
