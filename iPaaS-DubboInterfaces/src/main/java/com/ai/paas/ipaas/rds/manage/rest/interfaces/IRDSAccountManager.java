@@ -15,7 +15,7 @@ import javax.ws.rs.core.MediaType;
  * @version 
  * @since  
  */
-@Path("/rds/account／manager")
+@Path("/rds/account/manager")
 @Consumes({MediaType.APPLICATION_JSON})
 @Produces({MediaType.APPLICATION_JSON, MediaType.TEXT_XML})
 public interface IRDSAccountManager {
