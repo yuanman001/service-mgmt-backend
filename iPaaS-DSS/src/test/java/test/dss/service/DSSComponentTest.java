@@ -10,7 +10,7 @@ import com.ai.paas.ipaas.dss.manage.param.ApplyDSSParam;
 import com.ai.paas.ipaas.dss.service.IDSSSv;
 
 @RunWith(SpringJUnit4ClassRunner.class)
-@ContextConfiguration({ "classpath:dubbo/consumer/dss-client-consumer.xml",
+@ContextConfiguration({ "classpath:dubbo/consumer/dss-consumer.xml",
 		"classpath:dubbo/consumer/applicationContext-mybatis.xml" })
 public class DSSComponentTest {
 	
@@ -22,6 +22,8 @@ public class DSSComponentTest {
 		ApplyDSSParam apply = new ApplyDSSParam();
 		apply.setApplyType("create");
 		apply.setUserId("6C4F4DBA96294DDCBC5DBBF2CAD442B5");
+		apply.setCapacity("256");
+		apply.setSingleFileSize("20");
 		apply.setServiceId("DSS123");
 		dssSrv.createDSS(apply);
 	}
