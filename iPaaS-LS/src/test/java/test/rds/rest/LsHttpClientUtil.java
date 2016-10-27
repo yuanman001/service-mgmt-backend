@@ -17,8 +17,8 @@ import org.apache.http.params.CoreConnectionPNames;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class RdsHttpClientUtil {
-	private static final transient Logger LOGGER = LoggerFactory.getLogger(RdsHttpClientUtil.class);
+public class LsHttpClientUtil {
+	private static final transient Logger LOGGER = LoggerFactory.getLogger(LsHttpClientUtil.class);
 
 	public static String sendPostRequest(String url, String data)
 			throws IOException, URISyntaxException {
@@ -52,7 +52,7 @@ public class RdsHttpClientUtil {
 		LOGGER.info("param : " + param);
 		String result = "";
 		try {
-			result = RdsHttpClientUtil.sendPostRequest(address, param);
+			result = LsHttpClientUtil.sendPostRequest(address, param);
 			LOGGER.info("result : " + result);
 		} catch (IOException e) {
 			String errorMessage = e.getMessage();
@@ -138,7 +138,7 @@ public class RdsHttpClientUtil {
 		map.put("serviceId", "MCS001");
 		map.put("newPwd", "111111");
 		map.put("oldPwd", "123456");
-		String result = RdsHttpClientUtil.sendGet(
+		String result = LsHttpClientUtil.sendGet(
 				"http://10.1.228.198:14821/iPaas-UAC/service/modifyServPwd",
 				map);
 		System.out.println("++++++++++++  " + result);

@@ -1,4 +1,4 @@
-package com.ai.paas.ipaas.rds.manage.rest.interfaces;
+package com.ai.paas.ipaas.ls.manage.rest.interfaces;
 
 import javax.ws.rs.Consumes;
 import javax.ws.rs.POST;
@@ -10,29 +10,25 @@ import com.ai.paas.ipaas.rpc.api.manage.ISrvManager;
 
 /** 
  * @author  作者 “WTF” E-mail: 1031248990@qq.com
- * @date 创建时间：2016年7月5日 下午4:56:38 
+ * @date 创建时间：2016年10月27日 下午4:18:28 
  * @version 
  * @since  
  */
-@Path("/rds/mysql/manager")
+@Path("/ls/manager")
 @Consumes({MediaType.APPLICATION_JSON})
 @Produces({MediaType.APPLICATION_JSON, MediaType.TEXT_XML})
-public interface IRDSInstanceManager extends ISrvManager{
+public interface ILSIncManager extends ISrvManager {
 
 	/**
 	 * 服务申请
-	 * 相关操作：通过审核的账号可以创建相应的MySQL服务器
 	 * @param createApply
 	 *            :申请内容为json格式
 	 * @return
 	 */
-	@Path("/create/master")
+	@Path("/create")
 	@POST
 	public String create(String createApply); 
 	
-	@Path("/create/slaverorbatmaster")
-	@POST
-	public String createslobm(String create);
 
 	/**
 	 * 注销服务，资源回收
@@ -102,18 +98,4 @@ public interface IRDSInstanceManager extends ISrvManager{
 	@Path("/modify")
 	@POST
 	public String modify(String modify);
-	
-	
-	/**
-	 * 切换主备服务器
-	 * @param switchmaster
-	 * @return
-	 */
-	@Path("/switchmaster")
-	@POST
-	public String switchmaster(String switchmaster);
-	
-	@Path("/changecontainerconfig")
-	@POST
-	public String changecontainerconfig(String changecontainerconfig);
 }

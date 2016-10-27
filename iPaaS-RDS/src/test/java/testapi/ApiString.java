@@ -17,7 +17,7 @@ public class ApiString {
 		//add res
 		Timestamp time = new Timestamp(System.currentTimeMillis()); 
 	//	RdsResourcePool rdsRes = new  RdsResourcePool("192.168.1.125",50000,5000,5001,1,"hbhb123","hbhb123",1,2000000,20,"/home",time,time);
-		RdsResourcePool rdsRes = new  RdsResourcePool("10.1.245.226",50000,5000,5001,1,"root","123456",1,2000000,20,"percona_volumn/data",64,2,"cpu0,cpu1,cpu2,cpu3",100,2);
+		RdsResourcePool rdsRes = new  RdsResourcePool("10.1.245.226",50000,5000,5001,1,"root","123456",1,2000000,20,"percona_volumn/data",64,2,"cpu0,cpu1,cpu2,cpu3",100,2,1);
 //		rdsRes.set
 		String request = g.toJson(rdsRes);
 		System.out.println(request);

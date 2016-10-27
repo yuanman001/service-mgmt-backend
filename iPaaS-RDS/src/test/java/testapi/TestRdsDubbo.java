@@ -10,12 +10,12 @@ import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
 import com.ai.paas.ipaas.rds.dao.mapper.bo.RdsIncBase;
 import com.ai.paas.ipaas.rds.manage.rest.interfaces.IRDSInstanceManager;
-import com.ai.paas.ipaas.rds.manage.rest.interfaces.IRDSInstanceOperater;
 import com.ai.paas.ipaas.rds.manage.rest.interfaces.IRDSResourcePool;
 import com.ai.paas.ipaas.rds.service.transfer.vo.CancelRDS;
 import com.ai.paas.ipaas.rds.service.transfer.vo.ChangeContainerConfig;
 import com.ai.paas.ipaas.rds.service.transfer.vo.CreateRDS;
 import com.ai.paas.ipaas.rds.service.transfer.vo.CreateRDSResult;
+import com.ai.paas.ipaas.rds.service.transfer.vo.GetIncInfo;
 import com.ai.paas.ipaas.rds.service.transfer.vo.ModifyRDS;
 import com.ai.paas.ipaas.rds.service.transfer.vo.StartRDS;
 import com.ai.paas.ipaas.rds.service.transfer.vo.StopRDS;
@@ -31,8 +31,6 @@ public class TestRdsDubbo {
 	private IRDSInstanceManager incManager;
 	@Reference
 	private IRDSResourcePool resMananger;
-	@Reference
-	private IRDSInstanceOperater incOperater;
 	
 	Gson g = new Gson();
 	
@@ -199,17 +197,17 @@ public class TestRdsDubbo {
 	 * 解析方法:CancelRDSResult ct = g.fromGson(obj,CancelRDSResult.class)
 	 * 主要是status值有用
 	 */
-	@Test
-	public void cancel(){
-		CancelRDS cancelObject = new CancelRDS();
-		cancelObject.instanceid = 218;
-		String request = g.toJson(cancelObject);
-		System.out.println(request);
-		String result = incManager.cancel(request);
-		System.out.println("$$$$$$$$$$$$$$$$$$$$result$$$$$$$$$$$$$$$$$$$");
-		System.out.println(result);
-		System.out.println("$$$$$$$$$$$$$$$$$$$$result$$$$$$$$$$$$$$$$$$$");
-	}
+//	@Test
+//	public void cancel(){
+//		CancelRDS cancelObject = new CancelRDS();
+//		cancelObject.instanceid = 218;
+//		String request = g.toJson(cancelObject);
+//		System.out.println(request);
+//		String result = incManager.cancel(request);
+//		System.out.println("$$$$$$$$$$$$$$$$$$$$result$$$$$$$$$$$$$$$$$$$");
+//		System.out.println(result);
+//		System.out.println("$$$$$$$$$$$$$$$$$$$$result$$$$$$$$$$$$$$$$$$$");
+//	}
 	
 	/**
 	 * passed
