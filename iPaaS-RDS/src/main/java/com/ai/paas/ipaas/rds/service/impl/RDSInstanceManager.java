@@ -31,6 +31,7 @@ import com.ai.paas.ipaas.base.dao.mapper.bo.IpaasImageResourceCriteria;
 import com.ai.paas.ipaas.ccs.constants.ConfigCenterDubboConstants.PathType;
 import com.ai.paas.ipaas.ccs.service.ICCSComponentManageSv;
 import com.ai.paas.ipaas.ccs.service.dto.CCSComponentOperationParam;
+import com.ai.paas.ipaas.common.service.IOrgnizeUserHelper;
 import com.ai.paas.ipaas.rds.dao.interfaces.RdsIncBaseMapper;
 import com.ai.paas.ipaas.rds.dao.interfaces.RdsResourcePoolMapper;
 import com.ai.paas.ipaas.rds.dao.mapper.bo.RdsIncBase;
@@ -96,6 +97,9 @@ public class RDSInstanceManager  {
 
 	@Autowired
 	ICCSComponentManageSv iCCSComponentManageSv;
+	
+	@Autowired
+	private IOrgnizeUserHelper orgnizeUserHelper;
 
 	/**
 	 * 注销实例
@@ -1299,32 +1303,41 @@ private RDSResourcePlan getResourcePlan(RdsIncBase inc, RdsResourcePool decidedR
 	 */
 	private List<RdsResourcePool> getMasterUsableResource(RdsIncBase inc, List<RdsResourcePool> resourceList) {
 		List<RdsResourcePool> canUseRes = new LinkedList<RdsResourcePool>();
-		for (RdsResourcePool rp : resourceList) {
-			int canUseExtMemSize = rp.getTotalmemory() - rp.getUsedmemory();
-			Type cputype = new TypeToken<List<CPU>>(){}.getType();
-			int canUseIntMemSize = rp.getTotIntStorage() - rp.getUsedIntStorage();
-			int canUseBandWidthSizee = rp.getNetBandwidth() - rp.getUsedNetBandwidth();
-//			boolean existIdleCpu = false;
-			int countUseableCpu = 0;
-			int cpuNeedNum = Integer.valueOf(inc.getCpuInfo());
-			List<CPU> cpus = g.getGson().fromJson(rp.getCpu(), cputype);
-			for(CPU cpu: cpus){
-				if(cpu.usable = true)
-					countUseableCpu++;
+		try {
+			int orgId = orgnizeUserHelper.getOrgnizeInfo(inc.getUserId()).getOrgId();
+		
+			for (RdsResourcePool rp : resourceList) {
+				int canUseExtMemSize = rp.getTotalmemory() - rp.getUsedmemory();
+				Type cputype = new TypeToken<List<CPU>>(){}.getType();
+				int canUseIntMemSize = rp.getTotIntStorage() - rp.getUsedIntStorage();
+				int canUseBandWidthSizee = rp.getNetBandwidth() - rp.getUsedNetBandwidth();
+	//			boolean existIdleCpu = false;
+				int countUseableCpu = 0;
+				int cpuNeedNum = Integer.valueOf(inc.getCpuInfo());
+				List<CPU> cpus = g.getGson().fromJson(rp.getCpu(), cputype);
+				for(CPU cpu: cpus){
+					if(cpu.usable = true)
+						countUseableCpu++;
+				}
+				
+				if ((RDSCommonConstant.RES_STATUS_USABLE == rp.getStatus()) 
+						&& (RDSCommonConstant.RES_CYCLE_USABLE == rp.getCycle())
+						&& (canUseExtMemSize > inc.getDbStoreage())
+						&& ((rp.getCurrentport() + 1) < rp.getMaxport())
+						&& canUseIntMemSize > inc.getIntStorage()
+						&& canUseBandWidthSizee > inc.getNetBandwidth()
+						&& rp.getOrgId() == orgId
+	//					&& countUseableCpu >= cpuNeedNum
+						) {
+					canUseRes.add(rp);
+				}
 			}
-			
-			if ((RDSCommonConstant.RES_STATUS_USABLE == rp.getStatus()) 
-					&& (RDSCommonConstant.RES_CYCLE_USABLE == rp.getCycle())
-					&& (canUseExtMemSize > inc.getDbStoreage())
-					&& ((rp.getCurrentport() + 1) < rp.getMaxport())
-					&& canUseIntMemSize > inc.getIntStorage()
-					&& canUseBandWidthSizee > inc.getNetBandwidth()
-//					&& countUseableCpu >= cpuNeedNum
-					) {
-				canUseRes.add(rp);
-			}
+			return canUseRes;
+		} catch (PaasException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
 		}
-		return canUseRes;
+		return null;
 	}
 
 
