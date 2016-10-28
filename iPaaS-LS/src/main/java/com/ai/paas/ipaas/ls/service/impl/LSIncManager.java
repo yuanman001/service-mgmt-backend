@@ -9,6 +9,19 @@ import org.springframework.transaction.annotation.Transactional;
 import com.ai.paas.ipaas.ccs.service.ICCSComponentManageSv;
 import com.ai.paas.ipaas.common.service.IOrgnizeUserHelper;
 import com.ai.paas.ipaas.ls.manage.rest.interfaces.ILSIncManager;
+import com.ai.paas.ipaas.ls.service.constant.ResponseResultMark;
+import com.ai.paas.ipaas.ls.service.transfer.vo.CancelLS;
+import com.ai.paas.ipaas.ls.service.transfer.vo.CancelLSResult;
+import com.ai.paas.ipaas.ls.service.transfer.vo.CreateLS;
+import com.ai.paas.ipaas.ls.service.transfer.vo.CreateLSResult;
+import com.ai.paas.ipaas.ls.service.transfer.vo.ModifyLS;
+import com.ai.paas.ipaas.ls.service.transfer.vo.ModifyLSResult;
+import com.ai.paas.ipaas.ls.service.transfer.vo.RestartLS;
+import com.ai.paas.ipaas.ls.service.transfer.vo.RestartLSResult;
+import com.ai.paas.ipaas.ls.service.transfer.vo.StartLS;
+import com.ai.paas.ipaas.ls.service.transfer.vo.StartLSResult;
+import com.ai.paas.ipaas.ls.service.transfer.vo.StopLS;
+import com.ai.paas.ipaas.ls.service.transfer.vo.StopLSResult;
 import com.ai.paas.ipaas.ls.service.util.GsonSingleton;
 
 /** 
@@ -34,14 +47,20 @@ public class LSIncManager implements ILSIncManager {
 
 	@Override
 	public String create(String createApply) {
-		// TODO Auto-generated method stub
-		return null;
+		CreateLS createObj = g.getGson().fromJson(createApply, CreateLS.class);
+		
+		
+		CreateLSResult createResult = new CreateLSResult(ResponseResultMark.WARN_INIT_STATUS);
+		return g.getGson().toJson(createResult);
 	}
 
 	@Override
 	public String cancel(String cancelApply) {
-		// TODO Auto-generated method stub
-		return null;
+		CancelLS cancelObj = g.getGson().fromJson(cancelApply, CancelLS.class);
+		
+		
+		CancelLSResult cancelResult = new CancelLSResult(ResponseResultMark.WARN_INIT_STATUS);
+		return g.getGson().toJson(cancelResult);
 	}
 
 	@Override
@@ -52,20 +71,29 @@ public class LSIncManager implements ILSIncManager {
 
 	@Override
 	public String start(String startApply) {
-		// TODO Auto-generated method stub
-		return null;
+		StartLS startObj = g.getGson().fromJson(startApply, StartLS.class);
+		
+		
+		StartLSResult startResult = new StartLSResult(ResponseResultMark.WARN_INIT_STATUS);
+		return g.getGson().toJson(startResult);
 	}
 
 	@Override
 	public String stop(String stopApply) {
-		// TODO Auto-generated method stub
-		return null;
+		StopLS stopObj = g.getGson().fromJson(stopApply, StopLS.class);
+		
+		
+		StopLSResult stopResult = new StopLSResult(ResponseResultMark.WARN_INIT_STATUS);
+		return g.getGson().toJson(stopResult);
 	}
 
 	@Override
 	public String restart(String restartApply) {
-		// TODO Auto-generated method stub
-		return null;
+		RestartLS restartObj = g.getGson().fromJson(restartApply, RestartLS.class);
+		
+		
+		RestartLSResult restartResult = new RestartLSResult(ResponseResultMark.WARN_INIT_STATUS);
+		return g.getGson().toJson(restartResult);
 	}
 
 	@Override
@@ -76,7 +104,10 @@ public class LSIncManager implements ILSIncManager {
 
 	@Override
 	public String modify(String modify) {
-		// TODO Auto-generated method stub
-		return null;
+		ModifyLS modifyObj = g.getGson().fromJson(modify, ModifyLS.class);
+		
+		
+		ModifyLSResult modifyResult = new ModifyLSResult(ResponseResultMark.WARN_INIT_STATUS);
+		return g.getGson().toJson(modifyResult);
 	}
 }
