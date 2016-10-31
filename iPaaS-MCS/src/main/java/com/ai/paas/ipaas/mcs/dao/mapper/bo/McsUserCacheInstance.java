@@ -29,6 +29,8 @@ public class McsUserCacheInstance {
 
     private String redisImage;
 
+    private Integer sshPort;
+
     public Integer getId() {
         return id;
     }
@@ -131,5 +133,13 @@ public class McsUserCacheInstance {
 
     public void setRedisImage(String redisImage) {
         this.redisImage = redisImage == null ? null : redisImage.trim();
+    }
+
+    public Integer getSshPort() {
+        return sshPort;
+    }
+
+    public void setSshPort(Integer sshPort) {
+        this.sshPort = sshPort;
     }
 }

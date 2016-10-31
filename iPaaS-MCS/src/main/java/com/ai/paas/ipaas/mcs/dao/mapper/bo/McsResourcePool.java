@@ -29,6 +29,8 @@ public class McsResourcePool {
 
     private Integer orgId;
 
+    private Integer sshPort;
+
     public Integer getId() {
         return id;
     }
@@ -139,5 +141,13 @@ public class McsResourcePool {
 
     public void setOrgId(Integer orgId) {
         this.orgId = orgId;
+    }
+
+    public Integer getSshPort() {
+        return sshPort;
+    }
+
+    public void setSshPort(Integer sshPort) {
+        this.sshPort = sshPort;
     }
 }

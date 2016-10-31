@@ -1,11 +1,9 @@
 package com.ai.paas.ipaas.mcs.dao.interfaces;
 
-import java.util.List;
-
-import org.apache.ibatis.annotations.Param;
-
 import com.ai.paas.ipaas.mcs.dao.mapper.bo.McsResourcePool;
 import com.ai.paas.ipaas.mcs.dao.mapper.bo.McsResourcePoolCriteria;
+import java.util.List;
+import org.apache.ibatis.annotations.Param;
 
 public interface McsResourcePoolMapper {
     int countByExample(McsResourcePoolCriteria example);

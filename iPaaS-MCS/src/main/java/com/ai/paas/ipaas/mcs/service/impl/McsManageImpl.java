@@ -109,6 +109,7 @@ public class McsManageImpl implements IMcsSv {
 		McsResourcePool mcsResourcePool = selectMcsResSingle(orgId, cacheSize, 1);
 		String hostIp = mcsResourcePool.getCacheHostIp();
 		Integer cachePort = mcsResourcePool.getCachePort();
+		Integer sshPort = mcsResourcePool.getSshPort();
 		String requirepass = mcsSvHepler.getRandomKey();
 
 		/** 2.获取执行ansible命令所需要的主机信息，以及docker镜像信息. **/
@@ -122,7 +123,7 @@ public class McsManageImpl implements IMcsSv {
 				
 		/** 4.创建 mcs_host.cfg 文件，并写入hostIp. **/
 		createHostCfg(basePath);
-		writeHostCfg(basePath, hostIp);
+		writeHostCfg(basePath, hostIp, sshPort + "");
 		logger.info("-----创建 mcs_host.cfg 成功！");
 
 		/** 5.上传 ansible的 playbook 文件. **/
@@ -143,12 +144,12 @@ public class McsManageImpl implements IMcsSv {
 			logger.info("----------处理zk 配置成功！");
 	
 			/** 8.添加mcs用户实例信息. **/
-			addUserInstance(userId, serviceId, capacity, hostIp, cachePort, requirepass, serviceName, containerName, image);
+			addUserInstance(userId, serviceId, capacity, hostIp, cachePort, requirepass, serviceName, containerName, image, sshPort);
 			logger.info("---------记录用户实例成功！");
 		} catch (Exception ex) {
 			logger.error("==== open cluster error, msg:" + ex.getMessage());
 			/** 如果在启动docker成功后出现异常，需要stop并rm，所启动的docker容器。 **/
-			writeHostCfg(basePath, hostIp);
+			writeHostCfg(basePath, hostIp, sshPort + "");
 			releaseDocker(hostIp, containerName, McsConstants.DOCKER_COMMAND_STOP);
 			releaseDocker(hostIp, containerName, McsConstants.DOCKER_COMMAND_REMOVE);
 			throw new PaasException("==== open single MCS error ====");
@@ -199,6 +200,7 @@ public class McsManageImpl implements IMcsSv {
 		for (McsProcessInfo proInfo : cacheInfoList) {
 			hostIp = proInfo.getCacheHostIp();
 			Integer cachePort = proInfo.getCachePort();
+			String sshPort = proInfo.getAgentPort() + "";
 			String containerName = proInfo.getContainerName();
 			String requirepass = mcsSvHepler.getRandomKey();
 			
@@ -206,7 +208,7 @@ public class McsManageImpl implements IMcsSv {
 					requirepass, McsConstants.MODE_CLUSTER, sshUser, sshUserPwd, containerName, image);
 			
 			/** 将hostIp写入 mcs_host.cfg 文件. **/
-			writeHostCfg(basePath, hostIp);
+			writeHostCfg(basePath, hostIp, sshPort);
 			logger.info("-----[" + hostIp + "]写入 mcs_host.cfg 成功！");
 			
 			/** 顺序执行启动 redis_server 的命令. **/
@@ -243,7 +245,7 @@ public class McsManageImpl implements IMcsSv {
 			logger.error("==== open cluster error, msg:" + ex.getMessage());
 			/** 如果在启动docker成功后出现异常，需要stop并rm，所有已启动的docker容器。 **/
 			for (McsProcessInfo proInfo : cacheInfoList) {
-				writeHostCfg(basePath, hostIp);
+				writeHostCfg(basePath, hostIp, proInfo.getAgentPort()+"");
 				releaseDocker(proInfo.getCacheHostIp(), proInfo.getContainerName(), McsConstants.DOCKER_COMMAND_STOP);
 				releaseDocker(proInfo.getCacheHostIp(), proInfo.getContainerName(), McsConstants.DOCKER_COMMAND_REMOVE);
 			}
@@ -293,6 +295,7 @@ public class McsManageImpl implements IMcsSv {
 		int orgId = orgnizeUserHelper.getOrgnizeInfo(userId).getOrgId();
 		McsResourcePool mcsResourcePool = selectMcsResSingle(orgId, cacheSize * 2, 2);
 		String hostIp = mcsResourcePool.getCacheHostIp();
+		Integer sshPort = mcsResourcePool.getSshPort();
 		Integer masterPort = mcsResourcePool.getCachePort();
 		Integer slavePort = masterPort -1;
 		String masterPwd = mcsSvHepler.getRandomKey();
@@ -310,7 +313,7 @@ public class McsManageImpl implements IMcsSv {
 		
 		/** 3.创建 mcs_host.cfg 文件，并写入hostIp. **/
 		createHostCfg(basePath);
-		writeHostCfg(basePath, hostIp);
+		writeHostCfg(basePath, hostIp, sshPort + "");
 		logger.info("-----创建 mcs_host.cfg 成功！");
 
 		/** 4.上传 ansible的 playbook 文件. **/
@@ -338,10 +341,10 @@ public class McsManageImpl implements IMcsSv {
 		logger.info("----------处理zk 配置成功！");
 
 		/** 8.添加mcs用户master实例信息. **/
-		addUserInstance(userId, serviceId, capacity, hostIp, masterPort, masterPwd, serviceName, masterContainerName, image);
+		addUserInstance(userId, serviceId, capacity, hostIp, masterPort, masterPwd, serviceName, masterContainerName, image, sshPort);
 		
 		/** 9.添加mcs用户slave实例信息. **/
-		addUserInstance(userId, serviceId, capacity, hostIp, slavePort, masterPwd, serviceName, slaveContainerName, image);
+		addUserInstance(userId, serviceId, capacity, hostIp, slavePort, masterPwd, serviceName, slaveContainerName, image, sshPort);
 		logger.info("---------记录用户实例成功！");
 		
 		return McsConstants.SUCCESS_FLAG;
@@ -359,6 +362,7 @@ public class McsManageImpl implements IMcsSv {
 		int orgId = orgnizeUserHelper.getOrgnizeInfo(userId).getOrgId();
 		McsResourcePool mcsResourcePool = selectMcsResSingle(orgId, cacheSize * 2, 3);
 		String hostIp = mcsResourcePool.getCacheHostIp();
+		Integer sshPort = mcsResourcePool.getSshPort();
 		Integer sentinelPort = mcsResourcePool.getCachePort();
 		Integer slavePort = sentinelPort -1;
 		Integer masterPort =sentinelPort -2;
@@ -379,7 +383,7 @@ public class McsManageImpl implements IMcsSv {
 		
 		/** 3.创建 mcs_host.cfg 文件，并写入hostIp. **/
 		createHostCfg(basePath);
-		writeHostCfg(basePath, hostIp);
+		writeHostCfg(basePath, hostIp, sshPort + "");
 		logger.info("-----创建 mcs_host.cfg 成功！");
 
 		/** 4.上传 ansible的 playbook 文件. **/
@@ -415,14 +419,14 @@ public class McsManageImpl implements IMcsSv {
 		logger.info("----------处理zk 配置成功！");
 
 		/** 9.添加mcs用户master实例信息. **/
-		addUserInstance(userId, serviceId, capacity, hostIp, masterPort, masterPwd, serviceName, masterContainerName, image);
+		addUserInstance(userId, serviceId, capacity, hostIp, masterPort, masterPwd, serviceName, masterContainerName, image, sshPort);
 		
 		/** 10.添加mcs用户slave实例信息. **/
-		addUserInstance(userId, serviceId, capacity, hostIp, slavePort, masterPwd, serviceName, slaveContainerName, image);
+		addUserInstance(userId, serviceId, capacity, hostIp, slavePort, masterPwd, serviceName, slaveContainerName, image, sshPort);
 		logger.info("---------记录用户实例成功！");
 		
 		/** 11.添加mcs用户sentinel实例信息. **/
-		addUserInstance(userId, serviceId, "0", hostIp, sentinelPort, masterPwd, serviceName, sentinelContainerName, image);
+		addUserInstance(userId, serviceId, "0", hostIp, sentinelPort, masterPwd, serviceName, sentinelContainerName, image, sshPort);
 		logger.info("---------记录用户实例成功！");
 		
 		return McsConstants.SUCCESS_FLAG;
@@ -762,10 +766,11 @@ public class McsManageImpl implements IMcsSv {
 	/**
 	 * 将IP信息写入 mcs_host.cfg 文件
 	 */
-	private void writeHostCfg(String basePath, String hostIp) throws PaasException {
+	private void writeHostCfg(String basePath, String hostIp, String sshPort) throws PaasException {
 		StringBuilder command = new StringBuilder();
 		command.append("cd ").append(basePath).append(McsConstants.PLAYBOOK_CFG_PATH)
-		.append(" &&echo ").append(hostIp).append("> ").append(McsConstants.PLAYBOOK_HOST_CFG);
+		.append(" &&echo ").append(hostIp).append(":").append(sshPort)
+		.append("> ").append(McsConstants.PLAYBOOK_HOST_CFG);
 
 		runAnsileCommand(command.toString());
 	}
@@ -793,13 +798,14 @@ public class McsManageImpl implements IMcsSv {
 		
 		for (McsUserCacheInstance ins :userInstanceList) {
 			String hostIp = ins.getCacheHost();
+			String sshPort = ins.getSshPort() + "";
 			Integer cachePort = ins.getCachePort();
 			String requirepass = ins.getPwd(); 
 			String containerName = ins.getContainerName();
 			String redisImage = ins.getRedisImage();
 			String capacity = (ins.getCacheMemory() + addCacheSize) + ""; 
 			
-			writeHostCfg(basePath, hostIp);
+			writeHostCfg(basePath, hostIp, sshPort);
 			uploadMcsFile(McsConstants.PLAYBOOK_MCS_PATH, McsConstants.PLAYBOOK_SINGLE_YML);
 			String ansibleCommand = getRedisServerCommand(capacity, basePath, hostIp, cachePort, requirepass, 
 					haMode, sshUser, sshUserPwd, containerName, redisImage);
@@ -815,10 +821,11 @@ public class McsManageImpl implements IMcsSv {
 		String sshUserPwd = getMcsSSHInfo(McsConstants.SSH_USER_PWD_CODE);
 		String basePath = AgentUtil.getAgentFilePath(AidUtil.getAid());
 		
-		String userId = "", serviceId = "", hostIp = "", clusterInfo = "";
+		String userId = "", serviceId = "", hostIp = "", sshPort = "", clusterInfo = "";
 		for(McsUserCacheInstance vo: userInstanceList) {
 			clusterInfo += vo.getCacheHost()+ ":" + vo.getCachePort() + " ";
 			hostIp = vo.getCacheHost();
+			sshPort = vo.getSshPort() + "";
 			userId = vo.getUserId();
 			serviceId = vo.getSerialNumber();
 		}
@@ -826,7 +833,7 @@ public class McsManageImpl implements IMcsSv {
 		/** 不再上传mcs_cluster.yml, 需要将hostIp>host.cfg文件；
 		 * 创建redis集群在任意台资源主机上执行命令均可。
 		 * 执行redis集群创建命令 **/
-		writeHostCfg(basePath, hostIp);
+		writeHostCfg(basePath, hostIp, sshPort);
 		String containerName = userId + "-" + serviceId + "-createRedisCluster";
 		String redisClusterRun = getCreateClusterCommand(basePath, hostIp, sshUser, sshUserPwd, clusterInfo, containerName, redisClusterImage);
 		runAnsileCommand(redisClusterRun);
@@ -844,9 +851,10 @@ public class McsManageImpl implements IMcsSv {
 		
 		for (McsUserCacheInstance ins :userInstanceList) {
 			String hostIp = ins.getCacheHost();
+			String sshPort = ins.getSshPort() + "";
 			String containerName = ins.getContainerName();
 
-			writeHostCfg(basePath, hostIp);
+			writeHostCfg(basePath, hostIp, sshPort);
 	
 			String ansibleCommand = getDockerOperateCommand(basePath, hostIp, sshUser,
 					sshUserPwd, command, containerName);
@@ -907,6 +915,7 @@ public class McsManageImpl implements IMcsSv {
 			
 			/** 已取到的资源信息 **/
 			String hostIp = pool.getCacheHostIp();
+			Integer sshPort = pool.getSshPort();
 			Integer currentPort = pool.getCachePort();
 			Integer masterPort = currentPort+1;
 			Integer slavePort = currentPort+2;
@@ -919,6 +928,7 @@ public class McsManageImpl implements IMcsSv {
 			masterVo.setCacheHostIp(hostIp);
 			masterVo.setCachePort(masterPort);
 			masterVo.setContainerName(masterContainer);
+			masterVo.setAgentPort(sshPort);
 			returnList.add(masterVo);
 			
 			/** 设置slave所用资源 **/
@@ -926,6 +936,7 @@ public class McsManageImpl implements IMcsSv {
 			slaveVo.setCacheHostIp(hostIp);
 			slaveVo.setCachePort(slavePort);
 			slaveVo.setContainerName(slaveContainer);
+			slaveVo.setAgentPort(sshPort);
 			returnList.add(slaveVo);
 			
 			/** 更新mcs资源池记录 **/
@@ -1006,7 +1017,7 @@ public class McsManageImpl implements IMcsSv {
 	 * 新增用户的缓存实例
 	 */
 	private void addUserInstance(String userId, String serviceId, String capacity, String ip, int port, String pwd,
-			String serviceName, String containerName, String imageInfo) throws PaasException {
+			String serviceName, String containerName, String imageInfo, Integer sshPort) throws PaasException {
 		McsUserCacheInstance bean = new McsUserCacheInstance();
 		bean.setUserId(userId);
 		bean.setCacheHost(ip);
@@ -1020,6 +1031,7 @@ public class McsManageImpl implements IMcsSv {
 		bean.setServiceName(serviceName);
 		bean.setContainerName(containerName);
 		bean.setRedisImage(imageInfo);
+		bean.setSshPort(sshPort);
 		
 		ServiceUtil.getMapper(McsUserCacheInstanceMapper.class).insert(bean);
 	}
@@ -1037,7 +1049,7 @@ public class McsManageImpl implements IMcsSv {
 			containerName.append(userId).append("-").append(serviceId).append("-")
 				.append(cacheInfo.getCacheHostIp().replace(".", "")).append("-").append(cacheInfo.getCachePort());
 			addUserInstance(userId, serviceId, clusterCacheSize + "", cacheInfo.getCacheHostIp(), 
-					cacheInfo.getCachePort(), null, serviceName, containerName.toString(), image);
+					cacheInfo.getCachePort(), null, serviceName, containerName.toString(), image, cacheInfo.getAgentPort().intValue());
 		}
 	}
 	
