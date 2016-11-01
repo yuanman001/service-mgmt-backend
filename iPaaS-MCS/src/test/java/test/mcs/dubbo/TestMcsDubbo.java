@@ -9,7 +9,8 @@ import com.ai.paas.ipaas.mcs.manage.rest.interfaces.IMemoryCacheServiceManager;
 import com.alibaba.dubbo.config.annotation.Reference;
 
 @RunWith(SpringJUnit4ClassRunner.class)
-@ContextConfiguration({"/dubbo/consumer/mcs-consumer.xml"})
+@ContextConfiguration({ "classpath:dubbo/consumer/mcs-consumer.xml",
+	"classpath:dubbo/consumer/applicationContext-mybatis.xml" })
 public class TestMcsDubbo {
   @Reference
   private IMemoryCacheServiceManager iMemoryCacheServiceManager;
@@ -20,24 +21,24 @@ public class TestMcsDubbo {
 //    System.out.println(fl);
 //  }
 
-//  @Test
-//  public void createSingle() {
-//    long s = System.currentTimeMillis();
-//    String param =
-//        "{\"userId\":\"6C4F4DBA96294DDCBC5DBBF2CAD442B5\",\"applyType\":\"create\",\"serviceId\":\"MCS666\",\"capacity\":\"64\","
-//            + "\"haMode\":\"single\",\"serviceName\":\"ym-test-2\"}";
-//    System.out.println("----------create-res:\n" + iMemoryCacheServiceManager.create(param));
-//    System.out.println("----------开通单例，耗时：" + (System.currentTimeMillis() - s)/1000 + "秒");
-//  }
-
   @Test
-  public void createCluster() {
+  public void createSingle() {
     long s = System.currentTimeMillis();
     String param =
-        "{\"userId\":\"6C4F4DBA96294DDCBC5DBBF2CAD442B5\",\"applyType\":\"create\",\"serviceId\":\"MCS065\",\"capacity\":\"128\",\"haMode\":\"cluster\"}";
+        "{\"userId\":\"6C4F4DBA96294DDCBC5DBBF2CAD442B5\",\"applyType\":\"create\",\"serviceId\":\"MCS678\",\"capacity\":\"64\","
+            + "\"haMode\":\"single\",\"serviceName\":\"ym-test-2\"}";
     System.out.println("----------create-res:\n" + iMemoryCacheServiceManager.create(param));
-    System.out.println("----------开通集群，耗时：" + (System.currentTimeMillis() - s)/1000 + "秒");
+    System.out.println("----------开通单例，耗时：" + (System.currentTimeMillis() - s)/1000 + "秒");
   }
+
+//  @Test
+//  public void createCluster() {
+//    long s = System.currentTimeMillis();
+//    String param =
+//        "{\"userId\":\"6C4F4DBA96294DDCBC5DBBF2CAD442B5\",\"applyType\":\"create\",\"serviceId\":\"MCS065\",\"capacity\":\"128\",\"haMode\":\"cluster\"}";
+//    System.out.println("----------create-res:\n" + iMemoryCacheServiceManager.create(param));
+//    System.out.println("----------开通集群，耗时：" + (System.currentTimeMillis() - s)/1000 + "秒");
+//  }
 
 //@Test
 //public void cancel() {
