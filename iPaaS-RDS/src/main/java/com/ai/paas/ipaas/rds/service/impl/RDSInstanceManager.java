@@ -703,7 +703,7 @@ public class RDSInstanceManager  {
 			String mkSshHosts = AnsibleConstant.fillStringByArgs(AnsibleConstant.CREATE_ANSIBLE_HOSTS,
 					new String[] { rdsPath, 
 							savedRdsIncBase.getIncIp().replace(".", ""),
-							savedRdsIncBase.getIncIp() });
+							savedRdsIncBase.getIncIp() + ":" + incRes.getSshPort() });
 			LOG.debug("---------mkSshHosts {}----------", mkSshHosts);
 			AgentUtil.executeCommand(basePath + mkSshHosts, AidUtil.getAid());
 
@@ -815,7 +815,7 @@ public class RDSInstanceManager  {
 				String mkSshHosts_s = AnsibleConstant.fillStringByArgs(AnsibleConstant.CREATE_ANSIBLE_HOSTS,
 						new String[] { rdsPath_s, 
 								savedRdsIncBase.getIncIp().replace(".", ""),
-								savedRdsIncBase.getIncIp() });
+								savedRdsIncBase.getIncIp() + ":" + incRes.getSshPort()  });
 				LOG.debug("---------mkSshHosts {}----------", mkSshHosts_s);
 				AgentUtil.executeCommand(basePath_s + mkSshHosts_s, AidUtil.getAid());
 
@@ -928,7 +928,7 @@ public class RDSInstanceManager  {
 //				String mkSshHosts_b = fillStringByArgs(CREATE_ANSIBLE_HOSTS,
 //						new String[] { rdsPath_b, 
 //								savedRdsIncBase.getIncIp().replace(".", ""),
-//								savedRdsIncBase.getIncIp() });
+//								savedRdsIncBase.getIncIp() + ":" + incRes.getSshPort()  });
 //				LOG.debug("---------mkSshHosts {}----------", mkSshHosts_b);
 //				AgentUtil.executeCommand(basePath_b + mkSshHosts_b, AidUtil.getAid());
 //
@@ -1044,7 +1044,7 @@ public class RDSInstanceManager  {
 		String mkSshHosts = AnsibleConstant.fillStringByArgs(AnsibleConstant.CREATE_ANSIBLE_HOSTS,
 				new String[] { rdsPath, 
 						savedRdsIncBase.getIncIp().replace(".", ""),
-						savedRdsIncBase.getIncIp() });
+						savedRdsIncBase.getIncIp() + ":" + incRes.getSshPort()  });
 		LOG.debug("---------mkSshHosts {}----------", mkSshHosts);
 		AgentUtil.executeCommand(basePath + mkSshHosts, AidUtil.getAid());
 
@@ -1838,7 +1838,7 @@ private RDSResourcePlan getResourcePlan(RdsIncBase inc, RdsResourcePool decidedR
 			String mkSshHosts = AnsibleConstant.fillStringByArgs(AnsibleConstant.CREATE_ANSIBLE_HOSTS,
 					new String[] { rdsPath, 
 							inc.getIncIp().replace(".", ""),
-							inc.getIncIp() });
+							inc.getIncIp() + ":" + incRes.getSshPort()  });
 			LOG.debug("---------mkSshHosts {}----------", mkSshHosts);
 			AgentUtil.executeCommand(basePath + mkSshHosts, AidUtil.getAid());
 
@@ -1890,7 +1890,7 @@ private RDSResourcePlan getResourcePlan(RdsIncBase inc, RdsResourcePool decidedR
 			String mkSshHosts = AnsibleConstant.fillStringByArgs(AnsibleConstant.CREATE_ANSIBLE_HOSTS,
 					new String[] { rdsPath, 
 							inc.getIncIp().replace(".", ""),
-							inc.getIncIp() });
+							inc.getIncIp() + ":" + incRes.getSshPort()  });
 			LOG.debug("---------mkSshHosts {}----------", mkSshHosts);
 			AgentUtil.executeCommand(basePath + mkSshHosts, AidUtil.getAid());
 
@@ -1942,7 +1942,7 @@ private RDSResourcePlan getResourcePlan(RdsIncBase inc, RdsResourcePool decidedR
 			String mkSshHosts = AnsibleConstant.fillStringByArgs(AnsibleConstant.CREATE_ANSIBLE_HOSTS,
 					new String[] { rdsPath, 
 							inc.getIncIp().replace(".", ""),
-							inc.getIncIp() });
+							inc.getIncIp() + ":" + incRes.getSshPort()  });
 			LOG.debug("---------mkSshHosts {}----------", mkSshHosts);
 			AgentUtil.executeCommand(basePath + mkSshHosts, AidUtil.getAid());
 

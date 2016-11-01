@@ -1255,6 +1255,66 @@ public class RdsResourcePoolCriteria {
             return (Criteria) this;
         }
 
+        public Criteria andSshPortIsNull() {
+            addCriterion("ssh_port is null");
+            return (Criteria) this;
+        }
+
+        public Criteria andSshPortIsNotNull() {
+            addCriterion("ssh_port is not null");
+            return (Criteria) this;
+        }
+
+        public Criteria andSshPortEqualTo(Integer value) {
+            addCriterion("ssh_port =", value, "sshPort");
+            return (Criteria) this;
+        }
+
+        public Criteria andSshPortNotEqualTo(Integer value) {
+            addCriterion("ssh_port <>", value, "sshPort");
+            return (Criteria) this;
+        }
+
+        public Criteria andSshPortGreaterThan(Integer value) {
+            addCriterion("ssh_port >", value, "sshPort");
+            return (Criteria) this;
+        }
+
+        public Criteria andSshPortGreaterThanOrEqualTo(Integer value) {
+            addCriterion("ssh_port >=", value, "sshPort");
+            return (Criteria) this;
+        }
+
+        public Criteria andSshPortLessThan(Integer value) {
+            addCriterion("ssh_port <", value, "sshPort");
+            return (Criteria) this;
+        }
+
+        public Criteria andSshPortLessThanOrEqualTo(Integer value) {
+            addCriterion("ssh_port <=", value, "sshPort");
+            return (Criteria) this;
+        }
+
+        public Criteria andSshPortIn(List<Integer> values) {
+            addCriterion("ssh_port in", values, "sshPort");
+            return (Criteria) this;
+        }
+
+        public Criteria andSshPortNotIn(List<Integer> values) {
+            addCriterion("ssh_port not in", values, "sshPort");
+            return (Criteria) this;
+        }
+
+        public Criteria andSshPortBetween(Integer value1, Integer value2) {
+            addCriterion("ssh_port between", value1, value2, "sshPort");
+            return (Criteria) this;
+        }
+
+        public Criteria andSshPortNotBetween(Integer value1, Integer value2) {
+            addCriterion("ssh_port not between", value1, value2, "sshPort");
+            return (Criteria) this;
+        }
+
         public Criteria andInstancecreatetimeIsNull() {
             addCriterion("instancecreatetime is null");
             return (Criteria) this;
