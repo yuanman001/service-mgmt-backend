@@ -316,31 +316,26 @@ public class IdpsSvImpl implements IIdpsSv {
 		}
 		servers.append("\"");
 		IpaasImageResource balanceImage = getBalancImage();
+		
 		// 上传文件
 		// 1.先将需要执行镜像命令的机器配置文件上传上去。
-		InputStream in = IdpsSvImpl.class
-				.getResourceAsStream("/playbook/idps/init_ansible_ssh_hosts.sh");
+		InputStream in = IdpsSvImpl.class.getResourceAsStream("/playbook/idps/init_ansible_ssh_hosts.sh");
 		String[] cnt = AgentUtil.readFileLines(in);
 		in.close();
-		AgentUtil.uploadFile("idps/init_ansible_ssh_hosts.sh", cnt,
-				AidUtil.getAid());
-		AgentUtil.executeCommand("chmod +x " + basePath
-				+ "idps/init_ansible_ssh_hosts.sh", AidUtil.getAid());
-		in = IdpsSvImpl.class
-				.getResourceAsStream("/playbook/idps/idpsimagebalance.yml");
+		AgentUtil.uploadFile("idps/init_ansible_ssh_hosts.sh", cnt, AidUtil.getAid());
+		AgentUtil.executeCommand("chmod +x " + basePath + "idps/init_ansible_ssh_hosts.sh", AidUtil.getAid());
+		
+		in = IdpsSvImpl.class.getResourceAsStream("/playbook/idps/idpsimagebalance.yml");
 		cnt = AgentUtil.readFileLines(in);
 		in.close();
-		AgentUtil
-				.uploadFile("idps/idpsimagebalance.yml", cnt, AidUtil.getAid());
+		AgentUtil.uploadFile("idps/idpsimagebalance.yml", cnt, AidUtil.getAid());
 
-		in = IdpsSvImpl.class
-				.getResourceAsStream("/playbook/idps/ansible_run_image_balance.sh");
+		in = IdpsSvImpl.class.getResourceAsStream("/playbook/idps/ansible_run_image_balance.sh");
 		cnt = AgentUtil.readFileLines(in);
 		in.close();
-		AgentUtil.uploadFile("idps/ansible_run_image_balance.sh", cnt,
-				AidUtil.getAid());
-		AgentUtil.executeCommand("chmod +x " + basePath
-				+ "idps/ansible_run_image_balance.sh", AidUtil.getAid());
+		AgentUtil.uploadFile("idps/ansible_run_image_balance.sh", cnt,AidUtil.getAid());
+		AgentUtil.executeCommand("chmod +x " + basePath+ "idps/ansible_run_image_balance.sh", AidUtil.getAid());
+		
 		//用户处理idps容器名字做唯一
 		int balanceNum = 1; 
 		for (IdpsBalanceResourcePool balance : balances) {
@@ -350,7 +345,7 @@ public class IdpsSvImpl implements IIdpsSv {
 					IdpsConstants.CREATE_ANSIBLE_HOSTS, new String[] {
 							basePath + "idps",
 							balance.getIdpsBalanceHostIp().replace(".", ""),
-							balance.getIdpsBalanceHostIp() });
+							balance.getIdpsBalanceHostIp() + ":" + balance.getSshPort() });
 			LOG.debug("---------mkSshHosts {}----------", mkSshHosts);
 			AgentUtil.executeCommand(basePath + mkSshHosts, AidUtil.getAid());
 			//-----------------如果是重新部署---------------start
@@ -398,6 +393,7 @@ public class IdpsSvImpl implements IIdpsSv {
 		}
 		servers.append("\"");
 		IpaasImageResource balanceImage = getBalancImage();
+		
 		// 上传文件
 		// 1.先将需要执行镜像命令的机器配置文件上传上去。
 		InputStream in = IdpsSvImpl.class
@@ -416,6 +412,7 @@ public class IdpsSvImpl implements IIdpsSv {
 				AidUtil.getAid());
 		AgentUtil.executeCommand("chmod +x " + basePath
 				+ "idps/ansible_stop_container_balance.sh", AidUtil.getAid());
+		
 		//用户处理idps容器名字做唯一
 		int balanceNum = 1; 
 		for (IdpsBalanceResourcePool balance : balances) {
@@ -425,7 +422,7 @@ public class IdpsSvImpl implements IIdpsSv {
 					IdpsConstants.CREATE_ANSIBLE_HOSTS, new String[] {
 							basePath + "idps",
 							balance.getIdpsBalanceHostIp().replace(".", ""),
-							balance.getIdpsBalanceHostIp() });
+							balance.getIdpsBalanceHostIp() + ":" + balance.getSshPort() });
 			LOG.debug("---------mkSshHosts {}----------", mkSshHosts);
 			AgentUtil.executeCommand(basePath + mkSshHosts, AidUtil.getAid());
 			String runImage = ParamUtil.replace(
@@ -493,7 +490,7 @@ public class IdpsSvImpl implements IIdpsSv {
 					IdpsConstants.CREATE_ANSIBLE_HOSTS, new String[] {
 							basePath + "idps",
 							balance.getIdpsBalanceHostIp().replace(".", ""),
-							balance.getIdpsBalanceHostIp() });
+							balance.getIdpsBalanceHostIp() + ":" + balance.getSshPort() });
 			LOG.debug("---------mkSshHosts {}----------", mkSshHosts);
 			AgentUtil.executeCommand(basePath + mkSshHosts, AidUtil.getAid());
 			String runImage = ParamUtil.replace(
@@ -557,8 +554,9 @@ public class IdpsSvImpl implements IIdpsSv {
 			balance.setIdpsBalancePort(balance.getIdpsBalancePort() + 1);
 			// 先
 			String mkSshHosts = ParamUtil.replace(IdpsConstants.CREATE_ANSIBLE_HOSTS, new String[] { basePath + "idps",
-					balance.getIdpsBalanceHostIp().replace(".", ""), balance.getIdpsBalanceHostIp() });
+					balance.getIdpsBalanceHostIp().replace(".", ""), balance.getIdpsBalanceHostIp() + ":" + balance.getSshPort()});
 			LOG.debug("---------mkSshHosts {}----------", mkSshHosts);
+			
 			AgentUtil.executeCommand(basePath + mkSshHosts, AidUtil.getAid());
 			String runImage = ParamUtil.replace(IdpsConstants.DOCKER_4_BALANCE_START_CONTAINER,
 					new String[] { "", balance.getIdpsBalanceHostIp().replace(".", ""), balance.getSshUser(),
@@ -868,40 +866,39 @@ public class IdpsSvImpl implements IIdpsSv {
 	private void handleServer(IdpsResourcePool idpsResourcePool, String dssPId,
 			String dssServiceId, String dssServicePwd,String userId,String serviceId) throws Exception {
 		String basePath = AgentUtil.getAgentFilePath(AidUtil.getAid());
+		
 		// 1.先将需要执行镜像命令的机器配置文件上传上去。
 		InputStream in = IdpsSvImpl.class
 				.getResourceAsStream("/playbook/idps/init_ansible_ssh_hosts.sh");
 		String[] cnt = AgentUtil.readFileLines(in);
 		in.close();
-		AgentUtil.uploadFile("idps/init_ansible_ssh_hosts.sh", cnt,
-				AidUtil.getAid());
-		AgentUtil.executeCommand("chmod +x " + basePath
-				+ "idps/init_ansible_ssh_hosts.sh", AidUtil.getAid());
+		AgentUtil.uploadFile("idps/init_ansible_ssh_hosts.sh", cnt,AidUtil.getAid());
+		AgentUtil.executeCommand("chmod +x " + basePath + "idps/init_ansible_ssh_hosts.sh", AidUtil.getAid());
+		
 		in = IdpsSvImpl.class
 				.getResourceAsStream("/playbook/idps/idpsimage.yml");
 		cnt = AgentUtil.readFileLines(in);
 		in.close();
 		AgentUtil.uploadFile("idps/idpsimage.yml", cnt, AidUtil.getAid());
-		// 2.执行这个初始化命令
+		
+		/** 执行init_ansible_ssh_hosts.sh脚本，初始化Ansible的SSH_HOST.cfg文件. **/
 		String mkSshHosts = ParamUtil.replace(
 				IdpsConstants.CREATE_ANSIBLE_HOSTS, new String[] {
 						basePath + "idps",
 						idpsResourcePool.getIdpsHostIp().replace(".", ""),
-						idpsResourcePool.getIdpsHostIp() });
+						idpsResourcePool.getIdpsHostIp() + ":" + idpsResourcePool.getSshPort() });
 		LOG.debug("---------mkSshHosts {}----------", mkSshHosts);
 		AgentUtil.executeCommand(basePath + mkSshHosts, AidUtil.getAid());
-
-		IpaasImageResource gmImage = getGmImage();
-		// 还得上传文件
-		in = IdpsSvImpl.class
-				.getResourceAsStream("/playbook/idps/ansible_run_image.sh");
+		
+		/** 上传ansible_run_image文件并授权 **/
+		in = IdpsSvImpl.class.getResourceAsStream("/playbook/idps/ansible_run_image.sh");
 		cnt = AgentUtil.readFileLines(in);
 		in.close();
-		AgentUtil
-				.uploadFile("idps/ansible_run_image.sh", cnt, AidUtil.getAid());
-		AgentUtil.executeCommand("chmod +x " + basePath
-				+ "idps/ansible_run_image.sh", AidUtil.getAid());
-		// 开始执行
+		AgentUtil.uploadFile("idps/ansible_run_image.sh", cnt, AidUtil.getAid());
+		AgentUtil.executeCommand("chmod +x " + basePath + "idps/ansible_run_image.sh", AidUtil.getAid());
+		
+		/** 开始执行 **/
+		IpaasImageResource gmImage = getGmImage();
 		String runImage = ParamUtil.replace(
 				IdpsConstants.DOCKER_4_GM_AND_TOMCAT,
 				new String[] {
@@ -931,39 +928,39 @@ public class IdpsSvImpl implements IIdpsSv {
 	private void startServer(IdpsResourcePool idpsResourcePool, String dssPId,
 			String dssServiceId, String dssServicePwd,String userId,String serviceId) throws Exception {
 		String basePath = AgentUtil.getAgentFilePath(AidUtil.getAid());
+		
 		// 1.先将需要执行镜像命令的机器配置文件上传上去。
 		InputStream in = IdpsSvImpl.class
 				.getResourceAsStream("/playbook/idps/init_ansible_ssh_hosts.sh");
 		String[] cnt = AgentUtil.readFileLines(in);
 		in.close();
-		AgentUtil.uploadFile("idps/init_ansible_ssh_hosts.sh", cnt,
-				AidUtil.getAid());
-		AgentUtil.executeCommand("chmod +x " + basePath
-				+ "idps/init_ansible_ssh_hosts.sh", AidUtil.getAid());
-		in = IdpsSvImpl.class
-				.getResourceAsStream("/playbook/idps/startidpscontainer.yml");
+		AgentUtil.uploadFile("idps/init_ansible_ssh_hosts.sh", cnt, AidUtil.getAid());
+		AgentUtil.executeCommand("chmod +x " + basePath + "idps/init_ansible_ssh_hosts.sh", AidUtil.getAid());
+		
+		in = IdpsSvImpl.class.getResourceAsStream("/playbook/idps/startidpscontainer.yml");
 		cnt = AgentUtil.readFileLines(in);
 		in.close();
 		AgentUtil.uploadFile("idps/startidpscontainer.yml", cnt, AidUtil.getAid());
+		
 		// 2.执行这个初始化命令
 		String mkSshHosts = ParamUtil.replace(
 				IdpsConstants.CREATE_ANSIBLE_HOSTS, new String[] {
 						basePath + "idps",
 						idpsResourcePool.getIdpsHostIp().replace(".", ""),
-						idpsResourcePool.getIdpsHostIp() });
+						idpsResourcePool.getIdpsHostIp() + ":" + idpsResourcePool.getSshPort()});
 		LOG.debug("---------mkSshHosts {}----------", mkSshHosts);
 		AgentUtil.executeCommand(basePath + mkSshHosts, AidUtil.getAid());
-		IpaasImageResource gmImage = getGmImage();
+		
 		// 还得上传文件
 		in = IdpsSvImpl.class
 				.getResourceAsStream("/playbook/idps/ansible_start_container.sh");
 		cnt = AgentUtil.readFileLines(in);
 		in.close();
-		AgentUtil
-				.uploadFile("idps/ansible_start_container.sh", cnt, AidUtil.getAid());
-		AgentUtil.executeCommand("chmod +x " + basePath
-				+ "idps/ansible_start_container.sh", AidUtil.getAid());
+		AgentUtil.uploadFile("idps/ansible_start_container.sh", cnt, AidUtil.getAid());
+		AgentUtil.executeCommand("chmod +x " + basePath + "idps/ansible_start_container.sh", AidUtil.getAid());
+		
 		// 开始执行
+		IpaasImageResource gmImage = getGmImage();
 		String runImage = ParamUtil.replace(
 				IdpsConstants.DOCKER_4_START_CONTAINER,
 				new String[] {
@@ -982,6 +979,7 @@ public class IdpsSvImpl implements IIdpsSv {
 		LOG.debug("---------runImage {}----------", runImage);
 		AgentUtil.executeCommand(basePath + runImage, AidUtil.getAid());
 	}
+	
 	/**
 	 * 停用单台图片容器
 	 * 
@@ -990,30 +988,31 @@ public class IdpsSvImpl implements IIdpsSv {
 	 */
 	private void stopServer(IdpsResourcePool idpsResourcePool, String dssPId,
 			String dssServiceId, String dssServicePwd,String userId,String serviceId) throws Exception {
+		
 		String basePath = AgentUtil.getAgentFilePath(AidUtil.getAid());
+		
 		// 1.先将需要执行镜像命令的机器配置文件上传上去。
 		InputStream in = IdpsSvImpl.class
 				.getResourceAsStream("/playbook/idps/init_ansible_ssh_hosts.sh");
 		String[] cnt = AgentUtil.readFileLines(in);
 		in.close();
-		AgentUtil.uploadFile("idps/init_ansible_ssh_hosts.sh", cnt,
-				AidUtil.getAid());
-		AgentUtil.executeCommand("chmod +x " + basePath
-				+ "idps/init_ansible_ssh_hosts.sh", AidUtil.getAid());
-		in = IdpsSvImpl.class
-				.getResourceAsStream("/playbook/idps/stopidpscontainer.yml");
+		AgentUtil.uploadFile("idps/init_ansible_ssh_hosts.sh", cnt, AidUtil.getAid());
+		AgentUtil.executeCommand("chmod +x " + basePath + "idps/init_ansible_ssh_hosts.sh", AidUtil.getAid());
+		
+		in = IdpsSvImpl.class.getResourceAsStream("/playbook/idps/stopidpscontainer.yml");
 		cnt = AgentUtil.readFileLines(in);
 		in.close();
 		AgentUtil.uploadFile("idps/stopidpscontainer.yml", cnt, AidUtil.getAid());
+		
 		// 2.执行这个初始化命令
 		String mkSshHosts = ParamUtil.replace(
 				IdpsConstants.CREATE_ANSIBLE_HOSTS, new String[] {
 						basePath + "idps",
 						idpsResourcePool.getIdpsHostIp().replace(".", ""),
-						idpsResourcePool.getIdpsHostIp() });
+						idpsResourcePool.getIdpsHostIp() + ":" + idpsResourcePool.getSshPort()});
 		LOG.debug("---------mkSshHosts {}----------", mkSshHosts);
 		AgentUtil.executeCommand(basePath + mkSshHosts, AidUtil.getAid());
-		IpaasImageResource gmImage = getGmImage();
+		
 		// 还得上传文件
 		in = IdpsSvImpl.class
 				.getResourceAsStream("/playbook/idps/ansible_stop_container.sh");
@@ -1023,20 +1022,20 @@ public class IdpsSvImpl implements IIdpsSv {
 				.uploadFile("idps/ansible_stop_container.sh", cnt, AidUtil.getAid());
 		AgentUtil.executeCommand("chmod +x " + basePath
 				+ "idps/ansible_stop_container.sh", AidUtil.getAid());
+		
 		// 开始执行
+		IpaasImageResource gmImage = getGmImage();
 		String runImage = ParamUtil.replace(
 				IdpsConstants.DOCKER_4_STOP_CONTAINER,
-				new String[] {
-						"",
+				new String[] { "",
 						idpsResourcePool.getIdpsHostIp().replace(".", ""),
 						idpsResourcePool.getSshUser(),
 						idpsResourcePool.getSshPassword(),
 						idpsResourcePool.getIdpsHostIp(),
-						gmImage.getImageRepository() + "/"
-								+ gmImage.getImageName(),
+						gmImage.getImageRepository() + "/" + gmImage.getImageName(),
 						idpsResourcePool.getIdpsPort() + "",
-						getSysConf(IdpsConstants.AUTH_TABLE_CODE,
-								IdpsConstants.AUTH_FIELD_CODE), dssPId,
+						getSysConf(IdpsConstants.AUTH_TABLE_CODE, IdpsConstants.AUTH_FIELD_CODE), 
+						dssPId,
 						dssServiceId, dssServicePwd, basePath + "idps" ,
 						"idps_"+userId+"_"+serviceId});
 		LOG.debug("---------runImage {}----------", runImage);
@@ -1051,54 +1050,51 @@ public class IdpsSvImpl implements IIdpsSv {
 	 */
 	private void deleteServer(IdpsResourcePool idpsResourcePool, String dssPId,
 			String dssServiceId, String dssServicePwd,String userId,String serviceId) throws Exception {
+		
 		String basePath = AgentUtil.getAgentFilePath(AidUtil.getAid());
+		
 		// 1.先将需要执行镜像命令的机器配置文件上传上去。
 		InputStream in = IdpsSvImpl.class
 				.getResourceAsStream("/playbook/idps/init_ansible_ssh_hosts.sh");
 		String[] cnt = AgentUtil.readFileLines(in);
 		in.close();
-		AgentUtil.uploadFile("idps/init_ansible_ssh_hosts.sh", cnt,
-				AidUtil.getAid());
-		AgentUtil.executeCommand("chmod +x " + basePath
-				+ "idps/init_ansible_ssh_hosts.sh", AidUtil.getAid());
-		in = IdpsSvImpl.class
-				.getResourceAsStream("/playbook/idps/deleteidpscontainer.yml");
+		AgentUtil.uploadFile("idps/init_ansible_ssh_hosts.sh", cnt, AidUtil.getAid());
+		AgentUtil.executeCommand("chmod +x " + basePath + "idps/init_ansible_ssh_hosts.sh", AidUtil.getAid());
+		
+		in = IdpsSvImpl.class.getResourceAsStream("/playbook/idps/deleteidpscontainer.yml");
 		cnt = AgentUtil.readFileLines(in);
 		in.close();
 		AgentUtil.uploadFile("idps/deleteidpscontainer.yml", cnt, AidUtil.getAid());
+		
 		// 2.执行这个初始化命令
 		String mkSshHosts = ParamUtil.replace(
 				IdpsConstants.CREATE_ANSIBLE_HOSTS, new String[] {
 						basePath + "idps",
 						idpsResourcePool.getIdpsHostIp().replace(".", ""),
-						idpsResourcePool.getIdpsHostIp() });
+						idpsResourcePool.getIdpsHostIp() + ":" + idpsResourcePool.getSshPort()});
 		LOG.debug("---------mkSshHosts {}----------", mkSshHosts);
 		AgentUtil.executeCommand(basePath + mkSshHosts, AidUtil.getAid());
-		IpaasImageResource gmImage = getGmImage();
+		
 		// 还得上传文件
-		in = IdpsSvImpl.class
-				.getResourceAsStream("/playbook/idps/ansible_delete_container.sh");
+		in = IdpsSvImpl.class.getResourceAsStream("/playbook/idps/ansible_delete_container.sh");
 		cnt = AgentUtil.readFileLines(in);
 		in.close();
-		AgentUtil
-				.uploadFile("idps/ansible_delete_container.sh", cnt, AidUtil.getAid());
-		AgentUtil.executeCommand("chmod +x " + basePath
-				+ "idps/ansible_delete_container.sh", AidUtil.getAid());
+		AgentUtil.uploadFile("idps/ansible_delete_container.sh", cnt, AidUtil.getAid());
+		AgentUtil.executeCommand("chmod +x " + basePath + "idps/ansible_delete_container.sh", AidUtil.getAid());
+		
 		// 开始执行
+		IpaasImageResource gmImage = getGmImage();
 		String runImage = ParamUtil.replace(
 				IdpsConstants.DOCKER_4_DELETE_CONTAINER,
-				new String[] {
-						"",
+				new String[] {"",
 						idpsResourcePool.getIdpsHostIp().replace(".", ""),
 						idpsResourcePool.getSshUser(),
 						idpsResourcePool.getSshPassword(),
 						idpsResourcePool.getIdpsHostIp(),
-						gmImage.getImageRepository() + "/"
-								+ gmImage.getImageName(),
+						gmImage.getImageRepository() + "/" + gmImage.getImageName(),
 						idpsResourcePool.getIdpsPort() + "",
-						getSysConf(IdpsConstants.AUTH_TABLE_CODE,
-								IdpsConstants.AUTH_FIELD_CODE), dssPId,
-						dssServiceId, dssServicePwd, basePath + "idps" ,
+						getSysConf(IdpsConstants.AUTH_TABLE_CODE, IdpsConstants.AUTH_FIELD_CODE), 
+						dssPId, dssServiceId, dssServicePwd, basePath + "idps" ,
 						"idps_"+userId+"_"+serviceId});
 		LOG.debug("---------runImage {}----------", runImage);
 		AgentUtil.executeCommand(basePath + runImage, AidUtil.getAid());
@@ -1138,8 +1134,7 @@ public class IdpsSvImpl implements IIdpsSv {
 		idpsUserInstance.setIdpsHostPort(port);
 		idpsUserInstance.setStatus(IdpsConstants.VALIDATE_STATUS);
 		idpsUserInstance.setUserId(userId);
-		idpsUserInstance
-				.setBeginTime(new Timestamp(System.currentTimeMillis()));
+		idpsUserInstance.setBeginTime(new Timestamp(System.currentTimeMillis()));
 		idpsUserInstance.setType(type);
 		return addInstance(idpsUserInstance);
 	}
